@@ -1,0 +1,12 @@
+# These libraries are known to "leak" some memory on exit.
+leak:libfontconfig
+leak:libX11
+leak:libc
+leak:libglib
+leak:libQt5Core
+leak:libQt5Widgets
+leak:libQt5Gui
+leak:libQt5DBus
+leak:libdbus-1
+leak:libqgtk3
+leak:libxcb
