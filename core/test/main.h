@@ -14,6 +14,7 @@
 #include <memory>
 #include <map>
 #include <string>
+#include <iostream>
 
 namespace TestCollector {
     /**
@@ -57,7 +58,7 @@ namespace TestCollector {
     template<class T>
     class TestRegistrator {
     public:
-        TestRegistrator()
+        TestRegistrator() noexcept
         {
             auto& testList = TestCollector::getTestList();
             testList.insert(std::make_unique<T>());
