@@ -3,8 +3,9 @@ project(novelist_core)
 
 add_library(novelist_core
         SHARED
-            src/novelist/model/ProjectModel.cpp include/novelist/model/ProjectModel.h src/novelist/lang/Language.cpp include/novelist/lang/Language.h
-        )
+        src/novelist/lang/Language.cpp include/novelist/lang/Language.h
+        src/novelist/model/ProjectModel.cpp include/novelist/model/ProjectModel.h
+        include/novelist/datastructures/Tree.h include/novelist/functional/Overloaded.h)
 
 target_include_directories(novelist_core
         PUBLIC
@@ -16,6 +17,7 @@ target_link_libraries(novelist_core
             Qt5::Core
             Qt5::Widgets
             Qt5::Gui
+            GSL
         )
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")

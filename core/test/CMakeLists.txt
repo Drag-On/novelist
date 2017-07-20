@@ -4,8 +4,8 @@ project(novelist_core_test)
 enable_testing()
 
 add_executable(novelist_core_test
-        main.cpp main.h lang/LanguageTests.cpp model/ProjectModelTests.cpp
-        )
+        main.cpp
+        datastructures/TreeTest.cpp model/ProjectModelTest.cpp)
 
 target_include_directories(novelist_core_test
         PUBLIC
@@ -15,7 +15,7 @@ target_include_directories(novelist_core_test
 target_link_libraries(novelist_core_test
         PRIVATE
             novelist_core
-            Qt5::Test
+            Catch
         )
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")

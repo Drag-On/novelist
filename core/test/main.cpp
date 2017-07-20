@@ -7,10 +7,5 @@
  * @details
  **********************************************************/
 
-#include <iostream>
-#include "main.h"
-
-int main(int argc, char* argv[])
-{
-    return TestCollector::runAll(argc, argv);
-}
+#define CATCH_CONFIG_MAIN
+#include <catch.hpp>

@@ -1,285 +1,387 @@
 /**********************************************************
  * @file   ProjectModel.cpp
  * @author jan
- * @date   17.06.17
+ * @date   24.06.17
  * ********************************************************
  * @brief
  * @details
  **********************************************************/
 
+#include <gsl/gsl>
+#include <QtCore/QTextStream>
 #include <QDebug>
-#include <QFile>
-#include <QUuid>
-#include <QTextDocument>
-#include <QStack>
-#include <QTextDocumentWriter>
+#include "functional/Overloaded.h"
 #include "model/ProjectModel.h"
 
 namespace novelist {
     ProjectModel::ProjectModel() noexcept
-            :ProjectModel(nullptr, "", "", Language("en_EN"))
+            :ProjectModel(ProjectProperties{})
     {
+        // These types must be movable such that they
+        static_assert(std::is_move_constructible_v<InvisibleRootData> && std::is_move_assignable_v<InvisibleRootData>,
+                "InvisibleRootData must be movable");
+        static_assert(std::is_move_constructible_v<ProjectHeadData> && std::is_move_assignable_v<ProjectHeadData>,
+                "ProjectHeadData must be movable");
+        static_assert(std::is_move_constructible_v<NotebookHeadData> && std::is_move_assignable_v<NotebookHeadData>,
+                "NotebookHeadData must be movable");
+        static_assert(std::is_move_constructible_v<SceneData> && std::is_move_assignable_v<SceneData>,
+                "SceneData must be movable");
+        static_assert(std::is_move_constructible_v<ChapterData> && std::is_move_assignable_v<ChapterData>,
+                "ChapterData must be movable");
+
+        static_assert(std::is_move_constructible_v<Node> && std::is_move_assignable_v<Node>,
+                "Node must be movable");
     }
 
-    ProjectModel::ProjectModel(QObject* parent, QString const& name, QString author,
-            Language lang) noexcept
-            :QStandardItemModel(parent),
-             m_author(std::move(author)),
-             m_lang(std::move(lang))
+    ProjectModel::ProjectModel(ProjectProperties const& properties, QObject* parent) noexcept
+            :QAbstractItemModel(parent)
     {
-        // Load icons
-        initIcons();
-
-        // Add (visible) root
-        QStandardItem* root = createProjectRoot();
-        root->setText(name);
+        createRootNodes(properties);
     }
 
-    ProjectModel::ProjectModel(QObject* parent, QString const& filename)
-            :QStandardItemModel(parent)
+    ProjectProperties const& ProjectModel::properties() const
     {
-        // Load icons
-        initIcons();
-
-        // Try to open project from file
-        if (!read(filename))
-            qWarning() << filename << "is not a valid project.";
+        return std::get<ProjectHeadData>(m_root[0].m_data).m_properties;
     }
 
-    bool ProjectModel::read(QString const& filename)
+    void ProjectModel::setProperties(ProjectProperties const& properties)
     {
-        // Clear previous data
-        clear();
+        std::get<ProjectHeadData>(m_root[0].m_data).m_properties = properties;
+    }
 
-        // Add root item
-        createProjectRoot();
+    QModelIndex ProjectModel::projectRootIndex() const
+    {
+        return index(0, 0, QModelIndex());
+    }
 
-        // Read in project model
-        QFile file(filename + "/project.xml");
-        file.open(QIODevice::ReadOnly);
+    QModelIndex ProjectModel::notebookIndex() const
+    {
+        return index(1, 0, QModelIndex());
+    }
 
-        QXmlStreamReader xml(&file);
-        if (xml.readNextStartElement()) {
-            if (xml.name() == "novel" && xml.attributes().value("version") == "1.0")
-                if (readInternal(xml, filename))
-                    return true;
+    QModelIndex ProjectModel::index(int row, int column, QModelIndex const& parent) const
+    {
+        if (!hasIndex(row, column, parent))
+            return QModelIndex{};
+
+        Node const* parentItem = &m_root;
+        if (parent.isValid())
+            parentItem = static_cast<Node*>(parent.internalPointer());
+
+        Node const& childItem = parentItem->at(row);
+        return createIndex(row, column, const_cast<Node*>(&childItem));
+    }
+
+    QModelIndex ProjectModel::parent(QModelIndex const& child) const
+    {
+        if (!child.isValid())
+            return QModelIndex{};
+
+        auto* childItem = static_cast<Node*>(child.internalPointer());
+        Node const* parentItem = childItem->parent();
+
+        if (parentItem == &m_root)
+            return QModelIndex{};
+
+        return createIndex(computeParentIndex(*parentItem), 0, const_cast<Node*>(parentItem));
+    }
+
+    int ProjectModel::rowCount(QModelIndex const& parent) const
+    {
+        Node const* parentItem = &m_root;
+        if (parent.isValid())
+            parentItem = static_cast<Node*>(parent.internalPointer());
+
+        return gsl::narrow_cast<int>(parentItem->size());
+    }
+
+    int ProjectModel::columnCount(QModelIndex const& /*parent*/) const
+    {
+        return 1;
+    }
+
+    QVariant ProjectModel::data(QModelIndex const& index, int role) const
+    {
+        if (!index.isValid())
+            return QVariant{};
+
+        auto* item = static_cast<Node*>(index.internalPointer());
+
+        if (role == Qt::DisplayRole)
+            return std::visit(Overloaded {
+                    [](auto const&) { return QVariant{}; },
+                    [](ProjectHeadData const& arg) { return QVariant{arg.m_properties.m_name}; },
+                    [](NotebookHeadData const&) { return QVariant{tr("Notebook")}; },
+                    [](SceneData const& arg) { return QVariant{arg.m_name}; },
+                    [](ChapterData const& arg) { return QVariant{arg.m_name}; },
+            }, item->m_data);
+
+        return QVariant{};
+    }
+
+    bool ProjectModel::setData(QModelIndex const& index, QVariant const& value, int role)
+    {
+        if (index.isValid() && role == Qt::EditRole) {
+
+            auto* item = static_cast<Node*>(index.internalPointer());
+            std::visit(Overloaded {
+                    [](auto&) { },
+                    [&value](ProjectHeadData& arg) { arg.m_properties.m_name = value.toString(); },
+                    [&value](SceneData& arg) { arg.m_name = value.toString(); },
+                    [&value](ChapterData& arg) { arg.m_name = value.toString(); },
+            }, item->m_data);
+            emit dataChanged(index, index);
+            return true;
         }
-        if (xml.hasError())
-            qWarning() << "Error while reading project file." << xml.errorString() << "At line" << xml.lineNumber()
-                       << ", column" << xml.columnNumber() << ", character offset" << xml.characterOffset();
-
         return false;
     }
 
-    bool ProjectModel::write(QString const& filename)
+    QVariant ProjectModel::headerData(int /*section*/, Qt::Orientation /*orientation*/, int /*role*/) const
     {
-        QFile file(filename + "/project.xml");
-        if (!file.open(QIODevice::WriteOnly))
+        return QVariant{};
+    }
+
+    Qt::ItemFlags ProjectModel::flags(QModelIndex const& index) const
+    {
+        if (!index.isValid())
+            return Qt::ItemIsEnabled;
+
+        Qt::ItemFlags flags = QAbstractItemModel::flags(index);
+
+        auto* item = static_cast<Node*>(index.internalPointer());
+        if (nodeType(*item) == NodeTypeInternal::Scene || nodeType(*item) == NodeTypeInternal::Chapter)
+            flags |= Qt::ItemIsEditable;
+
+        return flags;
+    }
+
+    bool ProjectModel::canInsert(QModelIndex const& parent) const
+    {
+        if (!parent.isValid())
             return false;
 
-        QStandardItem* root = invisibleRootItem()->child(0);
+        auto* item = static_cast<Node*>(parent.internalPointer());
+        return nodeType(*item) == NodeTypeInternal::Chapter || nodeType(*item) == NodeTypeInternal::ProjectHead
+                || nodeType(*item) == NodeTypeInternal::NotebookHead;
+    }
 
-        // Write project xml file
-        //
-        QXmlStreamWriter xml(&file);
-        xml.setAutoFormatting(true);
+    bool ProjectModel::canRemove(QModelIndex const& parent) const
+    {
+        if (!parent.isValid())
+            return false;
 
-        xml.writeStartDocument();
-        xml.writeDTD("<!DOCTYPE novel>");
-        xml.writeStartElement("novel");
-        xml.writeAttribute("version", "1.0");
+        auto* item = static_cast<Node*>(parent.internalPointer());
+        return nodeType(*item) != NodeTypeInternal::InvisibleRoot;
+    }
 
-        // Write project root information
-        xml.writeStartElement("meta");
-        xml.writeAttribute("name", root->text());
-        xml.writeAttribute("author", m_author);
-        xml.writeAttribute("lang", m_lang.shortname());
-        xml.writeEndElement();
+    bool ProjectModel::insertRow(int row, ProjectModel::NodeType type, QString const& name, QModelIndex const& parent)
+    {
+        return insertRows(row, 1, type, name, parent);
+    }
 
-        // Write chapters and documents
-        xml.writeStartElement("content");
-        for (int r = 0; r < root->rowCount(); ++r)
-            writeChapterDoc(xml, root->child(r));
-        xml.writeEndElement();
+    bool ProjectModel::insertRows(int row, int count, NodeType type, QString const& name, QModelIndex const& parent)
+    {
+        auto* item = static_cast<Node*>(parent.internalPointer());
 
-        xml.writeEndDocument();
+        Expects(row >= 0);
+        Expects(static_cast<size_t>(row) <= item->size());
 
-        // Write all documents to ./content/*
-        //
-        QStack<QStandardItem*> itemStack;
-        for (int i = 0; i < root->rowCount(); ++i)
-            itemStack.push_back(root->child(i));
-        while (!itemStack.isEmpty()) {
-            QStandardItem* item = itemStack.pop();
-            NodeType type = item->data(NodeTypeRole).value<NodeType>();
-            if (type == NodeType::Document) {
-                QTextDocument* doc = reinterpret_cast<QTextDocument*>(item->data(DocumentRole).value<quintptr>());
-                QUuid uid = item->data(UIDRole).value<QUuid>();
-                QTextDocumentWriter writer(filename + "/content/" + uid.toString() + ".html", "HTML");
-                writer.write(doc);
-            }
-            else if (type == NodeType::Chapter) {
-                for (int i = 0; i < item->rowCount(); ++i)
-                    itemStack.push_back(item->child(i));
-            }
+        // Can't add children to scenes or the invisible root node
+        if (!canInsert(parent))
+            return false;
+
+        beginInsertRows(QModelIndex(), row, row + count - 1);
+        for (int r = 0; r < count; ++r)
+            item->emplace(item->begin() + row, makeNodeData(type, name));
+
+        endInsertRows();
+        return true;
+    }
+
+    bool ProjectModel::removeRows(int row, int count, QModelIndex const& parent)
+    {
+        auto* item = static_cast<Node*>(parent.internalPointer());
+
+        if (count <= 0)
+            return false;
+
+        Expects(row >= 0);
+        Expects(count >= 0);
+        Expects(item->size() > static_cast<size_t>(row));
+
+        if (!canRemove(parent))
+            return false;
+
+        beginRemoveRows(QModelIndex(), row, row + count - 1);
+
+        for (int r = 0; r < count; ++r)
+            item->erase(item->begin() + row);
+
+        endRemoveRows();
+        return true;
+    }
+
+    void ProjectModel::clear()
+    {
+        beginResetModel();
+        removeRows(0, gsl::narrow_cast<int>(m_root.at(0).size()), projectRootIndex());
+        removeRows(0, gsl::narrow_cast<int>(m_root.at(1).size()), notebookIndex());
+        endResetModel();
+    }
+
+    bool ProjectModel::moveRows(QModelIndex const& sourceParent, int sourceRow, int count,
+            QModelIndex const& destinationParent, int destinationChild)
+    {
+        Q_ASSERT(sourceRow >= 0);
+        Q_ASSERT(destinationChild >= 0);
+        Q_ASSERT(count > 0);
+
+        if (!sourceParent.isValid() || !destinationParent.isValid())
+            return false;
+
+        if (!canInsert(destinationParent) || !canRemove(sourceParent))
+            return false;
+
+        auto* srcParent = static_cast<Node*>(sourceParent.internalPointer());
+        auto* destParent = static_cast<Node*>(destinationParent.internalPointer());
+
+        if (sourceParent == destinationParent && destinationChild >= sourceRow && destinationChild <= sourceRow + count)
+            return false;
+
+        for (int i = 0; i < count; ++i) {
+            if (destParent->inSubtreeOf(srcParent->at(sourceRow + i)) || destParent == &srcParent->at(sourceRow + i))
+                return false;
         }
+
+        beginMoveRows(sourceParent, sourceRow, sourceRow + count - 1, destinationParent, destinationChild);
+
+        for (int i = 0; i < count; ++i)
+            srcParent->move(sourceRow, *destParent, destinationChild + i);
+
+        endMoveRows();
 
         return true;
     }
 
-    QString ProjectModel::name() const
+    bool ProjectModel::read(QFile& file)
     {
-        Q_ASSERT(invisibleRootItem()->hasChildren());
-        Q_ASSERT(invisibleRootItem()->rowCount() == 1);
+        file.open(QIODevice::ReadOnly | QIODevice::Text);
+        QString xml = file.readAll();
+        file.close();
 
-        QStandardItem* root = invisibleRootItem()->child(0);
-
-        return root->text();
+        return read(xml);
     }
 
-    void ProjectModel::setName(QString const& name)
+    bool ProjectModel::read(QString const& xml)
     {
-        Q_ASSERT(invisibleRootItem()->hasChildren());
-        Q_ASSERT(invisibleRootItem()->rowCount() == 1);
+        // Clear previous data
+        clear();
 
-        QStandardItem* root = invisibleRootItem()->child(0);
-        root->setText(name);
+        QXmlStreamReader xmlReader(xml);
+        if (xmlReader.readNextStartElement()) {
+            if (xmlReader.name() == "novel" && xmlReader.attributes().value("version") == "1.0")
+                if (readInternal(xmlReader))
+                    return true;
+        }
+        if (xmlReader.hasError())
+            qWarning() << "Error while reading project file." << xmlReader.errorString() << "At line"
+                       << xmlReader.lineNumber() << ", column" << xmlReader.columnNumber() << ", character offset"
+                       << xmlReader.characterOffset();
+
+        return false;
     }
 
-    QString ProjectModel::author() const
+    bool ProjectModel::write(QFile& file) const
     {
-        return m_author;
+        QString xml;
+        if (!write(xml))
+            return false;
+
+        if (!file.open(QIODevice::WriteOnly))
+            return false;
+
+        QTextStream stream(&file);
+        stream << xml;
+
+        return false;
     }
 
-    void ProjectModel::setAuthor(QString const& author)
+    bool ProjectModel::write(QString& xml) const
     {
-        m_author = author;
+        // Write project xml file
+        //
+        QXmlStreamWriter xmlWriter(&xml);
+        xmlWriter.setAutoFormatting(true);
+
+        xmlWriter.writeStartDocument();
+        xmlWriter.writeDTD("<!DOCTYPE novel>");
+        xmlWriter.writeStartElement("novel");
+        xmlWriter.writeAttribute("version", "1.0");
+
+        // Write project root information
+        xmlWriter.writeStartElement("meta");
+        xmlWriter.writeAttribute("name", properties().m_name);
+        xmlWriter.writeAttribute("author", properties().m_author);
+        xmlWriter.writeAttribute("lang", properties().m_lang.shortname());
+        xmlWriter.writeEndElement();
+
+        // Write project chapters and scenes
+        xmlWriter.writeStartElement("content");
+        for (int r = 0; r < rowCount(projectRootIndex()); ++r)
+            writeChapterOrScene(xmlWriter, projectRootIndex().child(r, 0));
+        xmlWriter.writeEndElement();
+
+        // Write notebook
+        xmlWriter.writeStartElement("notebook");
+        for (int r = 0; r < rowCount(notebookIndex()); ++r)
+            writeChapterOrScene(xmlWriter, notebookIndex().child(r, 0));
+        xmlWriter.writeEndElement();
+
+        xmlWriter.writeEndDocument();
+
+        return true;
     }
 
-    Language ProjectModel::lang() const
+    std::ostream& operator<<(std::ostream& stream, ProjectModel const& model)
     {
-        return m_lang;
+        stream << model.m_root;
+        return stream;
     }
 
-    void ProjectModel::setLang(Language const& lang)
+    void ProjectModel::createRootNodes(ProjectProperties const& properties)
     {
-        m_lang = lang;
+        m_root.emplace_back(ProjectHeadData{properties});
+        m_root.emplace_back(NotebookHeadData{});
     }
 
-    QStandardItem* ProjectModel::projectRoot()
-    {
-        Q_ASSERT(invisibleRootItem()->hasChildren());
-        Q_ASSERT(invisibleRootItem()->rowCount() == 1);
-
-        return invisibleRootItem()->child(0);
-    }
-
-    QModelIndex ProjectModel::createChapter(QModelIndex const& idx, QString const& name)
-    {
-        QStandardItem* item = itemFromIndex(idx);
-        QStandardItem* parent = item->parent();
-
-        QStandardItem* newChapter = createChapterItem(name);
-
-        // If the selected node is the (visible) root node, append new chapter
-        if (parent == invisibleRootItem() || parent == nullptr)
-            invisibleRootItem()->child(0)->appendRow(newChapter);
-        else
-            parent->insertRow(item->row() + 1, newChapter);
-
-        return indexFromItem(newChapter);
-    }
-
-    QModelIndex ProjectModel::createChapter(QString const& name)
-    {
-        Q_ASSERT(invisibleRootItem()->hasChildren());
-        Q_ASSERT(invisibleRootItem()->rowCount() == 1);
-
-        QStandardItem* root = invisibleRootItem()->child(0);
-
-        // Add item to the end
-        QStandardItem* newChapter = createChapterItem(name);
-        root->appendRow(newChapter);
-
-        return indexFromItem(newChapter);
-    }
-
-    QModelIndex ProjectModel::createDocument(QModelIndex const& idx, QString const& name)
-    {
-        QStandardItem* item = itemFromIndex(idx);
-        QStandardItem* parent = item->parent();
-
-        QStandardItem* newDoc = createDocumentItem(name, QUuid::createUuid());
-
-        // If the selected node is the (visible) root node, append new chapter
-        if (parent == invisibleRootItem() || parent == nullptr)
-            invisibleRootItem()->child(0)->appendRow(newDoc);
-        else
-            parent->insertRow(item->row() + 1, newDoc);
-
-        return indexFromItem(newDoc);
-    }
-
-    QModelIndex ProjectModel::createDocument(QString const& name)
-    {
-        Q_ASSERT(invisibleRootItem()->hasChildren());
-        Q_ASSERT(invisibleRootItem()->rowCount() == 1);
-
-        QStandardItem* root = invisibleRootItem()->child(0);
-
-        // Add item to the end
-        QStandardItem* newDoc = createDocumentItem(name, QUuid::createUuid());
-        root->appendRow(newDoc);
-
-        return indexFromItem(newDoc);
-    }
-
-    QStandardItem* ProjectModel::createProjectRoot()
-    {
-        auto* root = new QStandardItem();
-        root->setIcon(m_iconRoot);
-        root->setData(QVariant::fromValue(NodeType::ProjectRoot), NodeTypeRole);
-        root->setDragEnabled(false);
-        invisibleRootItem()->appendRow(root);
-        invisibleRootItem()->setDropEnabled(false);
-
-        return root;
-    }
-
-    QStandardItem* ProjectModel::createDocumentItem(QString const& name, QUuid const& uid)
-    {
-        auto* newDoc = new QStandardItem();
-        newDoc->setText(name);
-        newDoc->setIcon(m_iconDocument);
-        newDoc->setData(QVariant::fromValue(NodeType::Document), NodeTypeRole);
-        newDoc->setData(QVariant::fromValue(uid), UIDRole);
-        newDoc->setData(QVariant::fromValue(reinterpret_cast<quintptr>(new QTextDocument(this))), DocumentRole);
-        newDoc->setDropEnabled(false);
-        return newDoc;
-    }
-
-    QStandardItem* ProjectModel::createChapterItem(QString const& name)
-    {
-        auto* newChapter = new QStandardItem();
-        newChapter->setText(name);
-        newChapter->setIcon(m_iconChapter);
-        newChapter->setData(QVariant::fromValue(NodeType::Chapter), NodeTypeRole);
-
-        return newChapter;
-    }
-
-    bool ProjectModel::readInternal(QXmlStreamReader& xml, QString const& filename)
+    bool ProjectModel::readInternal(QXmlStreamReader& xml)
     {
         Q_ASSERT(xml.isStartElement() && xml.name() == "novel");
 
         while (xml.readNextStartElement()) {
             if (xml.name() == "meta") {
-                if (!readMeta(xml))
-                    return false;
+                ProjectProperties properties;
+                if (xml.attributes().hasAttribute("name"))
+                    properties.m_name = xml.attributes().value("name").toString();
+                if (xml.attributes().hasAttribute("author"))
+                    properties.m_author = xml.attributes().value("author").toString();
+                if (xml.attributes().hasAttribute("lang"))
+                    properties.m_lang = Language(xml.attributes().value("lang").toString());
+                setProperties(properties);
+
+                xml.skipCurrentElement();
             }
             else if (xml.name() == "content") {
-                if (!readContent(xml, filename))
-                    return false;
+                while (xml.readNextStartElement()) {
+                    if (!readChapterOrScene(xml, projectRootIndex()))
+                        return false;
+                }
+            }
+            else if (xml.name() == "notebook") {
+                while (xml.readNextStartElement()) {
+                    if (!readChapterOrScene(xml, notebookIndex()))
+                        return false;
+                }
             }
             else
                 xml.skipCurrentElement();
@@ -287,76 +389,36 @@ namespace novelist {
         return true;
     }
 
-    bool ProjectModel::readMeta(QXmlStreamReader& xml)
+    bool ProjectModel::readChapterOrScene(QXmlStreamReader& xml, QModelIndex parent)
     {
-        Q_ASSERT(xml.isStartElement() && xml.name() == "meta");
-        Q_ASSERT(invisibleRootItem()->hasChildren());
-        Q_ASSERT(invisibleRootItem()->rowCount() == 1);
-
-        QStandardItem* root = invisibleRootItem()->child(0);
-
-        if (xml.attributes().hasAttribute("name"))
-            root->setText(xml.attributes().value("name").toString());
-        if (xml.attributes().hasAttribute("author"))
-            m_author = xml.attributes().value("author").toString();
-        if (xml.attributes().hasAttribute("lang"))
-            m_lang = Language(xml.attributes().value("lang").toString());
-
-        xml.skipCurrentElement();
-
-        return true;
-    }
-
-    bool ProjectModel::readContent(QXmlStreamReader& xml, QString const& filename)
-    {
-        Q_ASSERT(xml.isStartElement() && xml.name() == "content");
-        Q_ASSERT(invisibleRootItem()->hasChildren());
-        Q_ASSERT(invisibleRootItem()->rowCount() == 1);
-
-        QStandardItem* root = invisibleRootItem()->child(0);
-
-        while (xml.readNextStartElement()) {
-            if (!readChapterDoc(xml, indexFromItem(root), filename))
-                return false;
-        }
-
-        return true;
-    }
-
-    bool ProjectModel::readChapterDoc(QXmlStreamReader& xml, QModelIndex parent, QString const& filename)
-    {
-        Q_ASSERT(xml.isStartElement() && (xml.name() == "chapter" || xml.name() == "document"));
+        Q_ASSERT(xml.isStartElement() && (xml.name() == "chapter" || xml.name() == "scene"));
         Q_ASSERT(parent.isValid());
+
+        int idx = rowCount(parent);
 
         if (xml.name() == "chapter") {
             QString name;
             if (xml.attributes().hasAttribute("name"))
                 name = xml.attributes().value("name").toString();
-            QStandardItem* chapter = createChapterItem(name);
-            itemFromIndex(parent)->appendRow(chapter);
+            insertRow(idx, NodeType::Chapter, name, parent);
             while (xml.readNextStartElement()) {
-                if (!readChapterDoc(xml, indexFromItem(chapter), filename))
+                if (!readChapterOrScene(xml, index(idx, 0, parent)))
                     return false;
             }
         }
-        else if (xml.name() == "document") {
+        else if (xml.name() == "scene") {
             QString name;
             QUuid uid;
             if (xml.attributes().hasAttribute("name"))
                 name = xml.attributes().value("name").toString();
             if (xml.attributes().hasAttribute("uid"))
                 uid = QUuid(xml.attributes().value("uid").toString());
-            QStandardItem* doc = createDocumentItem(name, uid);
 
-            // Read in document content
-            QFile file(filename + "/content/" + uid.toString() + ".html");
-            if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-                QString text = file.readAll();
-                QTextDocument* docPtr = reinterpret_cast<QTextDocument*>(doc->data(DocumentRole).value<quintptr>());
-                docPtr->setHtml(text);
-            }
+            insertRow(idx, NodeType::Scene, name, parent);
+            auto* node = &static_cast<Node*>(parent.internalPointer())->at(idx);
+            auto& scene = std::get<SceneData>(node->m_data);
+            scene.m_uuid = uid;
 
-            itemFromIndex(parent)->appendRow(doc);
             xml.skipCurrentElement();
         }
         else {
@@ -366,54 +428,97 @@ namespace novelist {
         return true;
     }
 
-    void ProjectModel::writeChapterDoc(QXmlStreamWriter& xml, QStandardItem const* pItem)
+    void ProjectModel::writeChapterOrScene(QXmlStreamWriter& xml, QModelIndex item) const
     {
-        auto type = pItem->data(NodeTypeRole).value<NodeType>();
+        auto const* node = static_cast<Node const*>(item.internalPointer());
+        auto const& data = node->m_data;
+        switch(nodeType(data))
+        {
+            case NodeTypeInternal::Chapter: {
+                xml.writeStartElement("chapter");
+                xml.writeAttribute("name", std::get<ChapterData>(data).m_name);
+                for (size_t r = 0; r < node->size(); ++r)
+                    writeChapterOrScene(xml, index(r, 0, item));
+                xml.writeEndElement();
+                break;
+            }
+            case NodeTypeInternal::Scene: {
+                xml.writeStartElement("scene");
+                xml.writeAttribute("name", std::get<SceneData>(data).m_name);
+                xml.writeAttribute("uid", std::get<SceneData>(data).m_uuid.toString());
+                xml.writeEndElement();
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    int ProjectModel::computeParentIndex(Node const& n) const
+    {
+        if (n.parent()) {
+            auto iter = std::find(n.parent()->begin(), n.parent()->end(), n);
+            if (iter != n.parent()->end())
+                return gsl::narrow_cast<int>(std::distance(n.parent()->begin(), iter));
+        }
+        return -1;
+    }
+
+    ProjectModel::NodeTypeInternal ProjectModel::nodeType(Node const& n)
+    {
+        return nodeType(n.m_data);
+    }
+
+    ProjectModel::NodeTypeInternal ProjectModel::nodeType(NodeData const& nodeData)
+    {
+        if (std::holds_alternative<InvisibleRootData>(nodeData))
+            return NodeTypeInternal::InvisibleRoot;
+        else if (std::holds_alternative<ProjectHeadData>(nodeData))
+            return NodeTypeInternal::ProjectHead;
+        else if (std::holds_alternative<NotebookHeadData>(nodeData))
+            return NodeTypeInternal::NotebookHead;
+        else if (std::holds_alternative<SceneData>(nodeData))
+            return NodeTypeInternal::Scene;
+        else if (std::holds_alternative<ChapterData>(nodeData))
+            return NodeTypeInternal::Chapter;
+
+        throw std::runtime_error{"Should never get here. Probably forgot to update switch statement."};
+    }
+
+    ProjectModel::NodeData ProjectModel::makeNodeData(NodeType type, QString const& name) const
+    {
         switch (type) {
-        case NodeType::Chapter: {
-            xml.writeStartElement("chapter");
-            xml.writeAttribute("name", pItem->text());
-            for (int r = 0; r < pItem->rowCount(); ++r)
-                writeChapterDoc(xml, pItem->child(r));
-            xml.writeEndElement();
-            break;
+            case NodeType::Chapter:
+                return ChapterData{name, QUuid{}};
+            case NodeType::Scene:
+                return SceneData {name, QUuid{}};
         }
-        case NodeType::Document: {
-            xml.writeStartElement("document");
-            xml.writeAttribute("name", pItem->text());
-            xml.writeAttribute("uid", pItem->data(UIDRole).toString());
-            xml.writeEndElement();
-            break;
-        }
-        default:
-            break;
-        }
+
+        throw std::runtime_error{"Should never get here. Probably forgot to update switch statement."};
     }
 
-    void ProjectModel::initIcons()
+    std::ostream& operator<<(std::ostream& stream, ProjectModel::NodeData const& nodeData)
     {
-        QString const rootIconTheme = QStringLiteral("go-home");
-        if (QIcon::hasThemeIcon(rootIconTheme))
-            m_iconRoot = QIcon::fromTheme(rootIconTheme);
-        QString const chapterIconTheme = QStringLiteral("text-x-generic-template");
-        if (QIcon::hasThemeIcon(chapterIconTheme))
-            m_iconChapter = QIcon::fromTheme(chapterIconTheme);
-        QString const documentIconTheme = QStringLiteral("text-x-generic");
-        if (QIcon::hasThemeIcon(documentIconTheme))
-            m_iconDocument = QIcon::fromTheme(documentIconTheme);
+        using Type = ProjectModel::NodeTypeInternal;
+
+        switch (ProjectModel::nodeType(nodeData)) {
+            case Type::InvisibleRoot:
+                stream << "(root)";
+                break;
+            case Type::ProjectHead:
+                stream << std::get<ProjectModel::ProjectHeadData>(nodeData).m_properties.m_name.toStdString();
+                break;
+            case Type::NotebookHead:
+                stream << "Notebook";
+                break;
+            case Type::Chapter:
+                stream << std::get<ProjectModel::ChapterData>(nodeData).m_name.toStdString();
+                break;
+            case Type::Scene:
+                stream << std::get<ProjectModel::SceneData>(nodeData).m_name.toStdString();
+                break;
+        }
+
+        return stream;
     }
-}
-
-QDataStream& operator<<(QDataStream& out, novelist::ProjectModel::NodeType const& nodeType)
-{
-    out << static_cast<int>(nodeType);
-    return out;
-}
-
-QDataStream& operator>>(QDataStream& in, novelist::ProjectModel::NodeType& nodeType)
-{
-    int type;
-    in >> type;
-    nodeType = static_cast<novelist::ProjectModel::NodeType>(type);
-    return in;
 }
