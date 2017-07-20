@@ -14,12 +14,12 @@
 #include <QtCore/QVariant>
 #include <QtCore/QList>
 #include <QtCore/QAbstractItemModel>
-#include <QtCore/QUuid>
 #include <QtCore/QFile>
 #include <QtCore/QDir>
 #include <QtCore/QXmlStreamReader>
 #include <QtGui/QTextDocument>
 #include "datastructures/Tree.h"
+#include "identity/Identity.h"
 #include "lang/Language.h"
 
 namespace novelist {
@@ -186,6 +186,11 @@ namespace novelist {
         friend std::ostream& operator<<(std::ostream& stream, ProjectModel const& model);
 
     private:
+        struct Chapter_Tag {};
+        struct Scene_Tag{};
+        IdManager<Chapter_Tag> m_chapterIdMgr;
+        IdManager<Scene_Tag> m_sceneIdMgr;
+
         enum class NodeTypeInternal {
             InvisibleRoot = 0,
             ProjectHead,
@@ -206,12 +211,12 @@ namespace novelist {
 
         struct SceneData {
             QString m_name;
-            QUuid m_uuid;
+            IdManager<Scene_Tag>::IdType m_id;
         };
 
         struct ChapterData {
             QString m_name;
-            QUuid m_uuid;
+            IdManager<Chapter_Tag>::IdType m_id;
         };
 
         using NodeData = std::variant<InvisibleRootData, ProjectHeadData, NotebookHeadData, SceneData, ChapterData>;
@@ -233,7 +238,7 @@ namespace novelist {
 
         static NodeTypeInternal nodeType(NodeData const& nodeData);
 
-        NodeData makeNodeData(NodeType type, QString const& name) const;
+        NodeData makeNodeData(NodeType type, QString const& name);
 
         friend std::ostream& operator<<(std::ostream& stream, NodeData const& nodeData);
     };

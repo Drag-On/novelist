@@ -5,7 +5,7 @@ enable_testing()
 
 add_executable(novelist_core_test
         main.cpp
-        datastructures/TreeTest.cpp model/ProjectModelTest.cpp)
+        datastructures/TreeTest.cpp model/ProjectModelTest.cpp identity/IdentityTest.cpp)
 
 target_include_directories(novelist_core_test
         PUBLIC

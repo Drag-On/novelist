@@ -5,7 +5,7 @@ add_library(novelist_core
         SHARED
         src/novelist/lang/Language.cpp include/novelist/lang/Language.h
         src/novelist/model/ProjectModel.cpp include/novelist/model/ProjectModel.h
-        include/novelist/datastructures/Tree.h include/novelist/functional/Overloaded.h)
+        include/novelist/datastructures/Tree.h include/novelist/functional/Overloaded.h include/novelist/identity/Identity.h)
 
 target_include_directories(novelist_core
         PUBLIC

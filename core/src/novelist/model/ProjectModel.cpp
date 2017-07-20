@@ -408,16 +408,16 @@ namespace novelist {
         }
         else if (xml.name() == "scene") {
             QString name;
-            QUuid uid;
+            uint32_t id;
             if (xml.attributes().hasAttribute("name"))
                 name = xml.attributes().value("name").toString();
             if (xml.attributes().hasAttribute("uid"))
-                uid = QUuid(xml.attributes().value("uid").toString());
+                id = xml.attributes().value("uid").toULongLong();
 
             insertRow(idx, NodeType::Scene, name, parent);
             auto* node = &static_cast<Node*>(parent.internalPointer())->at(idx);
             auto& scene = std::get<SceneData>(node->m_data);
-            scene.m_uuid = uid;
+            scene.m_id = m_sceneIdMgr.request(id);
 
             xml.skipCurrentElement();
         }
@@ -432,8 +432,7 @@ namespace novelist {
     {
         auto const* node = static_cast<Node const*>(item.internalPointer());
         auto const& data = node->m_data;
-        switch(nodeType(data))
-        {
+        switch (nodeType(data)) {
             case NodeTypeInternal::Chapter: {
                 xml.writeStartElement("chapter");
                 xml.writeAttribute("name", std::get<ChapterData>(data).m_name);
@@ -445,7 +444,7 @@ namespace novelist {
             case NodeTypeInternal::Scene: {
                 xml.writeStartElement("scene");
                 xml.writeAttribute("name", std::get<SceneData>(data).m_name);
-                xml.writeAttribute("uid", std::get<SceneData>(data).m_uuid.toString());
+                xml.writeAttribute("uid", std::get<SceneData>(data).m_id.toString().c_str());
                 xml.writeEndElement();
                 break;
             }
@@ -485,13 +484,13 @@ namespace novelist {
         throw std::runtime_error{"Should never get here. Probably forgot to update switch statement."};
     }
 
-    ProjectModel::NodeData ProjectModel::makeNodeData(NodeType type, QString const& name) const
+    ProjectModel::NodeData ProjectModel::makeNodeData(NodeType type, QString const& name)
     {
         switch (type) {
             case NodeType::Chapter:
-                return ChapterData{name, QUuid{}};
+                return ChapterData{name, m_chapterIdMgr.generate()};
             case NodeType::Scene:
-                return SceneData {name, QUuid{}};
+                return SceneData {name, m_sceneIdMgr.generate()};
         }
 
         throw std::runtime_error{"Should never get here. Probably forgot to update switch statement."};
