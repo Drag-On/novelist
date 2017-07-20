@@ -17,6 +17,9 @@
 
 namespace novelist {
 
+    /**
+     * Exception thrown when an ID is requested that isn't available anymore
+     */
     class uniqueness_error : public std::logic_error {
     public:
         explicit uniqueness_error(const std::string& what_arg)
@@ -33,9 +36,17 @@ namespace novelist {
     template<typename Tag_Type, typename T>
     class IdManager;
 
+    /**
+     * Represents a unique identifier
+     * @tparam Tag_Type IDs are unique among all IDs with the same tag
+     * @tparam T Underlying integral type
+     */
     template<typename Tag_Type, typename T>
     class Id {
     public:
+        /**
+         * Returns the ID to the pool of available IDs
+         */
         ~Id() noexcept
         {
             m_mgr->reposit(m_id);
@@ -49,16 +60,32 @@ namespace novelist {
 
         Id<Tag_Type, T>& operator=(Id<Tag_Type, T>&& other) noexcept = default;
 
+        /**
+         * Equality operator
+         * @param other Other identifier
+         * @return True if \p other is a reference to this, otherwise false
+         */
         bool operator==(Id<Tag_Type, T> const& other) const noexcept
         {
             return other.m_id == m_id;
         }
 
+        /**
+         * Inequality operator
+         * @param other Other identifier
+         * @return True if \p other is not a reference to this, otherwise false
+         */
         bool operator!=(Id<Tag_Type, T> const& other) const noexcept
         {
             return !(*this == other);
         }
 
+        /**
+         * Write ID to stream in human-readable format
+         * @param stream Stream to write to
+         * @param id ID to wirte
+         * @return The stream
+         */
         friend std::ostream& operator<<(std::ostream& stream, Id<Tag_Type, T> const& id)
         {
             auto curFill = stream.fill();
@@ -67,6 +94,9 @@ namespace novelist {
             return stream;
         }
 
+        /**
+         * @return String representation of the ID
+         */
         std::string toString() const
         {
             std::stringstream ss;
@@ -87,9 +117,18 @@ namespace novelist {
         friend class IdManager<Tag_Type, T>;
     };
 
+    /**
+     * Manages unique identifiers
+     * @tparam Tag_Type IDs are unique among all IDs with the same tag
+     * @tparam T Underlying integral type. Defaults to uint32_t, which allows up to 4,294,967,295 unique IDs.
+     * @note Generated IDs may never be destructed in a different thread than they were created in.
+     */
     template<typename Tag_Type, typename T = uint32_t>
     class IdManager {
     public:
+        /**
+         * Type of generated IDs
+         */
         using IdType = Id<Tag_Type, T>;
 
         IdManager() noexcept
@@ -107,8 +146,17 @@ namespace novelist {
 
         IdManager<Tag_Type, T>& operator=(IdManager<Tag_Type, T>&& other) noexcept = delete;
 
+        /**
+         * @return A new valid unique ID
+         */
         Id<Tag_Type, T> generate();
 
+        /**
+         * Allows to request the ID with a particular number.
+         * @param id ID to request
+         * @return The requested ID
+         * @throws uniqueness_error if the requested ID is not available anymore
+         */
         Id<Tag_Type, T> request(T id);
 
     private:
