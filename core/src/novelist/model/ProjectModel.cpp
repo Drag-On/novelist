@@ -212,7 +212,7 @@ namespace novelist {
         if (!canRemove(parent))
             return false;
 
-        beginRemoveRows(QModelIndex(), row, row + count - 1);
+        beginRemoveRows(parent, row, row + count - 1);
 
         for (int r = 0; r < count; ++r)
             item->erase(item->begin() + row);
