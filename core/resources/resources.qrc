@@ -1,0 +1,6 @@
+<!DOCTYPE RCC><RCC version="1.0">
+    <qresource>
+        <file>icons/scene.png</file>
+        <file>icons/chapter.png</file>
+    </qresource>
+</RCC>

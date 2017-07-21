@@ -3,9 +3,13 @@ project(novelist_core)
 
 add_library(novelist_core
         SHARED
+        resources/resources.qrc
         src/novelist/lang/Language.cpp include/novelist/lang/Language.h
         src/novelist/model/ProjectModel.cpp include/novelist/model/ProjectModel.h
-        include/novelist/datastructures/Tree.h include/novelist/functional/Overloaded.h include/novelist/identity/Identity.h)
+        include/novelist/datastructures/Tree.h
+        include/novelist/functional/Overloaded.h
+        include/novelist/identity/Identity.h
+        src/novelist/view/ProjectView.cpp include/novelist/view/ProjectView.h)
 
 target_include_directories(novelist_core
         PUBLIC
