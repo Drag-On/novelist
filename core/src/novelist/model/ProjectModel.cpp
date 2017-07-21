@@ -181,10 +181,15 @@ namespace novelist {
 
     bool ProjectModel::insertRows(int row, int count, InsertableNodeType type, QString const& name, QModelIndex const& parent)
     {
+        Expects(count >= 0);
+
+        if(!parent.isValid())
+            return false;
+
         auto* item = static_cast<Node*>(parent.internalPointer());
 
         Expects(row >= 0);
-        Expects(static_cast<size_t>(row) <= item->size());
+        Expects(static_cast<size_t>(row + count - 1) <= item->size());
 
         // Can't add children to scenes or the invisible root node
         if (!canInsert(parent))
@@ -200,6 +205,9 @@ namespace novelist {
 
     bool ProjectModel::removeRows(int row, int count, QModelIndex const& parent)
     {
+        if(!parent.isValid())
+            return false;
+
         auto* item = static_cast<Node*>(parent.internalPointer());
 
         if (count <= 0)
@@ -239,9 +247,9 @@ namespace novelist {
     bool ProjectModel::moveRows(QModelIndex const& sourceParent, int sourceRow, int count,
             QModelIndex const& destinationParent, int destinationChild)
     {
-        Q_ASSERT(sourceRow >= 0);
-        Q_ASSERT(destinationChild >= 0);
-        Q_ASSERT(count > 0);
+        Expects(sourceRow >= 0);
+        Expects(destinationChild >= 0);
+        Expects(count > 0);
 
         if (!sourceParent.isValid() || !destinationParent.isValid())
             return false;
