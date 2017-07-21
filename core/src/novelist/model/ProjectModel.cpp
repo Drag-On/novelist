@@ -149,7 +149,7 @@ namespace novelist {
         Qt::ItemFlags flags = QAbstractItemModel::flags(index);
 
         auto* item = static_cast<Node*>(index.internalPointer());
-        if (nodeType(*item) == NodeTypeInternal::Scene || nodeType(*item) == NodeTypeInternal::Chapter)
+        if (nodeType(*item) == NodeType::Scene || nodeType(*item) == NodeType::Chapter)
             flags |= Qt::ItemIsEditable;
 
         return flags;
@@ -161,8 +161,8 @@ namespace novelist {
             return false;
 
         auto* item = static_cast<Node*>(parent.internalPointer());
-        return nodeType(*item) == NodeTypeInternal::Chapter || nodeType(*item) == NodeTypeInternal::ProjectHead
-                || nodeType(*item) == NodeTypeInternal::NotebookHead;
+        return nodeType(*item) == NodeType::Chapter || nodeType(*item) == NodeType::ProjectHead
+                || nodeType(*item) == NodeType::NotebookHead;
     }
 
     bool ProjectModel::canRemove(QModelIndex const& parent) const
@@ -171,15 +171,15 @@ namespace novelist {
             return false;
 
         auto* item = static_cast<Node*>(parent.internalPointer());
-        return nodeType(*item) != NodeTypeInternal::InvisibleRoot;
+        return nodeType(*item) != NodeType::InvisibleRoot;
     }
 
-    bool ProjectModel::insertRow(int row, ProjectModel::NodeType type, QString const& name, QModelIndex const& parent)
+    bool ProjectModel::insertRow(int row, ProjectModel::InsertableNodeType type, QString const& name, QModelIndex const& parent)
     {
         return insertRows(row, 1, type, name, parent);
     }
 
-    bool ProjectModel::insertRows(int row, int count, NodeType type, QString const& name, QModelIndex const& parent)
+    bool ProjectModel::insertRows(int row, int count, InsertableNodeType type, QString const& name, QModelIndex const& parent)
     {
         auto* item = static_cast<Node*>(parent.internalPointer());
 
@@ -190,7 +190,7 @@ namespace novelist {
         if (!canInsert(parent))
             return false;
 
-        beginInsertRows(QModelIndex(), row, row + count - 1);
+        beginInsertRows(parent, row, row + count - 1);
         for (int r = 0; r < count; ++r)
             item->emplace(item->begin() + row, makeNodeData(type, name));
 
@@ -227,6 +227,13 @@ namespace novelist {
         removeRows(0, gsl::narrow_cast<int>(m_root.at(0).size()), projectRootIndex());
         removeRows(0, gsl::narrow_cast<int>(m_root.at(1).size()), notebookIndex());
         endResetModel();
+    }
+
+    ProjectModel::NodeType ProjectModel::nodeType(QModelIndex const& index) const
+    {
+        Expects(index.isValid());
+
+        return nodeType(*static_cast<Node*>(index.internalPointer()));
     }
 
     bool ProjectModel::moveRows(QModelIndex const& sourceParent, int sourceRow, int count,
@@ -400,7 +407,7 @@ namespace novelist {
             QString name;
             if (xml.attributes().hasAttribute("name"))
                 name = xml.attributes().value("name").toString();
-            insertRow(idx, NodeType::Chapter, name, parent);
+            insertRow(idx, InsertableNodeType::Chapter, name, parent);
             while (xml.readNextStartElement()) {
                 if (!readChapterOrScene(xml, index(idx, 0, parent)))
                     return false;
@@ -414,7 +421,7 @@ namespace novelist {
             if (xml.attributes().hasAttribute("uid"))
                 id = xml.attributes().value("uid").toULongLong();
 
-            insertRow(idx, NodeType::Scene, name, parent);
+            insertRow(idx, InsertableNodeType::Scene, name, parent);
             auto* node = &static_cast<Node*>(parent.internalPointer())->at(idx);
             auto& scene = std::get<SceneData>(node->m_data);
             scene.m_id = m_sceneIdMgr.request(id);
@@ -433,7 +440,7 @@ namespace novelist {
         auto const* node = static_cast<Node const*>(item.internalPointer());
         auto const& data = node->m_data;
         switch (nodeType(data)) {
-            case NodeTypeInternal::Chapter: {
+            case NodeType::Chapter: {
                 xml.writeStartElement("chapter");
                 xml.writeAttribute("name", std::get<ChapterData>(data).m_name);
                 for (size_t r = 0; r < node->size(); ++r)
@@ -441,7 +448,7 @@ namespace novelist {
                 xml.writeEndElement();
                 break;
             }
-            case NodeTypeInternal::Scene: {
+            case NodeType::Scene: {
                 xml.writeStartElement("scene");
                 xml.writeAttribute("name", std::get<SceneData>(data).m_name);
                 xml.writeAttribute("uid", std::get<SceneData>(data).m_id.toString().c_str());
@@ -463,33 +470,33 @@ namespace novelist {
         return -1;
     }
 
-    ProjectModel::NodeTypeInternal ProjectModel::nodeType(Node const& n)
+    ProjectModel::NodeType ProjectModel::nodeType(Node const& n)
     {
         return nodeType(n.m_data);
     }
 
-    ProjectModel::NodeTypeInternal ProjectModel::nodeType(NodeData const& nodeData)
+    ProjectModel::NodeType ProjectModel::nodeType(NodeData const& nodeData)
     {
         if (std::holds_alternative<InvisibleRootData>(nodeData))
-            return NodeTypeInternal::InvisibleRoot;
+            return NodeType::InvisibleRoot;
         else if (std::holds_alternative<ProjectHeadData>(nodeData))
-            return NodeTypeInternal::ProjectHead;
+            return NodeType::ProjectHead;
         else if (std::holds_alternative<NotebookHeadData>(nodeData))
-            return NodeTypeInternal::NotebookHead;
+            return NodeType::NotebookHead;
         else if (std::holds_alternative<SceneData>(nodeData))
-            return NodeTypeInternal::Scene;
+            return NodeType::Scene;
         else if (std::holds_alternative<ChapterData>(nodeData))
-            return NodeTypeInternal::Chapter;
+            return NodeType::Chapter;
 
         throw std::runtime_error{"Should never get here. Probably forgot to update switch statement."};
     }
 
-    ProjectModel::NodeData ProjectModel::makeNodeData(NodeType type, QString const& name)
+    ProjectModel::NodeData ProjectModel::makeNodeData(InsertableNodeType type, QString const& name)
     {
         switch (type) {
-            case NodeType::Chapter:
+            case InsertableNodeType::Chapter:
                 return ChapterData{name, m_chapterIdMgr.generate()};
-            case NodeType::Scene:
+            case InsertableNodeType::Scene:
                 return SceneData {name, m_sceneIdMgr.generate()};
         }
 
@@ -498,7 +505,7 @@ namespace novelist {
 
     std::ostream& operator<<(std::ostream& stream, ProjectModel::NodeData const& nodeData)
     {
-        using Type = ProjectModel::NodeTypeInternal;
+        using Type = ProjectModel::NodeType;
 
         switch (ProjectModel::nodeType(nodeData)) {
             case Type::InvisibleRoot:

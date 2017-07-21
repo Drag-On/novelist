@@ -41,9 +41,20 @@ namespace novelist {
 
     public:
         /**
-         * Types of nodes which can be added
+         * All node types, including those that can not be added such as the root node
          */
         enum class NodeType {
+            InvisibleRoot = 0, //!< The invisible root node
+            ProjectHead, //!< Project head node
+            NotebookHead, //!< Notebook head node
+            Scene, //!< Scene
+            Chapter, //!< Chapter
+        };
+
+        /**
+         * Types of nodes which can be added
+         */
+        enum class InsertableNodeType {
             Scene, //!< Scene
             Chapter, //!< Chapter
         };
@@ -97,6 +108,12 @@ namespace novelist {
 
         Qt::ItemFlags flags(QModelIndex const& index) const override;
 
+        /**
+         * @param index Valid index corresponding to a node
+         * @return The type of that node
+         */
+        NodeType nodeType(QModelIndex const& index) const;
+
         bool moveRows(QModelIndex const& sourceParent, int sourceRow, int count, QModelIndex const& destinationParent,
                 int destinationChild) override;
 
@@ -110,7 +127,8 @@ namespace novelist {
          * @param parent Parent node. Defaults to invisible root node if nullptr
          * @return true in case of success, otherwise false
          */
-        bool insertRow(int row, NodeType type, QString const& name, QModelIndex const& parent = QModelIndex());
+        bool
+        insertRow(int row, InsertableNodeType type, QString const& name, QModelIndex const& parent = QModelIndex());
 
         /**
          * Inserts a number of rows of a certain type
@@ -124,7 +142,8 @@ namespace novelist {
          * @return true in case of success, otherwise false
          */
         bool
-        insertRows(int row, int count, NodeType type, QString const& name, QModelIndex const& parent = QModelIndex());
+        insertRows(int row, int count, InsertableNodeType type, QString const& name,
+                QModelIndex const& parent = QModelIndex());
 
         bool removeRows(int row, int count, QModelIndex const& parent) override;
 
@@ -191,14 +210,6 @@ namespace novelist {
         IdManager<Chapter_Tag> m_chapterIdMgr;
         IdManager<Scene_Tag> m_sceneIdMgr;
 
-        enum class NodeTypeInternal {
-            InvisibleRoot = 0,
-            ProjectHead,
-            NotebookHead,
-            Scene,
-            Chapter,
-        };
-
         struct InvisibleRootData {
         };
 
@@ -234,11 +245,11 @@ namespace novelist {
 
         int computeParentIndex(Node const& n) const;
 
-        static NodeTypeInternal nodeType(Node const& n);
+        static NodeType nodeType(Node const& n);
 
-        static NodeTypeInternal nodeType(NodeData const& nodeData);
+        static NodeType nodeType(NodeData const& nodeData);
 
-        NodeData makeNodeData(NodeType type, QString const& name);
+        NodeData makeNodeData(InsertableNodeType type, QString const& name);
 
         friend std::ostream& operator<<(std::ostream& stream, NodeData const& nodeData);
     };

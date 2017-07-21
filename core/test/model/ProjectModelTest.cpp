@@ -13,7 +13,7 @@
 
 using namespace novelist;
 
-using NodeType = ProjectModel::NodeType;
+using NodeType = ProjectModel::InsertableNodeType;
 
 // Default properties for most tests
 ProjectProperties properties{"Foo", "Ernie", Language {"en_US"}};
