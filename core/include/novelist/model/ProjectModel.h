@@ -106,6 +106,8 @@ namespace novelist {
 
         QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
+        bool setHeaderData(int section, Qt::Orientation orientation, const QVariant& value, int role) override;
+
         Qt::ItemFlags flags(QModelIndex const& index) const override;
 
         /**
@@ -250,6 +252,8 @@ namespace novelist {
         static NodeType nodeType(NodeData const& nodeData);
 
         NodeData makeNodeData(InsertableNodeType type, QString const& name);
+
+        QModelIndexList childIndices(QModelIndex const& parent) const;
 
         friend std::ostream& operator<<(std::ostream& stream, NodeData const& nodeData);
     };

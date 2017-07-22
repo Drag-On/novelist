@@ -141,6 +141,11 @@ namespace novelist {
         return QVariant{};
     }
 
+    bool ProjectModel::setHeaderData(int /*section*/, Qt::Orientation /*orientation*/, const QVariant& /*value*/, int /*role*/)
+    {
+        return false;
+    }
+
     Qt::ItemFlags ProjectModel::flags(QModelIndex const& index) const
     {
         if (!index.isValid())
@@ -149,6 +154,7 @@ namespace novelist {
         Qt::ItemFlags flags = QAbstractItemModel::flags(index);
 
         auto* item = static_cast<Node*>(index.internalPointer());
+        Q_ASSERT(item != nullptr);
         if (nodeType(*item) == NodeType::Scene || nodeType(*item) == NodeType::Chapter)
             flags |= Qt::ItemIsEditable;
 
@@ -181,25 +187,34 @@ namespace novelist {
 
     bool ProjectModel::insertRows(int row, int count, InsertableNodeType type, QString const& name, QModelIndex const& parent)
     {
-        Expects(count >= 0);
+        if (count <= 0)
+            return false;
 
         if(!parent.isValid())
             return false;
 
-        auto* item = static_cast<Node*>(parent.internalPointer());
+        auto* parentNode = static_cast<Node*>(parent.internalPointer());
 
         Expects(row >= 0);
-        Expects(static_cast<size_t>(row + count - 1) <= item->size());
+        Expects(static_cast<size_t>(row + count - 1) <= parentNode->size());
 
         // Can't add children to scenes or the invisible root node
         if (!canInsert(parent))
             return false;
 
+        QModelIndexList indicesThatChange = childIndices(parent);
+
         beginInsertRows(parent, row, row + count - 1);
         for (int r = 0; r < count; ++r)
-            item->emplace(item->begin() + row, makeNodeData(type, name));
-
+            parentNode->emplace(parentNode->begin() + row + r, makeNodeData(type, name));
         endInsertRows();
+
+        // All children of parent might have been relocated, therefore update their persistent indices
+        QModelIndexList newIndices = childIndices(parent);
+        newIndices.erase(newIndices.begin() + row, newIndices.begin() + row + count);
+        Q_ASSERT(indicesThatChange.size() == newIndices.size());
+        changePersistentIndexList(indicesThatChange, newIndices);
+
         return true;
     }
 
@@ -220,12 +235,20 @@ namespace novelist {
         if (!canRemove(parent))
             return false;
 
-        beginRemoveRows(parent, row, row + count - 1);
+        QModelIndexList indicesThatChange = childIndices(parent);
 
+        beginRemoveRows(parent, row, row + count - 1);
         for (int r = 0; r < count; ++r)
             item->erase(item->begin() + row);
-
         endRemoveRows();
+
+        // All children of parent might have been relocated, therefore update their persistent indices
+        QModelIndexList newIndices = childIndices(parent);
+        for(int i = 0; i < count; ++i)
+            newIndices.insert(row, QModelIndex{});
+        Q_ASSERT(indicesThatChange.size() == newIndices.size());
+        changePersistentIndexList(indicesThatChange, newIndices);
+
         return true;
     }
 
@@ -268,12 +291,59 @@ namespace novelist {
                 return false;
         }
 
-        beginMoveRows(sourceParent, sourceRow, sourceRow + count - 1, destinationParent, destinationChild);
+        enum class MoveType
+        {
+            SameLevel,
+            Up,
+            Down,
+            General,
+        };
+        MoveType moveType = MoveType::General;
+        if(sourceParent == destinationParent)
+            moveType = MoveType::SameLevel;
+        else if (srcParent->inSubtreeOf(*destParent))
+            moveType = MoveType::Up;
+        else if (destParent->inSubtreeOf(*srcParent))
+            moveType = MoveType::Down;
 
+        QModelIndexList indicesThatChangeAtSrc = childIndices(sourceParent);
+        QModelIndexList indicesThatChangeAtDest = childIndices(destinationParent);
+
+        beginMoveRows(sourceParent, sourceRow, sourceRow + count - 1, destinationParent, destinationChild);
         for (int i = 0; i < count; ++i)
             srcParent->move(sourceRow, *destParent, destinationChild + i);
-
         endMoveRows();
+
+        auto updateSrc = [&](){
+            QModelIndexList newIndicesAtSrc = childIndices(sourceParent);
+            for(int i = 0; i < count; ++i)
+                newIndicesAtSrc.insert(sourceRow, QModelIndex{});
+            Q_ASSERT(indicesThatChangeAtSrc.size() == newIndicesAtSrc.size());
+            changePersistentIndexList(indicesThatChangeAtSrc, newIndicesAtSrc);
+        };
+        auto updateDest = [&](){
+            QModelIndexList newIndicesAtDest = childIndices(destinationParent);
+            newIndicesAtDest.erase(newIndicesAtDest.begin() + destinationChild, newIndicesAtDest.begin() + destinationChild + count);
+            Q_ASSERT(indicesThatChangeAtDest.size() == newIndicesAtDest.size());
+            changePersistentIndexList(indicesThatChangeAtDest, newIndicesAtDest);
+        };
+
+        // All children of parent might have been relocated, therefore update their persistent indices
+        if(moveType == MoveType::SameLevel)
+        {
+            QModelIndexList newIndicesAtSrc = childIndices(sourceParent);
+            Q_ASSERT(indicesThatChangeAtSrc.size() == newIndicesAtSrc.size());
+            changePersistentIndexList(indicesThatChangeAtSrc, newIndicesAtSrc);
+        }
+        else if (moveType == MoveType::Up)
+            updateDest();
+        else if (moveType == MoveType::Down)
+            updateSrc();
+        else
+        {
+            updateDest();
+            updateSrc();
+        }
 
         return true;
     }
@@ -496,7 +566,10 @@ namespace novelist {
         else if (std::holds_alternative<ChapterData>(nodeData))
             return NodeType::Chapter;
 
-        throw std::runtime_error{"Should never get here. Probably forgot to update switch statement."};
+        if(nodeData.valueless_by_exception())
+            throw std::runtime_error{"Variant is valueless by exception"};
+
+        throw std::runtime_error{"Should never get here since variant must always hold a value or be valueless."};
     }
 
     ProjectModel::NodeData ProjectModel::makeNodeData(InsertableNodeType type, QString const& name)
@@ -509,6 +582,16 @@ namespace novelist {
         }
 
         throw std::runtime_error{"Should never get here. Probably forgot to update switch statement."};
+    }
+
+    QModelIndexList ProjectModel::childIndices(QModelIndex const& parent) const
+    {
+        auto const* node = static_cast<Node const*>(parent.internalPointer());
+        QModelIndexList indices;
+        for(size_t i = 0; i < node->size(); ++i)
+            indices.append(index(i, 0, parent));
+
+        return indices;
     }
 
     std::ostream& operator<<(std::ostream& stream, ProjectModel::NodeData const& nodeData)

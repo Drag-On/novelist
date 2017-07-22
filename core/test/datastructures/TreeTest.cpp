@@ -12,6 +12,56 @@
 
 using namespace novelist;
 
+TEST_CASE("TreeNode emplace & emplace_back", "[DataStructures][Tree]")
+{
+    TreeNode<int> node{1};
+    node.emplace_back(11);
+    node.emplace_back(13);
+
+    REQUIRE(node.m_data == 1);
+    REQUIRE(node.parent() == nullptr);
+    REQUIRE(node.size() == 2);
+    REQUIRE(node.at(0).m_data == 11);
+    REQUIRE(node.at(0).parent() == &node);
+    REQUIRE(node.at(0).size() == 0);
+    REQUIRE(node.at(1).m_data == 13);
+    REQUIRE(node.at(1).parent() == &node);
+    REQUIRE(node.at(1).size() == 0);
+
+    node.emplace(node.begin() + 1, 12);
+
+    REQUIRE(node.m_data == 1);
+    REQUIRE(node.parent() == nullptr);
+    REQUIRE(node.size() == 3);
+    REQUIRE(node.at(0).m_data == 11);
+    REQUIRE(node.at(0).parent() == &node);
+    REQUIRE(node.at(0).size() == 0);
+    REQUIRE(node.at(1).m_data == 12);
+    REQUIRE(node.at(1).parent() == &node);
+    REQUIRE(node.at(1).size() == 0);
+    REQUIRE(node.at(2).m_data == 13);
+    REQUIRE(node.at(2).parent() == &node);
+    REQUIRE(node.at(2).size() == 0);
+
+    node.at(1).emplace(node.at(1).begin(), 121);
+
+    REQUIRE(node.m_data == 1);
+    REQUIRE(node.parent() == nullptr);
+    REQUIRE(node.size() == 3);
+    REQUIRE(node.at(0).m_data == 11);
+    REQUIRE(node.at(0).parent() == &node);
+    REQUIRE(node.at(0).size() == 0);
+    REQUIRE(node.at(1).m_data == 12);
+    REQUIRE(node.at(1).parent() == &node);
+    REQUIRE(node.at(1).size() == 1);
+    REQUIRE(node.at(1).at(0).m_data == 121);
+    REQUIRE(node.at(1).at(0).parent() == &node.at(1));
+    REQUIRE(node.at(1).at(0).size() == 0);
+    REQUIRE(node.at(2).m_data == 13);
+    REQUIRE(node.at(2).parent() == &node);
+    REQUIRE(node.at(2).size() == 0);
+}
+
 TEST_CASE("TreeNode parent validity", "[DataStructures][Tree]")
 {
     TreeNode<int> node{3};
