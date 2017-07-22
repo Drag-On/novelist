@@ -18,9 +18,10 @@ TEST_CASE("ProjectView start", "[.Interactive][View]")
     int argc = 0;
     QApplication app(argc, nullptr);
 
-//    ProjectProperties properties{"Foo", "Ernie", Language {"en_US"}};
-//    ProjectModel model{properties};
+    ProjectProperties properties{"Foo", "Ernie", Language {"en_US"}};
+    ProjectModel model{properties};
     ProjectView projectView(nullptr);
+    projectView.setModel(&model);
     projectView.show();
 
     app.exec();
