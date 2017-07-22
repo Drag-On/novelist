@@ -10,6 +10,7 @@
 #include <gsl/gsl>
 #include <QtCore/QTextStream>
 #include <QDebug>
+#include <QColor>
 #include "functional/Overloaded.h"
 #include "model/ProjectModel.h"
 
@@ -107,14 +108,29 @@ namespace novelist {
 
         auto* item = static_cast<Node*>(index.internalPointer());
 
-        if (role == Qt::DisplayRole)
-            return std::visit(Overloaded {
-                    [](auto const&) { return QVariant{}; },
-                    [](ProjectHeadData const& arg) { return QVariant{arg.m_properties.m_name}; },
-                    [](NotebookHeadData const&) { return QVariant{tr("Notebook")}; },
-                    [](SceneData const& arg) { return QVariant{arg.m_name}; },
-                    [](ChapterData const& arg) { return QVariant{arg.m_name}; },
-            }, item->m_data);
+        auto getDisplayText = Overloaded {
+                [](auto const&) { return QString{""}; },
+                [](ProjectHeadData const& arg) { return arg.m_properties.m_name; },
+                [](NotebookHeadData const&) { return tr("Notebook"); },
+                [](SceneData const& arg) { return arg.m_name; },
+                [](ChapterData const& arg) { return arg.m_name; },
+        };
+
+        auto makeEmptyNote = [](QString const& s) {
+            if (s.isEmpty())
+                return tr("<unnamed>");
+            return s;
+        };
+
+        QString displayText = std::visit(getDisplayText, item->m_data);
+        switch (role) {
+            case Qt::DisplayRole:
+                return makeEmptyNote(displayText);
+            case Qt::TextColorRole:
+                if (displayText.isEmpty())
+                    return QVariant::fromValue(QColor(Qt::gray));
+                return QVariant::fromValue(QColor(Qt::black));
+        }
 
         return QVariant{};
     }
@@ -141,7 +157,8 @@ namespace novelist {
         return QVariant{};
     }
 
-    bool ProjectModel::setHeaderData(int /*section*/, Qt::Orientation /*orientation*/, const QVariant& /*value*/, int /*role*/)
+    bool ProjectModel::setHeaderData(int /*section*/, Qt::Orientation /*orientation*/, const QVariant& /*value*/,
+            int /*role*/)
     {
         return false;
     }
@@ -180,17 +197,19 @@ namespace novelist {
         return nodeType(*item) != NodeType::InvisibleRoot;
     }
 
-    bool ProjectModel::insertRow(int row, ProjectModel::InsertableNodeType type, QString const& name, QModelIndex const& parent)
+    bool ProjectModel::insertRow(int row, ProjectModel::InsertableNodeType type, QString const& name,
+            QModelIndex const& parent)
     {
         return insertRows(row, 1, type, name, parent);
     }
 
-    bool ProjectModel::insertRows(int row, int count, InsertableNodeType type, QString const& name, QModelIndex const& parent)
+    bool ProjectModel::insertRows(int row, int count, InsertableNodeType type, QString const& name,
+            QModelIndex const& parent)
     {
         if (count <= 0)
             return false;
 
-        if(!parent.isValid())
+        if (!parent.isValid())
             return false;
 
         auto* parentNode = static_cast<Node*>(parent.internalPointer());
@@ -220,7 +239,7 @@ namespace novelist {
 
     bool ProjectModel::removeRows(int row, int count, QModelIndex const& parent)
     {
-        if(!parent.isValid())
+        if (!parent.isValid())
             return false;
 
         auto* item = static_cast<Node*>(parent.internalPointer());
@@ -244,7 +263,7 @@ namespace novelist {
 
         // All children of parent might have been relocated, therefore update their persistent indices
         QModelIndexList newIndices = childIndices(parent);
-        for(int i = 0; i < count; ++i)
+        for (int i = 0; i < count; ++i)
             newIndices.insert(row, QModelIndex{});
         Q_ASSERT(indicesThatChange.size() == newIndices.size());
         changePersistentIndexList(indicesThatChange, newIndices);
@@ -291,15 +310,14 @@ namespace novelist {
                 return false;
         }
 
-        enum class MoveType
-        {
+        enum class MoveType {
             SameLevel,
             Up,
             Down,
             General,
         };
         MoveType moveType = MoveType::General;
-        if(sourceParent == destinationParent)
+        if (sourceParent == destinationParent)
             moveType = MoveType::SameLevel;
         else if (srcParent->inSubtreeOf(*destParent))
             moveType = MoveType::Up;
@@ -314,23 +332,23 @@ namespace novelist {
             srcParent->move(sourceRow, *destParent, destinationChild + i);
         endMoveRows();
 
-        auto updateSrc = [&](){
+        auto updateSrc = [&]() {
             QModelIndexList newIndicesAtSrc = childIndices(sourceParent);
-            for(int i = 0; i < count; ++i)
+            for (int i = 0; i < count; ++i)
                 newIndicesAtSrc.insert(sourceRow, QModelIndex{});
             Q_ASSERT(indicesThatChangeAtSrc.size() == newIndicesAtSrc.size());
             changePersistentIndexList(indicesThatChangeAtSrc, newIndicesAtSrc);
         };
-        auto updateDest = [&](){
+        auto updateDest = [&]() {
             QModelIndexList newIndicesAtDest = childIndices(destinationParent);
-            newIndicesAtDest.erase(newIndicesAtDest.begin() + destinationChild, newIndicesAtDest.begin() + destinationChild + count);
+            newIndicesAtDest.erase(newIndicesAtDest.begin() + destinationChild,
+                    newIndicesAtDest.begin() + destinationChild + count);
             Q_ASSERT(indicesThatChangeAtDest.size() == newIndicesAtDest.size());
             changePersistentIndexList(indicesThatChangeAtDest, newIndicesAtDest);
         };
 
         // All children of parent might have been relocated, therefore update their persistent indices
-        if(moveType == MoveType::SameLevel)
-        {
+        if (moveType == MoveType::SameLevel) {
             QModelIndexList newIndicesAtSrc = childIndices(sourceParent);
             Q_ASSERT(indicesThatChangeAtSrc.size() == newIndicesAtSrc.size());
             changePersistentIndexList(indicesThatChangeAtSrc, newIndicesAtSrc);
@@ -339,8 +357,7 @@ namespace novelist {
             updateDest();
         else if (moveType == MoveType::Down)
             updateSrc();
-        else
-        {
+        else {
             updateDest();
             updateSrc();
         }
@@ -566,7 +583,7 @@ namespace novelist {
         else if (std::holds_alternative<ChapterData>(nodeData))
             return NodeType::Chapter;
 
-        if(nodeData.valueless_by_exception())
+        if (nodeData.valueless_by_exception())
             throw std::runtime_error{"Variant is valueless by exception"};
 
         throw std::runtime_error{"Should never get here since variant must always hold a value or be valueless."};
@@ -588,7 +605,7 @@ namespace novelist {
     {
         auto const* node = static_cast<Node const*>(parent.internalPointer());
         QModelIndexList indices;
-        for(size_t i = 0; i < node->size(); ++i)
+        for (size_t i = 0; i < node->size(); ++i)
             indices.append(index(i, 0, parent));
 
         return indices;
