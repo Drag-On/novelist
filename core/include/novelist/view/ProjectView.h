@@ -22,7 +22,7 @@ namespace novelist {
     Q_OBJECT
 
     public:
-        ProjectView(QWidget* parent);
+        explicit ProjectView(QWidget* parent);
 
         void retranslateUi();
 
