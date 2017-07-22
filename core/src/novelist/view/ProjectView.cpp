@@ -229,7 +229,6 @@ namespace novelist {
     void ProjectView::setup()
     {
         initResources();
-        setupActions();
 
         m_iconNewScene = overlayThemeIcon(":/icons/scene.png", "list-add", 0.7f);
         m_iconNewChapter = overlayThemeIcon(":/icons/chapter.png", "list-add", 0.7f);
@@ -243,6 +242,8 @@ namespace novelist {
             m_iconConfig = QIcon::fromTheme(iconConfigTheme);
         else
             m_iconConfig.addFile(QStringLiteral("."), QSize(), QIcon::Normal, QIcon::Off);
+
+        setupActions();
 
         m_topLayout = new QVBoxLayout(this);
         m_treeView = new QTreeView(this);
@@ -298,18 +299,22 @@ namespace novelist {
     {
         m_actionNewChapter = new QAction(this);
         m_actionNewChapter->setIcon(m_iconNewChapter);
+        m_actionNewChapter->setIconVisibleInMenu(true);
         m_actionNewChapter->setEnabled(false);
 
         m_actionNewScene = new QAction(this);
         m_actionNewScene->setIcon(m_iconNewScene);
+        m_actionNewScene->setIconVisibleInMenu(true);
         m_actionNewScene->setEnabled(false);
 
         m_actionRemoveEntry = new QAction(this);
         m_actionRemoveEntry->setIcon(m_iconRemove);
+        m_actionRemoveEntry->setIconVisibleInMenu(true);
         m_actionRemoveEntry->setEnabled(false);
 
         m_actionProperties = new QAction(this);
         m_actionProperties->setIcon(m_iconConfig);
+        m_actionProperties->setIconVisibleInMenu(true);
         m_actionProperties->setEnabled(false);
     }
 
