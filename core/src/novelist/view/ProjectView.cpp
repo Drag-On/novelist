@@ -95,6 +95,7 @@ namespace novelist {
             default: {
                 int const row = model()->rowCount(idx);
                 m->insertRow(row, ProjectModel::InsertableNodeType::Chapter, tr("Chapter %1").arg(num++), idx);
+                m_treeView->setExpanded(idx, true);
                 break;
             }
         }
@@ -123,6 +124,7 @@ namespace novelist {
             default: {
                 int const row = model()->rowCount(idx);
                 m->insertRow(row, ProjectModel::InsertableNodeType::Scene, tr("Scene %1").arg(num++), idx);
+                m_treeView->setExpanded(idx, true);
                 break;
             }
         }
