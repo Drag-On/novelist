@@ -13,7 +13,7 @@
 // The macro cannot be called from within a namespace (see http://doc.qt.io/qt-5/qdir.html#Q_INIT_RESOURCE)
 inline void initResources() { Q_INIT_RESOURCE(resources); }
 
-QIcon overlayThemeIcon(QString baseResPath, QString iconThemeName, float factor = 0.5f)
+QIcon overlayThemeIcon(QString const& baseResPath, QString const& iconThemeName, float factor = 0.5f)
 {
     QPixmap base(baseResPath);
     QIcon addIcon;
