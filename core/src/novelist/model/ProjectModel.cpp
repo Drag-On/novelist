@@ -11,6 +11,7 @@
 #include <QtCore/QTextStream>
 #include <QDebug>
 #include <QColor>
+#include <QIcon>
 #include "functional/Overloaded.h"
 #include "model/ProjectModel.h"
 
@@ -130,6 +131,16 @@ namespace novelist {
                 if (displayText.isEmpty())
                     return QVariant::fromValue(QColor(Qt::gray));
                 return QVariant::fromValue(QColor(Qt::black));
+            case Qt::DecorationRole:
+            {
+                switch (nodeType(*item))
+                {
+                    case NodeType::Scene:
+                        return QIcon(":/icons/scene.png");
+                    case NodeType::Chapter:
+                        return QIcon(":/icons/chapter.png");
+                }
+            }
         }
 
         return QVariant{};
