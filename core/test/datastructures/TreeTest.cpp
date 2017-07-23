@@ -154,7 +154,7 @@ TEST_CASE("TreeNode move children", "[DataStructures][Tree]")
 
         SECTION("Top to bottom")
         {
-            bool success = node[0].move(0, node[0], 2);
+            bool success = node[0].move(0, node[0], 3);
             REQUIRE(success);
             REQUIRE(node[0][0].m_data == 112);
             REQUIRE(node[0][1].m_data == 113);
