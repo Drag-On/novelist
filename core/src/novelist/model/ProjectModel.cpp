@@ -10,7 +10,7 @@
 #include <gsl/gsl>
 #include <QtCore/QTextStream>
 #include <QDebug>
-#include <QColor>
+#include <QBrush>
 #include <QIcon>
 #include "functional/Overloaded.h"
 #include "model/ProjectModel.h"
@@ -127,10 +127,10 @@ namespace novelist {
         switch (role) {
             case Qt::DisplayRole:
                 return makeEmptyNote(displayText);
-            case Qt::TextColorRole:
+            case Qt::ForegroundRole:
                 if (displayText.isEmpty())
-                    return QVariant::fromValue(QColor(Qt::gray));
-                return QVariant::fromValue(QColor(Qt::black));
+                    return QBrush(QColor(Qt::gray));
+                return QBrush(QColor(Qt::black));
             case Qt::DecorationRole:
             {
                 switch (nodeType(*item))
