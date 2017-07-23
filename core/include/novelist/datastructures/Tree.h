@@ -12,6 +12,7 @@
 #include <vector>
 #include <iostream>
 #include <deque>
+#include <optional>
 #include <gsl/gsl>
 
 namespace novelist {
@@ -162,6 +163,8 @@ namespace novelist {
         iterator insert(const_iterator pos, NodeType node)
         {
             Expects(node.parent() == nullptr);
+            Expects(pos >= begin());
+            Expects(pos <= end());
 
             auto iter = m_children.insert(pos, std::move(node));
             iter->m_parent = this;
@@ -332,6 +335,20 @@ namespace novelist {
         NodeType& at(size_t pos)
         {
             return m_children.at(pos);
+        }
+
+        /**
+         * @return The index of this node within its parent's list of children, if it has a parent
+         */
+        std::optional<size_t> parentIndex() const
+        {
+            std::optional<size_t> parIdx{};
+            if (parent()) {
+                auto iter = std::find(parent()->begin(), parent()->end(), *this);
+                if (iter != parent()->end())
+                    return parIdx = gsl::narrow_cast<size_t>(std::distance(parent()->begin(), iter));
+            }
+            return parIdx;
         }
 
         /**

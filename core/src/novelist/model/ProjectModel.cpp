@@ -85,7 +85,7 @@ namespace novelist {
         if (parentItem == &m_root)
             return QModelIndex{};
 
-        return createIndex(computeParentIndex(*parentItem), 0, const_cast<Node*>(parentItem));
+        return createIndex(parentItem->parentIndex().value(), 0, const_cast<Node*>(parentItem));
     }
 
     int ProjectModel::rowCount(QModelIndex const& parent) const
@@ -307,7 +307,9 @@ namespace novelist {
             QModelIndex const& destinationParent, int destinationChild)
     {
         Expects(sourceRow >= 0);
+        Expects(sourceRow < rowCount(sourceParent));
         Expects(destinationChild >= 0);
+        Expects(destinationChild <= rowCount(destinationParent));
         Expects(count > 0);
 
         if (!sourceParent.isValid() || !destinationParent.isValid())
@@ -570,16 +572,6 @@ namespace novelist {
             default:
                 break;
         }
-    }
-
-    int ProjectModel::computeParentIndex(Node const& n) const
-    {
-        if (n.parent()) {
-            auto iter = std::find(n.parent()->begin(), n.parent()->end(), n);
-            if (iter != n.parent()->end())
-                return gsl::narrow_cast<int>(std::distance(n.parent()->begin(), iter));
-        }
-        return -1;
     }
 
     ProjectModel::NodeType ProjectModel::nodeType(Node const& n)

@@ -245,8 +245,6 @@ namespace novelist {
 
         void writeChapterOrScene(QXmlStreamWriter& xml, QModelIndex item) const;
 
-        int computeParentIndex(Node const& n) const;
-
         static NodeType nodeType(Node const& n);
 
         static NodeType nodeType(NodeData const& nodeData);

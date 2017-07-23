@@ -127,16 +127,33 @@ TEST_CASE("ProjectModel data storage", "[Model]")
 
     SECTION("Move") {
         SECTION("On same level") {
-            REQUIRE(model.moveRows(model.projectRootIndex().child(0, 0), 1, 1, model.projectRootIndex().child(0, 0),
-                    0));
-            std::string display = model.data(model.projectRootIndex().child(0, 0).child(0, 0),
-                    Qt::DisplayRole).toString().toStdString();
-            std::string correct = defaultNodes[{0, 0, 1}].first;
-            REQUIRE(display == correct);
-            display = model.data(model.projectRootIndex().child(0, 0).child(1, 0),
-                    Qt::DisplayRole).toString().toStdString();
-            correct = defaultNodes[{0, 0, 0}].first;
-            REQUIRE(display == correct);
+            SECTION("End to beginning")
+            {
+                REQUIRE(model.moveRows(model.projectRootIndex().child(0, 0), 1, 1, model.projectRootIndex().child(0, 0),
+                        0));
+                std::string display = model.data(model.projectRootIndex().child(0, 0).child(0, 0),
+                        Qt::DisplayRole).toString().toStdString();
+                std::string correct = defaultNodes[{0, 0, 1}].first;
+                REQUIRE(display == correct);
+                display = model.data(model.projectRootIndex().child(0, 0).child(1, 0),
+                        Qt::DisplayRole).toString().toStdString();
+                correct = defaultNodes[{0, 0, 0}].first;
+                REQUIRE(display == correct);
+            }
+
+            SECTION("Beginning to end")
+            {
+                REQUIRE(model.moveRows(model.projectRootIndex().child(0, 0), 0, 1, model.projectRootIndex().child(0, 0),
+                        2));
+                std::string display = model.data(model.projectRootIndex().child(0, 0).child(1, 0),
+                        Qt::DisplayRole).toString().toStdString();
+                std::string correct = defaultNodes[{0, 0, 0}].first;
+                REQUIRE(display == correct);
+                display = model.data(model.projectRootIndex().child(0, 0).child(0, 0),
+                        Qt::DisplayRole).toString().toStdString();
+                correct = defaultNodes[{0, 0, 1}].first;
+                REQUIRE(display == correct);
+            }
         }
 
         SECTION("Up in the hierarchy") {
