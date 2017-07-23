@@ -139,11 +139,17 @@ namespace novelist {
                         return QIcon(":/icons/scene.png");
                     case NodeType::Chapter:
                         return QIcon(":/icons/chapter.png");
+                    case NodeType::ProjectHead:
+                        return QIcon(":/icons/book.png");
+                    case NodeType::NotebookHead:
+                        return QIcon(":/icons/notebook.png");
+                    default:
+                        return QVariant{};
                 }
             }
+            default:
+                return QVariant{};
         }
-
-        return QVariant{};
     }
 
     bool ProjectModel::setData(QModelIndex const& index, QVariant const& value, int role)

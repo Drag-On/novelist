@@ -2,5 +2,7 @@
     <qresource>
         <file>icons/scene.png</file>
         <file>icons/chapter.png</file>
+        <file>icons/book.png</file>
+        <file>icons/notebook.png</file>
     </qresource>
 </RCC>
