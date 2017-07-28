@@ -126,52 +126,74 @@ TEST_CASE("ProjectModel data storage", "[Model]")
     }
 
     SECTION("Move") {
+        auto testMove = [&](std::vector<int> const& src, std::vector<int> const& dest)
+        {
+            auto rootIdx = [&](int c)
+            {
+                if(c == 0)
+                    return model.projectRootIndex();
+                else if (c == 1)
+                    return model.notebookIndex();
+                return QModelIndex{};
+            };
+            auto parIdx = [&](std::vector<int> const& idx)
+            {
+                auto root = rootIdx(idx.front());
+                for(size_t i = 1; i < idx.size() - 1; ++i)
+                    root = root.child(idx[i], 0);
+                return root;
+            };
+            auto index = [&](std::vector<int> const& idx)
+            {
+                auto root = rootIdx(idx.front());
+                for(size_t i = 1; i < idx.size(); ++i)
+                    root = root.child(idx[i], 0);
+                return root;
+            };
+
+            std::string srcStr = defaultNodes[src].first;
+            std::string destStr = defaultNodes[dest].first;
+            std::vector<int> srcPar(src.begin(), src.end()-1);
+            std::vector<int> destPar(dest.begin(), dest.end()-1);
+            std::string srcParStr = defaultNodes[srcPar].first;
+            std::string destParStr = defaultNodes[destPar].first;
+            QPersistentModelIndex srcParent{parIdx(src)};
+            QPersistentModelIndex destParent{parIdx(dest)};
+            QPersistentModelIndex srcIdx{index(src)};
+            QPersistentModelIndex destIdx{index(dest)};
+            REQUIRE(model.moveRow(srcParent, src.back(), destParent, dest.back()));
+            REQUIRE(srcParent.isValid());
+            REQUIRE(destParent.isValid());
+            REQUIRE(srcIdx.isValid());
+            REQUIRE(destIdx.isValid());
+            std::string srcParDisp = model.data(srcParent, Qt::DisplayRole).toString().toStdString();
+            REQUIRE(srcParDisp == srcParStr);
+            std::string destParDisp = model.data(destParent, Qt::DisplayRole).toString().toStdString();
+            REQUIRE(destParDisp == destParStr);
+            std::string srcDisp = model.data(srcIdx, Qt::DisplayRole).toString().toStdString();
+            REQUIRE(srcDisp == srcStr);
+            std::string destDisp = model.data(destIdx, Qt::DisplayRole).toString().toStdString();
+            REQUIRE(destDisp == destStr);
+        };
+
         SECTION("On same level") {
             SECTION("End to beginning")
             {
-                REQUIRE(model.moveRows(model.projectRootIndex().child(0, 0), 1, 1, model.projectRootIndex().child(0, 0),
-                        0));
-                std::string display = model.data(model.projectRootIndex().child(0, 0).child(0, 0),
-                        Qt::DisplayRole).toString().toStdString();
-                std::string correct = defaultNodes[{0, 0, 1}].first;
-                REQUIRE(display == correct);
-                display = model.data(model.projectRootIndex().child(0, 0).child(1, 0),
-                        Qt::DisplayRole).toString().toStdString();
-                correct = defaultNodes[{0, 0, 0}].first;
-                REQUIRE(display == correct);
+                testMove({0, 0, 1}, {0, 0, 0});
             }
 
             SECTION("Beginning to end")
             {
-                REQUIRE(model.moveRows(model.projectRootIndex().child(0, 0), 0, 1, model.projectRootIndex().child(0, 0),
-                        2));
-                std::string display = model.data(model.projectRootIndex().child(0, 0).child(1, 0),
-                        Qt::DisplayRole).toString().toStdString();
-                std::string correct = defaultNodes[{0, 0, 0}].first;
-                REQUIRE(display == correct);
-                display = model.data(model.projectRootIndex().child(0, 0).child(0, 0),
-                        Qt::DisplayRole).toString().toStdString();
-                correct = defaultNodes[{0, 0, 1}].first;
-                REQUIRE(display == correct);
+                testMove({0, 0, 0}, {0, 0, 1});
             }
         }
 
         SECTION("Up in the hierarchy") {
-            REQUIRE(model.moveRows(model.projectRootIndex().child(0, 0).child(1, 0), 0, 1,
-                    model.projectRootIndex().child(0, 0), 1));
-            std::string display = model.data(model.projectRootIndex().child(0, 0).child(1, 0),
-                    Qt::DisplayRole).toString().toStdString();
-            std::string correct = defaultNodes[{0, 0, 1, 0}].first;
-            REQUIRE(display == correct);
+            testMove({0, 0, 1, 0}, {0, 0, 1});
         }
 
         SECTION("Down in the hierarchy") {
-            REQUIRE(model.moveRows(model.projectRootIndex().child(0, 0), 0, 1,
-                    model.projectRootIndex().child(0, 0).child(1, 0), 0));
-            std::string display = model.data(model.projectRootIndex().child(0, 0).child(0, 0).child(0, 0),
-                    Qt::DisplayRole).toString().toStdString();
-            std::string correct = defaultNodes[{0, 0, 0}].first;
-            REQUIRE(display == correct);
+            testMove({0, 0, 0}, {0, 0, 1, 0});
         }
 
     }
