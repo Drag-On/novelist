@@ -8,9 +8,28 @@
  **********************************************************/
 
 #include <catch.hpp>
+#include <stack>
 #include "datastructures/Tree.h"
 
 using namespace novelist;
+
+template <typename T>
+void checkTreeValidity(TreeNode<T> const& root)
+{
+    std::stack<TreeNode<T> const*> parents;
+    parents.push(nullptr);
+    auto callback = [&] (TreeNode<T> const& node) -> bool
+    {
+        REQUIRE(node.parent() == parents.top());
+        parents.push(&node);
+        return false;
+    };
+    auto afterNode = [&] (TreeNode<T> const& /*node*/)
+    {
+        parents.pop();
+    };
+    traverse_dfs(root, callback, afterNode);
+}
 
 TEST_CASE("TreeNode emplace & emplace_back", "[DataStructures][Tree]")
 {
@@ -18,47 +37,41 @@ TEST_CASE("TreeNode emplace & emplace_back", "[DataStructures][Tree]")
     node.emplace_back(11);
     node.emplace_back(13);
 
+    checkTreeValidity(node);
+
     REQUIRE(node.m_data == 1);
-    REQUIRE(node.parent() == nullptr);
     REQUIRE(node.size() == 2);
     REQUIRE(node.at(0).m_data == 11);
-    REQUIRE(node.at(0).parent() == &node);
     REQUIRE(node.at(0).size() == 0);
     REQUIRE(node.at(1).m_data == 13);
-    REQUIRE(node.at(1).parent() == &node);
     REQUIRE(node.at(1).size() == 0);
 
     node.emplace(node.begin() + 1, 12);
 
+    checkTreeValidity(node);
+
     REQUIRE(node.m_data == 1);
-    REQUIRE(node.parent() == nullptr);
     REQUIRE(node.size() == 3);
     REQUIRE(node.at(0).m_data == 11);
-    REQUIRE(node.at(0).parent() == &node);
     REQUIRE(node.at(0).size() == 0);
     REQUIRE(node.at(1).m_data == 12);
-    REQUIRE(node.at(1).parent() == &node);
     REQUIRE(node.at(1).size() == 0);
     REQUIRE(node.at(2).m_data == 13);
-    REQUIRE(node.at(2).parent() == &node);
     REQUIRE(node.at(2).size() == 0);
 
     node.at(1).emplace(node.at(1).begin(), 121);
 
+    checkTreeValidity(node);
+
     REQUIRE(node.m_data == 1);
-    REQUIRE(node.parent() == nullptr);
     REQUIRE(node.size() == 3);
     REQUIRE(node.at(0).m_data == 11);
-    REQUIRE(node.at(0).parent() == &node);
     REQUIRE(node.at(0).size() == 0);
     REQUIRE(node.at(1).m_data == 12);
-    REQUIRE(node.at(1).parent() == &node);
     REQUIRE(node.at(1).size() == 1);
     REQUIRE(node.at(1).at(0).m_data == 121);
-    REQUIRE(node.at(1).at(0).parent() == &node.at(1));
     REQUIRE(node.at(1).at(0).size() == 0);
     REQUIRE(node.at(2).m_data == 13);
-    REQUIRE(node.at(2).parent() == &node);
     REQUIRE(node.at(2).size() == 0);
 }
 
@@ -94,6 +107,8 @@ TEST_CASE("TreeNode clone", "[DataStructures][Tree]")
     auto const& c2 = node.emplace_back(13);
     clone = node.clone();
 
+    checkTreeValidity(node);
+
     REQUIRE(node.size() == clone.size());
     REQUIRE(node.m_data == clone.m_data);
     REQUIRE(node[0].size() == clone[0].size());
@@ -111,6 +126,8 @@ TEST_CASE("TreeNode take children", "[DataStructures][Tree]")
     node.emplace_back(34);
     node[0].emplace_back(16);
 
+    checkTreeValidity(node);
+
     auto iter = node.begin();
     auto copy = iter->clone();
 
@@ -118,6 +135,8 @@ TEST_CASE("TreeNode take children", "[DataStructures][Tree]")
     REQUIRE(child1Taken.parent() == nullptr);
     REQUIRE(child1Taken.size() == copy.size());
     REQUIRE(child1Taken.m_data == copy.m_data);
+
+    checkTreeValidity(node);
 }
 
 TEST_CASE("TreeNode move children", "[DataStructures][Tree]")
@@ -135,17 +154,21 @@ TEST_CASE("TreeNode move children", "[DataStructures][Tree]")
     node[1][0].emplace_back(1212);
     node[1].emplace_back(122);
 
+    checkTreeValidity(node);
+
     SECTION("Same level")
     {
         SECTION("No-op")
         {
             bool success = node[0].move(0, node[0], 0);
+            checkTreeValidity(node);
             REQUIRE(success);
             REQUIRE(node[0][0].m_data == 111);
             REQUIRE(node[0][1].m_data == 112);
             REQUIRE(node[0][2].m_data == 113);
 
             success = node[0].move(0, node[0], 1);
+            checkTreeValidity(node);
             REQUIRE(success);
             REQUIRE(node[0][0].m_data == 111);
             REQUIRE(node[0][1].m_data == 112);
@@ -155,6 +178,7 @@ TEST_CASE("TreeNode move children", "[DataStructures][Tree]")
         SECTION("Top to bottom")
         {
             bool success = node[0].move(0, node[0], 3);
+            checkTreeValidity(node);
             REQUIRE(success);
             REQUIRE(node[0][0].m_data == 112);
             REQUIRE(node[0][1].m_data == 113);
@@ -164,6 +188,7 @@ TEST_CASE("TreeNode move children", "[DataStructures][Tree]")
         SECTION("Bottom to top")
         {
             bool success = node[0].move(2, node[0], 0);
+            checkTreeValidity(node);
             REQUIRE(success);
             REQUIRE(node[0][0].m_data == 113);
             REQUIRE(node[0][1].m_data == 111);
@@ -176,6 +201,7 @@ TEST_CASE("TreeNode move children", "[DataStructures][Tree]")
         SECTION("Before src node")
         {
             bool success = node[0].move(1, node, 0);
+            checkTreeValidity(node);
             REQUIRE(success);
             REQUIRE(node[0].m_data == 112);
             REQUIRE(node[1].m_data == 11);
@@ -188,6 +214,7 @@ TEST_CASE("TreeNode move children", "[DataStructures][Tree]")
         SECTION("After src node")
         {
             bool success = node[0].move(1, node, 1);
+            checkTreeValidity(node);
             REQUIRE(success);
             REQUIRE(node[0].m_data == 11);
             REQUIRE(node[0][0].m_data == 111);
@@ -204,6 +231,7 @@ TEST_CASE("TreeNode move children", "[DataStructures][Tree]")
         {
             bool success = node.move(0, node[0], 0);
             REQUIRE_FALSE(success);
+            checkTreeValidity(node);
         }
 
         SECTION("Down a sibling node")
@@ -211,6 +239,7 @@ TEST_CASE("TreeNode move children", "[DataStructures][Tree]")
             SECTION("Sibling before src")
             {
                 bool success = node.move(0, node[1], 0);
+                checkTreeValidity(node);
                 REQUIRE(success);
                 REQUIRE(node[0].m_data == 12);
                 REQUIRE(node[0][0].m_data == 11);
@@ -221,6 +250,7 @@ TEST_CASE("TreeNode move children", "[DataStructures][Tree]")
             SECTION("Sibling after src")
             {
                 bool success = node.move(1, node[0], 0);
+                checkTreeValidity(node);
                 REQUIRE(success);
                 REQUIRE(node[0].m_data == 11);
                 REQUIRE(node[0][0].m_data == 12);
@@ -235,6 +265,8 @@ TEST_CASE("TreeNode move children", "[DataStructures][Tree]")
     {
         TreeNode<int> otherNode{0};
         bool success = node[0].move(1, otherNode, 0);
+        checkTreeValidity(node);
+        checkTreeValidity(otherNode);
         REQUIRE(success);
         REQUIRE(node[0].m_data == 11);
         REQUIRE(node[0][0].m_data == 111);
@@ -349,6 +381,9 @@ TEST_CASE("TreeNode is child of", "[DataStructures][Tree]")
     node.emplace_back(8);
     node[0].emplace_back(7);
     node.emplace_back(42);
+
+    checkTreeValidity(node);
+    checkTreeValidity(other);
 
     SECTION("Failure case")
     {
