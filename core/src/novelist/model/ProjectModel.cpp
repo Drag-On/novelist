@@ -131,10 +131,8 @@ namespace novelist {
                 if (displayText.isEmpty())
                     return QBrush(QColor(Qt::gray));
                 return QBrush(QColor(Qt::black));
-            case Qt::DecorationRole:
-            {
-                switch (nodeType(*item))
-                {
+            case Qt::DecorationRole: {
+                switch (nodeType(*item)) {
                     case NodeType::Scene:
                         return QIcon(":/icons/scene.png");
                     case NodeType::Chapter:
@@ -189,10 +187,83 @@ namespace novelist {
 
         auto* item = static_cast<Node*>(index.internalPointer());
         Q_ASSERT(item != nullptr);
-        if (nodeType(*item) == NodeType::Scene || nodeType(*item) == NodeType::Chapter)
-            flags |= Qt::ItemIsEditable;
+        switch (nodeType(*item)) {
+            case NodeType::Scene:
+                flags |= Qt::ItemIsEditable | Qt::ItemIsDragEnabled;
+                break;
+            case NodeType::Chapter:
+                flags |= Qt::ItemIsEditable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+                break;
+            case NodeType::ProjectHead:
+                flags |= Qt::ItemIsEditable | Qt::ItemIsDropEnabled;
+                break;
+            case NodeType::NotebookHead:
+                flags |= Qt::ItemIsDropEnabled;
+                break;
+            default:
+                break;
+        }
 
         return flags;
+    }
+
+    Qt::DropActions ProjectModel::supportedDropActions() const
+    {
+        return Qt::CopyAction;
+    }
+
+    Qt::DropActions ProjectModel::supportedDragActions() const
+    {
+        return Qt::CopyAction;
+    }
+
+    bool ProjectModel::dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int /*column*/,
+            const QModelIndex& parent)
+    {
+        if (action != Qt::CopyAction)
+            return false;
+
+        QByteArray encodedData = data->data("application/x-projectmodelnodeindexlist");
+        QDataStream stream(&encodedData, QIODevice::ReadOnly);
+        QModelIndexList newItems;
+
+        while (!stream.atEnd()) {
+            int size;
+            stream >> size;
+            QModelIndex text;
+            stream.readRawData(reinterpret_cast<char*>(&text), size);
+            newItems << text;
+        }
+
+        auto destParent = parent;
+        if (row < 0)
+            row = 0;
+
+        for (auto const& idx : newItems)
+            moveRow(idx.parent(), idx.row(), destParent, row);
+
+        return true;
+    }
+
+    QMimeData* ProjectModel::mimeData(const QModelIndexList& indexes) const
+    {
+        auto* mimeData = new QMimeData();
+        QByteArray encodedData;
+
+        QDataStream stream(&encodedData, QIODevice::WriteOnly);
+
+        for (QModelIndex const& index : indexes) {
+            stream << static_cast<int>(sizeof(index));
+            stream.writeRawData(reinterpret_cast<char const*>(&index), sizeof(index));
+        }
+
+        mimeData->setData("application/x-projectmodelnodeindexlist", encodedData);
+        return mimeData;
+    }
+
+    QStringList ProjectModel::mimeTypes() const
+    {
+        return {"application/x-projectmodelnodeindexlist"};
     }
 
     bool ProjectModel::canInsert(QModelIndex const& parent) const
@@ -306,82 +377,13 @@ namespace novelist {
     bool ProjectModel::moveRows(QModelIndex const& sourceParent, int sourceRow, int count,
             QModelIndex const& destinationParent, int destinationChild)
     {
-        Expects(sourceRow >= 0);
-        Expects(sourceRow < rowCount(sourceParent));
-        Expects(destinationChild >= 0);
-        Expects(destinationChild <= rowCount(destinationParent));
         Expects(count > 0);
 
-        if (!sourceParent.isValid() || !destinationParent.isValid())
-            return false;
+        bool success = true;
+        for(int i = 0; i < count; ++i)
+            success &= moveRowInternal(sourceParent, sourceRow + count - i - 1, destinationParent, destinationChild);
 
-        if (!canInsert(destinationParent) || !canRemove(sourceParent))
-            return false;
-
-        auto* srcParent = static_cast<Node*>(sourceParent.internalPointer());
-        auto* destParent = static_cast<Node*>(destinationParent.internalPointer());
-
-        if (sourceParent == destinationParent && destinationChild >= sourceRow && destinationChild <= sourceRow + count)
-            return false;
-
-        for (int i = 0; i < count; ++i) {
-            if (destParent->inSubtreeOf(srcParent->at(sourceRow + i)) || destParent == &srcParent->at(sourceRow + i))
-                return false;
-        }
-
-        enum class MoveType {
-            SameLevel,
-            Up,
-            Down,
-            General,
-        };
-        MoveType moveType = MoveType::General;
-        if (sourceParent == destinationParent)
-            moveType = MoveType::SameLevel;
-        else if (srcParent->inSubtreeOf(*destParent))
-            moveType = MoveType::Up;
-        else if (destParent->inSubtreeOf(*srcParent))
-            moveType = MoveType::Down;
-
-        QModelIndexList indicesThatChangeAtSrc = childIndices(sourceParent);
-        QModelIndexList indicesThatChangeAtDest = childIndices(destinationParent);
-
-        beginMoveRows(sourceParent, sourceRow, sourceRow + count - 1, destinationParent, destinationChild);
-        for (int i = 0; i < count; ++i)
-            srcParent->move(sourceRow, *destParent, destinationChild + i);
-        endMoveRows();
-
-        auto updateSrc = [&]() {
-            QModelIndexList newIndicesAtSrc = childIndices(sourceParent);
-            for (int i = 0; i < count; ++i)
-                newIndicesAtSrc.insert(sourceRow, QModelIndex{});
-            Q_ASSERT(indicesThatChangeAtSrc.size() == newIndicesAtSrc.size());
-            changePersistentIndexList(indicesThatChangeAtSrc, newIndicesAtSrc);
-        };
-        auto updateDest = [&]() {
-            QModelIndexList newIndicesAtDest = childIndices(destinationParent);
-            newIndicesAtDest.erase(newIndicesAtDest.begin() + destinationChild,
-                    newIndicesAtDest.begin() + destinationChild + count);
-            Q_ASSERT(indicesThatChangeAtDest.size() == newIndicesAtDest.size());
-            changePersistentIndexList(indicesThatChangeAtDest, newIndicesAtDest);
-        };
-
-        // All children of parent might have been relocated, therefore update their persistent indices
-        if (moveType == MoveType::SameLevel) {
-            QModelIndexList newIndicesAtSrc = childIndices(sourceParent);
-            Q_ASSERT(indicesThatChangeAtSrc.size() == newIndicesAtSrc.size());
-            changePersistentIndexList(indicesThatChangeAtSrc, newIndicesAtSrc);
-        }
-        else if (moveType == MoveType::Up)
-            updateDest();
-        else if (moveType == MoveType::Down)
-            updateSrc();
-        else {
-            updateDest();
-            updateSrc();
-        }
-
-        return true;
+        return success;
     }
 
     bool ProjectModel::read(QFile& file)
@@ -549,6 +551,92 @@ namespace novelist {
         return true;
     }
 
+    bool
+    ProjectModel::moveRowInternal(QModelIndex const& sourceParent, int sourceRow, QModelIndex const& destinationParent,
+            int destinationRow)
+    {
+        Expects(sourceRow >= 0);
+        Expects(sourceRow < rowCount(sourceParent));
+        Expects(destinationRow >= 0);
+        Expects(destinationRow <= rowCount(destinationParent));
+
+        if (!sourceParent.isValid() || !destinationParent.isValid())
+            return false;
+
+        if (!canInsert(destinationParent) || !canRemove(sourceParent))
+            return false;
+
+        auto* srcParent = static_cast<Node*>(sourceParent.internalPointer());
+        auto* destParent = static_cast<Node*>(destinationParent.internalPointer());
+
+        if (sourceParent == destinationParent && destinationRow >= sourceRow && destinationRow < sourceRow)
+            return false;
+
+        if (destParent->inSubtreeOf(srcParent->at(sourceRow)) || destParent == &srcParent->at(sourceRow))
+            return false;
+
+        auto fixNodePtrs = [fixSrc = srcParent->parent() == destParent,
+                fixDest = destParent->parent() == srcParent,
+                srcParentIdx = srcParent->parentIndex(),
+                destParentIdx = destParent->parentIndex(),
+                &srcParent, &destParent,sourceRow,destinationRow]() {
+
+            if (fixDest)
+            {
+                size_t destParIdx = destParentIdx.value();
+                if(sourceRow < destParentIdx)
+                    --destParIdx;
+                destParent = &srcParent->at(destParIdx);
+            }
+            else if (fixSrc)
+            {
+                size_t srcParIdx = srcParentIdx.value();
+                if(destinationRow <= srcParentIdx)
+                    ++srcParIdx;
+                srcParent = &destParent->at(srcParIdx);
+            }
+        };
+
+        QPersistentModelIndex persistentSrcParent {sourceParent};
+        QPersistentModelIndex persistentDestParent {destinationParent};
+        QList<QPersistentModelIndex> layoutChangeParents = {persistentSrcParent, persistentDestParent};
+        emit layoutAboutToBeChanged(layoutChangeParents);
+
+        QModelIndexList indicesThatChangeAtSrc = childIndices(sourceParent);
+        QModelIndexList indicesThatChangeAtDest = childIndices(destinationParent);
+
+        srcParent->move(sourceRow, *destParent, destinationRow);
+
+        // All children of parent might have been relocated, therefore update their persistent indices
+        if (sourceParent == destinationParent) {
+            QModelIndexList newIndicesAtSrc = childIndices(sourceParent);
+            Q_ASSERT(indicesThatChangeAtSrc.size() == newIndicesAtSrc.size());
+            if(destinationRow > sourceRow)
+                --destinationRow;
+            newIndicesAtSrc.move(destinationRow, sourceRow);
+            changePersistentIndexList(indicesThatChangeAtSrc, newIndicesAtSrc);
+        }
+        else
+        {
+            fixNodePtrs();
+            QModelIndex newDest = createIndex(destinationRow, 0, &destParent->at(destinationRow));
+            QModelIndexList newIndicesAtSrc = childIndices(*srcParent);
+            newIndicesAtSrc.insert(sourceRow, newDest);
+            Q_ASSERT(indicesThatChangeAtSrc.size() == newIndicesAtSrc.size());
+            changePersistentIndexList(indicesThatChangeAtSrc, newIndicesAtSrc);
+
+            QModelIndexList newIndicesAtDest = childIndices(*destParent);
+            newIndicesAtDest.erase(newIndicesAtDest.begin() + destinationRow,
+                    newIndicesAtDest.begin() + destinationRow + 1);
+            Q_ASSERT(indicesThatChangeAtDest.size() == newIndicesAtDest.size());
+            changePersistentIndexList(indicesThatChangeAtDest, newIndicesAtDest);
+        }
+
+        emit layoutChanged(layoutChangeParents);
+
+        return true;
+    }
+
     void ProjectModel::writeChapterOrScene(QXmlStreamWriter& xml, QModelIndex item) const
     {
         auto const* node = static_cast<Node const*>(item.internalPointer());
@@ -616,6 +704,15 @@ namespace novelist {
         QModelIndexList indices;
         for (size_t i = 0; i < node->size(); ++i)
             indices.append(index(i, 0, parent));
+
+        return indices;
+    }
+
+    QModelIndexList ProjectModel::childIndices(Node const& n) const
+    {
+        QModelIndexList indices;
+        for (size_t i = 0; i < n.size(); ++i)
+            indices.append(createIndex(i, 0, const_cast<Node*>(&n.at(i))));
 
         return indices;
     }

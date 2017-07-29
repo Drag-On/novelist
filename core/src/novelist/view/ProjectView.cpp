@@ -250,9 +250,13 @@ namespace novelist {
         m_topLayout = new QVBoxLayout(this);
         m_treeView = new QTreeView(this);
         m_treeView->setEditTriggers(QAbstractItemView::EditKeyPressed);
+        m_treeView->setSelectionMode(QAbstractItemView::SingleSelection);
         m_treeView->setDragEnabled(true);
-        m_treeView->setDragDropMode(QAbstractItemView::InternalMove);
-        m_treeView->setDefaultDropAction(Qt::TargetMoveAction);
+        m_treeView->viewport()->setAcceptDrops(true);
+        m_treeView->setDragDropOverwriteMode(false);
+        m_treeView->setDragDropMode(QAbstractItemView::DragDrop);
+        m_treeView->setDefaultDropAction(Qt::CopyAction); // Copy is actually internal move.
+        m_treeView->setDropIndicatorShown(true);
         m_treeView->setIconSize(QSize(16, 16));
         m_treeView->setRootIsDecorated(true);
         m_treeView->setUniformRowHeights(false);

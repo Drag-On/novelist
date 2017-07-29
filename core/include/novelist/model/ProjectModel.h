@@ -18,6 +18,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QXmlStreamReader>
 #include <QtGui/QTextDocument>
+#include <QMimeData>
 #include "datastructures/Tree.h"
 #include "identity/Identity.h"
 #include "lang/Language.h"
@@ -109,6 +110,22 @@ namespace novelist {
         bool setHeaderData(int section, Qt::Orientation orientation, const QVariant& value, int role) override;
 
         Qt::ItemFlags flags(QModelIndex const& index) const override;
+
+        /**
+         * @note Currently, the Qt::CopyAction flag is abused for internal move operations. This is bad, but I have not
+         *       found a solution how to make Qt use moveRows() instead of trying to copy them. Copying is
+         *       not viable because project rows can only be moved, not copied.
+         */
+        Qt::DropActions supportedDropActions() const override;
+
+        Qt::DropActions supportedDragActions() const override;
+
+        QStringList mimeTypes() const override;
+
+        QMimeData* mimeData(const QModelIndexList& indexes) const override;
+
+        bool dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column,
+                const QModelIndex& parent) override;
 
         /**
          * @param index Valid index corresponding to a node
@@ -243,6 +260,9 @@ namespace novelist {
 
         bool readChapterOrScene(QXmlStreamReader& xml, QModelIndex parent);
 
+        bool moveRowInternal(QModelIndex const& sourceParent, int sourceRow, QModelIndex const& destinationParent,
+                int destinationRow);
+
         void writeChapterOrScene(QXmlStreamWriter& xml, QModelIndex item) const;
 
         static NodeType nodeType(Node const& n);
@@ -252,6 +272,8 @@ namespace novelist {
         NodeData makeNodeData(InsertableNodeType type, QString const& name);
 
         QModelIndexList childIndices(QModelIndex const& parent) const;
+
+        QModelIndexList childIndices(Node const& n) const;
 
         friend std::ostream& operator<<(std::ostream& stream, NodeData const& nodeData);
     };
