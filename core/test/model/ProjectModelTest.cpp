@@ -243,7 +243,7 @@ TEST_CASE("ProjectModel data storage", "[Model]")
                 testMove({0, 1}, {0, 0, 1});
             }
             SECTION("Two levels from above") {
-                testMove({0, 0}, {0, 1, 0, 1});
+                testMove({0, 0}, {0, 1, 0, 0});
             }
             SECTION("Two levels from below") {
                 testMove({0, 1}, {0, 0, 1, 2});
