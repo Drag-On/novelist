@@ -22,15 +22,7 @@ namespace novelist {
      */
     class uniqueness_error : public std::logic_error {
     public:
-        explicit uniqueness_error(const std::string& what_arg)
-                :std::logic_error(what_arg)
-        {
-        }
-
-        explicit uniqueness_error(const char* what_arg)
-                :std::logic_error(what_arg)
-        {
-        }
+        using std::logic_error::logic_error;
     };
 
     template<typename Tag_Type, typename T>
