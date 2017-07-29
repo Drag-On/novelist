@@ -152,6 +152,15 @@ TEST_CASE("ProjectModel data storage", "[Model]")
                     root = root.child(idx[i], 0);
                 return root;
             };
+            auto defaultStr = [&](std::vector<int> const& idx)
+            {
+                if(idx == std::vector<int>{0})
+                    return model.projectRootIndex().data().toString().toStdString();
+                else if (idx == std::vector<int>{1})
+                    return model.notebookIndex().data().toString().toStdString();
+                else
+                    return std::string {defaultNodes.at(idx).first};
+            };
             struct NodeInfo
             {
                 std::vector<int> idx;
@@ -165,8 +174,8 @@ TEST_CASE("ProjectModel data storage", "[Model]")
             NodeInfo srcInfo;
             srcInfo.idx = src;
             srcInfo.parIdx = {src.begin(), src.end()-1};
-            srcInfo.str = defaultNodes.at(src).first;
-            srcInfo.parStr = defaultNodes.at(srcInfo.parIdx).first;
+            srcInfo.str = defaultStr(src);
+            srcInfo.parStr = defaultStr(srcInfo.parIdx);
             srcInfo.persIdx = index(src);
             srcInfo.persParIdx = parIdx(src);
 
@@ -174,10 +183,10 @@ TEST_CASE("ProjectModel data storage", "[Model]")
             destInfo.idx = dest;
             destInfo.parIdx = {dest.begin(), dest.end()-1};
             if(defaultNodes.count(dest) > 0) {
-                destInfo.str = defaultNodes.at(dest).first;
+                destInfo.str = defaultStr(dest);
                 destInfo.persIdx = index(dest);
             }
-            destInfo.parStr = defaultNodes.at(destInfo.parIdx).first;
+            destInfo.parStr = defaultStr(destInfo.parIdx);
             destInfo.persParIdx = parIdx(dest);
 
             REQUIRE(model.moveRow(srcInfo.persParIdx, srcInfo.idx.back(), destInfo.persParIdx, destInfo.idx.back()));
