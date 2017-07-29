@@ -232,7 +232,7 @@ namespace novelist {
                     return true; // This is a no-op
 
                 if(srcChild < destChild)
-                    destChild--;
+                    --destChild;
 
                 NodeType n = take(begin() + srcChild);
                 auto const iter = destParent.insert(destParent.begin() + destChild, std::move(n));
