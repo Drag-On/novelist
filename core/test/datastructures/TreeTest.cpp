@@ -20,7 +20,8 @@ void checkTreeValidity(TreeNode<T> const& root)
     parents.push(nullptr);
     auto callback = [&] (TreeNode<T> const& node) -> bool
     {
-        REQUIRE(node.parent() == parents.top());
+        CAPTURE(node.m_data);
+        CHECK(node.parent() == parents.top());
         parents.push(&node);
         return false;
     };

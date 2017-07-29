@@ -184,7 +184,7 @@ namespace novelist {
          */
         iterator erase(const_iterator pos)
         {
-            return m_children.erase(pos);
+            return erase(pos, pos + 1);
         }
 
         /**
@@ -195,7 +195,15 @@ namespace novelist {
          */
         iterator erase(const_iterator first, const_iterator last)
         {
-            return m_children.erase(first, last);
+            auto iter = m_children.erase(first, last);
+            // All children past the erased might have been relocated in memory. This invalidates all pointers to them,
+            // in particular the parent pointers of their children. This is fixed here.
+            for(auto cIter = iter; cIter != m_children.end(); ++cIter)
+            {
+                for(auto& cc : cIter->m_children)
+                    cc.m_parent = &*cIter;
+            }
+            return iter;
         }
 
         /**
@@ -241,12 +249,7 @@ namespace novelist {
 
             if (destParent.parent() == this)
             {
-                auto const iter = std::find(destParent.parent()->begin(), destParent.parent()->end(), destParent);
-
-                if(iter == destParent.end())
-                    return false;
-
-                auto const destParentIdx = static_cast<size_t>(std::distance(destParent.parent()->begin(), iter));
+                auto const destParentIdx = destParent.parentIndex().value();
                 size_t const newDestParentIdx = srcChild < destParentIdx ? destParentIdx - 1 : destParentIdx;
 
                 NodeType n = take(begin() + srcChild);
@@ -345,8 +348,9 @@ namespace novelist {
             std::optional<size_t> parIdx{};
             if (parent()) {
                 auto iter = std::find(parent()->begin(), parent()->end(), *this);
-                if (iter != parent()->end())
-                    return parIdx = gsl::narrow_cast<size_t>(std::distance(parent()->begin(), iter));
+                assert (iter != parent()->end());
+                parIdx = gsl::narrow_cast<size_t>(std::distance(parent()->begin(), iter));
+                return parIdx;
             }
             return parIdx;
         }
