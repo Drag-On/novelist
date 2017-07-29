@@ -45,7 +45,7 @@ TEST_CASE("ProjectView start", "[.Interactive][View]")
     int argc = 0;
     Application app(argc, nullptr);
 
-    ProjectProperties properties{"Foo", "Ernie", Language {"en_US"}};
+    ProjectProperties properties{"Foo", "Ernie", Language::en_US};
     ProjectModel model{properties};
     ProjectView projectView(nullptr);
     projectView.setModel(&model);

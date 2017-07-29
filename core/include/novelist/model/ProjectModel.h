@@ -31,7 +31,7 @@ namespace novelist {
     struct ProjectProperties {
         QString m_name; //!< project name
         QString m_author; //!< project author
-        Language m_lang{"en_EN"}; //!< project language
+        Language m_lang = Language::en_US; //!< project language
     };
 
     /**

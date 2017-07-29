@@ -16,7 +16,7 @@ using namespace novelist;
 using NodeType = ProjectModel::InsertableNodeType;
 
 // Default properties for most tests
-ProjectProperties properties{"Foo", "Ernie", Language {"en_US"}};
+ProjectProperties properties{"Foo", "Ernie", Language::en_US};
 
 // Some sample data to use in tests
 std::map<std::vector<int>, std::pair<char const*, NodeType>> const defaultNodes{
@@ -65,7 +65,7 @@ TEST_CASE("ProjectModel properties", "[Model]")
         REQUIRE(notebookDisplay == "Notebook");
     }
 
-    ProjectProperties newProperties{"Bar", "Bert", Language {"en_UK"}};
+    ProjectProperties newProperties{"Bar", "Bert", Language::en_UK};
     model.setProperties(newProperties);
     SECTION("After change") {
         REQUIRE(model.projectRootIndex().isValid());

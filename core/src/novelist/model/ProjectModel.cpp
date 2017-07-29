@@ -448,7 +448,7 @@ namespace novelist {
         xmlWriter.writeStartElement("meta");
         xmlWriter.writeAttribute("name", properties().m_name);
         xmlWriter.writeAttribute("author", properties().m_author);
-        xmlWriter.writeAttribute("lang", properties().m_lang.shortname());
+        xmlWriter.writeAttribute("lang", lang::identifier(properties().m_lang));
         xmlWriter.writeEndElement();
 
         // Write project chapters and scenes
@@ -492,7 +492,7 @@ namespace novelist {
                 if (xml.attributes().hasAttribute("author"))
                     properties.m_author = xml.attributes().value("author").toString();
                 if (xml.attributes().hasAttribute("lang"))
-                    properties.m_lang = Language(xml.attributes().value("lang").toString());
+                    properties.m_lang = lang::fromIdentifier(xml.attributes().value("lang").toString());
                 setProperties(properties);
 
                 xml.skipCurrentElement();

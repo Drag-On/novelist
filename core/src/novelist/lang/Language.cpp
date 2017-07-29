@@ -10,19 +10,87 @@
 #include <QtCore/QCoreApplication>
 #include "lang/Language.h"
 
-namespace novelist {
-    Language::Language(QString const& shortname) noexcept
-            :m_short(shortname)
+namespace novelist::lang {
+
+    QString identifier(Language lang)
     {
+        switch (lang) {
+            case Language::de_DE:
+                return "de-DE";
+            case Language::de_AT:
+                return "de-AT";
+            case Language::de_CH:
+                return "de-CH";
+            case Language::en_UK:
+                return "en-UK";
+            case Language::en_US:
+                return "en-US";
+            case Language::en_AU:
+                return "en-AU";
+        }
+        throw language_error{"No identifier for this language known. Probably forgot to update switch statement."};
     }
 
-    QString const& Language::shortname() const
+    QString countryCode(Language lang)
     {
-        return m_short;
+        switch (lang) {
+            case Language::de_DE:
+            case Language::de_AT:
+            case Language::de_CH:
+                return "de";
+            case Language::en_UK:
+            case Language::en_US:
+            case Language::en_AU:
+                return "en";
+        }
+        throw language_error{"No language code for this language known. Probably forgot to update switch statement."};
     }
 
-    QString Language::name() const
+    QString description(Language lang)
     {
-        return qtTrId((m_short + "_long_name").toStdString().c_str());
+        switch (lang) {
+            case Language::de_DE:
+                return QCoreApplication::translate("Language", "German (Germany)");
+            case Language::de_AT:
+                return QCoreApplication::translate("Language", "German (Austria)");
+            case Language::de_CH:
+                return QCoreApplication::translate("Language", "German (Switzerland)");
+            case Language::en_UK:
+                return QCoreApplication::translate("Language", "English (United Kingdom)");
+            case Language::en_US:
+                return QCoreApplication::translate("Language", "English (United States)");
+            case Language::en_AU:
+                return QCoreApplication::translate("Language", "English (Australia)");
+        }
+        throw language_error{"No description for this language known. Probably forgot to update switch statement."};
+    }
+
+    QIcon icon(Language lang)
+    {
+        QIcon icon;
+        QString themeName = "flag-" + countryCode(lang);
+        if (QIcon::hasThemeIcon(themeName))
+            icon = QIcon::fromTheme(themeName);
+        else
+            icon.addFile(QStringLiteral("."), QSize(), QIcon::Normal, QIcon::Off);
+        return icon;
+    }
+
+    Language fromIdentifier(QString const& identifier)
+    {
+        if (identifier == "de-DE")
+            return Language::de_DE;
+        if (identifier == "de-AT")
+            return Language::de_AT;
+        if (identifier == "de-CH")
+            return Language::de_CH;
+        if (identifier == "en-UK")
+            return Language::en_UK;
+        if (identifier == "en-US")
+            return Language::en_US;
+        if (identifier == "en-AU")
+            return Language::en_AU;
+
+        throw language_error{"Invalid identifier."};
     }
 }
