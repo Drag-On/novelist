@@ -209,18 +209,21 @@ namespace novelist {
 
     Qt::DropActions ProjectModel::supportedDropActions() const
     {
-        return Qt::CopyAction;
+        return Qt::MoveAction;
     }
 
     Qt::DropActions ProjectModel::supportedDragActions() const
     {
-        return Qt::CopyAction;
+        return Qt::MoveAction;
     }
 
     bool ProjectModel::dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int /*column*/,
             const QModelIndex& parent)
     {
-        if (action != Qt::CopyAction)
+        if (action != Qt::MoveAction)
+            return false;
+
+        if(!data->hasFormat("application/x-projectmodelnodeindexlist"))
             return false;
 
         QByteArray encodedData = data->data("application/x-projectmodelnodeindexlist");

@@ -18,6 +18,12 @@
 #include "model/ProjectModel.h"
 
 namespace novelist {
+
+    namespace internal
+    {
+        class ProjectTreeView;
+    }
+
     class ProjectView : public QWidget {
     Q_OBJECT
 
@@ -53,7 +59,7 @@ namespace novelist {
         QIcon m_iconConfig;
         QVBoxLayout* m_topLayout;
         QHBoxLayout* m_nestedLayout;
-        QTreeView* m_treeView;
+        internal::ProjectTreeView* m_treeView;
         QToolButton* m_newSceneButton;
         QToolButton* m_newChapterButton;
         QToolButton* m_deleteButton;
@@ -70,6 +76,27 @@ namespace novelist {
 
         void setupConnections();
     };
+
+    namespace internal
+    {
+        class ProjectTreeView : public QTreeView
+        {
+            Q_OBJECT
+
+        public:
+            using QTreeView::QTreeView;
+
+        protected:
+            /**
+             * @note The default implementation assumes that internal item movement is done by copying the source to
+             *       destination, then deleting source. This is not possible with ProjectModels, because its items are
+             *       not copyable. The ProjectModel implementation internally calls the move operation on drop, such
+             *       that the remove operation of QTreeView is destructive.
+             * @param supportedActions
+             */
+            void startDrag(Qt::DropActions supportedActions) override;
+        };
+    }
 }
 
 #endif //NOVELIST_PROJECTMODELVIEW_H

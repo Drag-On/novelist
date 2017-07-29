@@ -8,6 +8,7 @@
  **********************************************************/
 
 #include <QPainter>
+#include <QDrag>
 #include "view/ProjectView.h"
 
 // The macro cannot be called from within a namespace (see http://doc.qt.io/qt-5/qdir.html#Q_INIT_RESOURCE)
@@ -146,10 +147,11 @@ namespace novelist {
         m->removeRow(row, parIdx);
 
         // Select another item
-        if(m->rowCount(parIdx) == 0) // Select parent if no more children
+        if (m->rowCount(parIdx) == 0) // Select parent if no more children
             m_treeView->selectionModel()->select(parIdx, QItemSelectionModel::SelectCurrent);
         else if (row >= m->rowCount(parIdx)) // Select item before if no more items after
-            m_treeView->selectionModel()->select(parIdx.child(m->rowCount(parIdx) - 1, 0), QItemSelectionModel::SelectCurrent);
+            m_treeView->selectionModel()->select(parIdx.child(m->rowCount(parIdx) - 1, 0),
+                    QItemSelectionModel::SelectCurrent);
         else // Select item after
             m_treeView->selectionModel()->select(parIdx.child(row, 0), QItemSelectionModel::SelectCurrent);
     }
@@ -166,8 +168,7 @@ namespace novelist {
 
     void ProjectView::onSelectionChanged(QItemSelection const& selected, QItemSelection const& /*deselected*/)
     {
-        if (m_treeView->selectionModel()->selectedIndexes().empty())
-        {
+        if (m_treeView->selectionModel()->selectedIndexes().empty()) {
             m_contextMenu->setDisabled(true);
             m_actionNewChapter->setEnabled(false);
             m_actionNewScene->setEnabled(false);
@@ -248,14 +249,14 @@ namespace novelist {
         setupActions();
 
         m_topLayout = new QVBoxLayout(this);
-        m_treeView = new QTreeView(this);
+        m_treeView = new internal::ProjectTreeView(this);
         m_treeView->setEditTriggers(QAbstractItemView::EditKeyPressed);
         m_treeView->setSelectionMode(QAbstractItemView::SingleSelection);
         m_treeView->setDragEnabled(true);
         m_treeView->viewport()->setAcceptDrops(true);
         m_treeView->setDragDropOverwriteMode(false);
-        m_treeView->setDragDropMode(QAbstractItemView::DragDrop);
-        m_treeView->setDefaultDropAction(Qt::CopyAction); // Copy is actually internal move.
+        m_treeView->setDragDropMode(QAbstractItemView::InternalMove);
+        m_treeView->setDefaultDropAction(Qt::MoveAction);
         m_treeView->setDropIndicatorShown(true);
         m_treeView->setIconSize(QSize(16, 16));
         m_treeView->setRootIsDecorated(true);
@@ -348,4 +349,22 @@ namespace novelist {
 //        connect(this, &ProjectView::doubleClicked, this, &ProjectView::onDoubleClick);
     }
 
+    void internal::ProjectTreeView::startDrag(Qt::DropActions supportedActions)
+    {
+        QModelIndexList indexes = selectionModel()->selectedRows();
+        if (indexes.count() > 0) {
+            QMimeData* data = model()->mimeData(indexes);
+            if (!data)
+                return;
+            QRect rect = visualRect(indexes.first());
+            QPixmap pixmap(rect.size());
+            render(&pixmap, QPoint(), rect);
+
+            auto* drag = new QDrag(this);
+            drag->setPixmap(pixmap);
+            drag->setMimeData(data);
+
+            drag->exec(supportedActions, this->defaultDropAction());
+        }
+    }
 }

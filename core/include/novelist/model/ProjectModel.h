@@ -111,11 +111,6 @@ namespace novelist {
 
         Qt::ItemFlags flags(QModelIndex const& index) const override;
 
-        /**
-         * @note Currently, the Qt::CopyAction flag is abused for internal move operations. This is bad, but I have not
-         *       found a solution how to make Qt use moveRows() instead of trying to copy them. Copying is
-         *       not viable because project rows can only be moved, not copied.
-         */
         Qt::DropActions supportedDropActions() const override;
 
         Qt::DropActions supportedDragActions() const override;
