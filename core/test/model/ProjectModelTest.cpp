@@ -19,14 +19,16 @@ using NodeType = ProjectModel::InsertableNodeType;
 ProjectProperties properties{"Foo", "Ernie", Language {"en_US"}};
 
 // Some sample data to use in tests
-std::map<std::vector<int>, std::pair<char const*, NodeType>> defaultNodes{
+std::map<std::vector<int>, std::pair<char const*, NodeType>> const defaultNodes{
         // Project root
         {{0, 0},       {"The Raven",              NodeType::Chapter}},
         {{0, 0, 0},    {"What a Kind King Wants", NodeType::Scene}},
         {{0, 0, 1},    {"Breaking the Chains",    NodeType::Chapter}},
         {{0, 0, 1, 0}, {"Morning Dew",            NodeType::Scene}},
         {{0, 0, 1, 1}, {"Smith the Smith",        NodeType::Scene}},
+        {{0, 0, 1, 2}, {"A Kind Gift",            NodeType::Chapter}},
         {{0, 1},       {"A New Season",           NodeType::Chapter}},
+        {{0, 1, 0},    {"The War of Thunder",     NodeType::Chapter}},
         {{0, 2},       {"Epilogue",               NodeType::Scene}},
         // Notebook
         {{1, 0},       {"Characters",             NodeType::Chapter}}
@@ -44,7 +46,7 @@ QModelIndex getParIdx(std::vector<int> const& idx, ProjectModel& model)
 
 void fillModel(ProjectModel& model)
 {
-    for (auto[key, val] : defaultNodes)
+    for (auto const& [key, val] : defaultNodes)
         model.insertRow(key.back(), val.second, val.first, getParIdx(key, model));
 }
 
@@ -112,7 +114,7 @@ TEST_CASE("ProjectModel data storage", "[Model]")
     ProjectModel model{properties};
     fillModel(model);
 
-    for (auto[key, val] : defaultNodes) {
+    for (auto const& [key, val] : defaultNodes) {
         auto idx = getParIdx(key, model);
         REQUIRE(idx.isValid());
 
@@ -150,30 +152,51 @@ TEST_CASE("ProjectModel data storage", "[Model]")
                     root = root.child(idx[i], 0);
                 return root;
             };
+            struct NodeInfo
+            {
+                std::vector<int> idx;
+                std::vector<int> parIdx;
+                std::optional<std::string> str;
+                std::string parStr;
+                std::optional<QPersistentModelIndex> persIdx;
+                QPersistentModelIndex persParIdx;
+            };
 
-            std::string srcStr = defaultNodes[src].first;
-            std::string destStr = defaultNodes[dest].first;
-            std::vector<int> srcPar(src.begin(), src.end()-1);
-            std::vector<int> destPar(dest.begin(), dest.end()-1);
-            std::string srcParStr = defaultNodes[srcPar].first;
-            std::string destParStr = defaultNodes[destPar].first;
-            QPersistentModelIndex srcParent{parIdx(src)};
-            QPersistentModelIndex destParent{parIdx(dest)};
-            QPersistentModelIndex srcIdx{index(src)};
-            QPersistentModelIndex destIdx{index(dest)};
-            REQUIRE(model.moveRow(srcParent, src.back(), destParent, dest.back()));
-            REQUIRE(srcParent.isValid());
-            REQUIRE(destParent.isValid());
-            REQUIRE(srcIdx.isValid());
-            REQUIRE(destIdx.isValid());
-            std::string srcParDisp = model.data(srcParent, Qt::DisplayRole).toString().toStdString();
-            REQUIRE(srcParDisp == srcParStr);
-            std::string destParDisp = model.data(destParent, Qt::DisplayRole).toString().toStdString();
-            REQUIRE(destParDisp == destParStr);
-            std::string srcDisp = model.data(srcIdx, Qt::DisplayRole).toString().toStdString();
-            REQUIRE(srcDisp == srcStr);
-            std::string destDisp = model.data(destIdx, Qt::DisplayRole).toString().toStdString();
-            REQUIRE(destDisp == destStr);
+            NodeInfo srcInfo;
+            srcInfo.idx = src;
+            srcInfo.parIdx = {src.begin(), src.end()-1};
+            srcInfo.str = defaultNodes.at(src).first;
+            srcInfo.parStr = defaultNodes.at(srcInfo.parIdx).first;
+            srcInfo.persIdx = index(src);
+            srcInfo.persParIdx = parIdx(src);
+
+            NodeInfo destInfo;
+            destInfo.idx = dest;
+            destInfo.parIdx = {dest.begin(), dest.end()-1};
+            if(defaultNodes.count(dest) > 0) {
+                destInfo.str = defaultNodes.at(dest).first;
+                destInfo.persIdx = index(dest);
+            }
+            destInfo.parStr = defaultNodes.at(destInfo.parIdx).first;
+            destInfo.persParIdx = parIdx(dest);
+
+            REQUIRE(model.moveRow(srcInfo.persParIdx, srcInfo.idx.back(), destInfo.persParIdx, destInfo.idx.back()));
+            REQUIRE(srcInfo.persParIdx.isValid());
+            REQUIRE(srcInfo.persIdx.value().isValid());
+            std::string srcParDisp = model.data(srcInfo.persParIdx, Qt::DisplayRole).toString().toStdString();
+            REQUIRE(srcParDisp == srcInfo.parStr);
+            std::string srcDisp = model.data(srcInfo.persIdx.value(), Qt::DisplayRole).toString().toStdString();
+            REQUIRE(srcDisp == srcInfo.str);
+
+            REQUIRE(destInfo.persParIdx.isValid());
+            std::string destParDisp = model.data(destInfo.persParIdx, Qt::DisplayRole).toString().toStdString();
+            REQUIRE(destParDisp == destInfo.parStr);
+            if(destInfo.persIdx)
+            {
+                REQUIRE(destInfo.persIdx.value().isValid());
+                std::string destDisp = model.data(destInfo.persIdx.value(), Qt::DisplayRole).toString().toStdString();
+                REQUIRE(destDisp == destInfo.str);
+            }
         };
 
         SECTION("On same level") {
@@ -189,11 +212,33 @@ TEST_CASE("ProjectModel data storage", "[Model]")
         }
 
         SECTION("Up in the hierarchy") {
-            testMove({0, 0, 1, 0}, {0, 0, 1});
+            SECTION("From below") {
+                testMove({0, 0, 1, 0}, {0, 0, 1});
+            }
+            SECTION("From above") {
+                testMove({0, 0, 1, 0}, {0, 0, 2});
+            }
+            SECTION("Two levels from below") {
+                testMove({0, 0, 1, 0}, {0, 0});
+            }
+            SECTION("Two levels from above") {
+                testMove({0, 0, 1, 0}, {0, 1});
+            }
         }
 
         SECTION("Down in the hierarchy") {
-            testMove({0, 0, 0}, {0, 0, 1, 0});
+            SECTION("From above") {
+                testMove({0, 0, 0}, {0, 0, 1, 0});
+            }
+            SECTION("From below") {
+                testMove({0, 1}, {0, 0, 1});
+            }
+            SECTION("Two levels from above") {
+                testMove({0, 0}, {0, 1, 0, 1});
+            }
+            SECTION("Two levels from below") {
+                testMove({0, 1}, {0, 0, 1, 2});
+            }
         }
 
     }
