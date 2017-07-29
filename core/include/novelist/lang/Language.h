@@ -19,12 +19,14 @@ namespace novelist {
      * Supported novel languages
      */
     enum class Language {
-        de_DE,
+        de_DE = 0,
         de_AT,
         de_CH,
         en_UK,
         en_US,
         en_AU,
+        First = de_DE,
+        Last = en_AU,
     };
 
     /**
