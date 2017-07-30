@@ -40,3 +40,4 @@ set_target_properties(novelist_core
         )
 
 add_subdirectory(test)
+add_subdirectory(designer)

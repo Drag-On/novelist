@@ -7,7 +7,6 @@
  * @details
  **********************************************************/
 
-#include <include/novelist/lang/Language.h>
 #include "widgets/LanguagePicker.h"
 
 namespace novelist {
