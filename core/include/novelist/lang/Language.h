@@ -76,4 +76,6 @@ namespace novelist {
     };
 }
 
+Q_DECLARE_METATYPE(novelist::Language)
+
 #endif //NOVELIST_LANGUAGE_H
