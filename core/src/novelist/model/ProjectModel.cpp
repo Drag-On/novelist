@@ -532,9 +532,15 @@ namespace novelist {
 
         if (xml.name() == "chapter") {
             QString name;
+            uint32_t id{};
             if (xml.attributes().hasAttribute("name"))
                 name = xml.attributes().value("name").toString();
+            if (xml.attributes().hasAttribute("id"))
+                id = static_cast<uint32_t>(xml.attributes().value("id").toULongLong());
             insertRow(idx, InsertableNodeType::Chapter, name, parent);
+            auto* node = &static_cast<Node*>(parent.internalPointer())->at(idx);
+            auto& chapter = std::get<ChapterData>(node->m_data);
+            chapter.m_id = m_chapterIdMgr.request(id);
             while (xml.readNextStartElement()) {
                 if (!readChapterOrScene(xml, index(idx, 0, parent)))
                     return false;
@@ -545,8 +551,8 @@ namespace novelist {
             uint32_t id{};
             if (xml.attributes().hasAttribute("name"))
                 name = xml.attributes().value("name").toString();
-            if (xml.attributes().hasAttribute("uid"))
-                id = xml.attributes().value("uid").toULongLong();
+            if (xml.attributes().hasAttribute("id"))
+                id = static_cast<uint32_t>(xml.attributes().value("id").toULongLong());
 
             insertRow(idx, InsertableNodeType::Scene, name, parent);
             auto* node = &static_cast<Node*>(parent.internalPointer())->at(idx);
@@ -656,6 +662,7 @@ namespace novelist {
             case NodeType::Chapter: {
                 xml.writeStartElement("chapter");
                 xml.writeAttribute("name", std::get<ChapterData>(data).m_name);
+                xml.writeAttribute("id", std::get<ChapterData>(data).m_id.toString().c_str());
                 for (size_t r = 0; r < node->size(); ++r)
                     writeChapterOrScene(xml, index(r, 0, item));
                 xml.writeEndElement();
@@ -664,7 +671,7 @@ namespace novelist {
             case NodeType::Scene: {
                 xml.writeStartElement("scene");
                 xml.writeAttribute("name", std::get<SceneData>(data).m_name);
-                xml.writeAttribute("uid", std::get<SceneData>(data).m_id.toString().c_str());
+                xml.writeAttribute("id", std::get<SceneData>(data).m_id.toString().c_str());
                 xml.writeEndElement();
                 break;
             }
