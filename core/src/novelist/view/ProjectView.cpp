@@ -52,6 +52,7 @@ namespace novelist {
         m_newSceneButton->setToolTip(tr("Create scene"));
         m_newChapterButton->setToolTip(tr("Create chapter"));
         m_deleteButton->setToolTip(tr("Remove scene or chapter"));
+        m_propertiesButton->setToolTip(tr("Properties"));
 
         m_actionNewChapter->setText(tr("Create &Chapter"));
         // m_actionNewChapter->setShortcut(QApplication::translate("ProjectView", "Ctrl+Shift+N", Q_NULLPTR));
@@ -308,6 +309,11 @@ namespace novelist {
         m_buttonSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
         m_nestedLayout->addItem(m_buttonSpacer);
 
+        m_propertiesButton = new QToolButton(this);
+        m_propertiesButton->setEnabled(false);
+        m_propertiesButton->setIcon(m_iconConfig);
+        m_nestedLayout->addWidget(m_propertiesButton);
+
         m_topLayout->addLayout(m_nestedLayout);
 
         m_contextMenu = new QMenu(this);
@@ -352,6 +358,7 @@ namespace novelist {
         connect(m_newChapterButton, &QToolButton::clicked, m_actionNewChapter, &QAction::trigger);
         connect(m_newSceneButton, &QToolButton::clicked, m_actionNewScene, &QAction::trigger);
         connect(m_deleteButton, &QToolButton::clicked, m_actionRemoveEntry, &QAction::trigger);
+        connect(m_propertiesButton, &QToolButton::clicked, m_actionProperties, &QAction::trigger);
 
         connect(m_actionNewChapter, &QAction::triggered, this, &ProjectView::onNewChapter);
         connect(m_actionNewScene, &QAction::triggered, this, &ProjectView::onNewScene);
@@ -364,6 +371,8 @@ namespace novelist {
                 [&]() { m_newSceneButton->setEnabled(m_actionNewScene->isEnabled()); });
         connect(m_actionRemoveEntry, &QAction::changed,
                 [&]() { m_deleteButton->setEnabled(m_actionRemoveEntry->isEnabled()); });
+        connect(m_actionProperties, &QAction::changed,
+                [&]() { m_propertiesButton->setEnabled(m_actionProperties->isEnabled()); });
 
 
 //        connect(this, &ProjectView::doubleClicked, this, &ProjectView::onDoubleClick);

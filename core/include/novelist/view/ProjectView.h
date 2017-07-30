@@ -63,6 +63,7 @@ namespace novelist {
         QToolButton* m_newSceneButton;
         QToolButton* m_newChapterButton;
         QToolButton* m_deleteButton;
+        QToolButton* m_propertiesButton;
         QSpacerItem* m_buttonSpacer;
         QAction* m_actionNewChapter;
         QAction* m_actionNewScene;
