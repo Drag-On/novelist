@@ -9,7 +9,8 @@ add_library(novelist_core
         include/novelist/datastructures/Tree.h
         include/novelist/functional/Overloaded.h
         include/novelist/identity/Identity.h
-        src/novelist/view/ProjectView.cpp include/novelist/view/ProjectView.h)
+        src/novelist/view/ProjectView.cpp include/novelist/view/ProjectView.h
+        src/novelist/widgets/LanguagePicker.cpp include/novelist/widgets/LanguagePicker.h)
 
 target_include_directories(novelist_core
         PUBLIC
