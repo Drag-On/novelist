@@ -534,7 +534,7 @@ namespace novelist {
         }
         else if (xml.name() == "scene") {
             QString name;
-            uint32_t id;
+            uint32_t id{};
             if (xml.attributes().hasAttribute("name"))
                 name = xml.attributes().value("name").toString();
             if (xml.attributes().hasAttribute("uid"))
