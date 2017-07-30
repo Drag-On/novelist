@@ -179,6 +179,8 @@ namespace novelist {
                 if(wnd.exec() == QDialog::Accepted)
                     m->setProperties(wnd.properties());
             }
+            default:
+                break;
         }
     }
 
