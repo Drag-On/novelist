@@ -9,6 +9,7 @@
 
 #include <QPainter>
 #include <QDrag>
+#include "windows/ProjectPropertiesWindow.h"
 #include "view/ProjectView.h"
 
 // The macro cannot be called from within a namespace (see http://doc.qt.io/qt-5/qdir.html#Q_INIT_RESOURCE)
@@ -158,7 +159,26 @@ namespace novelist {
 
     void ProjectView::onProperties()
     {
+        ProjectModel* m = model();
+        Q_ASSERT(m);
 
+        if (m_treeView->selectionModel()->selectedIndexes().empty())
+            return;
+
+        auto idx = m_treeView->selectionModel()->selectedIndexes().first();
+        Q_ASSERT(idx.isValid());
+
+        auto nodeType = m->nodeType(idx);
+        switch (nodeType)
+        {
+            case ProjectModel::NodeType::ProjectHead:
+            {
+                ProjectPropertiesWindow wnd(this, Qt::WindowFlags());
+                wnd.setProperties(m->properties());
+                if(wnd.exec() == QDialog::Accepted)
+                    m->setProperties(wnd.properties());
+            }
+        }
     }
 
     void ProjectView::onDoubleClick(QModelIndex idx)

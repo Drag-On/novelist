@@ -27,6 +27,11 @@ namespace novelist {
          */
         Language currentLanguage() const;
 
+        /**
+         * @param lang Language to select
+         */
+        void setCurrentLanguage(Language lang);
+
     signals:
         /**
          * Called when the current language has changed

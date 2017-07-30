@@ -21,6 +21,11 @@ namespace novelist {
         return currentData().value<Language>();
     }
 
+    void LanguagePicker::setCurrentLanguage(Language lang)
+    {
+        setCurrentIndex(findData(QVariant::fromValue(lang)));
+    }
+
     void LanguagePicker::setup()
     {
         setEditable(false);
