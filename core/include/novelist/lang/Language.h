@@ -42,9 +42,15 @@ namespace novelist {
 
         /**
          * @param lang Language ID
-         * @return Country code as string, e.g. "en"
+         * @return Country code as string, e.g. "US"
          */
         QString countryCode(Language lang);
+
+        /**
+         * @param lang Language ID
+         * @return Language code as string, e.g. "en"
+         */
+        QString languageCode(Language lang);
 
         /**
          * @param lang Language ID

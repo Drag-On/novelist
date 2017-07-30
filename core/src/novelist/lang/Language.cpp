@@ -35,6 +35,25 @@ namespace novelist::lang {
     {
         switch (lang) {
             case Language::de_DE:
+                return "DE";
+            case Language::de_AT:
+                return "AT";
+            case Language::de_CH:
+                return "CH";
+            case Language::en_UK:
+                return "UK";
+            case Language::en_US:
+                return "US";
+            case Language::en_AU:
+                return "AU";
+        }
+        throw language_error{"No country code for this language known. Probably forgot to update switch statement."};
+    }
+
+    QString languageCode(Language lang)
+    {
+        switch (lang) {
+            case Language::de_DE:
             case Language::de_AT:
             case Language::de_CH:
                 return "de";
@@ -68,7 +87,7 @@ namespace novelist::lang {
     QIcon icon(Language lang)
     {
         QIcon icon;
-        QString themeName = "flag-" + countryCode(lang);
+        QString themeName = "flag-" + countryCode(lang).toLower();
         if (QIcon::hasThemeIcon(themeName))
             icon = QIcon::fromTheme(themeName);
         else
