@@ -60,6 +60,61 @@ namespace novelist {
             Chapter, //!< Chapter
         };
 
+    private:
+        struct Chapter_Tag {
+        };
+        struct Scene_Tag {
+        };
+    public:
+        /**
+         * Unique ID among all chapters
+         */
+        using ChapterId = IdManager<Chapter_Tag>::IdType;
+        /**
+         * Unique ID among all scenes
+         */
+        using SceneId = IdManager<Scene_Tag>::IdType;
+
+        /**
+         * Data of the invisible root node
+         */
+        struct InvisibleRootData {
+        };
+
+        /**
+         * Data of the project root node
+         */
+        struct ProjectHeadData {
+            ProjectProperties m_properties; //!< Project properties
+        };
+
+        /**
+         * Data of the notebook root node
+         */
+        struct NotebookHeadData {
+        };
+
+        /**
+         * Data of a scene node
+         */
+        struct SceneData {
+            QString m_name; //!< Scene name
+            SceneId m_id;   //!< Scene ID
+        };
+
+        /**
+         * Data of a chapter node
+         */
+        struct ChapterData {
+            QString m_name; //!< Chapter name
+            ChapterId m_id; //!< Chapter ID
+        };
+
+        /**
+         * Data of any node
+         */
+        using NodeData = std::variant<InvisibleRootData, ProjectHeadData, NotebookHeadData, SceneData, ChapterData>;
+
         /**
          * Default-constructs a model with empty title and author and using the language "en_EN".
          */
@@ -127,6 +182,12 @@ namespace novelist {
          * @return The type of that node
          */
         NodeType nodeType(QModelIndex const& index) const;
+
+        /**
+         * @param index Valid index corresponding to a node
+         * @return Data of the node as a variant
+         */
+        NodeData const& nodeData(QModelIndex const& index) const;
 
         bool moveRows(QModelIndex const& sourceParent, int sourceRow, int count, QModelIndex const& destinationParent,
                 int destinationChild) override;
@@ -219,34 +280,10 @@ namespace novelist {
         friend std::ostream& operator<<(std::ostream& stream, ProjectModel const& model);
 
     private:
-        struct Chapter_Tag {};
-        struct Scene_Tag{};
-        IdManager<Chapter_Tag> m_chapterIdMgr;
-        IdManager<Scene_Tag> m_sceneIdMgr;
-
-        struct InvisibleRootData {
-        };
-
-        struct ProjectHeadData {
-            ProjectProperties m_properties;
-        };
-
-        struct NotebookHeadData {
-        };
-
-        struct SceneData {
-            QString m_name;
-            IdManager<Scene_Tag>::IdType m_id;
-        };
-
-        struct ChapterData {
-            QString m_name;
-            IdManager<Chapter_Tag>::IdType m_id;
-        };
-
-        using NodeData = std::variant<InvisibleRootData, ProjectHeadData, NotebookHeadData, SceneData, ChapterData>;
         using Node = TreeNode<NodeData>;
 
+        IdManager<Chapter_Tag> m_chapterIdMgr;
+        IdManager<Scene_Tag> m_sceneIdMgr;
         Node m_root{InvisibleRootData{}};
 
         void createRootNodes(ProjectProperties const& properties);

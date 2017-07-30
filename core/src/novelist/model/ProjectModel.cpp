@@ -377,6 +377,14 @@ namespace novelist {
         return nodeType(*static_cast<Node*>(index.internalPointer()));
     }
 
+    ProjectModel::NodeData const& ProjectModel::nodeData(QModelIndex const& index) const
+    {
+        Expects(index.isValid());
+
+        auto* node = static_cast<Node*>(index.internalPointer());
+        return node->m_data;
+    }
+
     bool ProjectModel::moveRows(QModelIndex const& sourceParent, int sourceRow, int count,
             QModelIndex const& destinationParent, int destinationChild)
     {
