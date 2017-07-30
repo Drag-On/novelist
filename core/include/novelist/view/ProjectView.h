@@ -19,8 +19,7 @@
 
 namespace novelist {
 
-    namespace internal
-    {
+    namespace internal {
         class ProjectTreeView;
     }
 
@@ -35,6 +34,9 @@ namespace novelist {
         void setModel(ProjectModel* model);
 
         ProjectModel* model() const;
+
+    signals:
+        void openScene(ProjectModel::SceneData const& data);
 
     protected slots:
 
@@ -78,11 +80,9 @@ namespace novelist {
         void setupConnections();
     };
 
-    namespace internal
-    {
-        class ProjectTreeView : public QTreeView
-        {
-            Q_OBJECT
+    namespace internal {
+        class ProjectTreeView : public QTreeView {
+        Q_OBJECT
 
         public:
             using QTreeView::QTreeView;

@@ -186,7 +186,21 @@ namespace novelist {
 
     void ProjectView::onDoubleClick(QModelIndex idx)
     {
+        Expects(idx.isValid());
 
+        ProjectModel* m = model();
+        Q_ASSERT(m);
+
+        auto nodeType = m->nodeType(idx);
+        switch (nodeType)
+        {
+            case ProjectModel::NodeType::Scene:
+            {
+                emit openScene(std::get<ProjectModel::SceneData>(m->nodeData(idx)));
+            }
+            default:
+                break;
+        }
     }
 
     void ProjectView::onSelectionChanged(QItemSelection const& selected, QItemSelection const& /*deselected*/)
