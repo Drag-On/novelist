@@ -18,18 +18,35 @@ namespace Ui {
 }
 
 namespace novelist {
+    /**
+     * Modal dialog used to edit project properties
+     */
     class ProjectPropertiesWindow : public QDialog {
     Q_OBJECT
 
     public:
-        ProjectPropertiesWindow(QWidget* parent, Qt::WindowFlags f);
+        /**
+         * @param parent Parent window
+         * @param f Window flags
+         */
+        ProjectPropertiesWindow(QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags{});
 
         ~ProjectPropertiesWindow() noexcept override;
 
+        /**
+         * Translate UI to new language
+         */
         void retranslateUi();
 
+        /**
+         * Set all fields according to some project properties
+         * @param properties Properties
+         */
         void setProperties(ProjectProperties const& properties);
 
+        /**
+         * @return Currently set project properties
+         */
         ProjectProperties properties() const;
 
     protected:
