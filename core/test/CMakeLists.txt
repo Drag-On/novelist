@@ -5,7 +5,7 @@ enable_testing()
 
 add_executable(novelist_core_test
         main.cpp
-        datastructures/TreeTest.cpp model/ProjectModelTest.cpp identity/IdentityTest.cpp view/ProjectViewTest.cpp)
+        datastructures/TreeTest.cpp model/ProjectModelTest.cpp identity/IdentityTest.cpp view/ProjectViewTest.cpp widgets/TextEditorTest.cpp main.h)
 
 target_include_directories(novelist_core_test
         PUBLIC

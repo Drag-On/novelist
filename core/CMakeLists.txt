@@ -11,7 +11,8 @@ add_library(novelist_core
         include/novelist/identity/Identity.h
         src/novelist/view/ProjectView.cpp include/novelist/view/ProjectView.h
         src/novelist/widgets/LanguagePicker.cpp include/novelist/widgets/LanguagePicker.h
-        src/novelist/windows/ProjectPropertiesWindow.cpp include/novelist/windows/ProjectPropertiesWindow.h)
+        src/novelist/windows/ProjectPropertiesWindow.cpp include/novelist/windows/ProjectPropertiesWindow.h
+        src/novelist/widgets/TextEditor.cpp include/novelist/widgets/TextEditor.h)
 
 target_include_directories(novelist_core
         PUBLIC
