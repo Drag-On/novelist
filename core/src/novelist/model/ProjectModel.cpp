@@ -437,7 +437,7 @@ namespace novelist {
         QTextStream stream(&file);
         stream << xml;
 
-        return false;
+        return true;
     }
 
     bool ProjectModel::write(QString& xml) const
