@@ -9,9 +9,11 @@
 #ifndef NOVELIST_SCENEDOCUMENT_H
 #define NOVELIST_SCENEDOCUMENT_H
 
-#include <QtGui/QTextDocument>
-#include <QtCore/QFile>
-#include <QtCore/QXmlStreamReader>
+#include <QTextDocument>
+#include <QTextFragment>
+#include <QFile>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 namespace novelist {
     /**
@@ -57,6 +59,10 @@ namespace novelist {
         bool readBlock(QXmlStreamReader& xml, QTextCursor& cursor);
 
         bool readText(QXmlStreamReader& xml, QTextCursor& cursor);
+
+        bool writeBlock(QXmlStreamWriter& xml, QTextBlock const& block) const;
+
+        bool writeFragment(QXmlStreamWriter& xml, QTextFragment const& fragment) const;
     };
 }
 

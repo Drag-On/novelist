@@ -40,4 +40,8 @@ TEST_CASE("TextEditor start", "[.Interactive][TextEditor][Widget]")
     editor.show();
 
     app.exec();
+
+    QString outXml;
+    doc.write(outXml);
+    qDebug() << outXml;
 }

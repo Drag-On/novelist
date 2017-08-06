@@ -7,12 +7,12 @@
  * @details
  **********************************************************/
 
-#include <QtCore/QTextStream>
-#include <QtCore/QXmlStreamReader>
-#include <QtGui/QTextBlockFormat>
+#include <QTextStream>
+#include <QTextBlockFormat>
+#include <QTextBlock>
 #include <QDebug>
+#include <QTextCursor>
 #include <gsl/gsl_assert>
-#include <QtGui/QTextCursor>
 #include "datastructures/SceneDocument.h"
 
 namespace novelist
@@ -61,7 +61,30 @@ namespace novelist
 
     bool SceneDocument::write(QString& xml) const
     {
+        QXmlStreamWriter xmlWriter(&xml);
+        xmlWriter.setAutoFormatting(true);
 
+        xmlWriter.writeStartDocument();
+        xmlWriter.writeDTD("<!DOCTYPE scene>");
+        xmlWriter.writeStartElement("scene");
+        xmlWriter.writeAttribute("version", "1.0");
+
+        xmlWriter.writeStartElement("content");
+        for(auto b = begin(); b != end(); b = b.next())
+        {
+            if(b.isValid())
+            {
+                if(!writeBlock(xmlWriter, b))
+                    return false;
+            }
+        }
+        xmlWriter.writeEndElement();
+
+        xmlWriter.writeEndElement();
+
+        xmlWriter.writeEndDocument();
+
+        return true;
     }
 
     bool SceneDocument::readInternal(QXmlStreamReader& xml)
@@ -143,6 +166,54 @@ namespace novelist
 
             cursor.insertText(xml.readElementText(), format);
         }
+
+        return true;
+    }
+
+    bool SceneDocument::writeBlock(QXmlStreamWriter& xml, QTextBlock const& block) const
+    {
+        xml.writeStartElement("block");
+        xml.writeAttribute("align", QString::number(static_cast<int>(block.blockFormat().alignment())));
+        xml.writeAttribute("botMargin", QString::number(block.blockFormat().bottomMargin()));
+        xml.writeAttribute("topMargin", QString::number(block.blockFormat().topMargin()));
+        xml.writeAttribute("rightMargin", QString::number(block.blockFormat().rightMargin()));
+        xml.writeAttribute("leftMargin", QString::number(block.blockFormat().leftMargin()));
+        xml.writeAttribute("indent", QString::number(block.blockFormat().indent()));
+        xml.writeAttribute("textIndent", QString::number(block.blockFormat().textIndent()));
+        xml.writeAttribute("lineHeight", QString::number(block.blockFormat().lineHeight()));
+        xml.writeAttribute("lineHeightType", QString::number(block.blockFormat().lineHeightType()));
+
+        for(auto iter = block.begin(); iter != block.end(); ++iter)
+        {
+            QTextFragment currentFragment = iter.fragment();
+            if (currentFragment.isValid())
+            {
+                if(!writeFragment(xml, currentFragment))
+                    return false;
+            }
+        }
+
+        xml.writeEndElement();
+
+        return true;
+    }
+
+    bool SceneDocument::writeFragment(QXmlStreamWriter& xml, QTextFragment const& fragment) const
+    {
+        xml.writeStartElement("text");
+        xml.writeAttribute("capitalization", QString::number(fragment.charFormat().fontCapitalization()));
+        xml.writeAttribute("italic", QString::number(fragment.charFormat().fontItalic()));
+        xml.writeAttribute("overline", QString::number(fragment.charFormat().fontOverline()));
+        xml.writeAttribute("underline", QString::number(fragment.charFormat().fontUnderline()));
+        xml.writeAttribute("strikeout", QString::number(fragment.charFormat().fontStrikeOut()));
+        xml.writeAttribute("weight", QString::number(fragment.charFormat().fontWeight()));
+        xml.writeAttribute("font", fragment.charFormat().fontFamily());
+        xml.writeAttribute("style", QString::number(fragment.charFormat().fontStyleHint()));
+        xml.writeAttribute("size", QString::number(fragment.charFormat().fontPointSize()));
+
+        xml.writeCharacters(fragment.text());
+
+        xml.writeEndElement();
 
         return true;
     }
