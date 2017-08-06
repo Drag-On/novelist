@@ -17,14 +17,12 @@ namespace novelist {
      */
     template<class... Ts>
     struct Overloaded : Ts ... {
+        constexpr Overloaded(Ts ... ts) noexcept((std::is_nothrow_move_constructible_v<Ts> && ...))
+                :Ts(std::move(ts))... { }
+
         using Ts::operator()...;
     };
 
-    /**
-     * Overloaded callable
-     * @tparam Ts A number of callable types
-     */
-    template<class... Ts> Overloaded(Ts ...) -> Overloaded<Ts...>;
 }
 
 #endif //NOVELIST_OVERLOADED_H
