@@ -12,7 +12,9 @@ add_library(novelist_core
         src/novelist/view/ProjectView.cpp include/novelist/view/ProjectView.h
         src/novelist/widgets/LanguagePicker.cpp include/novelist/widgets/LanguagePicker.h
         src/novelist/windows/ProjectPropertiesWindow.cpp include/novelist/windows/ProjectPropertiesWindow.h
-        src/novelist/widgets/TextEditor.cpp include/novelist/widgets/TextEditor.h)
+        src/novelist/widgets/TextEditor.cpp include/novelist/widgets/TextEditor.h
+        src/novelist/widgets/SceneTabWidget.cpp include/novelist/widgets/SceneTabWidget.h
+        src/novelist/datastructures/SceneDocument.cpp include/novelist/datastructures/SceneDocument.h)
 
 target_include_directories(novelist_core
         PUBLIC

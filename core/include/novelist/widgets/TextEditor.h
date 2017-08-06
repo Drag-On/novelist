@@ -11,6 +11,7 @@
 
 #include <QtWidgets/QTextEdit>
 #include <memory>
+#include "datastructures/SceneDocument.h"
 
 namespace novelist {
     namespace internal {
@@ -26,12 +27,28 @@ namespace novelist {
     public:
         explicit TextEditor(QWidget* parent = nullptr);
 
-        ~TextEditor() noexcept;
+        ~TextEditor() noexcept override;
 
         /**
          * @return Width of the paragraph number area
          */
         int paragraphNumberAreaWidth() const;
+
+        /**
+         * @return Underlying document
+         */
+        SceneDocument* document() const;
+
+        /**
+         * @param document New document
+         */
+        void setDocument(SceneDocument* document);
+
+        /**
+         * @param document New document
+         * @throws std::runtime_error if the passed document isn't a SceneDocument
+         */
+        void setDocument(QTextDocument* document);
 
     signals:
 

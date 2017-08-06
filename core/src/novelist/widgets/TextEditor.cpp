@@ -23,6 +23,8 @@ namespace novelist {
         connect(this, &TextEditor::blockCountChanged, this, &TextEditor::updateParagraphNumberAreaWidth);
         connect(this, &TextEditor::cursorPositionChanged, this, &TextEditor::highlightCurrentLine);
 
+        setDocument(new SceneDocument{this}); // Overwrite default QTextDocument
+
         updateParagraphNumberAreaWidth();
         highlightCurrentLine();
     }
@@ -41,6 +43,25 @@ namespace novelist {
         int space = 3 + fontMetrics().width(QLatin1Char('9')) * digits + 10;
 
         return space;
+    }
+
+    SceneDocument* TextEditor::document() const
+    {
+        return dynamic_cast<SceneDocument*>(QTextEdit::document());
+    }
+
+    void TextEditor::setDocument(SceneDocument* document)
+    {
+        QTextEdit::setDocument(document);
+    }
+
+    void TextEditor::setDocument(QTextDocument* document)
+    {
+        auto* doc = dynamic_cast<SceneDocument*>(document);
+        if (doc != nullptr)
+            setDocument(doc);
+        else
+            throw std::runtime_error{"Tried to set document that isn't a SceneDocument."};
     }
 
     void TextEditor::resizeEvent(QResizeEvent* e)
