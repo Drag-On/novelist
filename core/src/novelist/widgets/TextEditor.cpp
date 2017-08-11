@@ -78,6 +78,32 @@ namespace novelist {
 
         updateParagraphNumberArea(e->rect(), verticalScrollBar()->value() - m_lastVerticalSliderPos);
         m_lastVerticalSliderPos = verticalScrollBar()->value();
+
+
+        // Show bounding boxes for debug purposes
+        if constexpr(show_debug_info)
+        {
+            for (QTextBlock block = document()->begin(); block != document()->end(); block = block.next()) {
+
+                if (block.isValid() && block.isVisible()) {
+                    QPainter painter(viewport());
+                    painter.setPen(QColor::fromRgb(255, 0, 0));
+                    auto bb = document()->documentLayout()->blockBoundingRect(block);
+                    bb.translate(
+                            viewport()->geometry().x() - paragraphNumberAreaWidth() + block.blockFormat().leftMargin(),
+                            viewport()->geometry().y() - verticalScrollBar()->value());
+                    painter.drawRect(bb);
+
+                    QFont const& font = block.begin() != block.end() ? block.begin().fragment().charFormat().font()
+                                                                     : block.charFormat().font();
+                    auto baseline = bb.top() + block.layout()->lineAt(0).ascent();
+
+                    painter.setPen(QColor::fromRgb(0, 0, 0));
+                    painter.setPen(Qt::DotLine);
+                    painter.drawLine(0, baseline, 100, baseline);
+                }
+            }
+        }
     }
 
     QTextBlock TextEditor::firstVisibleBlock() const
@@ -133,25 +159,25 @@ namespace novelist {
         QTextBlock block = firstVisibleBlock();
         int blockNumber = block.blockNumber();
 
-        // Compute pixel offset from the widget top to the top of the block
-        auto top = static_cast<int>(viewport()->geometry().top() - document()->documentMargin() + 3);
-        top += static_cast<int>(document()->documentLayout()->blockBoundingRect(block).top()
-                - verticalScrollBar()->value());
+        while (block.isValid() && block.isVisible()) {
+            auto bb = document()->documentLayout()->blockBoundingRect(block);
+            bb.translate(viewport()->geometry().x() - paragraphNumberAreaWidth() + block.blockFormat().leftMargin(),
+                    viewport()->geometry().y() - verticalScrollBar()->value());
 
-        // Compute pixel offset from the widget top to the bottom of the block
-        int bottom = top + static_cast<int>(document()->documentLayout()->blockBoundingRect(block).height());
-
-        while (block.isValid() && top <= event->rect().bottom()) {
-            if (block.isVisible() && bottom >= event->rect().top()) {
+            if (bb.top() <= event->rect().bottom() && bb.bottom() >= event->rect().top()) {
                 QString number = QString::number(blockNumber + 1);
+
+                QFont const& font = block.begin() != block.end() ? block.begin().fragment().charFormat().font()
+                                                                 : block.charFormat().font();
+                auto baseline = bb.top() + block.layout()->lineAt(0).ascent();
+                auto y = baseline - fontMetrics().ascent() - 1;
+
                 painter.setPen(m_parNumberColor);
-                painter.drawText(0, top, m_paragraphNumberArea->width() - 2, fontMetrics().height(), Qt::AlignRight,
+                painter.drawText(0, y, m_paragraphNumberArea->width() - 2, fontMetrics().height(), Qt::AlignRight,
                         number);
             }
 
             block = block.next();
-            top = bottom;
-            bottom = top + static_cast<int>(document()->documentLayout()->blockBoundingRect(block).height());
             ++blockNumber;
         }
     }

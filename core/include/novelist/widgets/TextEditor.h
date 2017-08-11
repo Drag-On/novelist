@@ -88,6 +88,8 @@ namespace novelist {
         QColor const m_parNumberColor = QColor(130, 130, 130);
         QColor const m_curLineColor = QColor(255, 248, 217);
 
+        constexpr static bool show_debug_info = false;
+
         friend class internal::ParagraphNumberArea;
     };
 
