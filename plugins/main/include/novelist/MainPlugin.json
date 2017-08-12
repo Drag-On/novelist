@@ -1,0 +1,7 @@
+{
+  "uid": "novelist.main",
+  "version": "0.0.1",
+  "dependencies": [],
+  "name": "Novelist",
+  "description": "The main novelist plugin. Provides most of the basic functionality."
+}
