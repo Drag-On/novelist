@@ -370,6 +370,7 @@ namespace novelist {
     void ProjectView::setupConnections()
     {
         connect(m_treeView, &QTreeView::customContextMenuRequested, this, &ProjectView::onContextMenuEvent);
+        connect(m_treeView, &QTreeView::doubleClicked, this, &ProjectView::onDoubleClick);
 
         connect(m_newChapterButton, &QToolButton::clicked, m_actionNewChapter, &QAction::trigger);
         connect(m_newSceneButton, &QToolButton::clicked, m_actionNewScene, &QAction::trigger);
