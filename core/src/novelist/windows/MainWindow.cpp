@@ -8,16 +8,21 @@
  **********************************************************/
 
 #include <QtCore/QEvent>
+#include <QtWidgets/QMessageBox>
 #include "windows/MainWindow.h"
 #include "ui_MainWindow.h"
 
-namespace novelist
-{
+namespace novelist {
     MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
             :QMainWindow(parent, flags),
              m_ui{std::make_unique<Ui::MainWindow>()}
     {
         m_ui->setupUi(this);
+
+        connect(m_ui->actionAbout_Qt, &QAction::triggered, [&]() { QMessageBox::aboutQt(this); });
+        connect(m_ui->actionAbout_Novelist, &QAction::triggered, [&]() {
+            QMessageBox::about(this, "About Novelist", "Novelist is an integrated writing environment for authors.");
+        });
     }
 
     MainWindow::~MainWindow() = default;
