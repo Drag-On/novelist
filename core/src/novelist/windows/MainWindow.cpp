@@ -21,7 +21,8 @@ namespace novelist {
 
         connect(m_ui->actionAbout_Qt, &QAction::triggered, [&]() { QMessageBox::aboutQt(this); });
         connect(m_ui->actionAbout_Novelist, &QAction::triggered, [&]() {
-            QMessageBox::about(this, "About Novelist", "Novelist is an integrated writing environment for authors.");
+            QMessageBox::about(this, tr("About Novelist"),
+                    tr("Novelist is an integrated writing environment for authors."));
         });
     }
 
