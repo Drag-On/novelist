@@ -10,12 +10,14 @@
 #include "main.h"
 #include "LanguagePickerPlugin.h"
 #include "ProjectViewPlugin.h"
+#include "SceneTabWidgetPlugin.h"
 
 CoreWidgetsPlugin::CoreWidgetsPlugin(QObject* parent)
         :QObject(parent)
 {
     m_widgets.append(new LanguagePickerPlugin(this));
     m_widgets.append(new ProjectViewPlugin(this));
+    m_widgets.append(new SceneTabWidgetPlugin(this));
 }
 
 QList<QDesignerCustomWidgetInterface*> CoreWidgetsPlugin::customWidgets() const

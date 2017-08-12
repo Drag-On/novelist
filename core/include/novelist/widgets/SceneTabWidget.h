@@ -17,7 +17,7 @@ namespace novelist {
     Q_OBJECT
 
     public:
-        using QTabWidget::QTabWidget;
+        explicit SceneTabWidget(QWidget* parent = nullptr);
         
     };
 }

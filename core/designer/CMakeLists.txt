@@ -4,7 +4,8 @@ add_library(novelist_core_designer
         SHARED
             main.h main.cpp
             LanguagePickerPlugin.h LanguagePickerPlugin.cpp
-            ProjectViewPlugin.cpp ProjectViewPlugin.h)
+            ProjectViewPlugin.cpp ProjectViewPlugin.h
+            SceneTabWidgetPlugin.cpp SceneTabWidgetPlugin.h)
 
 target_link_libraries(novelist_core_designer
         PUBLIC

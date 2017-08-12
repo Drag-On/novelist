@@ -11,5 +11,11 @@
 
 namespace novelist
 {
-
+    SceneTabWidget::SceneTabWidget(QWidget* parent)
+            :QTabWidget(parent)
+    {
+        setDocumentMode(true);
+        setTabsClosable(true);
+        setMovable(true);
+    }
 }
