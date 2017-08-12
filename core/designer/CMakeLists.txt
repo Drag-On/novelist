@@ -3,7 +3,8 @@ project(novelist_core_designer)
 add_library(novelist_core_designer
         SHARED
             main.h main.cpp
-            LanguagePickerPlugin.h LanguagePickerPlugin.cpp)
+            LanguagePickerPlugin.h LanguagePickerPlugin.cpp
+            ProjectViewPlugin.cpp ProjectViewPlugin.h)
 
 target_link_libraries(novelist_core_designer
         PUBLIC
