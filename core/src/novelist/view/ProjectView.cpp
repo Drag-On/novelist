@@ -196,7 +196,8 @@ namespace novelist {
         {
             case ProjectModel::NodeType::Scene:
             {
-                emit openScene(std::get<ProjectModel::SceneData>(m->nodeData(idx)));
+                emit openSceneRequested(idx);
+                break;
             }
             default:
                 break;
@@ -390,9 +391,6 @@ namespace novelist {
                 [&]() { m_deleteButton->setEnabled(m_actionRemoveEntry->isEnabled()); });
         connect(m_actionProperties, &QAction::changed,
                 [&]() { m_propertiesButton->setEnabled(m_actionProperties->isEnabled()); });
-
-
-//        connect(this, &ProjectView::doubleClicked, this, &ProjectView::onDoubleClick);
     }
 
     void internal::ProjectTreeView::startDrag(Qt::DropActions supportedActions)

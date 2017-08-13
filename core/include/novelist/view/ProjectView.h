@@ -36,7 +36,7 @@ namespace novelist {
         ProjectModel* model() const;
 
     signals:
-        void openScene(ProjectModel::SceneData const& data);
+        void openSceneRequested(QModelIndex idx);
 
     protected slots:
 
