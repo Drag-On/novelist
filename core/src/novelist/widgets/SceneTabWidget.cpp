@@ -35,18 +35,20 @@ namespace novelist {
             editor->setDocument(model->loadScene(index));
 
             // Make sure the tab title and color change appropriately
-            connect(editor->m_model, &ProjectModel::dataChanged, [this, editor, model] (QModelIndex const& topLeft, QModelIndex const& bottomRight, QVector<int> const& roles)
-            {
-                for (int i = topLeft.row(); i <= bottomRight.row(); ++i) {
-                    QModelIndex curIdx = model->index(i, 0, topLeft.parent());
-                    if (int tabIdx = indexOf(model, curIdx); tabIdx >= 0) {
-                        QString name = model->data(curIdx, Qt::DisplayRole).toString();
-                        tabBar()->setTabText(tabIdx, name);
-                        tabBar()->setTabToolTip(tabIdx, name);
-                        tabBar()->setTabTextColor(tabIdx, qvariant_cast<QBrush>(model->data(curIdx, Qt::ForegroundRole)).color());
-                    }
-                }
-            });
+            auto onDataChanged =
+                    [this, editor, model](QModelIndex const& topLeft, QModelIndex const& bottomRight) {
+                        for (int i = topLeft.row(); i <= bottomRight.row(); ++i) {
+                            QModelIndex curIdx = model->index(i, 0, topLeft.parent());
+                            if (int tabIdx = indexOf(model, curIdx); tabIdx >= 0) {
+                                QString name = model->data(curIdx, Qt::DisplayRole).toString();
+                                tabBar()->setTabText(tabIdx, name);
+                                tabBar()->setTabToolTip(tabIdx, name);
+                                tabBar()->setTabTextColor(tabIdx,
+                                        qvariant_cast<QBrush>(model->data(curIdx, Qt::ForegroundRole)).color());
+                            }
+                        }
+                    };
+            connect(editor->m_model, &ProjectModel::dataChanged, onDataChanged);
 
             QString name = model->data(index, Qt::DisplayRole).toString();
             tabIdx = addTab(editor, name);
