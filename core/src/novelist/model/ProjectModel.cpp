@@ -145,6 +145,9 @@ namespace novelist {
                         return QVariant{};
                 }
             }
+            case Qt::EditRole: {
+                return displayText;
+            }
             default:
                 return QVariant{};
         }
