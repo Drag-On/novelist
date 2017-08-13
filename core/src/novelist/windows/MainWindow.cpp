@@ -24,6 +24,9 @@ namespace novelist {
             QMessageBox::about(this, tr("About Novelist"),
                     tr("Novelist is an integrated writing environment for authors."));
         });
+        connect(m_ui->projectView, &ProjectView::openSceneRequested, [&](QModelIndex idx) {
+            m_ui->sceneTabWidget->openScene(m_ui->projectView->model(), idx);
+        });
     }
 
     MainWindow::~MainWindow() = default;
