@@ -47,4 +47,28 @@ namespace novelist {
                 break;
         }
     }
+
+    void MainWindow::closeEvent(QCloseEvent* event)
+    {
+        if(m_ui->projectView->model()->isModified()) {
+            QMessageBox msgBox;
+            msgBox.setWindowTitle(tr("Novelist"));
+            msgBox.setText(tr("There are unsaved changes."));
+            msgBox.setInformativeText(tr("If you quit now, all changes will be lost. Are you sure you want to continue?"));
+            msgBox.setStandardButtons(QMessageBox::Discard | QMessageBox::Cancel);
+            msgBox.setDefaultButton(QMessageBox::Cancel);
+            msgBox.setIcon(QMessageBox::Question);
+            int ret = msgBox.exec();
+            switch (ret) {
+                case QMessageBox::Discard:
+                    event->accept();
+                    break;
+                case QMessageBox::Cancel:
+                    event->ignore();
+                default:
+                    return;
+            }
+        }
+        QWidget::closeEvent(event);
+    }
 }

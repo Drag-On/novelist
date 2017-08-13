@@ -39,6 +39,11 @@ namespace novelist {
             :QAbstractItemModel(parent)
     {
         createRootNodes(properties);
+
+        connect(this, &ProjectModel::dataChanged, this, &ProjectModel::onDataChanged);
+        connect(this, &ProjectModel::layoutChanged, this, &ProjectModel::onLayoutChanged);
+        connect(this, &ProjectModel::rowsInserted, this, &ProjectModel::onRowsInserted);
+        connect(this, &ProjectModel::rowsRemoved, this, &ProjectModel::onRowsRemoved);
     }
 
     ProjectProperties const& ProjectModel::properties() const
@@ -49,6 +54,7 @@ namespace novelist {
     void ProjectModel::setProperties(ProjectProperties const& properties)
     {
         std::get<ProjectHeadData>(m_root[0].m_data).m_properties = properties;
+        m_modified = true;
     }
 
     QModelIndex ProjectModel::projectRootIndex() const
@@ -428,6 +434,19 @@ namespace novelist {
         return false;
     }
 
+    bool ProjectModel::isModified() const
+    {
+        if (m_modified)
+            return true;
+
+        bool contentModified = false;
+        traverse_dfs(m_root, [&](Node const& n) {
+            auto idx = createIndex(n.parentIndex().value_or(0), 0, const_cast<Node*>(&n));
+            return contentModified &= isContentModified(idx);
+        });
+        return contentModified;
+    }
+
     bool ProjectModel::moveRows(QModelIndex const& sourceParent, int sourceRow, int count,
             QModelIndex const& destinationParent, int destinationChild)
     {
@@ -523,7 +542,10 @@ namespace novelist {
     {
         m_saveDir = dir;
         QFile file{dir.path() + "/project.xml"};
-        return read(file);
+        bool success = read(file);
+        if (success)
+            m_modified = false;
+        return success;
     }
 
     bool ProjectModel::save()
@@ -547,6 +569,9 @@ namespace novelist {
             }
             return false;
         });
+
+        if (success)
+            m_modified = false;
 
         return success;
     }
@@ -830,5 +855,28 @@ namespace novelist {
         }
 
         return stream;
+    }
+
+    void
+    ProjectModel::onDataChanged(QModelIndex const& /*topLeft*/, QModelIndex const& /*bottomRight*/,
+            QVector<int> const& /*roles*/)
+    {
+        m_modified = true;
+    }
+
+    void ProjectModel::onLayoutChanged(QList<QPersistentModelIndex> const& /*parents*/,
+            QAbstractItemModel::LayoutChangeHint /*hint*/)
+    {
+        m_modified = true;
+    }
+
+    void ProjectModel::onRowsInserted(QModelIndex const& /*parent*/, int /*first*/, int /*last*/)
+    {
+        m_modified = true;
+    }
+
+    void ProjectModel::onRowsRemoved(QModelIndex const& /*parent*/, int /*first*/, int /*last*/)
+    {
+        m_modified = true;
     }
 }

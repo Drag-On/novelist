@@ -210,6 +210,11 @@ namespace novelist {
          */
         bool isContentModified(QModelIndex const& index) const;
 
+        /**
+         * @return True in case the model has been modified since last save, otherwise false
+         */
+        bool isModified() const;
+
         bool moveRows(QModelIndex const& sourceParent, int sourceRow, int count, QModelIndex const& destinationParent,
                 int destinationChild) override;
 
@@ -320,6 +325,7 @@ namespace novelist {
         IdManager<Scene_Tag> m_sceneIdMgr;
         Node m_root{InvisibleRootData{}};
         QDir m_saveDir;
+        bool m_modified = false;
 
         void createRootNodes(ProjectProperties const& properties);
 
@@ -343,6 +349,16 @@ namespace novelist {
         QModelIndexList childIndices(Node const& n) const;
 
         friend std::ostream& operator<<(std::ostream& stream, NodeData const& nodeData);
+
+    private slots:
+
+        void onDataChanged(QModelIndex const& topLeft, QModelIndex const& bottomRight, QVector<int> const& roles);
+
+        void onLayoutChanged(QList<QPersistentModelIndex> const& parents, QAbstractItemModel::LayoutChangeHint hint);
+
+        void onRowsInserted(QModelIndex const& parent, int first, int last);
+
+        void onRowsRemoved(QModelIndex const& parent, int first, int last);
     };
 }
 

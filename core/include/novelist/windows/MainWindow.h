@@ -34,6 +34,8 @@ namespace novelist
     protected:
         void changeEvent(QEvent* event) override;
 
+        void closeEvent(QCloseEvent* event) override;
+
     private:
         std::unique_ptr<Ui::MainWindow> m_ui;
     };
