@@ -19,6 +19,7 @@
 #include <QtCore/QXmlStreamReader>
 #include <QtGui/QTextDocument>
 #include <QMimeData>
+#include "datastructures/SceneDocument.h"
 #include "datastructures/Tree.h"
 #include "identity/Identity.h"
 #include "lang/Language.h"
@@ -98,8 +99,9 @@ namespace novelist {
          * Data of a scene node
          */
         struct SceneData {
-            QString m_name; //!< Scene name
-            SceneId m_id;   //!< Scene ID
+            QString m_name;                       //!< Scene name
+            SceneId m_id;                         //!< Scene ID
+            std::unique_ptr<SceneDocument> m_doc; //!< Actual content if currently loaded
         };
 
         /**
@@ -189,6 +191,25 @@ namespace novelist {
          */
         NodeData const& nodeData(QModelIndex const& index) const;
 
+        /**
+         * Loads a scene from hard disk or creates a new one, if there is no file on hard disk
+         * @param index Index of the scene
+         * @return Pointer to the loaded scene document
+         */
+        SceneDocument* loadScene(QModelIndex const& index);
+
+        /**
+         * Unloads a scene if it is currently loaded, discarding all unsaved modifications
+         * @param index Index of the scene
+         */
+        void unloadScene(QModelIndex const& index);
+
+        /**
+         * @param index Model index
+         * @return True in case the node has been modified since last save, otherwise false
+         */
+        bool isContentModified(QModelIndex const& index) const;
+
         bool moveRows(QModelIndex const& sourceParent, int sourceRow, int count, QModelIndex const& destinationParent,
                 int destinationChild) override;
 
@@ -272,6 +293,19 @@ namespace novelist {
         bool write(QString& xml) const;
 
         /**
+         * Opens a project from hard disk
+         * @param dir Directory containing the project
+         * @return True in case of success, otherwise false
+         */
+        bool open(QDir const& dir);
+
+        /**
+         * Saves the project and all content to hard disk (where it was loaded from)
+         * @return True in case of success, otherwise false
+         */
+        bool save();
+
+        /**
          * Print project model to stream in a human-readable format
          * @param stream Stream to write to
          * @param model Model to write
@@ -285,6 +319,7 @@ namespace novelist {
         IdManager<Chapter_Tag> m_chapterIdMgr;
         IdManager<Scene_Tag> m_sceneIdMgr;
         Node m_root{InvisibleRootData{}};
+        QDir m_saveDir;
 
         void createRootNodes(ProjectProperties const& properties);
 

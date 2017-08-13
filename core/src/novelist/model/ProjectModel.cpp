@@ -19,7 +19,7 @@ namespace novelist {
     ProjectModel::ProjectModel() noexcept
             :ProjectModel(ProjectProperties{})
     {
-        // These types must be movable such that they
+        // These types must be movable
         static_assert(std::is_move_constructible_v<InvisibleRootData> && std::is_move_assignable_v<InvisibleRootData>,
                 "InvisibleRootData must be movable");
         static_assert(std::is_move_constructible_v<ProjectHeadData> && std::is_move_assignable_v<ProjectHeadData>,
@@ -128,6 +128,8 @@ namespace novelist {
             case Qt::DisplayRole:
                 return makeEmptyNote(displayText);
             case Qt::ForegroundRole:
+                if (isContentModified(index))
+                    return QBrush(QColor(Qt::blue));
                 if (displayText.isEmpty())
                     return QBrush(QColor(Qt::gray));
                 return QBrush(QColor(Qt::black));
@@ -226,7 +228,7 @@ namespace novelist {
         if (action != Qt::MoveAction)
             return false;
 
-        if(!data->hasFormat("application/x-projectmodelnodeindexlist"))
+        if (!data->hasFormat("application/x-projectmodelnodeindexlist"))
             return false;
 
         QByteArray encodedData = data->data("application/x-projectmodelnodeindexlist");
@@ -388,13 +390,51 @@ namespace novelist {
         return node->m_data;
     }
 
+    SceneDocument* ProjectModel::loadScene(QModelIndex const& index)
+    {
+        Expects(nodeType(index) == NodeType::Scene);
+
+        auto& scene = std::get<SceneData>(static_cast<Node*>(index.internalPointer())->m_data);
+        QString filename = QString::fromStdString(scene.m_id.toString() + ".xml");
+        scene.m_doc = std::make_unique<SceneDocument>();
+        if (m_saveDir.exists(filename))
+            scene.m_doc->read(m_saveDir.path() + QString{"/"} + filename);
+
+        // Make sure the dataChanged() signal is fired every time the document's modified state is changed
+        connect(scene.m_doc.get(), &SceneDocument::modificationChanged,
+                [this, perIdx = QPersistentModelIndex{index}](bool /*changed*/) {
+                    emit dataChanged(perIdx, perIdx, {Qt::ForegroundRole});
+                });
+
+        return scene.m_doc.get();
+    }
+
+    void ProjectModel::unloadScene(QModelIndex const& index)
+    {
+        Expects(nodeType(index) == NodeType::Scene);
+
+        auto& scene = std::get<SceneData>(static_cast<Node*>(index.internalPointer())->m_data);
+        scene.m_doc = nullptr;
+    }
+
+    bool ProjectModel::isContentModified(QModelIndex const& index) const
+    {
+        if (nodeType(index) == NodeType::Scene) {
+            auto const& scene = std::get<SceneData>(static_cast<Node*>(index.internalPointer())->m_data);
+            if (scene.m_doc != nullptr)
+                return scene.m_doc->isModified();
+        }
+
+        return false;
+    }
+
     bool ProjectModel::moveRows(QModelIndex const& sourceParent, int sourceRow, int count,
             QModelIndex const& destinationParent, int destinationChild)
     {
         Expects(count > 0);
 
         bool success = true;
-        for(int i = 0; i < count; ++i)
+        for (int i = 0; i < count; ++i)
             success &= moveRowInternal(sourceParent, sourceRow + count - i - 1, destinationParent, destinationChild);
 
         return success;
@@ -477,6 +517,38 @@ namespace novelist {
         xmlWriter.writeEndDocument();
 
         return true;
+    }
+
+    bool ProjectModel::open(QDir const& dir)
+    {
+        m_saveDir = dir;
+        QFile file{dir.path() + "/project.xml"};
+        return read(file);
+    }
+
+    bool ProjectModel::save()
+    {
+        QString contentPath = m_saveDir.path() + "/content/";
+        QFile file{m_saveDir.path() + "/project.xml"};
+        if (!write(file))
+            return false;
+
+        bool success = true;
+        traverse_dfs(m_root, [&](Node& n) {
+            if (nodeType(n) == NodeType::Scene) {
+                auto& data = std::get<SceneData>(n.m_data);
+                if (data.m_doc != nullptr && data.m_doc->isModified()) {
+                    QFile sceneFile{contentPath + QString::fromStdString(data.m_id.toString() + ".xml")};
+                    bool localSuccess = data.m_doc->write(sceneFile);
+                    if (localSuccess)
+                        data.m_doc->setModified(false);
+                    success &= localSuccess;
+                }
+            }
+            return false;
+        });
+
+        return success;
     }
 
     std::ostream& operator<<(std::ostream& stream, ProjectModel const& model)
@@ -599,26 +671,24 @@ namespace novelist {
                 fixDest = destParent->parent() == srcParent,
                 srcParentIdx = srcParent->parentIndex(),
                 destParentIdx = destParent->parentIndex(),
-                &srcParent, &destParent,sourceRow,destinationRow]() {
+                &srcParent, &destParent, sourceRow, destinationRow]() {
 
-            if (fixDest)
-            {
+            if (fixDest) {
                 size_t destParIdx = destParentIdx.value();
-                if(sourceRow < destParentIdx)
+                if (sourceRow < destParentIdx)
                     --destParIdx;
                 destParent = &srcParent->at(destParIdx);
             }
-            else if (fixSrc)
-            {
+            else if (fixSrc) {
                 size_t srcParIdx = srcParentIdx.value();
-                if(destinationRow <= srcParentIdx)
+                if (destinationRow <= srcParentIdx)
                     ++srcParIdx;
                 srcParent = &destParent->at(srcParIdx);
             }
         };
 
-        QPersistentModelIndex persistentSrcParent {sourceParent};
-        QPersistentModelIndex persistentDestParent {destinationParent};
+        QPersistentModelIndex persistentSrcParent{sourceParent};
+        QPersistentModelIndex persistentDestParent{destinationParent};
         QList<QPersistentModelIndex> layoutChangeParents = {persistentSrcParent, persistentDestParent};
         emit layoutAboutToBeChanged(layoutChangeParents);
 
@@ -631,13 +701,12 @@ namespace novelist {
         if (sourceParent == destinationParent) {
             QModelIndexList newIndicesAtSrc = childIndices(sourceParent);
             Q_ASSERT(indicesThatChangeAtSrc.size() == newIndicesAtSrc.size());
-            if(destinationRow > sourceRow)
+            if (destinationRow > sourceRow)
                 --destinationRow;
             newIndicesAtSrc.move(destinationRow, sourceRow);
             changePersistentIndexList(indicesThatChangeAtSrc, newIndicesAtSrc);
         }
-        else
-        {
+        else {
             fixNodePtrs();
             QModelIndex newDest = createIndex(destinationRow, 0, &destParent->at(destinationRow));
             QModelIndexList newIndicesAtSrc = childIndices(*srcParent);
@@ -713,7 +782,7 @@ namespace novelist {
             case InsertableNodeType::Chapter:
                 return ChapterData{name, m_chapterIdMgr.generate()};
             case InsertableNodeType::Scene:
-                return SceneData {name, m_sceneIdMgr.generate()};
+                return SceneData {name, m_sceneIdMgr.generate(), nullptr};
         }
 
         throw std::runtime_error{"Should never get here. Probably forgot to update switch statement."};
