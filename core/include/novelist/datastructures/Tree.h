@@ -414,7 +414,7 @@ namespace novelist {
 
         TreeNode<T>* found = nullptr;
         for (auto& n : root) {
-            if (found = traverse_dfs(n, callback, after))
+            if ((found = traverse_dfs(n, callback, after)) != nullptr)
                 break;
         }
 
@@ -505,13 +505,13 @@ namespace novelist {
         std::deque<NodeType*> q;
         q.push_back(&root);
         while (!q.empty()) {
-            auto& n = *q.front();
+            auto n = q.front();
             q.pop_front();
-            if (callback(n))
-                return &n;
-            for (auto& elem : n)
+            if (callback(*n))
+                return n;
+            for (auto& elem : *n)
                 q.push_back(&elem);
-            after(n);
+            after(*n);
         }
 
         return nullptr;
