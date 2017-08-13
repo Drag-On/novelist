@@ -92,6 +92,7 @@ namespace novelist
                 if(pPlugin != nullptr)
                     pPlugin->unload();
                 loader->unload();
+                delete loader;
             }
         }
     }
