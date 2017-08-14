@@ -58,9 +58,11 @@ namespace novelist {
 
         Id<Tag_Type, T>& operator=(Id<Tag_Type, T>&& other) noexcept
         {
-            m_mgr = other.m_mgr;
-            m_id = other.m_id;
-            other.m_mgr = nullptr;
+            if (this != &other) {
+                m_mgr = other.m_mgr;
+                m_id = other.m_id;
+                other.m_mgr = nullptr;
+            }
             return *this;
         }
 
