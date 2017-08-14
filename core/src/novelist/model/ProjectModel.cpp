@@ -499,6 +499,8 @@ namespace novelist {
         QTextStream stream(&file);
         stream << xml;
 
+        file.close();
+
         return true;
     }
 
@@ -777,18 +779,20 @@ namespace novelist {
         auto const& data = node->m_data;
         switch (nodeType(data)) {
             case NodeType::Chapter: {
+                auto& chapterData = std::get<ChapterData>(data);
                 xml.writeStartElement("chapter");
-                xml.writeAttribute("name", std::get<ChapterData>(data).m_name);
-                xml.writeAttribute("id", std::get<ChapterData>(data).m_id.toString().c_str());
+                xml.writeAttribute("name", chapterData.m_name);
+                xml.writeAttribute("id", chapterData.m_id.toString().c_str());
                 for (size_t r = 0; r < node->size(); ++r)
                     writeChapterOrScene(xml, index(r, 0, item));
                 xml.writeEndElement();
                 break;
             }
             case NodeType::Scene: {
+                auto& sceneData = std::get<SceneData>(data);
                 xml.writeStartElement("scene");
-                xml.writeAttribute("name", std::get<SceneData>(data).m_name);
-                xml.writeAttribute("id", std::get<SceneData>(data).m_id.toString().c_str());
+                xml.writeAttribute("name", sceneData.m_name);
+                xml.writeAttribute("id", sceneData.m_id.toString().c_str());
                 xml.writeEndElement();
                 break;
             }
