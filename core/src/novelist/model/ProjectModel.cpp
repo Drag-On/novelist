@@ -576,6 +576,16 @@ namespace novelist {
         return success;
     }
 
+    void ProjectModel::setSaveDir(QDir const& dir)
+    {
+        m_saveDir = dir;
+    }
+
+    QDir const& ProjectModel::saveDir() const
+    {
+        return m_saveDir;
+    }
+
     std::ostream& operator<<(std::ostream& stream, ProjectModel const& model)
     {
         stream << model.m_root;

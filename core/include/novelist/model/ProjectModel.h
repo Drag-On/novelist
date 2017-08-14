@@ -311,6 +311,17 @@ namespace novelist {
         bool save();
 
         /**
+         * Change the save directory of the project
+         * @param dir New directory
+         */
+        void setSaveDir(QDir const& dir);
+
+        /**
+         * @return Current save directory
+         */
+        QDir const& saveDir() const;
+
+        /**
          * Print project model to stream in a human-readable format
          * @param stream Stream to write to
          * @param model Model to write
