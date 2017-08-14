@@ -11,6 +11,7 @@
 
 #include <QtWidgets/QMainWindow>
 #include <memory>
+#include "model/ProjectModel.h"
 
 namespace Ui {
     class MainWindow;
@@ -31,6 +32,15 @@ namespace novelist
          */
         void retranslateUi();
 
+    public slots:
+        void onNewProject();
+
+        void onOpenProject();
+
+        void onCloseProject();
+
+        void onSaveProject();
+
     protected:
         void changeEvent(QEvent* event) override;
 
@@ -38,6 +48,9 @@ namespace novelist
 
     private:
         std::unique_ptr<Ui::MainWindow> m_ui;
+        std::unique_ptr<ProjectModel> m_model;
+
+        bool continueCheckUnsavedChanges() const;
     };
 }
 
