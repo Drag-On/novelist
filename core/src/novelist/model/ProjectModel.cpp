@@ -640,7 +640,8 @@ namespace novelist {
             insertRow(idx, InsertableNodeType::Chapter, name, parent);
             auto* node = &static_cast<Node*>(parent.internalPointer())->at(idx);
             auto& chapter = std::get<ChapterData>(node->m_data);
-            chapter.m_id = m_chapterIdMgr.request(id);
+            if (chapter.m_id.id() != id)
+                chapter.m_id = m_chapterIdMgr.request(id);
             while (xml.readNextStartElement()) {
                 if (!readChapterOrScene(xml, index(idx, 0, parent)))
                     return false;
@@ -657,7 +658,8 @@ namespace novelist {
             insertRow(idx, InsertableNodeType::Scene, name, parent);
             auto* node = &static_cast<Node*>(parent.internalPointer())->at(idx);
             auto& scene = std::get<SceneData>(node->m_data);
-            scene.m_id = m_sceneIdMgr.request(id);
+            if (scene.m_id.id() != id)
+                scene.m_id = m_sceneIdMgr.request(id);
 
             xml.skipCurrentElement();
         }
