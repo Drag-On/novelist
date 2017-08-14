@@ -41,16 +41,28 @@ namespace novelist {
          */
         ~Id() noexcept
         {
-            m_mgr->reposit(m_id);
+            if (m_mgr != nullptr)
+                m_mgr->reposit(m_id);
         }
 
         Id(Id<Tag_Type, T> const& other) = delete;
 
         Id<Tag_Type, T>& operator=(Id<Tag_Type, T> const& other) = delete;
 
-        Id(Id<Tag_Type, T>&& other) noexcept = default;
+        Id(Id<Tag_Type, T>&& other) noexcept
+                :m_mgr(other.m_mgr),
+                 m_id(other.m_id)
+        {
+            other.m_mgr = nullptr;
+        }
 
-        Id<Tag_Type, T>& operator=(Id<Tag_Type, T>&& other) noexcept = default;
+        Id<Tag_Type, T>& operator=(Id<Tag_Type, T>&& other) noexcept
+        {
+            m_mgr = other.m_mgr;
+            m_id = other.m_id;
+            other.m_mgr = nullptr;
+            return *this;
+        }
 
         /**
          * Equality operator
