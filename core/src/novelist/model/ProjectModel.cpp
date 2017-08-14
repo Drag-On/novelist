@@ -552,6 +552,14 @@ namespace novelist {
     {
         QString contentPath = m_saveDir.path() + "/content/";
         QFile file{m_saveDir.path() + "/project.xml"};
+
+        if (!m_saveDir.exists())
+            return false;
+        else {
+            if (!m_saveDir.exists("content"))
+                m_saveDir.mkdir("content");
+        }
+
         if (!write(file))
             return false;
 
