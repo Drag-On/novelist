@@ -108,6 +108,14 @@ namespace novelist {
             return ss.str();
         }
 
+        /**
+         * @return The underlying ID
+         */
+        T id() const noexcept
+        {
+            return m_id;
+        }
+
     private:
         IdManager<Tag_Type, T>* m_mgr;
         T m_id;
