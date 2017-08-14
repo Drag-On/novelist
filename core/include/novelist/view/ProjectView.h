@@ -35,6 +35,8 @@ namespace novelist {
 
         ProjectModel* model() const;
 
+        void showProjectPropertiesDialog();
+
     signals:
         void openSceneRequested(QModelIndex idx);
 

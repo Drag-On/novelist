@@ -74,6 +74,17 @@ namespace novelist {
         return dynamic_cast<ProjectModel*>(m_treeView->model());
     }
 
+    void ProjectView::showProjectPropertiesDialog()
+    {
+        auto* m = model();
+        if (m != nullptr) {
+            ProjectPropertiesWindow wnd(this, Qt::WindowFlags());
+            wnd.setProperties(m->properties());
+            if (wnd.exec() == QDialog::Accepted)
+                m->setProperties(wnd.properties());
+        }
+    }
+
     void ProjectView::onNewChapter()
     {
         ProjectModel* m = model();
@@ -174,10 +185,7 @@ namespace novelist {
         {
             case ProjectModel::NodeType::ProjectHead:
             {
-                ProjectPropertiesWindow wnd(this, Qt::WindowFlags());
-                wnd.setProperties(m->properties());
-                if(wnd.exec() == QDialog::Accepted)
-                    m->setProperties(wnd.properties());
+                showProjectPropertiesDialog();
             }
             default:
                 break;
