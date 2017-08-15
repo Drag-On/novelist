@@ -29,7 +29,7 @@ namespace novelist {
 
         int tabIdx = indexOf(model, index);
         if (tabIdx == -1) {
-            auto* editor = new internal::InternalTextEditor();
+            auto* editor = new internal::InternalTextEditor(); // This has to be deleted on tab removal, see closeScene()
             editor->m_model = model;
             editor->m_modelIndex = index;
             editor->setDocument(model->loadScene(index));
@@ -58,18 +58,12 @@ namespace novelist {
         setCurrentIndex(tabIdx);
     }
 
-    int SceneTabWidget::indexOf(ProjectModel const* model, QModelIndex index) const
+    void SceneTabWidget::closeScene(ProjectModel* model, QModelIndex index)
     {
-        for (int i = 0; i < count(); ++i) {
-            auto* w = dynamic_cast<internal::InternalTextEditor*>(widget(i));
-            if (w != nullptr && w->m_model == model && w->m_modelIndex == index)
-                return i;
-        }
-
-        return -1;
+        closeScene(indexOf(model, index));
     }
 
-    void SceneTabWidget::onTabCloseRequested(int index)
+    void SceneTabWidget::closeScene(int index)
     {
         auto* w = dynamic_cast<internal::InternalTextEditor*>(widget(index));
         if (w != nullptr && w->document()->isModified()) {
@@ -89,7 +83,30 @@ namespace novelist {
                 default:
                     return;
             }
+            delete w;
         }
         removeTab(index);
+    }
+
+    void SceneTabWidget::closeAll()
+    {
+        for(int i = 0; i < count(); ++i)
+            closeScene(i);
+    }
+
+    int SceneTabWidget::indexOf(ProjectModel const* model, QModelIndex index) const
+    {
+        for (int i = 0; i < count(); ++i) {
+            auto* w = dynamic_cast<internal::InternalTextEditor*>(widget(i));
+            if (w != nullptr && w->m_model == model && w->m_modelIndex == index)
+                return i;
+        }
+
+        return -1;
+    }
+
+    void SceneTabWidget::onTabCloseRequested(int index)
+    {
+        closeScene(index);
     }
 }

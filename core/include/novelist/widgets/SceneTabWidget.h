@@ -30,6 +30,26 @@ namespace novelist {
         void openScene(ProjectModel* model, QModelIndex index);
 
         /**
+         * Closes the tab of an open scene. Does nothing if the requested scene is not currently open.
+         * Notifies the user if the scene has unsaved changes.
+         * @param model Pointer to the model
+         * @param index Index of a scene node of the model
+         */
+        void closeScene(ProjectModel* model, QModelIndex index);
+
+        /**
+         * Closes the tab with a particular index
+         * Notifies the user if the scene has unsaved changes.
+         * @param index Tab index
+         */
+        void closeScene(int index);
+
+        /**
+         * Closes all tabs. Notifies the user if a scene has unsaved changes.
+         */
+        void closeAll();
+
+        /**
          * @param model Pointer to the model
          * @param index Index of a scene node of the model
          * @return Index of the page with the editor for the requested scene, or -1 if it cannot be found
