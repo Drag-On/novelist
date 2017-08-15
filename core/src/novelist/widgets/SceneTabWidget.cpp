@@ -63,35 +63,39 @@ namespace novelist {
         closeScene(indexOf(model, index));
     }
 
-    void SceneTabWidget::closeScene(int index)
+    void SceneTabWidget::closeScene(int index, bool userCheck)
     {
         auto* w = dynamic_cast<internal::InternalTextEditor*>(widget(index));
-        if (w != nullptr && w->document()->isModified()) {
-            QMessageBox msgBox;
-            msgBox.setText(tr("The document has been modified."));
-            msgBox.setInformativeText(
-                    tr("If you close it now, all changes will be lost. Are you sure you want to continue?"));
-            msgBox.setStandardButtons(QMessageBox::Discard | QMessageBox::Cancel);
-            msgBox.setDefaultButton(QMessageBox::Cancel);
-            msgBox.setIcon(QMessageBox::Question);
-            int ret = msgBox.exec();
-            switch (ret) {
-                case QMessageBox::Discard:
-                    w->m_model->unloadScene(w->m_modelIndex);
-                    break;
-                case QMessageBox::Cancel:
-                default:
-                    return;
+        if (w != nullptr) {
+
+            int action = QMessageBox::Discard;
+            if(w->document()->isModified() && userCheck) {
+                QMessageBox msgBox;
+                msgBox.setText(tr("The document has been modified."));
+                msgBox.setInformativeText(
+                        tr("If you close it now, all changes will be lost. Are you sure you want to continue?"));
+                msgBox.setStandardButtons(QMessageBox::Discard | QMessageBox::Cancel);
+                msgBox.setDefaultButton(QMessageBox::Cancel);
+                msgBox.setIcon(QMessageBox::Question);
+                action = msgBox.exec();
             }
-            delete w;
+
+            if(action == QMessageBox::Discard)
+            {
+                removeTab(index);
+                w->m_model->unloadScene(w->m_modelIndex);
+                delete w;
+            }
+            return;
         }
+
         removeTab(index);
     }
 
-    void SceneTabWidget::closeAll()
+    void SceneTabWidget::closeAll(bool userCheck)
     {
         for(int i = 0; i < count(); ++i)
-            closeScene(i);
+            closeScene(i, userCheck);
     }
 
     int SceneTabWidget::indexOf(ProjectModel const* model, QModelIndex index) const

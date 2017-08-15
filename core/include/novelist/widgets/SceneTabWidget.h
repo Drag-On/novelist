@@ -39,15 +39,17 @@ namespace novelist {
 
         /**
          * Closes the tab with a particular index
-         * Notifies the user if the scene has unsaved changes.
+         *
          * @param index Tab index
+         * @param userCheck Notifies the user if the scene has unsaved changes and this is true
          */
-        void closeScene(int index);
+        void closeScene(int index, bool userCheck = true);
 
         /**
-         * Closes all tabs. Notifies the user if a scene has unsaved changes.
+         * Closes all tabs.
+         * @param userCheck Notifies the user if a scene has unsaved changes and this is true
          */
-        void closeAll();
+        void closeAll(bool userCheck = true);
 
         /**
          * @param model Pointer to the model
