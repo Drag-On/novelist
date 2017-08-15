@@ -403,8 +403,10 @@ namespace novelist {
         auto& scene = std::get<SceneData>(static_cast<Node*>(index.internalPointer())->m_data);
         QString filename = QString::fromStdString(scene.m_id.toString() + ".xml");
         scene.m_doc = std::make_unique<SceneDocument>();
-        if (m_saveDir.exists(filename))
-            scene.m_doc->read(m_saveDir.path() + QString{"/"} + filename);
+        if (auto d = contentDir(); d.exists(filename)) {
+            QFile file {d.path() + QString{"/"} + filename};
+            scene.m_doc->read(file);
+        }
 
         // Make sure the dataChanged() signal is fired every time the document's modified state is changed
         connect(scene.m_doc.get(), &SceneDocument::modificationChanged,
@@ -557,14 +559,14 @@ namespace novelist {
 
     bool ProjectModel::save()
     {
-        QString contentPath = m_saveDir.path() + "/content/";
+        QString contentPath = contentDir().path() + "/";
         QFile file{m_saveDir.path() + "/project.xml"};
 
         if (!m_saveDir.exists())
             return false;
         else {
-            if (!m_saveDir.exists("content"))
-                m_saveDir.mkdir("content");
+            if (!m_saveDir.exists(m_contentDirName))
+                m_saveDir.mkdir(m_contentDirName);
         }
 
         if (!write(file))
@@ -599,6 +601,13 @@ namespace novelist {
     QDir const& ProjectModel::saveDir() const
     {
         return m_saveDir;
+    }
+
+    QDir ProjectModel::contentDir() const
+    {
+        QDir contentDir = saveDir();
+        contentDir.cd(m_contentDirName);
+        return contentDir;
     }
 
     std::ostream& operator<<(std::ostream& stream, ProjectModel const& model)

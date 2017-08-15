@@ -327,6 +327,11 @@ namespace novelist {
         QDir const& saveDir() const;
 
         /**
+         * @return Content directory
+         */
+        QDir contentDir() const;
+
+        /**
          * Print project model to stream in a human-readable format
          * @param stream Stream to write to
          * @param model Model to write
@@ -341,6 +346,7 @@ namespace novelist {
         IdManager<Scene_Tag> m_sceneIdMgr;
         Node m_root{InvisibleRootData{}};
         QDir m_saveDir;
+        QString const m_contentDirName = "content";
         bool m_modified = false;
 
         void createRootNodes(ProjectProperties const& properties);
