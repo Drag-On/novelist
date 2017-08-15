@@ -434,9 +434,14 @@ namespace novelist {
         return false;
     }
 
+    bool ProjectModel::isStructureModified() const
+    {
+        return m_modified;
+    }
+
     bool ProjectModel::isModified() const
     {
-        if (m_modified)
+        if (isStructureModified())
             return true;
 
         bool contentModified = false;

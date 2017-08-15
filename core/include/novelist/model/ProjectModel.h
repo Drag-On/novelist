@@ -211,6 +211,11 @@ namespace novelist {
         bool isContentModified(QModelIndex const& index) const;
 
         /**
+         * @return True in case the model structure has been modified since last save, otherwise false
+         */
+        bool isStructureModified() const;
+
+        /**
          * @return True in case the model has been modified since last save, otherwise false
          */
         bool isModified() const;
