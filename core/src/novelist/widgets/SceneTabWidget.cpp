@@ -65,6 +65,9 @@ namespace novelist {
 
     void SceneTabWidget::closeScene(int index, bool userCheck)
     {
+        if(index < 0)
+            return;
+
         auto* w = dynamic_cast<internal::InternalTextEditor*>(widget(index));
         if (w != nullptr) {
 
