@@ -33,8 +33,11 @@ namespace novelist
         QXmlStreamReader xmlReader(xml);
         if (xmlReader.readNextStartElement()) {
             if (xmlReader.name() == "scene" && xmlReader.attributes().value("version") == "1.0")
-                if (readInternal(xmlReader))
+                if (readInternal(xmlReader)) {
+                    setModified(false);
                     return true;
+                }
+
         }
         if (xmlReader.hasError())
             qWarning() << "Error while reading scene file." << xmlReader.errorString() << "At line"
