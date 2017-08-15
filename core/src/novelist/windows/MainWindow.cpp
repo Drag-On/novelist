@@ -53,7 +53,7 @@ namespace novelist {
             {
                 m_model = std::make_unique<ProjectModel>();
                 m_model->setSaveDir(dialog.selectedFiles().front());
-                m_ui->sceneTabWidget->closeAll();
+                m_ui->sceneTabWidget->closeAll(false);
                 m_ui->projectView->setModel(m_model.get());
                 m_ui->projectView->showProjectPropertiesDialog();
                 onSaveProject();
@@ -72,7 +72,7 @@ namespace novelist {
             {
                 auto* m = new ProjectModel;
                 if(m->open(dialog.selectedFiles().front())) {
-                    m_ui->sceneTabWidget->closeAll();
+                    m_ui->sceneTabWidget->closeAll(false);
                     m_model.reset(m);
                     m_ui->projectView->setModel(m_model.get());
                 }
@@ -94,7 +94,7 @@ namespace novelist {
     {
         if(continueCheckUnsavedChanges())
         {
-            m_ui->sceneTabWidget->closeAll();
+            m_ui->sceneTabWidget->closeAll(false);
             m_ui->projectView->setModel(nullptr);
             m_model.reset();
         }
