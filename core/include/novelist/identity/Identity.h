@@ -28,6 +28,14 @@ namespace novelist {
     template<typename Tag_Type, typename T>
     class IdManager;
 
+    template<typename Tag_Type, typename T>
+    class Id;
+
+    namespace internal {
+        template<typename Tag_Type, typename T>
+        bool isValidId(Id<Tag_Type, T> const& id);
+    }
+
     /**
      * Represents a unique identifier
      * @tparam Tag_Type IDs are unique among all IDs with the same tag
@@ -59,6 +67,9 @@ namespace novelist {
         Id<Tag_Type, T>& operator=(Id<Tag_Type, T>&& other) noexcept
         {
             if (this != &other) {
+                if (m_mgr != nullptr)
+                    m_mgr->reposit(m_id);
+
                 m_mgr = other.m_mgr;
                 m_id = other.m_id;
                 other.m_mgr = nullptr;
@@ -129,6 +140,8 @@ namespace novelist {
         }
 
         friend class IdManager<Tag_Type, T>;
+
+        friend bool internal::isValidId<>(Id<Tag_Type, T> const&);
     };
 
     /**
@@ -182,6 +195,8 @@ namespace novelist {
         void checkFreeList();
 
         friend class Id<Tag_Type, T>;
+
+        friend bool internal::isValidId<>(Id<Tag_Type, T> const&);
     };
 
     template<typename Tag_Type, typename T>
@@ -203,7 +218,10 @@ namespace novelist {
         if (id >= m_next) {
             for (T i = m_next; i < id; ++i)
                 m_freeList.push_back(i);
-            return generate();
+            Id<Tag_Type, T> genId(this, id);
+            m_next = id + 1;
+            checkFreeList();
+            return genId;
         }
 
         // Otherwise, check whether the ID is free, then create it
@@ -220,20 +238,28 @@ namespace novelist {
     template<typename Tag_Type, typename T>
     void IdManager<Tag_Type, T>::reposit(T id)
     {
-        if (id == m_next - 1) {
-            --m_next;
-            checkFreeList();
-        }
-        else
-            m_freeList.push_back(id);
+        m_freeList.push_back(id);
+        checkFreeList();
     }
 
     template<typename Tag_Type, typename T>
     void IdManager<Tag_Type, T>::checkFreeList()
     {
+        std::sort(m_freeList.begin(), m_freeList.end());
         while (!m_freeList.empty() && m_freeList.back() == m_next - 1) {
             --m_next;
             m_freeList.pop_back();
+        }
+    }
+
+    namespace internal {
+        template<typename Tag_Type, typename T>
+        bool isValidId(Id<Tag_Type, T> const& id)
+        {
+            return id.m_mgr != nullptr &&
+                    id.m_id < id.m_mgr->m_next &&
+                    std::find(id.m_mgr->m_freeList.begin(), id.m_mgr->m_freeList.end(), id.m_id)
+                            == id.m_mgr->m_freeList.end();
         }
     }
 }
