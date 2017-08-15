@@ -97,8 +97,8 @@ namespace novelist {
 
     void SceneTabWidget::closeAll(bool userCheck)
     {
-        for(int i = 0; i < count(); ++i)
-            closeScene(i, userCheck);
+        for(int c = count(), i = 0; i < c; ++i)
+            closeScene(0, userCheck);
     }
 
     int SceneTabWidget::indexOf(ProjectModel const* model, QModelIndex index) const
