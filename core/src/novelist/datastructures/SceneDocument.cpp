@@ -203,16 +203,17 @@ namespace novelist
 
     bool SceneDocument::writeFragment(QXmlStreamWriter& xml, QTextFragment const& fragment) const
     {
+        QFont const& font = fragment.charFormat().font();
         xml.writeStartElement("text");
-        xml.writeAttribute("capitalization", QString::number(fragment.charFormat().fontCapitalization()));
-        xml.writeAttribute("italic", QString::number(fragment.charFormat().fontItalic()));
-        xml.writeAttribute("overline", QString::number(fragment.charFormat().fontOverline()));
-        xml.writeAttribute("underline", QString::number(fragment.charFormat().fontUnderline()));
-        xml.writeAttribute("strikeout", QString::number(fragment.charFormat().fontStrikeOut()));
-        xml.writeAttribute("weight", QString::number(fragment.charFormat().fontWeight()));
-        xml.writeAttribute("font", fragment.charFormat().fontFamily());
-        xml.writeAttribute("style", QString::number(fragment.charFormat().fontStyleHint()));
-        xml.writeAttribute("size", QString::number(fragment.charFormat().fontPointSize()));
+        xml.writeAttribute("capitalization", QString::number(font.capitalization()));
+        xml.writeAttribute("italic", QString::number(font.italic()));
+        xml.writeAttribute("overline", QString::number(font.overline()));
+        xml.writeAttribute("underline", QString::number(font.underline()));
+        xml.writeAttribute("strikeout", QString::number(font.strikeOut()));
+        xml.writeAttribute("weight", QString::number(font.weight()));
+        xml.writeAttribute("font", font.family());
+        xml.writeAttribute("style", QString::number(font.styleHint()));
+        xml.writeAttribute("size", QString::number(font.pointSizeF()));
 
         xml.writeCharacters(fragment.text());
 
