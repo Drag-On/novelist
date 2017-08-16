@@ -21,6 +21,8 @@ namespace novelist {
     {
         m_ui->setupUi(this);
 
+        connect(m_ui->projectView, &ProjectView::modelChanged, this, &MainWindow::onProjectChanged);
+
         connect(m_ui->action_New_Project, &QAction::triggered, this, &MainWindow::onNewProject);
         connect(m_ui->action_Open_Project, &QAction::triggered, this, &MainWindow::onOpenProject);
         connect(m_ui->action_Close_Project, &QAction::triggered, this, &MainWindow::onCloseProject);
@@ -112,7 +114,22 @@ namespace novelist {
             msgBox.setIcon(QMessageBox::Warning);
             msgBox.exec();
         }
+    }
 
+    void MainWindow::onProjectChanged(ProjectModel* m)
+    {
+        if(m == nullptr) {
+            m_ui->action_New_Project->setEnabled(true);
+            m_ui->action_Open_Project->setEnabled(true);
+            m_ui->action_Close_Project->setEnabled(false);
+            m_ui->action_Save->setEnabled(false);
+        }
+        else {
+            m_ui->action_New_Project->setEnabled(true);
+            m_ui->action_Open_Project->setEnabled(true);
+            m_ui->action_Close_Project->setEnabled(true);
+            m_ui->action_Save->setEnabled(true);
+        }
     }
 
     void MainWindow::changeEvent(QEvent* event)

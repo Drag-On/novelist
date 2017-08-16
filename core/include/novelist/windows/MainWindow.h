@@ -41,6 +41,8 @@ namespace novelist
 
         void onSaveProject();
 
+        void onProjectChanged(ProjectModel* m);
+
     protected:
         void changeEvent(QEvent* event) override;
 

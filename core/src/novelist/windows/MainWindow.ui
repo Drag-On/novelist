@@ -109,11 +109,17 @@
    </property>
   </action>
   <action name="action_Close_Project">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>&amp;Close Project</string>
    </property>
   </action>
   <action name="action_Save">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>&amp;Save</string>
    </property>
