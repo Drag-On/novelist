@@ -72,7 +72,7 @@ namespace novelist {
         if (w != nullptr) {
 
             int action = QMessageBox::Discard;
-            if(w->document()->isModified() && userCheck) {
+            if(w->document() != nullptr && w->document()->isModified() && userCheck) {
                 QMessageBox msgBox;
                 msgBox.setText(tr("The document has been modified."));
                 msgBox.setInformativeText(
