@@ -23,39 +23,89 @@ namespace novelist {
         class ProjectTreeView;
     }
 
+    /**
+     * Specialized tree view for projects
+     */
     class ProjectView : public QWidget {
     Q_OBJECT
 
     public:
+        /**
+         * @param parent Parent widget
+         */
         explicit ProjectView(QWidget* parent);
 
+        /**
+         * Translate UI to currently set language
+         */
         void retranslateUi();
 
+        /**
+         * @param model New project model
+         */
         void setModel(ProjectModel* model);
 
+        /**
+         * @return Currently set model or nullptr if none
+         */
         ProjectModel* model() const;
 
+        /**
+         * Shows the project properties dialog. If the current model is nullptr, does nothing.
+         */
         void showProjectPropertiesDialog();
 
     signals:
+        /**
+         * Fires when the user requests to open a scene, e.g. via double click
+         * @param idx
+         */
         void openSceneRequested(QModelIndex idx);
 
+        /**
+         * Fires when the underlying model was switched out
+         * @param m New model
+         */
         void modelChanged(ProjectModel* m);
 
     protected slots:
-
+        /**
+         * Creates a new chapter node based on the current selection
+         */
         void onNewChapter();
 
+        /**
+         * Creates a new scene node based on the current selection
+         */
         void onNewScene();
 
+        /**
+         * Removes the currently selected node
+         */
         void onRemoveEntry();
 
+        /**
+         * Shows the properties of the currently selected node
+         */
         void onProperties();
 
+        /**
+         * Handles behavior when a node is double-clicked. Emits open scene signal if the clicked node was a scene.
+         * @param idx Index of the clicked node
+         */
         void onDoubleClick(QModelIndex idx);
 
+        /**
+         * Enables or disables menu items based on selection
+         * @param selected Selected items
+         * @param deselected Deselected items
+         */
         void onSelectionChanged(QItemSelection const& selected, QItemSelection const& deselected);
 
+        /**
+         * Shows the context menu
+         * @param pos Position to show the menu at
+         */
         void onContextMenuEvent(QPoint const& pos);
 
     private:
