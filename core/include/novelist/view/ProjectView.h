@@ -40,6 +40,8 @@ namespace novelist {
     signals:
         void openSceneRequested(QModelIndex idx);
 
+        void modelChanged(ProjectModel* m);
+
     protected slots:
 
         void onNewChapter();

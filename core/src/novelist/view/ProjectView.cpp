@@ -67,6 +67,7 @@ namespace novelist {
         m_treeView->setModel(model);
         connect(m_treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this,
                 &ProjectView::onSelectionChanged);
+        emit modelChanged(model);
     }
 
     ProjectModel* ProjectView::model() const
