@@ -40,6 +40,7 @@ namespace novelist {
      * Represents a unique identifier
      * @tparam Tag_Type IDs are unique among all IDs with the same tag
      * @tparam T Underlying integral type
+     * @note This is not thread-safe.
      */
     template<typename Tag_Type, typename T>
     class Id {
@@ -80,11 +81,12 @@ namespace novelist {
         /**
          * Equality operator
          * @param other Other identifier
-         * @return True if \p other is a reference to this, otherwise false
+         * @return True if \p other is a reference to this, otherwise false. If either object is in a moved-from state,
+         *         then this returns false, even in the case of self-test.
          */
         bool operator==(Id<Tag_Type, T> const& other) const noexcept
         {
-            return other.m_id == m_id;
+            return other.m_id == m_id && m_mgr != nullptr && other.m_mgr != nullptr;
         }
 
         /**
@@ -148,7 +150,7 @@ namespace novelist {
      * Manages unique identifiers
      * @tparam Tag_Type IDs are unique among all IDs with the same tag
      * @tparam T Underlying integral type. Defaults to uint32_t, which allows up to 4,294,967,295 unique IDs.
-     * @note Generated IDs may never be destructed in a different thread than they were created in.
+     * @note This is not thread-safe.
      */
     template<typename Tag_Type, typename T = uint32_t>
     class IdManager {
