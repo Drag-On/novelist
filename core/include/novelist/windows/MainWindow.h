@@ -17,13 +17,12 @@ namespace Ui {
     class MainWindow;
 }
 
-namespace novelist
-{
+namespace novelist {
     class MainWindow : public QMainWindow {
-        Q_OBJECT
+    Q_OBJECT
 
     public:
-        explicit MainWindow(QWidget *parent = nullptr, Qt::WindowFlags flags = Qt::WindowFlags());
+        explicit MainWindow(QWidget* parent = nullptr, Qt::WindowFlags flags = Qt::WindowFlags());
 
         ~MainWindow() noexcept override;
 
@@ -33,6 +32,7 @@ namespace novelist
         void retranslateUi();
 
     public slots:
+
         void onNewProject();
 
         void onOpenProject();
@@ -40,8 +40,6 @@ namespace novelist
         void onCloseProject();
 
         void onSaveProject();
-
-        void onProjectChanged(ProjectModel* m);
 
     protected:
         void changeEvent(QEvent* event) override;
@@ -53,6 +51,12 @@ namespace novelist
         std::unique_ptr<ProjectModel> m_model;
 
         bool continueCheckUnsavedChanges() const;
+
+    private slots:
+
+        void onProjectChanged(ProjectModel* m);
+
+        void onItemAboutToRemoved(QModelIndex const& idx, ProjectModel::NodeType type);
     };
 }
 

@@ -46,13 +46,11 @@ namespace novelist {
 
     void MainWindow::onNewProject()
     {
-        if(continueCheckUnsavedChanges())
-        {
+        if (continueCheckUnsavedChanges()) {
             QFileDialog dialog(this);
             dialog.setFileMode(QFileDialog::Directory);
             dialog.setAcceptMode(QFileDialog::AcceptSave);
-            if(dialog.exec() == QFileDialog::Accepted)
-            {
+            if (dialog.exec() == QFileDialog::Accepted) {
                 m_model = std::make_unique<ProjectModel>();
                 m_model->setSaveDir(dialog.selectedFiles().front());
                 m_ui->sceneTabWidget->closeAll(false);
@@ -65,15 +63,13 @@ namespace novelist {
 
     void MainWindow::onOpenProject()
     {
-        if(continueCheckUnsavedChanges())
-        {
+        if (continueCheckUnsavedChanges()) {
             QFileDialog dialog(this);
             dialog.setFileMode(QFileDialog::Directory);
             dialog.setAcceptMode(QFileDialog::AcceptOpen);
-            if(dialog.exec() == QFileDialog::Accepted)
-            {
+            if (dialog.exec() == QFileDialog::Accepted) {
                 auto* m = new ProjectModel;
-                if(m->open(dialog.selectedFiles().front())) {
+                if (m->open(dialog.selectedFiles().front())) {
                     m_ui->sceneTabWidget->closeAll(false);
                     m_model.reset(m);
                     m_ui->projectView->setModel(m_model.get());
@@ -94,8 +90,7 @@ namespace novelist {
 
     void MainWindow::onCloseProject()
     {
-        if(continueCheckUnsavedChanges())
-        {
+        if (continueCheckUnsavedChanges()) {
             m_ui->sceneTabWidget->closeAll(false);
             m_ui->projectView->setModel(nullptr);
             m_model.reset();
@@ -104,7 +99,7 @@ namespace novelist {
 
     void MainWindow::onSaveProject()
     {
-        if(!(m_ui->projectView->model() != nullptr && m_ui->projectView->model()->save())) {
+        if (!(m_ui->projectView->model() != nullptr && m_ui->projectView->model()->save())) {
             QMessageBox msgBox;
             msgBox.setWindowTitle(tr("Novelist"));
             msgBox.setText(tr("Saving the project failed."));
@@ -113,22 +108,6 @@ namespace novelist {
             msgBox.setDefaultButton(QMessageBox::Ok);
             msgBox.setIcon(QMessageBox::Warning);
             msgBox.exec();
-        }
-    }
-
-    void MainWindow::onProjectChanged(ProjectModel* m)
-    {
-        if(m == nullptr) {
-            m_ui->action_New_Project->setEnabled(true);
-            m_ui->action_Open_Project->setEnabled(true);
-            m_ui->action_Close_Project->setEnabled(false);
-            m_ui->action_Save->setEnabled(false);
-        }
-        else {
-            m_ui->action_New_Project->setEnabled(true);
-            m_ui->action_Open_Project->setEnabled(true);
-            m_ui->action_Close_Project->setEnabled(true);
-            m_ui->action_Save->setEnabled(true);
         }
     }
 
@@ -146,7 +125,7 @@ namespace novelist {
 
     void MainWindow::closeEvent(QCloseEvent* event)
     {
-        if(continueCheckUnsavedChanges())
+        if (continueCheckUnsavedChanges())
             event->accept();
         else
             event->ignore();
@@ -154,11 +133,12 @@ namespace novelist {
 
     bool MainWindow::continueCheckUnsavedChanges() const
     {
-        if(m_ui->projectView->model() != nullptr && m_ui->projectView->model()->isModified()) {
+        if (m_ui->projectView->model() != nullptr && m_ui->projectView->model()->isModified()) {
             QMessageBox msgBox;
             msgBox.setWindowTitle(tr("Novelist"));
             msgBox.setText(tr("There are unsaved changes."));
-            msgBox.setInformativeText(tr("If you continue, all changes will be lost. Are you sure you want to continue?"));
+            msgBox.setInformativeText(
+                    tr("If you continue, all changes will be lost. Are you sure you want to continue?"));
             msgBox.setStandardButtons(QMessageBox::Discard | QMessageBox::Cancel);
             msgBox.setDefaultButton(QMessageBox::Cancel);
             msgBox.setIcon(QMessageBox::Question);
@@ -172,5 +152,42 @@ namespace novelist {
             }
         }
         return true;
+    }
+
+    void MainWindow::onProjectChanged(ProjectModel* m)
+    {
+        if (m == nullptr) {
+            m_ui->action_New_Project->setEnabled(true);
+            m_ui->action_Open_Project->setEnabled(true);
+            m_ui->action_Close_Project->setEnabled(false);
+            m_ui->action_Save->setEnabled(false);
+        }
+        else {
+            m_ui->action_New_Project->setEnabled(true);
+            m_ui->action_Open_Project->setEnabled(true);
+            m_ui->action_Close_Project->setEnabled(true);
+            m_ui->action_Save->setEnabled(true);
+
+            connect(m, &ProjectModel::beforeItemRemoved, this, &MainWindow::onItemAboutToRemoved);
+        }
+    }
+
+    void MainWindow::onItemAboutToRemoved(QModelIndex const& idx, ProjectModel::NodeType type)
+    {
+        using NodeType = ProjectModel::NodeType;
+        switch (type) {
+            case NodeType::Scene: {
+                m_ui->sceneTabWidget->closeScene(m_ui->projectView->model(), idx);
+                break;
+            }
+            case NodeType::Chapter: {
+                int count = m_model->rowCount(idx);
+                for(int i = 0; i < count; ++i)
+                    onItemAboutToRemoved(idx.child(i, 0), m_model->nodeType(idx.child(i, 0)));
+                break;
+            }
+            default:
+                break;
+        }
     }
 }
