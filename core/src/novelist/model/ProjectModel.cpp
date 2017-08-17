@@ -359,8 +359,11 @@ namespace novelist {
         QModelIndexList indicesThatChange = childIndices(parent);
 
         beginRemoveRows(parent, row, row + count - 1);
-        for (int r = 0; r < count; ++r)
+        for (int r = 0; r < count; ++r) {
+            auto idx = parent.child(row, 0);
+            emit beforeItemRemoved(idx, nodeType(idx));
             item->erase(item->begin() + row);
+        }
         endRemoveRows();
 
         // All children of parent might have been relocated, therefore update their persistent indices

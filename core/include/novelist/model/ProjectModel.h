@@ -339,6 +339,14 @@ namespace novelist {
          */
         friend std::ostream& operator<<(std::ostream& stream, ProjectModel const& model);
 
+    signals:
+        /**
+         * Called whenever an item is about to be removed
+         * @param idx Index of the node
+         * @param type Node type
+         */
+        void beforeItemRemoved(QModelIndex const& idx, NodeType type);
+
     private:
         using Node = TreeNode<NodeData>;
 
