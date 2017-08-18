@@ -555,8 +555,10 @@ namespace novelist {
         m_saveDir = dir;
         QFile file{dir.path() + "/project.xml"};
         bool success = read(file);
-        if (success)
+        if (success) {
             m_modified = false;
+            m_neverSaved = false;
+        }
         return success;
     }
 
@@ -590,8 +592,10 @@ namespace novelist {
             return false;
         });
 
-        if (success)
+        if (success) {
             m_modified = false;
+            m_neverSaved = false;
+        }
 
         return success;
     }
@@ -599,6 +603,7 @@ namespace novelist {
     void ProjectModel::setSaveDir(QDir const& dir)
     {
         m_saveDir = dir;
+        m_neverSaved = true;
     }
 
     QDir const& ProjectModel::saveDir() const
@@ -611,6 +616,11 @@ namespace novelist {
         QDir contentDir = saveDir();
         contentDir.cd(m_contentDirName);
         return contentDir;
+    }
+
+    bool ProjectModel::neverSaved() const
+    {
+        return m_neverSaved;
     }
 
     std::ostream& operator<<(std::ostream& stream, ProjectModel const& model)

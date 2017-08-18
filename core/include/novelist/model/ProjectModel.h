@@ -332,6 +332,11 @@ namespace novelist {
         QDir contentDir() const;
 
         /**
+         * @return true if the project was never saved to it's current saveDir, otherwise false
+         */
+        bool neverSaved() const;
+
+        /**
          * Print project model to stream in a human-readable format
          * @param stream Stream to write to
          * @param model Model to write
@@ -354,6 +359,7 @@ namespace novelist {
         IdManager<Scene_Tag> m_sceneIdMgr;
         Node m_root{InvisibleRootData{}};
         QDir m_saveDir;
+        bool m_neverSaved = true;
         QString const m_contentDirName = "content";
         bool m_modified = false;
 
