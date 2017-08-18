@@ -47,17 +47,10 @@ namespace novelist {
     void MainWindow::onNewProject()
     {
         if (continueCheckUnsavedChanges()) {
-            QFileDialog dialog(this);
-            dialog.setFileMode(QFileDialog::Directory);
-            dialog.setAcceptMode(QFileDialog::AcceptSave);
-            if (dialog.exec() == QFileDialog::Accepted) {
-                m_model = std::make_unique<ProjectModel>();
-                m_model->setSaveDir(dialog.selectedFiles().front());
-                m_ui->sceneTabWidget->closeAll(false);
-                m_ui->projectView->setModel(m_model.get());
-                m_ui->projectView->showProjectPropertiesDialog();
-                onSaveProject();
-            }
+            m_ui->sceneTabWidget->closeAll(false);
+            m_model = std::make_unique<ProjectModel>();
+            m_ui->projectView->setModel(m_model.get());
+            m_ui->projectView->showProjectPropertiesDialog();
         }
     }
 
@@ -99,7 +92,19 @@ namespace novelist {
 
     void MainWindow::onSaveProject()
     {
-        if (!(m_ui->projectView->model() != nullptr && m_ui->projectView->model()->save())) {
+        if(m_ui->projectView->model() == nullptr)
+            return;
+
+        if (m_ui->projectView->model()->neverSaved()) {
+            QFileDialog dialog(this);
+            dialog.setFileMode(QFileDialog::Directory);
+            dialog.setAcceptMode(QFileDialog::AcceptSave);
+            if (dialog.exec() == QFileDialog::Accepted)
+                m_ui->projectView->model()->setSaveDir(dialog.selectedFiles().front());
+            else
+                return;
+        }
+        if (!m_ui->projectView->model()->save()) {
             QMessageBox msgBox;
             msgBox.setWindowTitle(tr("Novelist"));
             msgBox.setText(tr("Saving the project failed."));
