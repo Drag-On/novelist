@@ -362,6 +362,15 @@ namespace novelist {
         for (int r = 0; r < count; ++r) {
             auto idx = parent.child(row, 0);
             emit beforeItemRemoved(idx, nodeType(idx));
+            // Delete content files on disk
+            traverse_dfs(*(item->begin() + row), [this](Node const& n) -> bool {
+                if(nodeType(n) == NodeType::Scene) {
+                    std::string filename = std::get<SceneData>(n.m_data).m_id.toString() + ".xml";
+                    contentDir().remove(QString::fromStdString(filename));
+                }
+                return false;
+            });
+            // Delete item
             item->erase(item->begin() + row);
         }
         endRemoveRows();

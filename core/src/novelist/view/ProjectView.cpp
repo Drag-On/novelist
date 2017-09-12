@@ -9,6 +9,7 @@
 
 #include <QPainter>
 #include <QDrag>
+#include <QMessageBox>
 #include "windows/ProjectPropertiesWindow.h"
 #include "view/ProjectView.h"
 
@@ -155,6 +156,17 @@ namespace novelist {
 
         auto idx = m_treeView->selectionModel()->selectedIndexes().first();
         Q_ASSERT(idx.isValid());
+
+        // Ask for user confirmation
+        QMessageBox msgBox;
+        msgBox.setWindowTitle(tr("Novelist"));
+        msgBox.setText(tr("This action cannot be undone."));
+        msgBox.setInformativeText(tr("Are you sure you want to continue?"));
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
+        msgBox.setDefaultButton(QMessageBox::Cancel);
+        msgBox.setIcon(QMessageBox::Question);
+        if(msgBox.exec() != QMessageBox::Yes)
+            return;
 
         auto parIdx = idx.parent();
         auto row = idx.row();
