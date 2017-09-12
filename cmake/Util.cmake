@@ -14,9 +14,9 @@ function(enable_cxx17 target)
     # At least Visual Studio 2017 can be supported this way
     if (MSVC_VERSION GREATER_EQUAL "1900")
         include(CheckCXXCompilerFlag)
-        CHECK_CXX_COMPILER_FLAG("/std:c++17" _cpp_17_flag_supported)
-        if (_cpp_17_flag_supported)
-            add_compile_options("/std:c++17")
+        CHECK_CXX_COMPILER_FLAG("/std:c++latest" _cpp_latest_flag_supported)
+        if (_cpp_latest_flag_supported)
+            add_compile_options("/std:c++latest")
         endif ()
     # Try the usual CMake way of adding the standard for other compilers
     else ()
