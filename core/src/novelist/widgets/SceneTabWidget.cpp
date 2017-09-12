@@ -86,7 +86,8 @@ namespace novelist {
             if(action == QMessageBox::Discard)
             {
                 removeTab(index);
-                w->m_model->unloadScene(w->m_modelIndex);
+                if(w->m_modelIndex.isValid())
+                    w->m_model->unloadScene(w->m_modelIndex);
                 delete w;
             }
             return;
