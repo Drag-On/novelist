@@ -25,9 +25,4 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
             )
 endif()
 
-set_target_properties(novelist_main
-        PROPERTIES
-            CXX_STANDARD 17
-            CXX_STANDARD_REQUIRED YES
-            CXX_EXTENSIONS NO
-        )
+enable_cxx17(novelist_main)

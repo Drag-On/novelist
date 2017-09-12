@@ -15,11 +15,6 @@ if (NOT NoDesigner)
             Qt5::UiPlugin
             )
 
-    set_target_properties(novelist_core_designer
-            PROPERTIES
-            CXX_STANDARD 17
-            CXX_STANDARD_REQUIRED YES
-            CXX_EXTENSIONS NO
-            )
+    enable_cxx17(novelist_core_designer)
 
 endif ()

@@ -40,12 +40,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
             )
 endif()
 
-set_target_properties(novelist_core
-        PROPERTIES
-            CXX_STANDARD 17
-            CXX_STANDARD_REQUIRED YES
-            CXX_EXTENSIONS NO
-        )
+enable_cxx17(novelist_core)
 
 add_subdirectory(test)
 add_subdirectory(designer)
