@@ -17,7 +17,7 @@ function(enable_cxx17 target)
             include(CheckCXXCompilerFlag)
             CHECK_CXX_COMPILER_FLAG("/std:c++latest" _cpp_latest_flag_supported)
             if (_cpp_latest_flag_supported)
-                add_compile_options("/std:c++latest")
+                target_compile_options(${target} PRIVATE "/std:c++latest")
             else()
                 print_status("This version of MSVC doesn't support C++17.")
             endif ()
@@ -27,7 +27,7 @@ function(enable_cxx17 target)
     # Try the usual CMake way of adding the standard for other compilers
     else ()
         set_target_properties(${target}
-                PROPERTIES
+            PROPERTIES
                 CXX_STANDARD 17
                 CXX_STANDARD_REQUIRED YES
                 CXX_EXTENSIONS NO
