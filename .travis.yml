@@ -1,0 +1,34 @@
+language: cpp
+compiler: gcc
+dist: trusty
+sudo: false
+
+before_install:
+  # Remove pre-installed cmake since it clashes with the newer version from custom repository
+  - sudo apt-get remove cmake cmake-data
+  - sudo add-apt-repository ppa:zink-chimaera/cmake -y
+  - sudo apt-get update -q
+  - sudo apt-get install cmake -y
+  # Get a recent catch release
+  - mkdir -p ~/catch/single_include/
+  - wget -P ~/catch/single_include/ https://github.com/philsquared/Catch/releases/download/v2.0.0-develop.1/catch.hpp
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+      - sourceline: 'ppa:beineri/opt-qt59-trusty'
+    packages:
+      - g++-7
+      - qt59-meta-minimal
+      - qt59creator
+
+script:
+  # Set up Qt
+  - source /opt/qt59/bin/qt59-env.sh
+  # Compile debug build
+  - CXX=/usr/bin/g++-7 CC=/usr/bin/gcc-7 cmake -D CATCH_DIR="~/catch" -D CMAKE_BUILD_TYPE=Debug .
+  - cmake --build . -- -j2
+  # Run tests
+  - core/test/novelist_core_test
+  
