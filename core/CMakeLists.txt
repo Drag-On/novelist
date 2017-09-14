@@ -18,7 +18,7 @@ add_library(novelist_core
         src/novelist/widgets/TextEditor.cpp include/novelist/widgets/TextEditor.h
         src/novelist/widgets/SceneTabWidget.cpp include/novelist/widgets/SceneTabWidget.h
         src/novelist/datastructures/SceneDocument.cpp include/novelist/datastructures/SceneDocument.h
-        src/novelist/windows/MainWindow.cpp include/novelist/windows/MainWindow.h)
+        src/novelist/windows/MainWindow.cpp include/novelist/windows/MainWindow.h src/novelist/model/ModelPath.cpp include/novelist/model/ModelPath.h)
 
 target_include_directories(novelist_core
         PUBLIC
