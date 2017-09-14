@@ -45,6 +45,8 @@ namespace novelist {
     template<typename Tag_Type, typename T>
     class Id {
     public:
+        Id() = delete;
+
         /**
          * Returns the ID to the pool of available IDs
          */
