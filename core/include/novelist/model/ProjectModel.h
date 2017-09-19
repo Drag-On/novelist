@@ -18,13 +18,17 @@
 #include <QtCore/QDir>
 #include <QtCore/QXmlStreamReader>
 #include <QtGui/QTextDocument>
+#include <QtWidgets/QUndoStack>
 #include <QMimeData>
 #include "datastructures/SceneDocument.h"
 #include "datastructures/Tree.h"
 #include "identity/Identity.h"
 #include "lang/Language.h"
+#include "ModelPath.h"
 
 namespace novelist {
+
+    class InsertRowCommand;
 
     /**
      * Basic project properties
@@ -113,9 +117,14 @@ namespace novelist {
         };
 
         /**
-         * Data of any node
+         * Node data (this can not be copied and is thus wrapped into a shared_ptr, see NodeData)
          */
-        using NodeData = std::variant<InvisibleRootData, ProjectHeadData, NotebookHeadData, SceneData, ChapterData>;
+        using NodeDataUnique = std::variant<InvisibleRootData, ProjectHeadData, NotebookHeadData, SceneData, ChapterData>;
+
+        /**
+         * Data of any node. Instances of this type are shared resources.
+         */
+        using NodeData = std::shared_ptr<NodeDataUnique>;
 
         /**
          * Default-constructs a model with empty title and author and using the language "en_EN".
@@ -251,6 +260,13 @@ namespace novelist {
         insertRows(int row, int count, InsertableNodeType type, QString const& name,
                 QModelIndex const& parent = QModelIndex());
 
+        /**
+         * Remove rows and notify the undo-redo-system.
+         * @param row First row to remove
+         * @param count Amount of rows to remove
+         * @param parent Parent index
+         * @return true in case of success, otherwise false
+         */
         bool removeRows(int row, int count, QModelIndex const& parent) override;
 
         /**
@@ -357,11 +373,12 @@ namespace novelist {
 
         IdManager<Chapter_Tag> m_chapterIdMgr;
         IdManager<Scene_Tag> m_sceneIdMgr;
-        Node m_root{InvisibleRootData{}};
+        Node m_root{std::make_shared<NodeDataUnique>(InvisibleRootData{})};
         QDir m_saveDir;
         bool m_neverSaved = true;
         QString const m_contentDirName = "content";
         bool m_modified = false;
+        QUndoStack m_undoStack;
 
         void createRootNodes(ProjectProperties const& properties);
 
@@ -371,6 +388,21 @@ namespace novelist {
 
         bool moveRowInternal(QModelIndex const& sourceParent, int sourceRow, QModelIndex const& destinationParent,
                 int destinationRow);
+
+        /**
+         * Remove a row without notifying the undo-redo-system
+         * @param row Row to remove
+         * @param parent Valid parent index
+         */
+        void doRemoveRow(int row, QModelIndex const& parent);
+
+        /**
+         * Insert a row without notifying the undo-redo-system
+         * @param n Node to insert
+         * @param row Row to insert at
+         * @param parent Valid parent index
+         */
+        void doInsertRow(Node n, int row, QModelIndex const& parent);
 
         void writeChapterOrScene(QXmlStreamWriter& xml, QModelIndex item) const;
 
@@ -386,6 +418,8 @@ namespace novelist {
 
         friend std::ostream& operator<<(std::ostream& stream, NodeData const& nodeData);
 
+        friend InsertRowCommand;
+
     private slots:
 
         void onDataChanged(QModelIndex const& topLeft, QModelIndex const& bottomRight, QVector<int> const& roles);
@@ -395,6 +429,25 @@ namespace novelist {
         void onRowsInserted(QModelIndex const& parent, int first, int last);
 
         void onRowsRemoved(QModelIndex const& parent, int first, int last);
+    };
+
+    class InsertRowCommand : public QUndoCommand {
+    private:
+        using NodeData = ProjectModel::NodeData;
+        using Node = TreeNode<NodeData>;
+
+    public:
+        InsertRowCommand(NodeData data, QModelIndex const& parentIdx, int row, ProjectModel* model, QUndoCommand *parent = nullptr);
+
+        void undo() override;
+
+        void redo() override;
+
+    private:
+        NodeData m_data;
+        ModelPath m_path;
+        int m_row;
+        ProjectModel* m_model;
     };
 }
 

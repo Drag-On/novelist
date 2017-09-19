@@ -48,12 +48,12 @@ namespace novelist {
 
     ProjectProperties const& ProjectModel::properties() const
     {
-        return std::get<ProjectHeadData>(m_root[0].m_data).m_properties;
+        return std::get<ProjectHeadData>(*m_root[0].m_data).m_properties;
     }
 
     void ProjectModel::setProperties(ProjectProperties const& properties)
     {
-        std::get<ProjectHeadData>(m_root[0].m_data).m_properties = properties;
+        std::get<ProjectHeadData>(*m_root[0].m_data).m_properties = properties;
         m_modified = true;
     }
 
@@ -129,7 +129,7 @@ namespace novelist {
             return s;
         };
 
-        QString displayText = std::visit(getDisplayText, item->m_data);
+        QString displayText = std::visit(getDisplayText, *item->m_data);
         switch (role) {
             case Qt::DisplayRole:
                 return makeEmptyNote(displayText);
@@ -171,7 +171,7 @@ namespace novelist {
                     [&value](ProjectHeadData& arg) { arg.m_properties.m_name = value.toString(); },
                     [&value](SceneData& arg) { arg.m_name = value.toString(); },
                     [&value](ChapterData& arg) { arg.m_name = value.toString(); },
-            }, item->m_data);
+            }, *item->m_data);
             emit dataChanged(index, index);
             return true;
         }
@@ -308,81 +308,76 @@ namespace novelist {
     bool ProjectModel::insertRows(int row, int count, InsertableNodeType type, QString const& name,
             QModelIndex const& parent)
     {
-        if (count <= 0)
-            return false;
-
         if (!parent.isValid())
             return false;
-
-        auto* parentNode = static_cast<Node*>(parent.internalPointer());
-
-        Expects(row >= 0);
-        Expects(static_cast<size_t>(row + count - 1) <= parentNode->size());
-
-        // Can't add children to scenes or the invisible root node
         if (!canInsert(parent))
             return false;
+        if (row < 0)
+            return false;
+        if (count <= 0)
+            return false;
+        if (rowCount(parent) < row + count - 1)
+            return false;
+
+        for (int r = 0; r < count; ++r)
+            doInsertRow(Node(makeNodeData(type, name)), row + r, parent);
+
+        return true;
+    }
+
+    void ProjectModel::doInsertRow(ProjectModel::Node n, int row, QModelIndex const& parent)
+    {
+        auto* parentNode = static_cast<Node*>(parent.internalPointer());
 
         QModelIndexList indicesThatChange = childIndices(parent);
 
-        beginInsertRows(parent, row, row + count - 1);
-        for (int r = 0; r < count; ++r)
-            parentNode->emplace(parentNode->begin() + row + r, makeNodeData(type, name));
+        beginInsertRows(parent, row, row);
+        parentNode->insert(parentNode->begin() + row, std::move(n));
         endInsertRows();
 
         // All children of parent might have been relocated, therefore update their persistent indices
         QModelIndexList newIndices = childIndices(parent);
-        newIndices.erase(newIndices.begin() + row, newIndices.begin() + row + count);
+        newIndices.erase(newIndices.begin() + row, newIndices.begin() + row + 1);
         Q_ASSERT(indicesThatChange.size() == newIndices.size());
         changePersistentIndexList(indicesThatChange, newIndices);
-
-        return true;
     }
 
     bool ProjectModel::removeRows(int row, int count, QModelIndex const& parent)
     {
         if (!parent.isValid())
             return false;
-
-        auto* item = static_cast<Node*>(parent.internalPointer());
-
-        if (count <= 0)
-            return false;
-
-        Expects(row >= 0);
-        Expects(count >= 0);
-        Expects(item->size() > static_cast<size_t>(row));
-
         if (!canRemove(parent))
             return false;
+        if (row < 0)
+            return false;
+        if (count <= 0)
+            return false;
+        if (rowCount(parent) <= row + count - 1)
+            return false;
+
+        for (int r = 0; r < count; ++r)
+            doRemoveRow(row, parent);
+
+        return true;
+    }
+
+    void ProjectModel::doRemoveRow(int row, QModelIndex const& parent)
+    {
+        auto* item = static_cast<Node*>(parent.internalPointer());
 
         QModelIndexList indicesThatChange = childIndices(parent);
 
-        beginRemoveRows(parent, row, row + count - 1);
-        for (int r = 0; r < count; ++r) {
-            auto idx = parent.child(row, 0);
-            emit beforeItemRemoved(idx, nodeType(idx));
-            // Delete content files on disk
-            traverse_dfs(*(item->begin() + row), [this](Node const& n) -> bool {
-                if(nodeType(n) == NodeType::Scene) {
-                    std::string filename = std::get<SceneData>(n.m_data).m_id.toString() + ".xml";
-                    contentDir().remove(QString::fromStdString(filename));
-                }
-                return false;
-            });
-            // Delete item
-            item->erase(item->begin() + row);
-        }
+        beginRemoveRows(parent, row, row);
+        auto idx = parent.child(row, 0);
+        emit beforeItemRemoved(idx, nodeType(idx));
+        item->erase(item->begin() + row);
         endRemoveRows();
 
         // All children of parent might have been relocated, therefore update their persistent indices
         QModelIndexList newIndices = childIndices(parent);
-        for (int i = 0; i < count; ++i)
-            newIndices.insert(row, QModelIndex{});
+        newIndices.insert(row, QModelIndex{});
         Q_ASSERT(indicesThatChange.size() == newIndices.size());
         changePersistentIndexList(indicesThatChange, newIndices);
-
-        return true;
     }
 
     void ProjectModel::clear()
@@ -412,7 +407,7 @@ namespace novelist {
     {
         Expects(nodeType(index) == NodeType::Scene);
 
-        auto& scene = std::get<SceneData>(static_cast<Node*>(index.internalPointer())->m_data);
+        auto& scene = std::get<SceneData>(*static_cast<Node*>(index.internalPointer())->m_data);
         QString filename = QString::fromStdString(scene.m_id.toString() + ".xml");
         scene.m_doc = std::make_unique<SceneDocument>();
         if (auto d = contentDir(); d.exists(filename)) {
@@ -433,14 +428,14 @@ namespace novelist {
     {
         Expects(nodeType(index) == NodeType::Scene);
 
-        auto& scene = std::get<SceneData>(static_cast<Node*>(index.internalPointer())->m_data);
+        auto& scene = std::get<SceneData>(*static_cast<Node*>(index.internalPointer())->m_data);
         scene.m_doc = nullptr;
     }
 
     bool ProjectModel::isContentModified(QModelIndex const& index) const
     {
         if (nodeType(index) == NodeType::Scene) {
-            auto const& scene = std::get<SceneData>(static_cast<Node*>(index.internalPointer())->m_data);
+            auto const& scene = std::get<SceneData>(*static_cast<Node*>(index.internalPointer())->m_data);
             if (scene.m_doc != nullptr)
                 return scene.m_doc->isModified();
         }
@@ -589,7 +584,7 @@ namespace novelist {
         bool success = true;
         traverse_dfs(m_root, [&](Node& n) {
             if (nodeType(n) == NodeType::Scene) {
-                auto& data = std::get<SceneData>(n.m_data);
+                auto& data = std::get<SceneData>(*n.m_data);
                 if (data.m_doc != nullptr && data.m_doc->isModified()) {
                     QFile sceneFile{contentPath + QString::fromStdString(data.m_id.toString() + ".xml")};
                     bool localSuccess = data.m_doc->write(sceneFile);
@@ -640,8 +635,8 @@ namespace novelist {
 
     void ProjectModel::createRootNodes(ProjectProperties const& properties)
     {
-        m_root.emplace_back(ProjectHeadData{properties});
-        m_root.emplace_back(NotebookHeadData{});
+        m_root.emplace_back(std::make_shared<NodeDataUnique>(ProjectHeadData{properties}));
+        m_root.emplace_back(std::make_shared<NodeDataUnique>(NotebookHeadData{}));
     }
 
     bool ProjectModel::readInternal(QXmlStreamReader& xml)
@@ -695,7 +690,7 @@ namespace novelist {
                 id = static_cast<uint32_t>(xml.attributes().value("id").toULongLong());
             insertRow(idx, InsertableNodeType::Chapter, name, parent);
             auto* node = &static_cast<Node*>(parent.internalPointer())->at(idx);
-            auto& chapter = std::get<ChapterData>(node->m_data);
+            auto& chapter = std::get<ChapterData>(*node->m_data);
             if (chapter.m_id.id() != id)
                 chapter.m_id = m_chapterIdMgr.request(id);
             while (xml.readNextStartElement()) {
@@ -713,7 +708,7 @@ namespace novelist {
 
             insertRow(idx, InsertableNodeType::Scene, name, parent);
             auto* node = &static_cast<Node*>(parent.internalPointer())->at(idx);
-            auto& scene = std::get<SceneData>(node->m_data);
+            auto& scene = std::get<SceneData>(*node->m_data);
             if (scene.m_id.id() != id)
                 scene.m_id = m_sceneIdMgr.request(id);
 
@@ -815,7 +810,7 @@ namespace novelist {
         auto const& data = node->m_data;
         switch (nodeType(data)) {
             case NodeType::Chapter: {
-                auto& chapterData = std::get<ChapterData>(data);
+                auto& chapterData = std::get<ChapterData>(*data);
                 xml.writeStartElement("chapter");
                 xml.writeAttribute("name", chapterData.m_name);
                 xml.writeAttribute("id", chapterData.m_id.toString().c_str());
@@ -825,7 +820,7 @@ namespace novelist {
                 break;
             }
             case NodeType::Scene: {
-                auto& sceneData = std::get<SceneData>(data);
+                auto& sceneData = std::get<SceneData>(*data);
                 xml.writeStartElement("scene");
                 xml.writeAttribute("name", sceneData.m_name);
                 xml.writeAttribute("id", sceneData.m_id.toString().c_str());
@@ -844,18 +839,18 @@ namespace novelist {
 
     ProjectModel::NodeType ProjectModel::nodeType(NodeData const& nodeData)
     {
-        if (std::holds_alternative<InvisibleRootData>(nodeData))
+        if (std::holds_alternative<InvisibleRootData>(*nodeData))
             return NodeType::InvisibleRoot;
-        else if (std::holds_alternative<ProjectHeadData>(nodeData))
+        else if (std::holds_alternative<ProjectHeadData>(*nodeData))
             return NodeType::ProjectHead;
-        else if (std::holds_alternative<NotebookHeadData>(nodeData))
+        else if (std::holds_alternative<NotebookHeadData>(*nodeData))
             return NodeType::NotebookHead;
-        else if (std::holds_alternative<SceneData>(nodeData))
+        else if (std::holds_alternative<SceneData>(*nodeData))
             return NodeType::Scene;
-        else if (std::holds_alternative<ChapterData>(nodeData))
+        else if (std::holds_alternative<ChapterData>(*nodeData))
             return NodeType::Chapter;
 
-        if (nodeData.valueless_by_exception())
+        if (nodeData->valueless_by_exception())
             throw std::runtime_error{"Variant is valueless by exception"};
 
         throw std::runtime_error{"Should never get here since variant must always hold a value or be valueless."};
@@ -865,9 +860,9 @@ namespace novelist {
     {
         switch (type) {
             case InsertableNodeType::Chapter:
-                return ChapterData{name, m_chapterIdMgr.generate()};
+                return std::make_shared<NodeDataUnique>(ChapterData{name, m_chapterIdMgr.generate()});
             case InsertableNodeType::Scene:
-                return SceneData {name, m_sceneIdMgr.generate(), nullptr};
+                return std::make_shared<NodeDataUnique>(SceneData {name, m_sceneIdMgr.generate(), nullptr});
         }
 
         throw std::runtime_error{"Should never get here. Probably forgot to update switch statement."};
@@ -901,16 +896,16 @@ namespace novelist {
                 stream << "(root)";
                 break;
             case Type::ProjectHead:
-                stream << std::get<ProjectModel::ProjectHeadData>(nodeData).m_properties.m_name.toStdString();
+                stream << std::get<ProjectModel::ProjectHeadData>(*nodeData).m_properties.m_name.toStdString();
                 break;
             case Type::NotebookHead:
                 stream << "Notebook";
                 break;
             case Type::Chapter:
-                stream << std::get<ProjectModel::ChapterData>(nodeData).m_name.toStdString();
+                stream << std::get<ProjectModel::ChapterData>(*nodeData).m_name.toStdString();
                 break;
             case Type::Scene:
-                stream << std::get<ProjectModel::SceneData>(nodeData).m_name.toStdString();
+                stream << std::get<ProjectModel::SceneData>(*nodeData).m_name.toStdString();
                 break;
         }
 
@@ -938,5 +933,25 @@ namespace novelist {
     void ProjectModel::onRowsRemoved(QModelIndex const& /*parent*/, int /*first*/, int /*last*/)
     {
         m_modified = true;
+    }
+
+    InsertRowCommand::InsertRowCommand(NodeData data, QModelIndex const& parentIdx, int row, ProjectModel* model,
+            QUndoCommand* parent)
+            :QUndoCommand(parent),
+             m_data(std::move(data)),
+             m_path(parentIdx),
+             m_row(row),
+             m_model(model)
+    {
+    }
+
+    void InsertRowCommand::undo()
+    {
+        m_model->doRemoveRow(m_row, m_path.toModelIndex(m_model));
+    }
+
+    void InsertRowCommand::redo()
+    {
+        m_model->doInsertRow(Node(std::move(m_data)), m_row, m_path.toModelIndex(m_model));
     }
 }
