@@ -319,8 +319,10 @@ namespace novelist {
         if (rowCount(parent) < row + count - 1)
             return false;
 
+        m_undoStack.beginMacro(tr(qPrintable(QString("Insert %1 \"%2\"").arg(nodeTypeToString(type)).arg(name))));
         for (int r = 0; r < count; ++r)
-            doInsertRow(Node(makeNodeData(type, name)), row + r, parent);
+            m_undoStack.push(new InsertRowCommand(Node(makeNodeData(type, name)), parent, row + r, this));
+        m_undoStack.endMacro();
 
         return true;
     }
@@ -356,7 +358,7 @@ namespace novelist {
             return false;
 
         for (int r = 0; r < count; ++r)
-            doRemoveRow(row, parent);
+            m_undoStack.push(new RemoveRowCommand(parent, row + r, this));
 
         return true;
     }
@@ -454,7 +456,7 @@ namespace novelist {
             return true;
 
         bool contentModified = false;
-        traverse_dfs(m_root, [&](Node const& n) {
+        traverse_dfs(m_root, [&](Node const& n) -> bool {
             auto idx = createIndex(n.parentIndex().value_or(0), 0, const_cast<Node*>(&n));
             return contentModified &= isContentModified(idx);
         });
@@ -627,6 +629,11 @@ namespace novelist {
         return m_neverSaved;
     }
 
+    QUndoStack& ProjectModel::undoStack() noexcept
+    {
+        return m_undoStack;
+    }
+
     std::ostream& operator<<(std::ostream& stream, ProjectModel const& model)
     {
         stream << model.m_root;
@@ -645,7 +652,7 @@ namespace novelist {
 
         while (xml.readNextStartElement()) {
             if (xml.name() == "meta") {
-                ProjectProperties properties;
+                ProjectProperties properties{};
                 if (xml.attributes().hasAttribute("name"))
                     properties.m_name = xml.attributes().value("name").toString();
                 if (xml.attributes().hasAttribute("author"))
@@ -688,7 +695,7 @@ namespace novelist {
                 name = xml.attributes().value("name").toString();
             if (xml.attributes().hasAttribute("id"))
                 id = static_cast<uint32_t>(xml.attributes().value("id").toULongLong());
-            insertRow(idx, InsertableNodeType::Chapter, name, parent);
+            doInsertRow(Node(makeNodeData(InsertableNodeType::Chapter, name)), idx, parent);
             auto* node = &static_cast<Node*>(parent.internalPointer())->at(idx);
             auto& chapter = std::get<ChapterData>(*node->m_data);
             if (chapter.m_id.id() != id)
@@ -706,7 +713,7 @@ namespace novelist {
             if (xml.attributes().hasAttribute("id"))
                 id = static_cast<uint32_t>(xml.attributes().value("id").toULongLong());
 
-            insertRow(idx, InsertableNodeType::Scene, name, parent);
+            doInsertRow(Node(makeNodeData(InsertableNodeType::Scene, name)), idx, parent);
             auto* node = &static_cast<Node*>(parent.internalPointer())->at(idx);
             auto& scene = std::get<SceneData>(*node->m_data);
             if (scene.m_id.id() != id)
@@ -856,6 +863,17 @@ namespace novelist {
         throw std::runtime_error{"Should never get here since variant must always hold a value or be valueless."};
     }
 
+    QString ProjectModel::nodeTypeToString(InsertableNodeType type) const noexcept
+    {
+        switch (type) {
+            case InsertableNodeType::Scene:
+                return tr("scene");
+            case InsertableNodeType::Chapter:
+                return tr("chapter");
+        }
+        return "";
+    }
+
     ProjectModel::NodeData ProjectModel::makeNodeData(InsertableNodeType type, QString const& name)
     {
         switch (type) {
@@ -935,10 +953,10 @@ namespace novelist {
         m_modified = true;
     }
 
-    InsertRowCommand::InsertRowCommand(NodeData data, QModelIndex const& parentIdx, int row, ProjectModel* model,
+    InsertRowCommand::InsertRowCommand(Node node, QModelIndex const& parentIdx, int row, ProjectModel* model,
             QUndoCommand* parent)
             :QUndoCommand(parent),
-             m_data(std::move(data)),
+             m_node(std::move(node)),
              m_path(parentIdx),
              m_row(row),
              m_model(model)
@@ -952,6 +970,25 @@ namespace novelist {
 
     void InsertRowCommand::redo()
     {
-        m_model->doInsertRow(Node(std::move(m_data)), m_row, m_path.toModelIndex(m_model));
+        m_model->doInsertRow(m_node.clone(), m_row, m_path.toModelIndex(m_model));
+    }
+
+    RemoveRowCommand::RemoveRowCommand(QModelIndex const& parentIdx, int row, ProjectModel* model, QUndoCommand* parent)
+            :QUndoCommand(parent),
+             m_node(static_cast<Node*>(parentIdx.internalPointer())->at(row).clone()),
+             m_path(parentIdx),
+             m_row(row),
+             m_model(model)
+    {
+    }
+
+    void RemoveRowCommand::undo()
+    {
+        m_model->doInsertRow(m_node.clone(), m_row, m_path.toModelIndex(m_model));
+    }
+
+    void RemoveRowCommand::redo()
+    {
+        m_model->doRemoveRow(m_row, m_path.toModelIndex(m_model));
     }
 }

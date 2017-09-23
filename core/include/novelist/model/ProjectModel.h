@@ -29,6 +29,7 @@
 namespace novelist {
 
     class InsertRowCommand;
+    class RemoveRowCommand;
 
     /**
      * Basic project properties
@@ -353,6 +354,11 @@ namespace novelist {
         bool neverSaved() const;
 
         /**
+         * @return A reference to the project's undo stack
+         */
+        QUndoStack& undoStack() noexcept;
+
+        /**
          * Print project model to stream in a human-readable format
          * @param stream Stream to write to
          * @param model Model to write
@@ -410,6 +416,8 @@ namespace novelist {
 
         static NodeType nodeType(NodeData const& nodeData);
 
+        QString nodeTypeToString(InsertableNodeType type) const noexcept;
+
         NodeData makeNodeData(InsertableNodeType type, QString const& name);
 
         QModelIndexList childIndices(QModelIndex const& parent) const;
@@ -419,6 +427,7 @@ namespace novelist {
         friend std::ostream& operator<<(std::ostream& stream, NodeData const& nodeData);
 
         friend InsertRowCommand;
+        friend RemoveRowCommand;
 
     private slots:
 
@@ -437,14 +446,33 @@ namespace novelist {
         using Node = TreeNode<NodeData>;
 
     public:
-        InsertRowCommand(NodeData data, QModelIndex const& parentIdx, int row, ProjectModel* model, QUndoCommand *parent = nullptr);
+        InsertRowCommand(Node node, QModelIndex const& parentIdx, int row, ProjectModel* model, QUndoCommand *parent = nullptr);
 
         void undo() override;
 
         void redo() override;
 
     private:
-        NodeData m_data;
+        Node m_node;
+        ModelPath m_path;
+        int m_row;
+        ProjectModel* m_model;
+    };
+
+    class RemoveRowCommand : public QUndoCommand {
+    private:
+        using NodeData = ProjectModel::NodeData;
+        using Node = TreeNode<NodeData>;
+
+    public:
+        RemoveRowCommand(QModelIndex const& parentIdx, int row, ProjectModel* model, QUndoCommand *parent = nullptr);
+
+        void undo() override;
+
+        void redo() override;
+
+    private:
+        Node m_node;
         ModelPath m_path;
         int m_row;
         ProjectModel* m_model;

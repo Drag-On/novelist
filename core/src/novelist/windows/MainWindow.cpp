@@ -166,12 +166,21 @@ namespace novelist {
             m_ui->action_Open_Project->setEnabled(true);
             m_ui->action_Close_Project->setEnabled(false);
             m_ui->action_Save->setEnabled(false);
+            m_ui->action_Undo->setEnabled(false);
+            m_ui->action_Redo->setEnabled(false);
         }
         else {
             m_ui->action_New_Project->setEnabled(true);
             m_ui->action_Open_Project->setEnabled(true);
             m_ui->action_Close_Project->setEnabled(true);
             m_ui->action_Save->setEnabled(true);
+            m_ui->menu_Edit->removeAction(m_ui->action_Undo);
+            m_ui->menu_Edit->removeAction(m_ui->action_Redo);
+            m_ui->action_Undo = m->undoStack().createUndoAction(m);
+            m_ui->action_Redo = m->undoStack().createRedoAction(m);
+            m_ui->menu_Edit->addAction(m_ui->action_Undo);
+            m_ui->menu_Edit->addAction(m_ui->action_Redo);
+            m_ui->retranslateUi(this);
 
             connect(m, &ProjectModel::beforeItemRemoved, this, &MainWindow::onItemAboutToRemoved);
         }
