@@ -358,7 +358,7 @@ namespace novelist {
             return false;
 
         for (int r = 0; r < count; ++r)
-            m_undoStack.push(new RemoveRowCommand(parent, row + r, this));
+            m_undoStack.push(new RemoveRowCommand(parent, row, this));
 
         return true;
     }
