@@ -207,7 +207,7 @@ namespace novelist {
         }
 
         /**
-         * Remove child from this node an return it
+         * Remove child from this node and return it
          * @param pos Position of child
          * @return Node at \p pos
          */
@@ -279,6 +279,7 @@ namespace novelist {
         }
 
         /**
+         * Provides a copy of this node and all children, but it won't have a parent.
          * @return Deep copy of this node
          */
         NodeType clone()
