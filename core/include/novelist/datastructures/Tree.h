@@ -230,7 +230,7 @@ namespace novelist {
         bool move(size_t srcChild, NodeType& destParent, size_t destChild)
         {
             Expects(srcChild < size());
-            Expects(destChild <= size());
+            Expects(destChild <= destParent.size());
 
             if (at(srcChild) == destParent || destParent.inSubtreeOf(at(srcChild)))
                 return false;
