@@ -12,11 +12,16 @@ namespace novelist {
     ModelPath::ModelPath(std::initializer_list<int> rows) noexcept
     {
         for (int r : rows)
-            m_path.push_back({r, 0});
+            m_path.emplace_back(r, 0);
     }
 
     ModelPath::ModelPath(std::initializer_list<RowColumnIdx> l) noexcept
             :m_path{l}
+    {
+    }
+
+    ModelPath::ModelPath(ModelPath::const_iterator begin, ModelPath::const_iterator end) noexcept
+            :m_path(begin, end)
     {
     }
 
@@ -68,6 +73,13 @@ namespace novelist {
     ModelPath::const_iterator ModelPath::end() const noexcept
     {
         return m_path.cend();
+    }
+
+    ModelPath ModelPath::parentPath() const noexcept
+    {
+        if(m_path.empty())
+            return ModelPath{};
+        return ModelPath(m_path.begin(), m_path.end() - 1);
     }
 
     RowColumnIdx& ModelPath::operator[](size_t pos)
