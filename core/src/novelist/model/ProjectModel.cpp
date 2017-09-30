@@ -12,6 +12,7 @@
 #include <QDebug>
 #include <QBrush>
 #include <QIcon>
+#include <stack>
 #include "functional/Overloaded.h"
 #include "model/ProjectModel.h"
 
@@ -916,6 +917,31 @@ namespace novelist {
             indices.append(createIndex(i, 0, const_cast<Node*>(&n.at(i))));
 
         return indices;
+    }
+
+    bool ProjectModel::operator==(ProjectModel const& other) const noexcept
+    {
+        std::stack<std::pair<Node const*, Node const*>> stack;
+        stack.emplace(std::make_pair<Node const*, Node const*>(&m_root, &other.m_root));
+        while (!stack.empty()) {
+            auto nodes = stack.top();
+            stack.pop();
+
+            if (nodes.first->size() != nodes.second->size())
+                return false;
+            if (*nodes.first->m_data.get() != *nodes.second->m_data.get())
+                return false;
+
+            for (size_t i = 0; i < nodes.first->size(); ++i)
+                stack.emplace(std::make_pair<Node const*, Node const*>(&nodes.first->at(i), &nodes.second->at(i)));
+        }
+
+        return true;
+    }
+
+    bool ProjectModel::operator!=(ProjectModel const& other) const noexcept
+    {
+        return !(*this == other);
     }
 
     std::ostream& operator<<(std::ostream& stream, ProjectModel::NodeData const& nodeData)

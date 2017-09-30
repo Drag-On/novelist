@@ -39,6 +39,13 @@ namespace novelist {
         QString m_name; //!< project name
         QString m_author; //!< project author
         Language m_lang = Language::en_US; //!< project language
+
+        bool operator==(ProjectProperties const& other) const {
+            return m_name == other.m_name && m_author == other.m_author && m_lang == other.m_lang;
+        }
+        bool operator!=(ProjectProperties const& other) const {
+            return !(*this == other);
+        }
     };
 
     /**
@@ -86,6 +93,12 @@ namespace novelist {
          * Data of the invisible root node
          */
         struct InvisibleRootData {
+            bool operator==(InvisibleRootData const& /*other*/) const {
+                return true;
+            }
+            bool operator!=(InvisibleRootData const& other) const {
+                return !(*this == other);
+            }
         };
 
         /**
@@ -93,12 +106,25 @@ namespace novelist {
          */
         struct ProjectHeadData {
             ProjectProperties m_properties; //!< Project properties
+
+            bool operator==(ProjectHeadData const& other) const {
+                return m_properties == other.m_properties;
+            }
+            bool operator!=(ProjectHeadData const& other) const {
+                return !(*this == other);
+            }
         };
 
         /**
          * Data of the notebook root node
          */
         struct NotebookHeadData {
+            bool operator==(NotebookHeadData const& /*other*/) const {
+                return true;
+            }
+            bool operator!=(NotebookHeadData const& other) const {
+                return !(*this == other);
+            }
         };
 
         /**
@@ -108,6 +134,13 @@ namespace novelist {
             QString m_name;                       //!< Scene name
             SceneId m_id;                         //!< Scene ID
             std::unique_ptr<SceneDocument> m_doc; //!< Actual content if currently loaded
+
+            bool operator==(SceneData const& other) const {
+                return m_name == other.m_name && m_id == other.m_id && m_doc == other.m_doc;
+            }
+            bool operator!=(SceneData const& other) const {
+                return !(*this == other);
+            }
         };
 
         /**
@@ -116,6 +149,13 @@ namespace novelist {
         struct ChapterData {
             QString m_name; //!< Chapter name
             ChapterId m_id; //!< Chapter ID
+
+            bool operator==(ChapterData const& other) const {
+                return m_name == other.m_name && m_id == other.m_id;
+            }
+            bool operator!=(ChapterData const& other) const {
+                return !(*this == other);
+            }
         };
 
         /**
@@ -358,6 +398,24 @@ namespace novelist {
          * @return A reference to the project's undo stack
          */
         QUndoStack& undoStack() noexcept;
+
+        /**
+         * Checks for content-equality
+         *
+         * @details Meta-properties such as undo history, save directory and modification state are not considered.
+         * @param other Other project model
+         * @return True in case both models are equal in terms of content, otherwise false
+         */
+        bool operator==(ProjectModel const& other) const noexcept;
+
+        /**
+         * Checks for content-inequality
+         *
+         * @details Meta-properties such as undo history, save directory and modification state are not considered.
+         * @param other Other project model
+         * @return True in case both models are different in terms of content, otherwise false
+         */
+        bool operator!=(ProjectModel const& other) const noexcept;
 
         /**
          * Print project model to stream in a human-readable format
