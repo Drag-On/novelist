@@ -235,7 +235,7 @@ namespace novelist {
             if (at(srcChild) == destParent || destParent.inSubtreeOf(at(srcChild)))
                 return false;
 
-            if (*this == destParent) {
+            if (this == &destParent) {
                 if (srcChild == destChild || destChild == srcChild + 1)
                     return true; // This is a no-op
 
