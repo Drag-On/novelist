@@ -54,7 +54,13 @@ namespace novelist {
 
     void ProjectModel::setProperties(ProjectProperties const& properties)
     {
+        m_undoStack.push(new ModifyProjectPropertiesCommand(properties, this));
+    }
+
+    void ProjectModel::doSetProperties(ProjectProperties const& properties)
+    {
         std::get<ProjectHeadData>(*m_root[0].m_data).m_properties = properties;
+        emit dataChanged(projectRootIndex(), projectRootIndex());
         m_modified = true;
     }
 
@@ -692,7 +698,7 @@ namespace novelist {
                     properties.m_author = xml.attributes().value("author").toString();
                 if (xml.attributes().hasAttribute("lang"))
                     properties.m_lang = lang::fromIdentifier(xml.attributes().value("lang").toString());
-                setProperties(properties);
+                doSetProperties(properties);
 
                 xml.skipCurrentElement();
             }
@@ -1090,5 +1096,28 @@ namespace novelist {
         QString undoData = idx.data().toString();
         m_model->doSetName(idx, m_name);
         m_name = undoData;
+    }
+
+    ModifyProjectPropertiesCommand::ModifyProjectPropertiesCommand(ProjectProperties props, ProjectModel* model,
+            QUndoCommand* parent)
+            :ProjectModelCommand(parent),
+             m_properties(props),
+             m_model(model)
+    {
+        setText(ProjectModel::tr("Change project properties"));
+    }
+
+    void ModifyProjectPropertiesCommand::undo()
+    {
+        auto redoProperties = m_model->properties();
+        m_model->doSetProperties(m_properties);
+        m_properties = redoProperties;
+    }
+
+    void ModifyProjectPropertiesCommand::redo()
+    {
+        auto undoProperties = m_model->properties();
+        m_model->doSetProperties(m_properties);
+        m_properties = undoProperties;
     }
 }
