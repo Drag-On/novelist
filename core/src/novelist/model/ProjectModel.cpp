@@ -165,18 +165,23 @@ namespace novelist {
     bool ProjectModel::setData(QModelIndex const& index, QVariant const& value, int role)
     {
         if (index.isValid() && role == Qt::EditRole) {
-
-            auto* item = static_cast<Node*>(index.internalPointer());
-            std::visit(Overloaded {
-                    [](auto&) { },
-                    [&value](ProjectHeadData& arg) { arg.m_properties.m_name = value.toString(); },
-                    [&value](SceneData& arg) { arg.m_name = value.toString(); },
-                    [&value](ChapterData& arg) { arg.m_name = value.toString(); },
-            }, *item->m_data);
-            emit dataChanged(index, index);
+            m_undoStack.push(new ModifyNameCommand(value.toString(), index, this));
             return true;
         }
         return false;
+    }
+
+    bool ProjectModel::doSetName(QModelIndex const& index, QString const& name)
+    {
+        auto* item = static_cast<Node*>(index.internalPointer());
+        std::visit(Overloaded {
+                [](auto&) { },
+                [&name](ProjectHeadData& arg) { arg.m_properties.m_name = name; },
+                [&name](SceneData& arg) { arg.m_name = name; },
+                [&name](ChapterData& arg) { arg.m_name = name; },
+        }, *item->m_data);
+        emit dataChanged(index, index);
+        return true;
     }
 
     QVariant ProjectModel::headerData(int /*section*/, Qt::Orientation /*orientation*/, int /*role*/) const
@@ -492,9 +497,12 @@ namespace novelist {
 //        return success;
 
         m_undoStack.beginMacro(tr(qPrintable(
-                QString("Move from \"%1\" to \"%2\"").arg(sourceParent.data().toString()).arg(destinationParent.data().toString()))));
+                QString("Move from \"%1\" to \"%2\"").arg(sourceParent.data().toString()).arg(
+                        destinationParent.data().toString()))));
         for (int r = 0; r < count; ++r)
-            m_undoStack.push(new MoveRowCommand(sourceParent, sourceRow + count - r - 1, destinationParent, destinationChild, this));
+            m_undoStack.push(
+                    new MoveRowCommand(sourceParent, sourceRow + count - r - 1, destinationParent, destinationChild,
+                            this));
         m_undoStack.endMacro();
 
         return true;
@@ -1044,7 +1052,8 @@ namespace novelist {
 
     void MoveRowCommand::undo()
     {
-        Node taken = m_model->doTakeRow(m_afterMovePath.leaf().first, m_afterMovePath.parentPath().toModelIndex(m_model));
+        Node taken = m_model->doTakeRow(m_afterMovePath.leaf().first,
+                m_afterMovePath.parentPath().toModelIndex(m_model));
         m_model->doInsertRow(std::move(taken), m_srcRow, m_srcPath.toModelIndex(m_model));
     }
 
@@ -1054,5 +1063,32 @@ namespace novelist {
         QPersistentModelIndex srcIdx = parSrcIdx.child(m_srcRow, 0);
         m_model->doMoveRow(parSrcIdx, m_srcRow, m_destPath.toModelIndex(m_model), m_destRow);
         m_afterMovePath = ModelPath(srcIdx);
+    }
+
+    ModifyNameCommand::ModifyNameCommand(QString const& name, QModelIndex const& idx, ProjectModel* model,
+            QUndoCommand* parent)
+            :ProjectModelCommand(parent),
+             m_path(idx),
+             m_model(model),
+             m_name(name)
+    {
+        setText(ProjectModel::tr(qPrintable(QString("Change name from \"%1\" to \"%2\"")
+                .arg(m_path.toModelIndex(m_model).data().toString()).arg(m_name))));
+    }
+
+    void ModifyNameCommand::undo()
+    {
+        QModelIndex idx = m_path.toModelIndex(m_model);
+        QString redoData = idx.data().toString();
+        m_model->doSetName(idx, m_name);
+        m_name = redoData;
+    }
+
+    void ModifyNameCommand::redo()
+    {
+        QModelIndex idx = m_path.toModelIndex(m_model);
+        QString undoData = idx.data().toString();
+        m_model->doSetName(idx, m_name);
+        m_name = undoData;
     }
 }

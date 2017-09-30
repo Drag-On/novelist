@@ -31,6 +31,7 @@ namespace novelist {
     class InsertRowCommand;
     class RemoveRowCommand;
     class MoveRowCommand;
+    class ModifyNameCommand;
 
     /**
      * Basic project properties
@@ -486,6 +487,14 @@ namespace novelist {
          */
         void doInsertRow(Node n, int row, QModelIndex const& parent);
 
+        /**
+         * Set name of a row without notifying the undo-redo-system
+         * @param index Valid parent index
+         * @param name New name
+         * @return True in case data was set, otherwise false
+         */
+        bool doSetName(QModelIndex const& index, QString const& name);
+
         void writeChapterOrScene(QXmlStreamWriter& xml, QModelIndex item) const;
 
         static NodeType nodeType(Node const& n);
@@ -505,6 +514,7 @@ namespace novelist {
         friend InsertRowCommand;
         friend RemoveRowCommand;
         friend MoveRowCommand;
+        friend ModifyNameCommand;
 
     private slots:
 
@@ -571,6 +581,20 @@ namespace novelist {
         int m_destRow;
         ProjectModel* m_model;
         ModelPath m_afterMovePath;
+    };
+
+    class ModifyNameCommand : public ProjectModelCommand {
+    public:
+        ModifyNameCommand(QString const& name, QModelIndex const& idx, ProjectModel* model, QUndoCommand *parent = nullptr);
+
+        void undo() override;
+
+        void redo() override;
+
+    private:
+        ModelPath m_path;
+        ProjectModel* m_model;
+        QString m_name;
     };
 }
 
