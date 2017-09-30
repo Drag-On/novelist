@@ -257,20 +257,12 @@ TEST_CASE("ProjectModel read/write", "[Model]")
 {
     ProjectModel model{properties};
     fillModel(model);
-    std::stringstream modelString;
-    modelString << model;
 
     QString xml;
     REQUIRE(model.write(xml));
 
-    model.clear();
+    ProjectModel loadedModel;
+    REQUIRE(loadedModel.read(xml));
 
-    REQUIRE(model.read(xml));
-
-    std::stringstream modelAfterString;
-    modelAfterString << model;
-
-    // Note: Comparison of string representation because implementation details such as IDs might change between loads
-    REQUIRE(modelString.str() == modelAfterString.str());
-
+    REQUIRE(model == loadedModel);
 }
