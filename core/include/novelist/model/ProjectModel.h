@@ -30,6 +30,7 @@ namespace novelist {
 
     class InsertRowCommand;
     class RemoveRowCommand;
+    class MoveRowCommand;
 
     /**
      * Basic project properties
@@ -392,7 +393,16 @@ namespace novelist {
 
         bool readChapterOrScene(QXmlStreamReader& xml, QModelIndex parent);
 
-        bool moveRowInternal(QModelIndex const& sourceParent, int sourceRow, QModelIndex const& destinationParent,
+        /**
+         * Move a row without notifying the undo-redo-system
+         * @param sourceParent Parent index of source row
+         * @param sourceRow Row to move relative to parent
+         * @param destinationParent Parent of destination
+         * @param destinationRow Row to insert at, relative to parent
+         * @return Row the element actually ended up at (might differ from \p destinationRow) or -1 if invalid move was
+         *         requested
+         */
+        int doMoveRow(QModelIndex const& sourceParent, int sourceRow, QModelIndex const& destinationParent,
                 int destinationRow);
 
         /**
@@ -401,6 +411,14 @@ namespace novelist {
          * @param parent Valid parent index
          */
         void doRemoveRow(int row, QModelIndex const& parent);
+
+        /**
+         * Remove a row without notifying the undo-redo-system and retain it
+         * @param row Row to remove
+         * @param parent Valid parent index
+         * @return The removed row
+         */
+        Node doTakeRow(int row, QModelIndex const& parent);
 
         /**
          * Insert a row without notifying the undo-redo-system
@@ -428,6 +446,7 @@ namespace novelist {
 
         friend InsertRowCommand;
         friend RemoveRowCommand;
+        friend MoveRowCommand;
 
     private slots:
 
@@ -440,11 +459,15 @@ namespace novelist {
         void onRowsRemoved(QModelIndex const& parent, int first, int last);
     };
 
-    class InsertRowCommand : public QUndoCommand {
-    private:
+    class ProjectModelCommand : public QUndoCommand {
+    protected:
         using NodeData = ProjectModel::NodeData;
         using Node = TreeNode<NodeData>;
 
+        using QUndoCommand::QUndoCommand;
+    };
+
+    class InsertRowCommand : public ProjectModelCommand {
     public:
         InsertRowCommand(Node node, QModelIndex const& parentIdx, int row, ProjectModel* model, QUndoCommand *parent = nullptr);
 
@@ -459,11 +482,7 @@ namespace novelist {
         ProjectModel* m_model;
     };
 
-    class RemoveRowCommand : public QUndoCommand {
-    private:
-        using NodeData = ProjectModel::NodeData;
-        using Node = TreeNode<NodeData>;
-
+    class RemoveRowCommand : public ProjectModelCommand {
     public:
         RemoveRowCommand(QModelIndex const& parentIdx, int row, ProjectModel* model, QUndoCommand *parent = nullptr);
 
@@ -476,6 +495,24 @@ namespace novelist {
         ModelPath m_path;
         int m_row;
         ProjectModel* m_model;
+    };
+
+    class MoveRowCommand : public ProjectModelCommand {
+    public:
+        MoveRowCommand(QModelIndex const& srcParent, int srcRow, QModelIndex const& destParent, int destRow,
+                ProjectModel* model, QUndoCommand *parent = nullptr);
+
+        void undo() override;
+
+        void redo() override;
+
+    private:
+        ModelPath m_srcPath;
+        ModelPath m_destPath;
+        int m_srcRow;
+        int m_destRow;
+        ProjectModel* m_model;
+        ModelPath m_afterMovePath;
     };
 }
 

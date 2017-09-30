@@ -365,6 +365,11 @@ namespace novelist {
 
     void ProjectModel::doRemoveRow(int row, QModelIndex const& parent)
     {
+        doTakeRow(row, parent);
+    }
+
+    ProjectModel::Node ProjectModel::doTakeRow(int row, QModelIndex const& parent)
+    {
         auto* item = static_cast<Node*>(parent.internalPointer());
 
         QModelIndexList indicesThatChange = childIndices(parent);
@@ -372,7 +377,7 @@ namespace novelist {
         beginRemoveRows(parent, row, row);
         auto idx = parent.child(row, 0);
         emit beforeItemRemoved(idx, nodeType(idx));
-        item->erase(item->begin() + row);
+        Node takenNode = item->take(item->begin() + row);
         endRemoveRows();
 
         // All children of parent might have been relocated, therefore update their persistent indices
@@ -380,6 +385,8 @@ namespace novelist {
         newIndices.insert(row, QModelIndex{});
         Q_ASSERT(indicesThatChange.size() == newIndices.size());
         changePersistentIndexList(indicesThatChange, newIndices);
+
+        return takenNode;
     }
 
     void ProjectModel::clear()
@@ -466,13 +473,30 @@ namespace novelist {
     bool ProjectModel::moveRows(QModelIndex const& sourceParent, int sourceRow, int count,
             QModelIndex const& destinationParent, int destinationChild)
     {
-        Expects(count > 0);
+        if (!sourceParent.isValid() || !destinationParent.isValid())
+            return false;
+        if (!canRemove(sourceParent) || !canInsert(destinationParent))
+            return false;
+        if (sourceRow < 0 || destinationChild < 0)
+            return false;
+        if (count <= 0)
+            return false;
+        if (rowCount(sourceParent) <= sourceRow + count - 1)
+            return false;
 
-        bool success = true;
-        for (int i = 0; i < count; ++i)
-            success &= moveRowInternal(sourceParent, sourceRow + count - i - 1, destinationParent, destinationChild);
+//        bool success = true;
+//        for (int i = 0; i < count; ++i)
+//            success &= doMoveRow(sourceParent, sourceRow + count - i - 1, destinationParent, destinationChild);
+//
+//        return success;
 
-        return success;
+        m_undoStack.beginMacro(tr(qPrintable(
+                QString("Move from \"%1\" to \"%2\"").arg(sourceParent.data().toString()).arg(destinationParent.data().toString()))));
+        for (int r = 0; r < count; ++r)
+            m_undoStack.push(new MoveRowCommand(sourceParent, sourceRow + count - r - 1, destinationParent, destinationChild, this));
+        m_undoStack.endMacro();
+
+        return true;
     }
 
     bool ProjectModel::read(QFile& file)
@@ -728,29 +752,18 @@ namespace novelist {
         return true;
     }
 
-    bool
-    ProjectModel::moveRowInternal(QModelIndex const& sourceParent, int sourceRow, QModelIndex const& destinationParent,
+    int
+    ProjectModel::doMoveRow(QModelIndex const& sourceParent, int sourceRow, QModelIndex const& destinationParent,
             int destinationRow)
     {
-        Expects(sourceRow >= 0);
-        Expects(sourceRow < rowCount(sourceParent));
-        Expects(destinationRow >= 0);
-        Expects(destinationRow <= rowCount(destinationParent));
-
-        if (!sourceParent.isValid() || !destinationParent.isValid())
-            return false;
-
-        if (!canInsert(destinationParent) || !canRemove(sourceParent))
-            return false;
-
         auto* srcParent = static_cast<Node*>(sourceParent.internalPointer());
         auto* destParent = static_cast<Node*>(destinationParent.internalPointer());
 
         if (sourceParent == destinationParent && destinationRow >= sourceRow && destinationRow < sourceRow)
-            return false;
+            return -1;
 
         if (destParent->inSubtreeOf(srcParent->at(sourceRow)) || destParent == &srcParent->at(sourceRow))
-            return false;
+            return -1;
 
         auto fixNodePtrs = [fixSrc = srcParent->parent() == destParent,
                 fixDest = destParent->parent() == srcParent,
@@ -808,7 +821,7 @@ namespace novelist {
 
         emit layoutChanged(layoutChangeParents);
 
-        return true;
+        return destinationRow;
     }
 
     void ProjectModel::writeChapterOrScene(QXmlStreamWriter& xml, QModelIndex item) const
@@ -955,7 +968,7 @@ namespace novelist {
 
     InsertRowCommand::InsertRowCommand(Node node, QModelIndex const& parentIdx, int row, ProjectModel* model,
             QUndoCommand* parent)
-            :QUndoCommand(parent),
+            :ProjectModelCommand(parent),
              m_node(std::move(node)),
              m_path(parentIdx),
              m_row(row),
@@ -974,7 +987,7 @@ namespace novelist {
     }
 
     RemoveRowCommand::RemoveRowCommand(QModelIndex const& parentIdx, int row, ProjectModel* model, QUndoCommand* parent)
-            :QUndoCommand(parent),
+            :ProjectModelCommand(parent),
              m_node(static_cast<Node*>(parentIdx.internalPointer())->at(row).clone()),
              m_path(parentIdx),
              m_row(row),
@@ -990,5 +1003,30 @@ namespace novelist {
     void RemoveRowCommand::redo()
     {
         m_model->doRemoveRow(m_row, m_path.toModelIndex(m_model));
+    }
+
+    MoveRowCommand::MoveRowCommand(QModelIndex const& srcParent, int srcRow, QModelIndex const& destParent, int destRow,
+            ProjectModel* model, QUndoCommand* parent)
+            :ProjectModelCommand(parent),
+             m_srcPath(srcParent),
+             m_destPath(destParent),
+             m_srcRow(srcRow),
+             m_destRow(destRow),
+             m_model(model)
+    {
+    }
+
+    void MoveRowCommand::undo()
+    {
+        Node taken = m_model->doTakeRow(m_afterMovePath.leaf().first, m_afterMovePath.parentPath().toModelIndex(m_model));
+        m_model->doInsertRow(std::move(taken), m_srcRow, m_srcPath.toModelIndex(m_model));
+    }
+
+    void MoveRowCommand::redo()
+    {
+        QModelIndex parSrcIdx(m_srcPath.toModelIndex(m_model));
+        QPersistentModelIndex srcIdx = parSrcIdx.child(m_srcRow, 0);
+        m_model->doMoveRow(parSrcIdx, m_srcRow, m_destPath.toModelIndex(m_model), m_destRow);
+        m_afterMovePath = ModelPath(srcIdx);
     }
 }
