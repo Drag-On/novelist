@@ -111,6 +111,18 @@ namespace novelist {
         ModelPath parentPath() const noexcept;
 
         /**
+         * Append another index at the end
+         * @param rowColumnIdx New index
+         */
+        void emplace_back(RowColumnIdx const& rowColumnIdx) noexcept;
+
+        /**
+         * Append another index at the end
+         * @param row Row index
+         */
+        void emplace_back(int row) noexcept;
+
+        /**
          * Returns a reference to the path element at specified location.
          * @param pos Position of the element
          * @return Reference to requested element
@@ -123,6 +135,16 @@ namespace novelist {
          * @return Reference to requested element
          */
         RowColumnIdx const& operator[](size_t pos) const;
+
+        /**
+         * Reference to leaf element. Calling this on an empty path is undefined.
+         */
+        RowColumnIdx& leaf();
+
+        /**
+         * Constant reference to leaf element. Calling this on an empty path is undefined.
+         */
+        RowColumnIdx const& leaf() const;
 
         /**
          * Compares two paths for equality

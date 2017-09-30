@@ -82,6 +82,16 @@ namespace novelist {
         return ModelPath(m_path.begin(), m_path.end() - 1);
     }
 
+    void ModelPath::emplace_back(RowColumnIdx const& rowColumnIdx) noexcept
+    {
+        m_path.emplace_back(rowColumnIdx);
+    }
+
+    void ModelPath::emplace_back(int row) noexcept
+    {
+        m_path.emplace_back(row, 0);
+    }
+
     RowColumnIdx& ModelPath::operator[](size_t pos)
     {
         return m_path[pos];
@@ -90,6 +100,16 @@ namespace novelist {
     RowColumnIdx const& ModelPath::operator[](size_t pos) const
     {
         return m_path[pos];
+    }
+
+    RowColumnIdx& ModelPath::leaf()
+    {
+        return m_path.back();
+    }
+
+    RowColumnIdx const& ModelPath::leaf() const
+    {
+        return m_path.back();
     }
 
     bool ModelPath::operator==(ModelPath const& other) const noexcept
