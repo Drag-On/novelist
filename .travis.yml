@@ -17,7 +17,7 @@ addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
-      - sourceline: 'ppa:beineri/opt-qt59-trusty'
+      - sourceline: 'ppa:beineri/opt-qt591-trusty'
     packages:
       - g++-7
       - qt59-meta-minimal
