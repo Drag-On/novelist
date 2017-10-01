@@ -138,7 +138,11 @@ namespace novelist {
             std::unique_ptr<SceneDocument> m_doc; //!< Actual content if currently loaded
 
             bool operator==(SceneData const& other) const {
-                return m_name == other.m_name && m_id == other.m_id && m_doc == other.m_doc;
+                bool const nameEq = m_name == other.m_name;
+                bool const idEq = m_id == other.m_id;
+                bool const docEq = (m_doc == nullptr && other.m_doc == nullptr) ||
+                        (m_doc != nullptr && other.m_doc != nullptr && *m_doc == *other.m_doc);
+                return nameEq && idEq && docEq;
             }
             bool operator!=(SceneData const& other) const {
                 return !(*this == other);
