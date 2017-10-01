@@ -91,6 +91,27 @@ namespace novelist
         return true;
     }
 
+    bool SceneDocument::operator==(SceneDocument const& other) const
+    {
+        if(blockCount() != other.blockCount())
+            return false;
+        auto thisBlock = begin();
+        auto otherBlock = other.begin();
+        for(int i = 0; i < blockCount(); ++i) {
+            if(thisBlock.text() != otherBlock.text())
+                return false;
+            thisBlock = thisBlock.next();
+            otherBlock = otherBlock.next();
+        }
+
+        return true;
+    }
+
+    bool SceneDocument::operator!=(SceneDocument const& other) const
+    {
+        return !(*this == other);
+    }
+
     bool SceneDocument::readInternal(QXmlStreamReader& xml)
     {
         Expects(xml.isStartElement() && xml.name() == "scene");
