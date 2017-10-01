@@ -40,11 +40,6 @@ namespace novelist {
             :QAbstractItemModel(parent)
     {
         createRootNodes(properties);
-
-        connect(this, &ProjectModel::dataChanged, this, &ProjectModel::onDataChanged);
-        connect(this, &ProjectModel::layoutChanged, this, &ProjectModel::onLayoutChanged);
-        connect(this, &ProjectModel::rowsInserted, this, &ProjectModel::onRowsInserted);
-        connect(this, &ProjectModel::rowsRemoved, this, &ProjectModel::onRowsRemoved);
     }
 
     ProjectProperties const& ProjectModel::properties() const
@@ -61,7 +56,6 @@ namespace novelist {
     {
         std::get<ProjectHeadData>(*m_root[0].m_data).m_properties = properties;
         emit dataChanged(projectRootIndex(), projectRootIndex());
-        m_modified = true;
     }
 
     QModelIndex ProjectModel::projectRootIndex() const
@@ -162,6 +156,13 @@ namespace novelist {
             }
             case Qt::EditRole: {
                 return displayText;
+            }
+            case DocumentRole: {
+                if (nodeType(*item) == NodeType::Scene) {
+                    auto& scene = std::get<SceneData>(*item->m_data);
+                    return QVariant::fromValue(scene.m_doc.get());
+                }
+                [[fallthrough]];
             }
             default:
                 return QVariant{};
@@ -466,7 +467,7 @@ namespace novelist {
 
     bool ProjectModel::isStructureModified() const
     {
-        return m_modified;
+        return !m_undoStack.isClean();
     }
 
     bool ProjectModel::isModified() const
@@ -495,12 +496,6 @@ namespace novelist {
             return false;
         if (rowCount(sourceParent) <= sourceRow + count - 1)
             return false;
-
-//        bool success = true;
-//        for (int i = 0; i < count; ++i)
-//            success &= doMoveRow(sourceParent, sourceRow + count - i - 1, destinationParent, destinationChild);
-//
-//        return success;
 
         m_undoStack.beginMacro(tr(qPrintable(
                 QString("Move from \"%1\" to \"%2\"").arg(sourceParent.data().toString()).arg(
@@ -601,7 +596,7 @@ namespace novelist {
         QFile file{dir.path() + "/project.xml"};
         bool success = read(file);
         if (success) {
-            m_modified = false;
+            m_undoStack.clear();
             m_neverSaved = false;
         }
         return success;
@@ -638,7 +633,7 @@ namespace novelist {
         });
 
         if (success) {
-            m_modified = false;
+            m_undoStack.setClean();
             m_neverSaved = false;
         }
 
@@ -757,6 +752,7 @@ namespace novelist {
             auto& scene = std::get<SceneData>(*node->m_data);
             if (scene.m_id.id() != id)
                 scene.m_id = m_sceneIdMgr.request(id);
+            loadScene(parent.child(idx, 0));
 
             xml.skipCurrentElement();
         }
@@ -981,29 +977,6 @@ namespace novelist {
         }
 
         return stream;
-    }
-
-    void
-    ProjectModel::onDataChanged(QModelIndex const& /*topLeft*/, QModelIndex const& /*bottomRight*/,
-            QVector<int> const& /*roles*/)
-    {
-        m_modified = true;
-    }
-
-    void ProjectModel::onLayoutChanged(QList<QPersistentModelIndex> const& /*parents*/,
-            QAbstractItemModel::LayoutChangeHint /*hint*/)
-    {
-        m_modified = true;
-    }
-
-    void ProjectModel::onRowsInserted(QModelIndex const& /*parent*/, int /*first*/, int /*last*/)
-    {
-        m_modified = true;
-    }
-
-    void ProjectModel::onRowsRemoved(QModelIndex const& /*parent*/, int /*first*/, int /*last*/)
-    {
-        m_modified = true;
     }
 
     InsertRowCommand::InsertRowCommand(Node node, QModelIndex const& parentIdx, int row, ProjectModel* model,

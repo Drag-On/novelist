@@ -171,6 +171,11 @@ namespace novelist {
         using NodeData = std::shared_ptr<NodeDataUnique>;
 
         /**
+         * Data role to get the document of a scene node
+         */
+        constexpr static int DocumentRole = Qt::UserRole;
+
+        /**
          * Default-constructs a model with empty title and author and using the language "en_EN".
          */
         ProjectModel() noexcept;
@@ -243,19 +248,6 @@ namespace novelist {
          * @return Data of the node as a variant
          */
         NodeData const& nodeData(QModelIndex const& index) const;
-
-        /**
-         * Loads a scene from hard disk or creates a new one, if there is no file on hard disk
-         * @param index Index of the scene
-         * @return Pointer to the loaded scene document
-         */
-        SceneDocument* loadScene(QModelIndex const& index);
-
-        /**
-         * Unloads a scene if it is currently loaded, discarding all unsaved modifications
-         * @param index Index of the scene
-         */
-        void unloadScene(QModelIndex const& index);
 
         /**
          * @param index Model index
@@ -444,7 +436,6 @@ namespace novelist {
         QDir m_saveDir;
         bool m_neverSaved = true;
         QString const m_contentDirName = "content";
-        bool m_modified = false;
         QUndoStack m_undoStack;
 
         void createRootNodes(ProjectProperties const& properties);
@@ -452,6 +443,19 @@ namespace novelist {
         bool readInternal(QXmlStreamReader& xml);
 
         bool readChapterOrScene(QXmlStreamReader& xml, QModelIndex parent);
+
+        /**
+         * Loads a scene from hard disk or creates a new one, if there is no file on hard disk
+         * @param index Index of the scene
+         * @return Pointer to the loaded scene document
+         */
+        SceneDocument* loadScene(QModelIndex const& index);
+
+        /**
+         * Unloads a scene if it is currently loaded, discarding all unsaved modifications
+         * @param index Index of the scene
+         */
+        void unloadScene(QModelIndex const& index);
 
         /**
          * Move a row without notifying the undo-redo-system
@@ -523,16 +527,6 @@ namespace novelist {
         friend MoveRowCommand;
         friend ModifyNameCommand;
         friend ModifyProjectPropertiesCommand;
-
-    private slots:
-
-        void onDataChanged(QModelIndex const& topLeft, QModelIndex const& bottomRight, QVector<int> const& roles);
-
-        void onLayoutChanged(QList<QPersistentModelIndex> const& parents, QAbstractItemModel::LayoutChangeHint hint);
-
-        void onRowsInserted(QModelIndex const& parent, int first, int last);
-
-        void onRowsRemoved(QModelIndex const& parent, int first, int last);
     };
 
     class ProjectModelCommand : public QUndoCommand {
