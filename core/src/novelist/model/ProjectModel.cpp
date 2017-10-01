@@ -478,7 +478,8 @@ namespace novelist {
         bool contentModified = false;
         traverse_dfs(m_root, [&](Node const& n) -> bool {
             auto idx = createIndex(n.parentIndex().value_or(0), 0, const_cast<Node*>(&n));
-            return contentModified &= isContentModified(idx);
+            contentModified = contentModified || isContentModified(idx);
+            return contentModified;
         });
         return contentModified;
     }
