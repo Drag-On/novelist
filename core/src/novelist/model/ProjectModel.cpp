@@ -904,7 +904,8 @@ namespace novelist {
             case InsertableNodeType::Chapter:
                 return std::make_shared<NodeDataUnique>(ChapterData{name, m_chapterIdMgr.generate()});
             case InsertableNodeType::Scene:
-                return std::make_shared<NodeDataUnique>(SceneData {name, m_sceneIdMgr.generate(), nullptr});
+                return std::make_shared<NodeDataUnique>(SceneData{name, m_sceneIdMgr.generate(),
+                                                                  std::make_unique<SceneDocument>()});
         }
 
         throw std::runtime_error{"Should never get here. Probably forgot to update switch statement."};
