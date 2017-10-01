@@ -13,6 +13,7 @@
 #include <QDebug>
 #include <QTextCursor>
 #include <gsl/gsl_assert>
+#include <gsl/gsl_util>
 #include "datastructures/SceneDocument.h"
 
 namespace novelist
@@ -93,6 +94,10 @@ namespace novelist
     bool SceneDocument::readInternal(QXmlStreamReader& xml)
     {
         Expects(xml.isStartElement() && xml.name() == "scene");
+
+        // Disable undo/redo for the read process, enable again afterwards
+        setUndoRedoEnabled(false);
+        auto cleanup = gsl::finally([this]() { setUndoRedoEnabled(true); });
 
         QTextCursor cursor(this);
         cursor.movePosition(QTextCursor::End);
