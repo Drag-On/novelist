@@ -522,6 +522,7 @@ namespace novelist {
     {
         // Clear previous data
         clear();
+        m_undoStack.clear();
 
         QXmlStreamReader xmlReader(xml);
         if (xmlReader.readNextStartElement()) {
