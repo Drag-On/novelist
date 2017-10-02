@@ -184,7 +184,10 @@ namespace novelist {
         std::visit(Overloaded {
                 [](auto&) { },
                 [&name](ProjectHeadData& arg) { arg.m_properties.m_name = name; },
-                [&name](SceneData& arg) { arg.m_name = name; },
+                [&name](SceneData& arg) {
+                    arg.m_name = name;
+                    arg.m_doc->setMetaInformation(QTextDocument::DocumentTitle, name);
+                },
                 [&name](ChapterData& arg) { arg.m_name = name; },
         }, *item->m_data);
         emit dataChanged(index, index);
