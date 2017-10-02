@@ -22,6 +22,12 @@ namespace novelist {
         m_ui->setupUi(this);
 
         connect(m_ui->projectView, &ProjectView::modelChanged, this, &MainWindow::onProjectChanged);
+        connect(m_ui->projectView, &ProjectView::openSceneRequested, [&](QModelIndex idx) {
+            m_ui->sceneTabWidget->openScene(m_ui->projectView->model(), idx);
+        });
+        connect(m_ui->projectView, &ProjectView::focusReceived, this, &MainWindow::onProjectViewFocus);
+        connect(m_ui->sceneTabWidget, &SceneTabWidget::focusReceived, this, &MainWindow::onSceneTabFocus);
+        connect(m_ui->sceneTabWidget, &SceneTabWidget::currentChanged, this, &MainWindow::onSceneTabChange);
 
         connect(m_ui->action_New_Project, &QAction::triggered, this, &MainWindow::onNewProject);
         connect(m_ui->action_Open_Project, &QAction::triggered, this, &MainWindow::onOpenProject);
@@ -31,9 +37,6 @@ namespace novelist {
         connect(m_ui->actionAbout_Novelist, &QAction::triggered, [&]() {
             QMessageBox::about(this, tr("About Novelist"),
                     tr("Novelist is an integrated writing environment for authors."));
-        });
-        connect(m_ui->projectView, &ProjectView::openSceneRequested, [&](QModelIndex idx) {
-            m_ui->sceneTabWidget->openScene(m_ui->projectView->model(), idx);
         });
     }
 
@@ -92,7 +95,7 @@ namespace novelist {
 
     void MainWindow::onSaveProject()
     {
-        if(m_ui->projectView->model() == nullptr)
+        if (m_ui->projectView->model() == nullptr)
             return;
 
         if (m_ui->projectView->model()->neverSaved()) {
@@ -114,6 +117,36 @@ namespace novelist {
             msgBox.setIcon(QMessageBox::Warning);
             msgBox.exec();
         }
+    }
+
+    void MainWindow::onCanRedoChanged(bool canRedo)
+    {
+        m_ui->action_Redo->setEnabled(canRedo);
+    }
+
+    void MainWindow::onCanUndoChanged(bool canUndo)
+    {
+        m_ui->action_Undo->setEnabled(canUndo);
+    }
+
+    void MainWindow::onRedoTextChanged(QString const& redoText)
+    {
+        m_ui->action_Redo->setText(tr("Redo %1").arg(redoText));
+    }
+
+    void MainWindow::onUndoTextChanged(QString const& undoText)
+    {
+        m_ui->action_Undo->setText(tr("Undo %1").arg(undoText));
+    }
+
+    void MainWindow::onRedoSourceChanged(std::function<void()> redo)
+    {
+        m_redoSourceChangedConnection = connect(m_ui->action_Redo, &QAction::triggered, std::move(redo));
+    }
+
+    void MainWindow::onUndoSourceChanged(std::function<void()> undo)
+    {
+        m_undoSourceChangedConnection = connect(m_ui->action_Undo, &QAction::triggered, std::move(undo));
     }
 
     void MainWindow::changeEvent(QEvent* event)
@@ -174,12 +207,8 @@ namespace novelist {
             m_ui->action_Open_Project->setEnabled(true);
             m_ui->action_Close_Project->setEnabled(true);
             m_ui->action_Save->setEnabled(true);
-            m_ui->menu_Edit->removeAction(m_ui->action_Undo);
-            m_ui->menu_Edit->removeAction(m_ui->action_Redo);
-            m_ui->action_Undo = m->undoStack().createUndoAction(m);
-            m_ui->action_Redo = m->undoStack().createRedoAction(m);
-            m_ui->menu_Edit->addAction(m_ui->action_Undo);
-            m_ui->menu_Edit->addAction(m_ui->action_Redo);
+            m_ui->action_Undo->setEnabled(false);
+            m_ui->action_Redo->setEnabled(false);
             m_ui->retranslateUi(this);
 
             connect(m, &ProjectModel::beforeItemRemoved, this, &MainWindow::onItemAboutToRemoved);
@@ -196,12 +225,91 @@ namespace novelist {
             }
             case NodeType::Chapter: {
                 int count = m_model->rowCount(idx);
-                for(int i = 0; i < count; ++i)
+                for (int i = 0; i < count; ++i)
                     onItemAboutToRemoved(idx.child(i, 0), m_model->nodeType(idx.child(i, 0)));
                 break;
             }
             default:
                 break;
         }
+    }
+
+    void MainWindow::onProjectViewFocus(bool focus)
+    {
+        if (m_model != nullptr) {
+            if (focus) {
+                onUndoSourceChanged(std::bind(&QUndoStack::undo, &m_model->undoStack()));
+                onRedoSourceChanged(std::bind(&QUndoStack::redo, &m_model->undoStack()));
+                onUndoTextChanged(m_model->undoStack().undoText());
+                onRedoTextChanged(m_model->undoStack().redoText());
+                onCanUndoChanged(m_model->undoStack().canUndo());
+                onCanRedoChanged(m_model->undoStack().canRedo());
+                m_undoTextChangedConnection = connect(&m_model->undoStack(), &QUndoStack::undoTextChanged, this,
+                        &MainWindow::onUndoTextChanged);
+                m_redoTextChangedConnection = connect(&m_model->undoStack(), &QUndoStack::redoTextChanged, this,
+                        &MainWindow::onRedoTextChanged);
+                m_canUndoChangedConnection = connect(&m_model->undoStack(), &QUndoStack::canUndoChanged, this,
+                        &MainWindow::onCanUndoChanged);
+                m_canRedoChangedConnection = connect(&m_model->undoStack(), &QUndoStack::canRedoChanged, this,
+                        &MainWindow::onCanRedoChanged);
+            }
+        }
+    }
+
+    void MainWindow::onSceneTabFocus(bool focus)
+    {
+        if (m_model != nullptr) {
+            auto* editor = dynamic_cast<internal::InternalTextEditor*>(m_ui->sceneTabWidget->currentWidget());
+            if (!editor)
+                return;
+            if (focus) {
+                onUndoSourceChanged(std::bind(&QTextEdit::undo, editor));
+                onRedoSourceChanged(std::bind(&QTextEdit::redo, editor));
+                onCanUndoChanged(editor->document()->isUndoAvailable());
+                onCanRedoChanged(editor->document()->isRedoAvailable());
+
+                QString text = undoSceneModText();
+                onUndoTextChanged(text);
+                onRedoTextChanged(text);
+
+                m_undoTextChangedConnection = ConnectionWrapper(); // Not needed, handled in onSceneTabChange
+                m_redoTextChangedConnection = ConnectionWrapper();
+                m_canUndoChangedConnection = connect(editor, &TextEditor::undoAvailable, this,
+                        &MainWindow::onCanUndoChanged);
+                m_canRedoChangedConnection = connect(editor, &TextEditor::redoAvailable, this,
+                        &MainWindow::onCanRedoChanged);
+            }
+        }
+    }
+
+    void MainWindow::onSceneTabChange(int /*index*/)
+    {
+        if (m_model != nullptr) {
+            auto* editor = dynamic_cast<internal::InternalTextEditor*>(m_ui->sceneTabWidget->currentWidget());
+            if (!editor)
+                return;
+            onUndoSourceChanged(std::bind(&QTextEdit::undo, editor));
+            onRedoSourceChanged(std::bind(&QTextEdit::redo, editor));
+            onCanUndoChanged(editor->document()->isUndoAvailable());
+            onCanRedoChanged(editor->document()->isRedoAvailable());
+
+            QString text = undoSceneModText();
+            onUndoTextChanged(text);
+            onRedoTextChanged(text);
+
+            m_canUndoChangedConnection = connect(editor, &TextEditor::undoAvailable, this,
+                    &MainWindow::onCanUndoChanged);
+            m_canRedoChangedConnection = connect(editor, &TextEditor::redoAvailable, this,
+                    &MainWindow::onCanRedoChanged);
+        }
+    }
+
+    QString MainWindow::undoSceneModText() const
+    {
+        auto* editor = dynamic_cast<internal::InternalTextEditor*>(m_ui->sceneTabWidget->currentWidget());
+        if (!editor)
+            return "";
+        QString title = m_model->data(editor->m_modelIndex, Qt::DisplayRole).toString();
+        return tr("modification of %1").arg(title);
     }
 }

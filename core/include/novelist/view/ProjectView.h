@@ -68,6 +68,12 @@ namespace novelist {
          */
         void modelChanged(ProjectModel* m);
 
+        /**
+         * Fires when the view received focus or lost it
+         * @param focused True when focus was gained, otherwise false
+         */
+        void focusReceived(bool focused);
+
     protected slots:
         /**
          * Creates a new chapter node based on the current selection
@@ -108,6 +114,11 @@ namespace novelist {
          */
         void onContextMenuEvent(QPoint const& pos);
 
+    protected:
+        void focusInEvent(QFocusEvent* event) override;
+
+        void focusOutEvent(QFocusEvent* event) override;
+
     private:
         QIcon m_iconNewScene;
         QIcon m_iconNewChapter;
@@ -139,7 +150,7 @@ namespace novelist {
         Q_OBJECT
 
         public:
-            using QTreeView::QTreeView;
+            explicit ProjectTreeView(ProjectView* parent) noexcept;
 
         protected:
             /**
@@ -150,6 +161,10 @@ namespace novelist {
              * @param supportedActions
              */
             void startDrag(Qt::DropActions supportedActions) override;
+
+            void focusInEvent(QFocusEvent* event) override;
+
+            void focusOutEvent(QFocusEvent* event) override;
         };
     }
 }

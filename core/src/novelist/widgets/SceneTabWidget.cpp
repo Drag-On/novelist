@@ -8,7 +8,6 @@
  **********************************************************/
 
 #include <QTabBar>
-#include <QMessageBox>
 #include "widgets/SceneTabWidget.h"
 
 namespace novelist {
@@ -19,6 +18,7 @@ namespace novelist {
         setTabsClosable(true);
         setMovable(true);
         setElideMode(Qt::ElideRight);
+        setTabBar(new internal::InternalTabBar(this));
 
         connect(this, &SceneTabWidget::tabCloseRequested, this, &SceneTabWidget::onTabCloseRequested);
     }
@@ -30,6 +30,7 @@ namespace novelist {
         int tabIdx = indexOf(model, index);
         if (tabIdx == -1) {
             auto* editor = new internal::InternalTextEditor(); // The tab will take ownership
+            editor->setFocusPolicy(focusPolicy());
             editor->m_model = model;
             editor->m_modelIndex = index;
             editor->setDocument(qvariant_cast<SceneDocument*>(model->data(index, ProjectModel::DocumentRole)));
@@ -49,6 +50,7 @@ namespace novelist {
                         }
                     };
             connect(editor->m_model, &ProjectModel::dataChanged, onDataChanged);
+            connect(editor, &TextEditor::focusReceived, [this] (bool focus){ emit focusReceived(focus); });
 
             QString name = model->data(index, Qt::DisplayRole).toString();
             tabIdx = addTab(editor, name);
@@ -86,6 +88,20 @@ namespace novelist {
         }
 
         return -1;
+    }
+
+    void SceneTabWidget::focusInEvent(QFocusEvent* event)
+    {
+        emit focusReceived(true);
+
+        QWidget::focusInEvent(event);
+    }
+
+    void SceneTabWidget::focusOutEvent(QFocusEvent* event)
+    {
+        emit focusReceived(false);
+
+        QWidget::focusOutEvent(event);
     }
 
     void SceneTabWidget::onTabCloseRequested(int index)

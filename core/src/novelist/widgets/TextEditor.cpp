@@ -106,6 +106,20 @@ namespace novelist {
         }
     }
 
+    void TextEditor::focusInEvent(QFocusEvent* e)
+    {
+        emit focusReceived(true);
+
+        QTextEdit::focusInEvent(e);
+    }
+
+    void TextEditor::focusOutEvent(QFocusEvent* e)
+    {
+        emit focusReceived(false);
+
+        QTextEdit::focusOutEvent(e);
+    }
+
     QTextBlock TextEditor::firstVisibleBlock() const
     {
         QTextCursor curs{document()};

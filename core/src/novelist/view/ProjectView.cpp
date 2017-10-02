@@ -288,6 +288,20 @@ namespace novelist {
             m_contextMenu->popup(m_treeView->viewport()->mapToGlobal(pos));
     }
 
+    void ProjectView::focusInEvent(QFocusEvent* event)
+    {
+        emit focusReceived(true);
+
+        QWidget::focusInEvent(event);
+    }
+
+    void ProjectView::focusOutEvent(QFocusEvent* event)
+    {
+        emit focusReceived(false);
+
+        QWidget::focusOutEvent(event);
+    }
+
     void ProjectView::setup()
     {
         initResources();
@@ -309,7 +323,7 @@ namespace novelist {
 
         m_topLayout = new QVBoxLayout(this);
         m_treeView = new internal::ProjectTreeView(this);
-        m_treeView->setEditTriggers(QAbstractItemView::EditKeyPressed);
+        m_treeView->setEditTriggers(QAbstractItemView::SelectedClicked | QAbstractItemView::EditKeyPressed);
         m_treeView->setSelectionMode(QAbstractItemView::SingleSelection);
         m_treeView->setDragEnabled(true);
         m_treeView->viewport()->setAcceptDrops(true);
@@ -414,6 +428,11 @@ namespace novelist {
                 [&]() { m_propertiesButton->setEnabled(m_actionProperties->isEnabled()); });
     }
 
+    internal::ProjectTreeView::ProjectTreeView(ProjectView* parent) noexcept
+        : QTreeView(parent)
+    {
+    }
+
     void internal::ProjectTreeView::startDrag(Qt::DropActions supportedActions)
     {
         QModelIndexList indexes = selectionModel()->selectedRows();
@@ -431,5 +450,21 @@ namespace novelist {
 
             drag->exec(supportedActions, this->defaultDropAction());
         }
+    }
+
+    void internal::ProjectTreeView::focusInEvent(QFocusEvent* event)
+    {
+        auto* view = dynamic_cast<ProjectView*>(parent()); // Safe because constructor only takes ProjectView*
+        emit view->focusReceived(true);
+
+        QAbstractItemView::focusInEvent(event);
+    }
+
+    void internal::ProjectTreeView::focusOutEvent(QFocusEvent* event)
+    {
+        auto* view = dynamic_cast<ProjectView*>(parent()); // Safe because constructor only takes ProjectView*
+        emit view->focusReceived(false);
+
+        QAbstractItemView::focusOutEvent(event);
     }
 }

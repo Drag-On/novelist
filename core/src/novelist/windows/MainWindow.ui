@@ -29,6 +29,9 @@
         <height>100</height>
        </size>
       </property>
+      <property name="focusPolicy">
+       <enum>Qt::StrongFocus</enum>
+      </property>
      </widget>
     </item>
    </layout>
@@ -95,7 +98,11 @@
       <number>0</number>
      </property>
      <item>
-      <widget class="novelist::ProjectView" name="projectView"/>
+      <widget class="novelist::ProjectView" name="projectView">
+       <property name="focusPolicy">
+        <enum>Qt::StrongFocus</enum>
+       </property>
+      </widget>
      </item>
     </layout>
    </widget>

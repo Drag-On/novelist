@@ -58,10 +58,20 @@ namespace novelist {
          */
         void blockCountChanged(int newBlockCount);
 
+        /**
+         * Fires when the widget received focus or lost it
+         * @param focused True when focus was gained, otherwise false
+         */
+        void focusReceived(bool focused);
+
     protected:
         void resizeEvent(QResizeEvent* e) override;
 
         void paintEvent(QPaintEvent* e) override;
+
+        void focusInEvent(QFocusEvent* e) override;
+
+        void focusOutEvent(QFocusEvent* e) override;
 
         /**
          * @return The first block that is currently visible on the screen

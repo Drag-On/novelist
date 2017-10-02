@@ -11,6 +11,7 @@
 
 #include <QtWidgets/QTabWidget>
 #include <QtCore/QFile>
+#include <QTabBar>
 #include "model/ProjectModel.h"
 #include "TextEditor.h"
 
@@ -56,6 +57,18 @@ namespace novelist {
          */
         int indexOf(ProjectModel const* model, QModelIndex index) const;
 
+    signals:
+        /**
+         * Fires when the widget received focus or lost it
+         * @param focused True when focus was gained, otherwise false
+         */
+        void focusReceived(bool focused);
+
+    protected:
+        void focusInEvent(QFocusEvent* event) override;
+
+        void focusOutEvent(QFocusEvent* event) override;
+
     private slots:
 
         void onTabCloseRequested(int index);
@@ -70,6 +83,33 @@ namespace novelist {
 
             ProjectModel* m_model;
             QPersistentModelIndex m_modelIndex;
+        };
+
+        class InternalTabBar : public QTabBar {
+            Q_OBJECT
+
+        public:
+            explicit InternalTabBar(SceneTabWidget* parent) noexcept
+             : QTabBar(parent)
+            {
+            }
+
+        protected:
+            void focusInEvent(QFocusEvent* event) override
+            {
+                auto* tabWidget = dynamic_cast<SceneTabWidget*>(parent());
+                emit tabWidget->focusReceived(true);
+
+                QWidget::focusInEvent(event);
+            }
+
+            void focusOutEvent(QFocusEvent* event) override
+            {
+                auto* tabWidget = dynamic_cast<SceneTabWidget*>(parent());
+                emit tabWidget->focusReceived(false);
+
+                QWidget::focusOutEvent(event);
+            }
         };
     }
 }
