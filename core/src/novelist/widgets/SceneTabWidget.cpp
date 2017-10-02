@@ -14,11 +14,11 @@ namespace novelist {
     SceneTabWidget::SceneTabWidget(QWidget* parent)
             :QTabWidget(parent)
     {
+        setTabBar(new internal::InternalTabBar(this));
         setDocumentMode(true);
         setTabsClosable(true);
         setMovable(true);
         setElideMode(Qt::ElideRight);
-        setTabBar(new internal::InternalTabBar(this));
 
         connect(this, &SceneTabWidget::tabCloseRequested, this, &SceneTabWidget::onTabCloseRequested);
     }
