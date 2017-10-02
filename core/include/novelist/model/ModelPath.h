@@ -147,6 +147,13 @@ namespace novelist {
         RowColumnIdx const& leaf() const;
 
         /**
+         * Compares two paths elementwise and determines the index at which they diverge
+         * @param other Other path
+         * @return Index of the element at which the paths diverge or a number larger than the path's depth if they are equal
+         */
+        size_t compare(ModelPath const& other) const noexcept;
+
+        /**
          * Compares two paths for equality
          * @param other Path to compare to
          * @return true in case both paths are equivalent, otherwise false

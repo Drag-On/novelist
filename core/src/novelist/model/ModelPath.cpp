@@ -112,6 +112,16 @@ namespace novelist {
         return m_path.back();
     }
 
+    size_t ModelPath::compare(ModelPath const& other) const noexcept
+    {
+        for(size_t i = 0; i < std::max(depth(), other.depth()); ++i) {
+            if(depth() <= i || other.depth() <= i || m_path[i] != other.m_path[i])
+                return i;
+        }
+
+        return std::numeric_limits<size_t>::max();
+    }
+
     bool ModelPath::operator==(ModelPath const& other) const noexcept
     {
         return m_path == other.m_path;
