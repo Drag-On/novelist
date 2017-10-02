@@ -524,6 +524,8 @@ namespace novelist {
 
         QModelIndexList childIndices(Node const& n) const;
 
+        QString getDisplayText(Node const& n) const;
+
         friend std::ostream& operator<<(std::ostream& stream, NodeData const& nodeData);
 
         friend InsertRowCommand;

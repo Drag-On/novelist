@@ -116,21 +116,13 @@ namespace novelist {
 
         auto* item = static_cast<Node*>(index.internalPointer());
 
-        auto getDisplayText = Overloaded {
-                [](auto const&) { return QString{""}; },
-                [](ProjectHeadData const& arg) { return arg.m_properties.m_name; },
-                [](NotebookHeadData const&) { return tr("Notebook"); },
-                [](SceneData const& arg) { return arg.m_name; },
-                [](ChapterData const& arg) { return arg.m_name; },
-        };
-
         auto makeEmptyNote = [](QString const& s) {
             if (s.isEmpty())
                 return tr("<unnamed>");
             return s;
         };
 
-        QString displayText = std::visit(getDisplayText, *item->m_data);
+        QString displayText = getDisplayText(*item);
         switch (role) {
             case Qt::DisplayRole:
                 return makeEmptyNote(displayText);
@@ -335,10 +327,8 @@ namespace novelist {
         if (rowCount(parent) < row + count - 1)
             return false;
 
-        m_undoStack.beginMacro(tr(qPrintable(QString("Insert %1 \"%2\"").arg(nodeTypeToString(type)).arg(name))));
         for (int r = 0; r < count; ++r)
             m_undoStack.push(new InsertRowCommand(Node(makeNodeData(type, name)), parent, row + r, this));
-        m_undoStack.endMacro();
 
         return true;
     }
@@ -501,14 +491,10 @@ namespace novelist {
         if (rowCount(sourceParent) <= sourceRow + count - 1)
             return false;
 
-        m_undoStack.beginMacro(tr(qPrintable(
-                QString("Move from \"%1\" to \"%2\"").arg(sourceParent.data().toString()).arg(
-                        destinationParent.data().toString()))));
         for (int r = 0; r < count; ++r)
             m_undoStack.push(
                     new MoveRowCommand(sourceParent, sourceRow + count - r - 1, destinationParent, destinationChild,
                             this));
-        m_undoStack.endMacro();
 
         return true;
     }
@@ -935,6 +921,20 @@ namespace novelist {
         return indices;
     }
 
+    QString ProjectModel::getDisplayText(ProjectModel::Node const& n) const
+    {
+        auto displayTextFun = Overloaded {
+                [](auto const&) { return QString{""}; },
+                [](ProjectHeadData const& arg) { return arg.m_properties.m_name; },
+                [](NotebookHeadData const&) { return tr("Notebook"); },
+                [](SceneData const& arg) { return arg.m_name; },
+                [](ChapterData const& arg) { return arg.m_name; },
+        };
+
+        QString displayText = std::visit(displayTextFun, *n.m_data);
+        return displayText;
+    }
+
     bool ProjectModel::operator==(ProjectModel const& other) const noexcept
     {
         std::stack<std::pair<Node const*, Node const*>> stack;
@@ -993,6 +993,7 @@ namespace novelist {
              m_row(row),
              m_model(model)
     {
+        setText(ProjectModel::tr("inserting \"%1\"").arg(model->getDisplayText(m_node)));
     }
 
     void InsertRowCommand::undo()
@@ -1012,6 +1013,8 @@ namespace novelist {
              m_row(row),
              m_model(model)
     {
+        setText(ProjectModel::tr("removing \"%1\"")
+                .arg(m_path.toModelIndex(m_model).child(m_row, 0).data().toString()));
     }
 
     void RemoveRowCommand::undo()
@@ -1033,6 +1036,8 @@ namespace novelist {
              m_destRow(destRow),
              m_model(model)
     {
+        setText(ProjectModel::tr("moving \"%1\"")
+                .arg(m_srcPath.toModelIndex(m_model).child(m_srcRow, 0).data().toString()));
     }
 
     void MoveRowCommand::undo()
@@ -1057,8 +1062,8 @@ namespace novelist {
              m_model(model),
              m_name(name)
     {
-        setText(ProjectModel::tr(qPrintable(QString("Change name from \"%1\" to \"%2\"")
-                .arg(m_path.toModelIndex(m_model).data().toString()).arg(m_name))));
+        setText(ProjectModel::tr("changing name from \"%1\" to \"%2\"")
+                .arg(m_path.toModelIndex(m_model).data().toString()).arg(m_name));
     }
 
     void ModifyNameCommand::undo()
@@ -1080,10 +1085,10 @@ namespace novelist {
     ModifyProjectPropertiesCommand::ModifyProjectPropertiesCommand(ProjectProperties props, ProjectModel* model,
             QUndoCommand* parent)
             :ProjectModelCommand(parent),
-             m_properties(props),
+             m_properties(std::move(props)),
              m_model(model)
     {
-        setText(ProjectModel::tr("Change project properties"));
+        setText(ProjectModel::tr("changing project properties"));
     }
 
     void ModifyProjectPropertiesCommand::undo()
