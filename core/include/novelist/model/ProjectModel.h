@@ -254,6 +254,15 @@ namespace novelist {
         NodeData const& nodeData(QModelIndex const& index) const;
 
         /**
+         * Provides the name of a node.
+         * @note This may differ from the Qt::DisplayRole, for example empty names show up as <unnamed>, but this method
+         *       returns an empty string.
+         * @param index Node index
+         * @return Name of the node
+         */
+        QString nodeName(QModelIndex const& index) const;
+
+        /**
          * @param index Model index
          * @return True in case the node has been modified since last save, otherwise false
          */

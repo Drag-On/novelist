@@ -418,6 +418,12 @@ namespace novelist {
         return node->m_data;
     }
 
+    QString ProjectModel::nodeName(QModelIndex const& index) const
+    {
+        auto* node = static_cast<Node*>(index.internalPointer());
+        return getDisplayText(*node);
+    }
+
     SceneDocument* ProjectModel::loadScene(QModelIndex const& index)
     {
         Expects(nodeType(index) == NodeType::Scene);
