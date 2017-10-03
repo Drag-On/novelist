@@ -11,6 +11,7 @@
 
 #include <QtWidgets/QTabWidget>
 #include <QtCore/QFile>
+#include <QTabBar>
 #include "model/ProjectModel.h"
 #include "TextEditor.h"
 
@@ -41,15 +42,13 @@ namespace novelist {
          * Closes the tab with a particular index
          *
          * @param index Tab index
-         * @param userCheck Notifies the user if the scene has unsaved changes and this is true
          */
-        void closeScene(int index, bool userCheck = true);
+        void closeScene(int index);
 
         /**
          * Closes all tabs.
-         * @param userCheck Notifies the user if a scene has unsaved changes and this is true
          */
-        void closeAll(bool userCheck = true);
+        void closeAll();
 
         /**
          * @param model Pointer to the model
@@ -57,6 +56,18 @@ namespace novelist {
          * @return Index of the page with the editor for the requested scene, or -1 if it cannot be found
          */
         int indexOf(ProjectModel const* model, QModelIndex index) const;
+
+    signals:
+        /**
+         * Fires when the widget received focus or lost it
+         * @param focused True when focus was gained, otherwise false
+         */
+        void focusReceived(bool focused);
+
+    protected:
+        void focusInEvent(QFocusEvent* event) override;
+
+        void focusOutEvent(QFocusEvent* event) override;
 
     private slots:
 
@@ -72,6 +83,33 @@ namespace novelist {
 
             ProjectModel* m_model;
             QPersistentModelIndex m_modelIndex;
+        };
+
+        class InternalTabBar : public QTabBar {
+            Q_OBJECT
+
+        public:
+            explicit InternalTabBar(SceneTabWidget* parent) noexcept
+             : QTabBar(parent)
+            {
+            }
+
+        protected:
+            void focusInEvent(QFocusEvent* event) override
+            {
+                auto* tabWidget = dynamic_cast<SceneTabWidget*>(parent());
+                emit tabWidget->focusReceived(true);
+
+                QWidget::focusInEvent(event);
+            }
+
+            void focusOutEvent(QFocusEvent* event) override
+            {
+                auto* tabWidget = dynamic_cast<SceneTabWidget*>(parent());
+                emit tabWidget->focusReceived(false);
+
+                QWidget::focusOutEvent(event);
+            }
         };
     }
 }

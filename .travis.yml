@@ -11,13 +11,13 @@ before_install:
   - sudo apt-get install cmake -y
   # Get a recent catch release
   - mkdir -p ~/catch/single_include/
-  - wget -P ~/catch/single_include/ https://github.com/philsquared/Catch/releases/download/v2.0.0-develop.1/catch.hpp
+  - wget -P ~/catch/single_include/ https://github.com/philsquared/Catch/releases/download/v2.0.0-develop.4/catch.hpp
 
 addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
-      - sourceline: 'ppa:beineri/opt-qt59-trusty'
+      - sourceline: 'ppa:beineri/opt-qt591-trusty'
     packages:
       - g++-7
       - qt59-meta-minimal

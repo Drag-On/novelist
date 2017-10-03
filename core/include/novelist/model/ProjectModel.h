@@ -18,13 +18,21 @@
 #include <QtCore/QDir>
 #include <QtCore/QXmlStreamReader>
 #include <QtGui/QTextDocument>
+#include <QtWidgets/QUndoStack>
 #include <QMimeData>
 #include "datastructures/SceneDocument.h"
 #include "datastructures/Tree.h"
 #include "identity/Identity.h"
 #include "lang/Language.h"
+#include "ModelPath.h"
 
 namespace novelist {
+
+    class InsertRowCommand;
+    class RemoveRowCommand;
+    class MoveRowCommand;
+    class ModifyNameCommand;
+    class ModifyProjectPropertiesCommand;
 
     /**
      * Basic project properties
@@ -33,6 +41,13 @@ namespace novelist {
         QString m_name; //!< project name
         QString m_author; //!< project author
         Language m_lang = Language::en_US; //!< project language
+
+        bool operator==(ProjectProperties const& other) const {
+            return m_name == other.m_name && m_author == other.m_author && m_lang == other.m_lang;
+        }
+        bool operator!=(ProjectProperties const& other) const {
+            return !(*this == other);
+        }
     };
 
     /**
@@ -80,6 +95,12 @@ namespace novelist {
          * Data of the invisible root node
          */
         struct InvisibleRootData {
+            bool operator==(InvisibleRootData const& /*other*/) const {
+                return true;
+            }
+            bool operator!=(InvisibleRootData const& other) const {
+                return !(*this == other);
+            }
         };
 
         /**
@@ -87,12 +108,25 @@ namespace novelist {
          */
         struct ProjectHeadData {
             ProjectProperties m_properties; //!< Project properties
+
+            bool operator==(ProjectHeadData const& other) const {
+                return m_properties == other.m_properties;
+            }
+            bool operator!=(ProjectHeadData const& other) const {
+                return !(*this == other);
+            }
         };
 
         /**
          * Data of the notebook root node
          */
         struct NotebookHeadData {
+            bool operator==(NotebookHeadData const& /*other*/) const {
+                return true;
+            }
+            bool operator!=(NotebookHeadData const& other) const {
+                return !(*this == other);
+            }
         };
 
         /**
@@ -102,6 +136,17 @@ namespace novelist {
             QString m_name;                       //!< Scene name
             SceneId m_id;                         //!< Scene ID
             std::unique_ptr<SceneDocument> m_doc; //!< Actual content if currently loaded
+
+            bool operator==(SceneData const& other) const {
+                bool const nameEq = m_name == other.m_name;
+                bool const idEq = m_id == other.m_id;
+                bool const docEq = (m_doc == nullptr && other.m_doc == nullptr) ||
+                        (m_doc != nullptr && other.m_doc != nullptr && *m_doc == *other.m_doc);
+                return nameEq && idEq && docEq;
+            }
+            bool operator!=(SceneData const& other) const {
+                return !(*this == other);
+            }
         };
 
         /**
@@ -110,12 +155,29 @@ namespace novelist {
         struct ChapterData {
             QString m_name; //!< Chapter name
             ChapterId m_id; //!< Chapter ID
+
+            bool operator==(ChapterData const& other) const {
+                return m_name == other.m_name && m_id == other.m_id;
+            }
+            bool operator!=(ChapterData const& other) const {
+                return !(*this == other);
+            }
         };
 
         /**
-         * Data of any node
+         * Node data (this can not be copied and is thus wrapped into a shared_ptr, see NodeData)
          */
-        using NodeData = std::variant<InvisibleRootData, ProjectHeadData, NotebookHeadData, SceneData, ChapterData>;
+        using NodeDataUnique = std::variant<InvisibleRootData, ProjectHeadData, NotebookHeadData, SceneData, ChapterData>;
+
+        /**
+         * Data of any node. Instances of this type are shared resources.
+         */
+        using NodeData = std::shared_ptr<NodeDataUnique>;
+
+        /**
+         * Data role to get the document of a scene node
+         */
+        constexpr static int DocumentRole = Qt::UserRole;
 
         /**
          * Default-constructs a model with empty title and author and using the language "en_EN".
@@ -192,19 +254,6 @@ namespace novelist {
         NodeData const& nodeData(QModelIndex const& index) const;
 
         /**
-         * Loads a scene from hard disk or creates a new one, if there is no file on hard disk
-         * @param index Index of the scene
-         * @return Pointer to the loaded scene document
-         */
-        SceneDocument* loadScene(QModelIndex const& index);
-
-        /**
-         * Unloads a scene if it is currently loaded, discarding all unsaved modifications
-         * @param index Index of the scene
-         */
-        void unloadScene(QModelIndex const& index);
-
-        /**
          * @param index Model index
          * @return True in case the node has been modified since last save, otherwise false
          */
@@ -251,6 +300,13 @@ namespace novelist {
         insertRows(int row, int count, InsertableNodeType type, QString const& name,
                 QModelIndex const& parent = QModelIndex());
 
+        /**
+         * Remove rows and notify the undo-redo-system.
+         * @param row First row to remove
+         * @param count Amount of rows to remove
+         * @param parent Parent index
+         * @return true in case of success, otherwise false
+         */
         bool removeRows(int row, int count, QModelIndex const& parent) override;
 
         /**
@@ -337,6 +393,29 @@ namespace novelist {
         bool neverSaved() const;
 
         /**
+         * @return A reference to the project's undo stack
+         */
+        QUndoStack& undoStack() noexcept;
+
+        /**
+         * Checks for content-equality
+         *
+         * @details Meta-properties such as undo history, save directory and modification state are not considered.
+         * @param other Other project model
+         * @return True in case both models are equal in terms of content, otherwise false
+         */
+        bool operator==(ProjectModel const& other) const noexcept;
+
+        /**
+         * Checks for content-inequality
+         *
+         * @details Meta-properties such as undo history, save directory and modification state are not considered.
+         * @param other Other project model
+         * @return True in case both models are different in terms of content, otherwise false
+         */
+        bool operator!=(ProjectModel const& other) const noexcept;
+
+        /**
          * Print project model to stream in a human-readable format
          * @param stream Stream to write to
          * @param model Model to write
@@ -357,11 +436,11 @@ namespace novelist {
 
         IdManager<Chapter_Tag> m_chapterIdMgr;
         IdManager<Scene_Tag> m_sceneIdMgr;
-        Node m_root{InvisibleRootData{}};
+        Node m_root{std::make_shared<NodeDataUnique>(InvisibleRootData{})};
         QDir m_saveDir;
         bool m_neverSaved = true;
         QString const m_contentDirName = "content";
-        bool m_modified = false;
+        QUndoStack m_undoStack;
 
         void createRootNodes(ProjectProperties const& properties);
 
@@ -369,8 +448,67 @@ namespace novelist {
 
         bool readChapterOrScene(QXmlStreamReader& xml, QModelIndex parent);
 
-        bool moveRowInternal(QModelIndex const& sourceParent, int sourceRow, QModelIndex const& destinationParent,
+        /**
+         * Loads a scene from hard disk or creates a new one, if there is no file on hard disk
+         * @param index Index of the scene
+         * @return Pointer to the loaded scene document
+         */
+        SceneDocument* loadScene(QModelIndex const& index);
+
+        /**
+         * Unloads a scene if it is currently loaded, discarding all unsaved modifications
+         * @param index Index of the scene
+         */
+        void unloadScene(QModelIndex const& index);
+
+        /**
+         * Move a row without notifying the undo-redo-system
+         * @param sourceParent Parent index of source row
+         * @param sourceRow Row to move relative to parent
+         * @param destinationParent Parent of destination
+         * @param destinationRow Row to insert at, relative to parent
+         * @return Row the element actually ended up at (might differ from \p destinationRow) or -1 if invalid move was
+         *         requested
+         */
+        int doMoveRow(QModelIndex const& sourceParent, int sourceRow, QModelIndex const& destinationParent,
                 int destinationRow);
+
+        /**
+         * Remove a row without notifying the undo-redo-system
+         * @param row Row to remove
+         * @param parent Valid parent index
+         */
+        void doRemoveRow(int row, QModelIndex const& parent);
+
+        /**
+         * Remove a row without notifying the undo-redo-system and retain it
+         * @param row Row to remove
+         * @param parent Valid parent index
+         * @return The removed row
+         */
+        Node doTakeRow(int row, QModelIndex const& parent);
+
+        /**
+         * Insert a row without notifying the undo-redo-system
+         * @param n Node to insert
+         * @param row Row to insert at
+         * @param parent Valid parent index
+         */
+        void doInsertRow(Node n, int row, QModelIndex const& parent);
+
+        /**
+         * Set name of a row without notifying the undo-redo-system
+         * @param index Valid parent index
+         * @param name New name
+         * @return True in case data was set, otherwise false
+         */
+        bool doSetName(QModelIndex const& index, QString const& name);
+
+        /**
+         * Set project properties without notifying the undo-redo-system
+         * @param properties New properties
+         */
+        void doSetProperties(ProjectProperties const& properties);
 
         void writeChapterOrScene(QXmlStreamWriter& xml, QModelIndex item) const;
 
@@ -378,23 +516,106 @@ namespace novelist {
 
         static NodeType nodeType(NodeData const& nodeData);
 
+        QString nodeTypeToString(InsertableNodeType type) const noexcept;
+
         NodeData makeNodeData(InsertableNodeType type, QString const& name);
 
         QModelIndexList childIndices(QModelIndex const& parent) const;
 
         QModelIndexList childIndices(Node const& n) const;
 
+        QString getDisplayText(Node const& n) const;
+
         friend std::ostream& operator<<(std::ostream& stream, NodeData const& nodeData);
 
-    private slots:
+        friend InsertRowCommand;
+        friend RemoveRowCommand;
+        friend MoveRowCommand;
+        friend ModifyNameCommand;
+        friend ModifyProjectPropertiesCommand;
+    };
 
-        void onDataChanged(QModelIndex const& topLeft, QModelIndex const& bottomRight, QVector<int> const& roles);
+    class ProjectModelCommand : public QUndoCommand {
+    protected:
+        using NodeData = ProjectModel::NodeData;
+        using Node = TreeNode<NodeData>;
 
-        void onLayoutChanged(QList<QPersistentModelIndex> const& parents, QAbstractItemModel::LayoutChangeHint hint);
+        using QUndoCommand::QUndoCommand;
+    };
 
-        void onRowsInserted(QModelIndex const& parent, int first, int last);
+    class InsertRowCommand : public ProjectModelCommand {
+    public:
+        InsertRowCommand(Node node, QModelIndex const& parentIdx, int row, ProjectModel* model, QUndoCommand *parent = nullptr);
 
-        void onRowsRemoved(QModelIndex const& parent, int first, int last);
+        void undo() override;
+
+        void redo() override;
+
+    private:
+        Node m_node;
+        ModelPath m_path;
+        int m_row;
+        ProjectModel* m_model;
+    };
+
+    class RemoveRowCommand : public ProjectModelCommand {
+    public:
+        RemoveRowCommand(QModelIndex const& parentIdx, int row, ProjectModel* model, QUndoCommand *parent = nullptr);
+
+        void undo() override;
+
+        void redo() override;
+
+    private:
+        Node m_node;
+        ModelPath m_path;
+        int m_row;
+        ProjectModel* m_model;
+    };
+
+    class MoveRowCommand : public ProjectModelCommand {
+    public:
+        MoveRowCommand(QModelIndex const& srcParent, int srcRow, QModelIndex const& destParent, int destRow,
+                ProjectModel* model, QUndoCommand *parent = nullptr);
+
+        void undo() override;
+
+        void redo() override;
+
+    private:
+        ModelPath m_srcPath;
+        ModelPath m_destPath;
+        int m_srcRow;
+        int m_destRow;
+        ProjectModel* m_model;
+        ModelPath m_afterMovePath;
+    };
+
+    class ModifyNameCommand : public ProjectModelCommand {
+    public:
+        ModifyNameCommand(QString const& name, QModelIndex const& idx, ProjectModel* model, QUndoCommand *parent = nullptr);
+
+        void undo() override;
+
+        void redo() override;
+
+    private:
+        ModelPath m_path;
+        ProjectModel* m_model;
+        QString m_name;
+    };
+
+    class ModifyProjectPropertiesCommand : public ProjectModelCommand {
+    public:
+        ModifyProjectPropertiesCommand(ProjectProperties props, ProjectModel* model, QUndoCommand *parent = nullptr);
+
+        void undo() override;
+
+        void redo() override;
+
+    private:
+        ProjectProperties m_properties;
+        ProjectModel* m_model;
     };
 }
 

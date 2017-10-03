@@ -207,7 +207,7 @@ namespace novelist {
         }
 
         /**
-         * Remove child from this node an return it
+         * Remove child from this node and return it
          * @param pos Position of child
          * @return Node at \p pos
          */
@@ -230,12 +230,12 @@ namespace novelist {
         bool move(size_t srcChild, NodeType& destParent, size_t destChild)
         {
             Expects(srcChild < size());
-            Expects(destChild <= size());
+            Expects(destChild <= destParent.size());
 
             if (at(srcChild) == destParent || destParent.inSubtreeOf(at(srcChild)))
                 return false;
 
-            if (*this == destParent) {
+            if (this == &destParent) {
                 if (srcChild == destChild || destChild == srcChild + 1)
                     return true; // This is a no-op
 
@@ -279,6 +279,7 @@ namespace novelist {
         }
 
         /**
+         * Provides a copy of this node and all children, but it won't have a parent.
          * @return Deep copy of this node
          */
         NodeType clone()

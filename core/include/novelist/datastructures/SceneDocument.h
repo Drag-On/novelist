@@ -53,6 +53,22 @@ namespace novelist {
          */
         bool write(QString& xml) const;
 
+        /**
+         * Compares two documents for content-equality
+         * @details This only considers text. Formatting is not considered.
+         * @param other Document to compare to
+         * @return True in case both documents are equal, otherwise false
+         */
+        bool operator==(SceneDocument const& other) const;
+
+        /**
+         * Compares two documents for content-inequality
+         * @details This only considers text. Formatting is not considered.
+         * @param other Document to compare to
+         * @return True in case both documents are not equal, otherwise false
+         */
+        bool operator!=(SceneDocument const& other) const;
+
     private:
         bool readInternal(QXmlStreamReader& xml);
 

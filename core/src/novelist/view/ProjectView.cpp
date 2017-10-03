@@ -157,17 +157,6 @@ namespace novelist {
         auto idx = m_treeView->selectionModel()->selectedIndexes().first();
         Q_ASSERT(idx.isValid());
 
-        // Ask for user confirmation
-        QMessageBox msgBox;
-        msgBox.setWindowTitle(tr("Novelist"));
-        msgBox.setText(tr("This action cannot be undone."));
-        msgBox.setInformativeText(tr("Are you sure you want to continue?"));
-        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
-        msgBox.setDefaultButton(QMessageBox::Cancel);
-        msgBox.setIcon(QMessageBox::Question);
-        if(msgBox.exec() != QMessageBox::Yes)
-            return;
-
         auto parIdx = idx.parent();
         auto row = idx.row();
         m->removeRow(row, parIdx);
@@ -288,6 +277,20 @@ namespace novelist {
             m_contextMenu->popup(m_treeView->viewport()->mapToGlobal(pos));
     }
 
+    void ProjectView::focusInEvent(QFocusEvent* event)
+    {
+        emit focusReceived(true);
+
+        QWidget::focusInEvent(event);
+    }
+
+    void ProjectView::focusOutEvent(QFocusEvent* event)
+    {
+        emit focusReceived(false);
+
+        QWidget::focusOutEvent(event);
+    }
+
     void ProjectView::setup()
     {
         initResources();
@@ -309,7 +312,7 @@ namespace novelist {
 
         m_topLayout = new QVBoxLayout(this);
         m_treeView = new internal::ProjectTreeView(this);
-        m_treeView->setEditTriggers(QAbstractItemView::EditKeyPressed);
+        m_treeView->setEditTriggers(QAbstractItemView::SelectedClicked | QAbstractItemView::EditKeyPressed);
         m_treeView->setSelectionMode(QAbstractItemView::SingleSelection);
         m_treeView->setDragEnabled(true);
         m_treeView->viewport()->setAcceptDrops(true);
@@ -412,6 +415,24 @@ namespace novelist {
                 [&]() { m_deleteButton->setEnabled(m_actionRemoveEntry->isEnabled()); });
         connect(m_actionProperties, &QAction::changed,
                 [&]() { m_propertiesButton->setEnabled(m_actionProperties->isEnabled()); });
+
+        connect(this, &ProjectView::focusReceived, [this] (bool focus) { setProperty("focused", focus); update(); });
+    }
+
+    void ProjectView::paintEvent(QPaintEvent* event)
+    {
+        QWidget::paintEvent(event);
+
+        if(property("focused").toBool()) {
+            QPainter painter(this);
+            painter.setPen(QPen(QBrush(m_focusColor), 4, Qt::SolidLine));
+            painter.drawRect(m_treeView->rect().translated(m_treeView->pos()));
+        }
+    }
+
+    internal::ProjectTreeView::ProjectTreeView(ProjectView* parent) noexcept
+        : QTreeView(parent)
+    {
     }
 
     void internal::ProjectTreeView::startDrag(Qt::DropActions supportedActions)
@@ -431,5 +452,21 @@ namespace novelist {
 
             drag->exec(supportedActions, this->defaultDropAction());
         }
+    }
+
+    void internal::ProjectTreeView::focusInEvent(QFocusEvent* event)
+    {
+        auto* view = dynamic_cast<ProjectView*>(parent()); // Safe because constructor only takes ProjectView*
+        emit view->focusReceived(true);
+
+        QAbstractItemView::focusInEvent(event);
+    }
+
+    void internal::ProjectTreeView::focusOutEvent(QFocusEvent* event)
+    {
+        auto* view = dynamic_cast<ProjectView*>(parent()); // Safe because constructor only takes ProjectView*
+        emit view->focusReceived(false);
+
+        QAbstractItemView::focusOutEvent(event);
     }
 }

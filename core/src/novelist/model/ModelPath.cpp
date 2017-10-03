@@ -12,11 +12,16 @@ namespace novelist {
     ModelPath::ModelPath(std::initializer_list<int> rows) noexcept
     {
         for (int r : rows)
-            m_path.push_back({r, 0});
+            m_path.emplace_back(r, 0);
     }
 
     ModelPath::ModelPath(std::initializer_list<RowColumnIdx> l) noexcept
             :m_path{l}
+    {
+    }
+
+    ModelPath::ModelPath(ModelPath::const_iterator begin, ModelPath::const_iterator end) noexcept
+            :m_path(begin, end)
     {
     }
 
@@ -70,6 +75,23 @@ namespace novelist {
         return m_path.cend();
     }
 
+    ModelPath ModelPath::parentPath() const noexcept
+    {
+        if(m_path.empty())
+            return ModelPath{};
+        return ModelPath(m_path.begin(), m_path.end() - 1);
+    }
+
+    void ModelPath::emplace_back(RowColumnIdx const& rowColumnIdx) noexcept
+    {
+        m_path.emplace_back(rowColumnIdx);
+    }
+
+    void ModelPath::emplace_back(int row) noexcept
+    {
+        m_path.emplace_back(row, 0);
+    }
+
     RowColumnIdx& ModelPath::operator[](size_t pos)
     {
         return m_path[pos];
@@ -78,6 +100,26 @@ namespace novelist {
     RowColumnIdx const& ModelPath::operator[](size_t pos) const
     {
         return m_path[pos];
+    }
+
+    RowColumnIdx& ModelPath::leaf()
+    {
+        return m_path.back();
+    }
+
+    RowColumnIdx const& ModelPath::leaf() const
+    {
+        return m_path.back();
+    }
+
+    size_t ModelPath::compare(ModelPath const& other) const noexcept
+    {
+        for(size_t i = 0; i < std::max(depth(), other.depth()); ++i) {
+            if(depth() <= i || other.depth() <= i || m_path[i] != other.m_path[i])
+                return i;
+        }
+
+        return std::numeric_limits<size_t>::max();
     }
 
     bool ModelPath::operator==(ModelPath const& other) const noexcept

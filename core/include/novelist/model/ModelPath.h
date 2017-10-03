@@ -34,6 +34,11 @@ namespace novelist {
         using const_iterator = decltype(std::declval<std::vector<RowColumnIdx>>().cbegin());
 
         /**
+         * Construct empty path (just the invisible root node)
+         */
+        ModelPath() noexcept = default;
+
+        /**
          * Construct path from a list of rows. Columns are implicitly 0
          * @param rows List of rows, where every element is interpreted as a child of the previous row. The first entry
          * is relative to the invisible root element.
@@ -46,6 +51,13 @@ namespace novelist {
          * The first entry is relative to the invisible root element.
          */
         ModelPath(std::initializer_list<RowColumnIdx> l) noexcept;
+
+        /**
+         * Construct path from a range of row/column combinations
+         * @param begin First element
+         * @param end Element after last element
+         */
+        ModelPath(const_iterator begin, const_iterator end) noexcept;
 
         /**
          * Construct path from a QModelIndex
@@ -94,6 +106,23 @@ namespace novelist {
         const_iterator end() const noexcept;
 
         /**
+         * @return Path to the second-last entry, i.e. the parent of the element this path points to.
+         */
+        ModelPath parentPath() const noexcept;
+
+        /**
+         * Append another index at the end
+         * @param rowColumnIdx New index
+         */
+        void emplace_back(RowColumnIdx const& rowColumnIdx) noexcept;
+
+        /**
+         * Append another index at the end
+         * @param row Row index
+         */
+        void emplace_back(int row) noexcept;
+
+        /**
          * Returns a reference to the path element at specified location.
          * @param pos Position of the element
          * @return Reference to requested element
@@ -106,6 +135,23 @@ namespace novelist {
          * @return Reference to requested element
          */
         RowColumnIdx const& operator[](size_t pos) const;
+
+        /**
+         * Reference to leaf element. Calling this on an empty path is undefined.
+         */
+        RowColumnIdx& leaf();
+
+        /**
+         * Constant reference to leaf element. Calling this on an empty path is undefined.
+         */
+        RowColumnIdx const& leaf() const;
+
+        /**
+         * Compares two paths elementwise and determines the index at which they diverge
+         * @param other Other path
+         * @return Index of the element at which the paths diverge or a number larger than the path's depth if they are equal
+         */
+        size_t compare(ModelPath const& other) const noexcept;
 
         /**
          * Compares two paths for equality

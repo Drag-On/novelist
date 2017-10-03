@@ -8,13 +8,13 @@
  **********************************************************/
 
 #include <QTabBar>
-#include <QMessageBox>
 #include "widgets/SceneTabWidget.h"
 
 namespace novelist {
     SceneTabWidget::SceneTabWidget(QWidget* parent)
             :QTabWidget(parent)
     {
+        setTabBar(new internal::InternalTabBar(this));
         setDocumentMode(true);
         setTabsClosable(true);
         setMovable(true);
@@ -29,10 +29,11 @@ namespace novelist {
 
         int tabIdx = indexOf(model, index);
         if (tabIdx == -1) {
-            auto* editor = new internal::InternalTextEditor(); // This has to be deleted on tab removal, see closeScene()
+            auto* editor = new internal::InternalTextEditor(); // The tab will take ownership
+            editor->setFocusPolicy(focusPolicy());
             editor->m_model = model;
             editor->m_modelIndex = index;
-            editor->setDocument(model->loadScene(index));
+            editor->setDocument(qvariant_cast<SceneDocument*>(model->data(index, ProjectModel::DocumentRole)));
 
             // Make sure the tab title and color change appropriately
             auto onDataChanged =
@@ -49,6 +50,7 @@ namespace novelist {
                         }
                     };
             connect(editor->m_model, &ProjectModel::dataChanged, onDataChanged);
+            connect(editor, &TextEditor::focusReceived, [this] (bool focus){ emit focusReceived(focus); });
 
             QString name = model->data(index, Qt::DisplayRole).toString();
             tabIdx = addTab(editor, name);
@@ -63,43 +65,18 @@ namespace novelist {
         closeScene(indexOf(model, index));
     }
 
-    void SceneTabWidget::closeScene(int index, bool userCheck)
+    void SceneTabWidget::closeScene(int index)
     {
         if(index < 0)
             return;
 
-        auto* w = dynamic_cast<internal::InternalTextEditor*>(widget(index));
-        if (w != nullptr) {
-
-            int action = QMessageBox::Discard;
-            if(w->document() != nullptr && w->document()->isModified() && userCheck) {
-                QMessageBox msgBox;
-                msgBox.setText(tr("The document has been modified."));
-                msgBox.setInformativeText(
-                        tr("If you close it now, all changes will be lost. Are you sure you want to continue?"));
-                msgBox.setStandardButtons(QMessageBox::Discard | QMessageBox::Cancel);
-                msgBox.setDefaultButton(QMessageBox::Cancel);
-                msgBox.setIcon(QMessageBox::Question);
-                action = msgBox.exec();
-            }
-
-            if(action == QMessageBox::Discard)
-            {
-                removeTab(index);
-                if(w->m_modelIndex.isValid())
-                    w->m_model->unloadScene(w->m_modelIndex);
-                delete w;
-            }
-            return;
-        }
-
         removeTab(index);
     }
 
-    void SceneTabWidget::closeAll(bool userCheck)
+    void SceneTabWidget::closeAll()
     {
         for(int c = count(), i = 0; i < c; ++i)
-            closeScene(0, userCheck);
+            closeScene(0);
     }
 
     int SceneTabWidget::indexOf(ProjectModel const* model, QModelIndex index) const
@@ -111,6 +88,20 @@ namespace novelist {
         }
 
         return -1;
+    }
+
+    void SceneTabWidget::focusInEvent(QFocusEvent* event)
+    {
+        emit focusReceived(true);
+
+        QWidget::focusInEvent(event);
+    }
+
+    void SceneTabWidget::focusOutEvent(QFocusEvent* event)
+    {
+        emit focusReceived(false);
+
+        QWidget::focusOutEvent(event);
     }
 
     void SceneTabWidget::onTabCloseRequested(int index)
