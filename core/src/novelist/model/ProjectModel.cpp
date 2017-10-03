@@ -1042,9 +1042,17 @@ namespace novelist {
 
     void MoveRowCommand::undo()
     {
-        Node taken = m_model->doTakeRow(m_afterMovePath.leaf().first,
-                m_afterMovePath.parentPath().toModelIndex(m_model));
-        m_model->doInsertRow(std::move(taken), m_srcRow, m_srcPath.toModelIndex(m_model));
+        auto destPath = m_srcPath;
+        destPath.emplace_back(m_srcRow);
+        auto idx = m_afterMovePath.compare(destPath);
+        if(idx < destPath.depth() && idx >= m_afterMovePath.depth())
+            idx--;
+        if(idx < destPath.depth() && idx < m_afterMovePath.depth() && idx > m_afterMovePath.depth() - 2
+                && destPath[idx].first >= m_afterMovePath[idx].first)
+            destPath[idx].first++;
+
+        m_model->doMoveRow(m_afterMovePath.parentPath().toModelIndex(m_model), m_afterMovePath.leaf().first,
+                destPath.parentPath().toModelIndex(m_model), destPath.leaf().first);
     }
 
     void MoveRowCommand::redo()
