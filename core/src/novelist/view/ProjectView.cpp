@@ -415,6 +415,19 @@ namespace novelist {
                 [&]() { m_deleteButton->setEnabled(m_actionRemoveEntry->isEnabled()); });
         connect(m_actionProperties, &QAction::changed,
                 [&]() { m_propertiesButton->setEnabled(m_actionProperties->isEnabled()); });
+
+        connect(this, &ProjectView::focusReceived, [this] (bool focus) { setProperty("focused", focus); update(); });
+    }
+
+    void ProjectView::paintEvent(QPaintEvent* event)
+    {
+        QWidget::paintEvent(event);
+
+        if(property("focused").toBool()) {
+            QPainter painter(this);
+            painter.setPen(QPen(QBrush(m_focusColor), 4, Qt::SolidLine));
+            painter.drawRect(m_treeView->rect().translated(m_treeView->pos()));
+        }
     }
 
     internal::ProjectTreeView::ProjectTreeView(ProjectView* parent) noexcept

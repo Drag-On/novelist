@@ -119,6 +119,8 @@ namespace novelist {
 
         void focusOutEvent(QFocusEvent* event) override;
 
+        void paintEvent(QPaintEvent* event) override;
+
     private:
         QIcon m_iconNewScene;
         QIcon m_iconNewChapter;
@@ -137,6 +139,7 @@ namespace novelist {
         QAction* m_actionRemoveEntry;
         QAction* m_actionProperties;
         QMenu* m_contextMenu;
+        QColor const m_focusColor{QColor::fromRgb(196, 205, 221)};
 
         void setup();
 
