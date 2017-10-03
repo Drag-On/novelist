@@ -1,15 +1,16 @@
 /**********************************************************
  * @file   ProjectModelTest.cpp
  * @author jan
- * @date   7/16/17
+ * @date   10/3/17
  * ********************************************************
  * @brief
  * @details
  **********************************************************/
 
-#include <sstream>
+#include <iostream>
 #include <catch.hpp>
 #include "model/ProjectModel.h"
+#include "macros.h"
 
 using namespace novelist;
 
@@ -19,7 +20,7 @@ using NodeType = ProjectModel::InsertableNodeType;
 ProjectProperties properties{"Foo", "Ernie", Language::en_US};
 
 // Some sample data to use in tests
-std::map<std::vector<int>, std::pair<char const*, NodeType>> const defaultNodes{
+std::map<ModelPath, std::pair<char const*, NodeType>> const defaultNodes{
         // Project root
         {{0, 0},       {"The Raven",              NodeType::Chapter}},
         {{0, 0, 0},    {"What a Kind King Wants", NodeType::Scene}},
@@ -31,23 +32,15 @@ std::map<std::vector<int>, std::pair<char const*, NodeType>> const defaultNodes{
         {{0, 1, 0},    {"The War of Thunder",     NodeType::Chapter}},
         {{0, 2},       {"Epilogue",               NodeType::Scene}},
         // Notebook
-        {{1, 0},       {"Characters",             NodeType::Chapter}}
+        {{1, 0},       {"Characters",             NodeType::Chapter}},
+        {{1, 1},       {"Locations",              NodeType::Chapter}},
+        {{1, 2},       {"Items",                  NodeType::Chapter}}
 };
-
-QModelIndex getParIdx(std::vector<int> const& idx, ProjectModel& model)
-{
-    QModelIndex curIndex = model.projectRootIndex();
-    if (idx[0] != 0)
-        curIndex = model.notebookIndex();
-    for (size_t i = 1; i < idx.size() - 1; ++i)
-        curIndex = curIndex.child(idx[i], 0);
-    return curIndex;
-}
 
 void fillModel(ProjectModel& model)
 {
-    for (auto const& [key, val] : defaultNodes)
-        model.insertRow(key.back(), val.second, val.first, getParIdx(key, model));
+    for (auto const& [path, data] : defaultNodes)
+        model.insertRow(path.leaf().first, data.second, data.first, path.parentPath().toModelIndex(&model));
 }
 
 TEST_CASE("ProjectModel properties", "[Model]")
@@ -58,199 +51,123 @@ TEST_CASE("ProjectModel properties", "[Model]")
         REQUIRE(model.projectRootIndex().isValid());
         REQUIRE(model.notebookIndex().isValid());
 
-        std::string projectRootDisplay = model.data(model.projectRootIndex(), Qt::DisplayRole).toString().toStdString();
+        std::string projectRootDisplay = model.nodeName(model.projectRootIndex()).toStdString();
         REQUIRE(projectRootDisplay == properties.m_name.toStdString());
-
-        std::string notebookDisplay = model.data(model.notebookIndex(), Qt::DisplayRole).toString().toStdString();
-        REQUIRE(notebookDisplay == "Notebook");
     }
 
-    ProjectProperties newProperties{"Bar", "Bert", Language::en_UK};
-    model.setProperties(newProperties);
-    SECTION("After change") {
-        REQUIRE(model.projectRootIndex().isValid());
-        REQUIRE(model.notebookIndex().isValid());
+    DATA_SECTION("Change properties",
+        TESTFUN([&model](QString const& title, QString const& author, Language lang) {
+            model.setProperties({title, author, lang});
+            std::string projectRootDisplay = model.nodeName(model.projectRootIndex()).toStdString();
+            REQUIRE(projectRootDisplay == title.toStdString());
 
-        std::string projectRootDisplay = model.data(model.projectRootIndex(), Qt::DisplayRole).toString().toStdString();
-        REQUIRE(projectRootDisplay == newProperties.m_name.toStdString());
-
-        std::string notebookDisplay = model.data(model.notebookIndex(), Qt::DisplayRole).toString().toStdString();
-        REQUIRE(notebookDisplay == "Notebook");
-    }
+            REQUIRE(model.properties().m_name == title);
+            REQUIRE(model.properties().m_author == author);
+            REQUIRE(model.properties().m_lang == lang);
+        }),
+        ROW("Bar", "Bert", Language::en_UK)
+        ROW("", "Bert", Language::en_UK)
+        ROW("Bar", "", Language::en_UK)
+        ROW("", "", Language::en_UK)
+    )
 }
 
-TEST_CASE("ProjectModel data storage", "[Model]")
+TEST_CASE("ProjectModel insert", "[Model]")
 {
-
-    SECTION("insertion") {
-        ProjectModel model{properties};
-
-        SECTION("Top level") {
-            bool result = model.insertRow(0, NodeType::Scene, "Foobar", model.projectRootIndex());
-            REQUIRE(result == true);
-
-            std::string insertedDisplay = model.data(model.projectRootIndex().child(0, 0),
-                    Qt::DisplayRole).toString().toStdString();
-            REQUIRE(insertedDisplay == "Foobar");
-        }
-
-        SECTION("nested") {
-            bool result = model.insertRow(0, NodeType::Chapter, "Foobar", model.projectRootIndex());
-            REQUIRE(result == true);
-
-            std::string insertedDisplay = model.data(model.projectRootIndex().child(0, 0),
-                    Qt::DisplayRole).toString().toStdString();
-            REQUIRE(insertedDisplay == "Foobar");
-
-            result = model.insertRow(0, NodeType::Scene, "Baz", model.projectRootIndex().child(0, 0));
-            REQUIRE(result == true);
-
-            insertedDisplay = model.data(model.projectRootIndex().child(0, 0).child(0, 0),
-                    Qt::DisplayRole).toString().toStdString();
-            REQUIRE(insertedDisplay == "Baz");
-        }
-    }
-
     ProjectModel model{properties};
     fillModel(model);
 
-    for (auto const& [key, val] : defaultNodes) {
-        auto idx = getParIdx(key, model);
-        REQUIRE(idx.isValid());
-
-        std::string insertedDisplay = model.data(idx.child(key.back(), 0), Qt::DisplayRole).toString().toStdString();
-        REQUIRE(insertedDisplay == val.first);
+    for (auto const& [path, data] : defaultNodes) {
+        auto idx = path.toModelIndex(&model);
+        std::string name = model.nodeName(idx).toStdString();
+        REQUIRE(name == data.first);
     }
 
-    SECTION("Bad inserts") {
-        REQUIRE_FALSE(model.insertRow(0, NodeType::Scene, "Foo", model.projectRootIndex().child(2, 0)));
-        REQUIRE_FALSE(model.insertRow(0, NodeType::Chapter, "Foo", model.projectRootIndex().child(2, 0)));
-    }
+    DATA_SECTION("Bad inserts",
+        TESTFUN([&model] (ModelPath const& p, int idx) {
+            REQUIRE_FALSE(model.insertRow(idx, NodeType::Scene, "", p.toModelIndex(&model)));
+        }),
+        NAMED_ROW("scene node", {0, 0, 0}, 0)
+        NAMED_ROW("root node", {}, 0)
+        NAMED_ROW("nonexistent node", {0, 0, 0, 0, 0, 0, 0}, 0)
+        NAMED_ROW("child out of bounds", {0, 0}, 15)
+    )
 
-    SECTION("Move") {
-        auto testMove = [&](std::vector<int> const& src, std::vector<int> const& dest)
-        {
-            auto rootIdx = [&](int c)
-            {
-                if(c == 0)
-                    return model.projectRootIndex();
-                else if (c == 1)
-                    return model.notebookIndex();
-                return QModelIndex{};
-            };
-            auto parIdx = [&](std::vector<int> const& idx)
-            {
-                auto root = rootIdx(idx.front());
-                for(size_t i = 1; i < idx.size() - 1; ++i)
-                    root = root.child(idx[i], 0);
-                return root;
-            };
-            auto index = [&](std::vector<int> const& idx)
-            {
-                auto root = rootIdx(idx.front());
-                for(size_t i = 1; i < idx.size(); ++i)
-                    root = root.child(idx[i], 0);
-                return root;
-            };
-            auto defaultStr = [&](std::vector<int> const& idx)
-            {
-                if(idx == std::vector<int>{0})
-                    return model.projectRootIndex().data().toString().toStdString();
-                else if (idx == std::vector<int>{1})
-                    return model.notebookIndex().data().toString().toStdString();
-                else
-                    return std::string {defaultNodes.at(idx).first};
-            };
-            struct NodeInfo
-            {
-                std::vector<int> idx;
-                std::vector<int> parIdx;
-                std::optional<std::string> str;
-                std::string parStr;
-                std::optional<QPersistentModelIndex> persIdx;
-                QPersistentModelIndex persParIdx;
-            };
+    DATA_SECTION("Good inserts",
+            TESTFUN([&model] (ModelPath const& p, int idx) {
+                REQUIRE(model.insertRow(idx, NodeType::Scene, "foobar", p.toModelIndex(&model)));
+                REQUIRE(model.nodeName(p.toModelIndex(&model).child(idx, 0)).toStdString() == "foobar");
+            }),
+            NAMED_ROW("In project root (front)", {0}, 0)
+            NAMED_ROW("In project root (middle)", {0}, 2)
+            NAMED_ROW("In project root (back)", {0}, 3)
+            NAMED_ROW("In notebook (front)", {1}, 0)
+            NAMED_ROW("In notebook (middle)", {1}, 2)
+            NAMED_ROW("In notebook (back)", {1}, 3)
+            NAMED_ROW("In chapter (front)", {0, 0}, 0)
+            NAMED_ROW("In chapter (middle)", {0, 0}, 1)
+            NAMED_ROW("In chapter (back)", {0, 0}, 2)
+    )
+}
 
-            NodeInfo srcInfo;
-            srcInfo.idx = src;
-            srcInfo.parIdx = {src.begin(), src.end()-1};
-            srcInfo.str = defaultStr(src);
-            srcInfo.parStr = defaultStr(srcInfo.parIdx);
-            srcInfo.persIdx = index(src);
-            srcInfo.persParIdx = parIdx(src);
+TEST_CASE("ProjectModel move", "[Model]")
+{
+    ProjectModel model{properties};
+    fillModel(model);
 
-            NodeInfo destInfo;
-            destInfo.idx = dest;
-            destInfo.parIdx = {dest.begin(), dest.end()-1};
-            if(defaultNodes.count(dest) > 0) {
-                destInfo.str = defaultStr(dest);
-                destInfo.persIdx = index(dest);
-            }
-            destInfo.parStr = defaultStr(destInfo.parIdx);
-            destInfo.persParIdx = parIdx(dest);
+    DATA_SECTION("Bad moves",
+        TESTFUN([&model] (ModelPath const& src, ModelPath const& dest) {
+            auto srcParIdx = src.parentPath().toModelIndex(&model);
+            auto destParIdx = dest.parentPath().toModelIndex(&model);
+            bool r = model.moveRow(srcParIdx, src.leaf().first, destParIdx, dest.leaf().first);
+            REQUIRE_FALSE(r);
 
-            REQUIRE(model.moveRow(srcInfo.persParIdx, srcInfo.idx.back(), destInfo.persParIdx, destInfo.idx.back()));
-            REQUIRE(srcInfo.persParIdx.isValid());
-            REQUIRE(srcInfo.persIdx.value().isValid());
-            std::string srcParDisp = model.data(srcInfo.persParIdx, Qt::DisplayRole).toString().toStdString();
-            REQUIRE(srcParDisp == srcInfo.parStr);
-            std::string srcDisp = model.data(srcInfo.persIdx.value(), Qt::DisplayRole).toString().toStdString();
-            REQUIRE(srcDisp == srcInfo.str);
+            ProjectModel referenceModel{properties};
+            fillModel(referenceModel);
+            REQUIRE(model == referenceModel);
+        }),
+        NAMED_ROW("Project root onto itself", {0}, {0})
+        NAMED_ROW("Project root into own child", {0}, {0, 0, 0})
+        NAMED_ROW("Project root after notebook", {0}, {2})
+        NAMED_ROW("Notebook onto itself", {1}, {1})
+        NAMED_ROW("Notebook into own child", {1}, {1, 0, 0})
+        NAMED_ROW("Notebook before project root", {1}, {0})
+        NAMED_ROW("Chapter down into own child", {0, 0}, {0, 0, 0})
+        NAMED_ROW("Chapter into scene", {0, 0}, {0, 0, 0, 0})
+        NAMED_ROW("To root node", {0, 0}, {0})
+        NAMED_ROW("To nonexisting node", {0, 0}, {0, 0, 0, 0, 0, 0, 0, 0})
+        NAMED_ROW("From nonexisting node", {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0})
+    )
 
-            REQUIRE(destInfo.persParIdx.isValid());
-            std::string destParDisp = model.data(destInfo.persParIdx, Qt::DisplayRole).toString().toStdString();
-            REQUIRE(destParDisp == destInfo.parStr);
-            if(destInfo.persIdx)
-            {
-                REQUIRE(destInfo.persIdx.value().isValid());
-                std::string destDisp = model.data(destInfo.persIdx.value(), Qt::DisplayRole).toString().toStdString();
-                REQUIRE(destDisp == destInfo.str);
-            }
-        };
+    DATA_SECTION("Good moves",
+        TESTFUN([&model] (ModelPath const& src, ModelPath const& dest) {
+            auto srcParIdx = src.parentPath().toModelIndex(&model);
+            auto destParIdx = dest.parentPath().toModelIndex(&model);
+            QPersistentModelIndex persistentIdx = srcParIdx.child(src.leaf().first, 0);
+            std::string name = model.nodeName(persistentIdx).toStdString();
+            bool r = model.moveRow(srcParIdx, src.leaf().first, destParIdx, dest.leaf().first);
+            REQUIRE(r);
 
-        SECTION("On same level") {
-            SECTION("End to beginning")
-            {
-                testMove({0, 0, 1}, {0, 0, 0});
-            }
+            ProjectModel referenceModel{properties};
+            fillModel(referenceModel);
+            REQUIRE_FALSE(model == referenceModel);
 
-            SECTION("Beginning to end")
-            {
-                testMove({0, 0, 0}, {0, 0, 1});
-            }
-        }
-
-        SECTION("Up in the hierarchy") {
-            SECTION("From below") {
-                testMove({0, 0, 1, 0}, {0, 0, 1});
-            }
-            SECTION("From above") {
-                testMove({0, 0, 1, 0}, {0, 0, 2});
-            }
-            SECTION("Two levels from below") {
-                testMove({0, 0, 1, 0}, {0, 0});
-            }
-            SECTION("Two levels from above") {
-                testMove({0, 0, 1, 0}, {0, 1});
-            }
-        }
-
-        SECTION("Down in the hierarchy") {
-            SECTION("From above") {
-                testMove({0, 0, 0}, {0, 0, 1, 0});
-            }
-            SECTION("From below") {
-                testMove({0, 1}, {0, 0, 1});
-            }
-            SECTION("Two levels from above") {
-                testMove({0, 0}, {0, 1, 0, 0});
-            }
-            SECTION("Two levels from below") {
-                testMove({0, 1}, {0, 0, 1, 2});
-            }
-        }
-
-    }
+            REQUIRE(model.nodeName(persistentIdx).toStdString() == name);
+        }),
+        NAMED_ROW("Same level (up)", {0, 0, 1}, {0, 0, 0})
+        NAMED_ROW("Same level (down)", {0, 0, 0}, {0, 0, 2})
+        NAMED_ROW("Up in hierarchy (from below)", {0, 0, 1, 0}, {0, 0, 1})
+        NAMED_ROW("Up in hierarchy (from above)", {0, 0, 1, 0}, {0, 0, 2})
+        NAMED_ROW("2x up in hierarchy (from below)", {0, 0, 1, 0}, {0, 0})
+        NAMED_ROW("2x up in hierarchy (from above)", {0, 0, 1, 0}, {0, 1})
+        NAMED_ROW("Down in hierarchy (from below)", {0, 1}, {0, 0, 1})
+        NAMED_ROW("Down in hierarchy (from above)", {0, 0, 0}, {0, 0, 1, 0})
+        NAMED_ROW("2x down in hierarchy (from below)", {0, 1}, {0, 0, 1, 2})
+        NAMED_ROW("2x down in hierarchy (from above)", {0, 0}, {0, 1, 0, 0})
+        NAMED_ROW("Scene into unrelated chapter", {0, 0, 0}, {0, 1, 0})
+        NAMED_ROW("Scene to notebook", {0, 0, 0}, {1, 0})
+        NAMED_ROW("Chapter to notebook", {0, 0, 1}, {1, 0})
+    )
 }
 
 TEST_CASE("ProjectModel read/write", "[Model]")
