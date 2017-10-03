@@ -168,6 +168,34 @@ namespace novelist {
         bool operator!=(ModelPath const& other) const noexcept;
 
         /**
+         * Compares the contents lexicographically.
+         * @param other Path to compare to
+         * @return true in case this path is lexicographically less than \p other
+         */
+        bool operator<(ModelPath const& other) const noexcept;
+
+        /**
+         * Compares the contents lexicographically.
+         * @param other Path to compare to
+         * @return true in case this path is lexicographically less or equal than \p other
+         */
+        bool operator<=(ModelPath const& other) const noexcept;
+
+        /**
+         * Compares the contents lexicographically.
+         * @param other Path to compare to
+         * @return true in case this path is lexicographically greater than \p other
+         */
+        bool operator>(ModelPath const& other) const noexcept;
+
+        /**
+         * Compares the contents lexicographically.
+         * @param other Path to compare to
+         * @return true in case this path is lexicographically greater or equal than \p other
+         */
+        bool operator>=(ModelPath const& other) const noexcept;
+
+        /**
          * Formatted output
          * @param stream Stream to use
          * @param path Path to print

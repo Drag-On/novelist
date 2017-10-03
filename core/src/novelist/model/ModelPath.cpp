@@ -132,6 +132,26 @@ namespace novelist {
         return !(*this == other);
     }
 
+    bool ModelPath::operator<(ModelPath const& other) const noexcept
+    {
+        return m_path < other.m_path;
+    }
+
+    bool ModelPath::operator<=(ModelPath const& other) const noexcept
+    {
+        return m_path <= other.m_path;
+    }
+
+    bool ModelPath::operator>(ModelPath const& other) const noexcept
+    {
+        return m_path > other.m_path;
+    }
+
+    bool ModelPath::operator>=(ModelPath const& other) const noexcept
+    {
+        return m_path >= other.m_path;
+    }
+
     std::ostream& operator<<(std::ostream& stream, ModelPath const& path)
     {
         stream << "(root)";
