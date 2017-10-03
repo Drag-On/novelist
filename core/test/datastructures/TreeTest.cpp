@@ -161,14 +161,14 @@ TEST_CASE("TreeNode move children", "[DataStructures][Tree]")
     {
         SECTION("No-op")
         {
-            bool success = node[0].move(0, node[0], 0);
+            bool success = node[0].move(0, node[0], 0) != node[0].end();
             checkTreeValidity(node);
             REQUIRE(success);
             REQUIRE(node[0][0].m_data == 111);
             REQUIRE(node[0][1].m_data == 112);
             REQUIRE(node[0][2].m_data == 113);
 
-            success = node[0].move(0, node[0], 1);
+            success = node[0].move(0, node[0], 1) != node[0].end();
             checkTreeValidity(node);
             REQUIRE(success);
             REQUIRE(node[0][0].m_data == 111);
@@ -178,7 +178,7 @@ TEST_CASE("TreeNode move children", "[DataStructures][Tree]")
 
         SECTION("Top to bottom")
         {
-            bool success = node[0].move(0, node[0], 3);
+            bool success = node[0].move(0, node[0], 3) != node[0].end();
             checkTreeValidity(node);
             REQUIRE(success);
             REQUIRE(node[0][0].m_data == 112);
@@ -188,7 +188,7 @@ TEST_CASE("TreeNode move children", "[DataStructures][Tree]")
 
         SECTION("Bottom to top")
         {
-            bool success = node[0].move(2, node[0], 0);
+            bool success = node[0].move(2, node[0], 0) != node[0].end();
             checkTreeValidity(node);
             REQUIRE(success);
             REQUIRE(node[0][0].m_data == 113);
@@ -201,7 +201,7 @@ TEST_CASE("TreeNode move children", "[DataStructures][Tree]")
     {
         SECTION("Before src node")
         {
-            bool success = node[0].move(1, node, 0);
+            bool success = node[0].move(1, node, 0) != node.end();
             checkTreeValidity(node);
             REQUIRE(success);
             REQUIRE(node[0].m_data == 112);
@@ -214,7 +214,7 @@ TEST_CASE("TreeNode move children", "[DataStructures][Tree]")
 
         SECTION("After src node")
         {
-            bool success = node[0].move(1, node, 1);
+            bool success = node[0].move(1, node, 1) != node.end();
             checkTreeValidity(node);
             REQUIRE(success);
             REQUIRE(node[0].m_data == 11);
@@ -230,7 +230,7 @@ TEST_CASE("TreeNode move children", "[DataStructures][Tree]")
     {
         SECTION("Down itself (should fail)")
         {
-            bool success = node.move(0, node[0], 0);
+            bool success = node.move(0, node[0], 0) != node[0].end();
             REQUIRE_FALSE(success);
             checkTreeValidity(node);
         }
@@ -239,7 +239,7 @@ TEST_CASE("TreeNode move children", "[DataStructures][Tree]")
         {
             SECTION("Sibling before src")
             {
-                bool success = node.move(0, node[1], 0);
+                bool success = node.move(0, node[1], 0) != node[1].end();
                 checkTreeValidity(node);
                 REQUIRE(success);
                 REQUIRE(node[0].m_data == 12);
@@ -250,7 +250,7 @@ TEST_CASE("TreeNode move children", "[DataStructures][Tree]")
 
             SECTION("Sibling after src")
             {
-                bool success = node.move(1, node[0], 0);
+                bool success = node.move(1, node[0], 0) != node[0].end();
                 checkTreeValidity(node);
                 REQUIRE(success);
                 REQUIRE(node[0].m_data == 11);
@@ -265,7 +265,7 @@ TEST_CASE("TreeNode move children", "[DataStructures][Tree]")
     SECTION("Between trees")
     {
         TreeNode<int> otherNode{0};
-        bool success = node[0].move(1, otherNode, 0);
+        bool success = node[0].move(1, otherNode, 0) != otherNode.end();
         checkTreeValidity(node);
         checkTreeValidity(otherNode);
         REQUIRE(success);

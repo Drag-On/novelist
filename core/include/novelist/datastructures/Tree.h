@@ -225,26 +225,26 @@ namespace novelist {
          * @param srcChild Index of the child to move
          * @param destParent Parent node to move to
          * @param destChild Index of the child to insert at
-         * @return true in case of sucess, otherwise false
+         * @return iterator to the inserted element or destParent.end() in case of failure
          */
-        bool move(size_t srcChild, NodeType& destParent, size_t destChild)
+        iterator move(size_t srcChild, NodeType& destParent, size_t destChild)
         {
             Expects(srcChild < size());
             Expects(destChild <= destParent.size());
 
             if (at(srcChild) == destParent || destParent.inSubtreeOf(at(srcChild)))
-                return false;
+                return destParent.end();
 
             if (this == &destParent) {
                 if (srcChild == destChild || destChild == srcChild + 1)
-                    return true; // This is a no-op
+                    return begin() + srcChild; // This is a no-op
 
                 if(srcChild < destChild)
                     --destChild;
 
                 NodeType n = take(begin() + srcChild);
                 auto const iter = destParent.insert(destParent.begin() + destChild, std::move(n));
-                return iter < destParent.end();
+                return iter;
             }
 
             if (destParent.parent() == this)
@@ -256,12 +256,12 @@ namespace novelist {
 
                 NodeType& newDestParent = this->at(newDestParentIdx);
                 auto const it = newDestParent.insert(newDestParent.begin() + destChild, std::move(n));
-                return it < newDestParent.end();
+                return it;
             }
 
             NodeType n = take(begin() + srcChild);
             auto const it = destParent.insert(destParent.begin() + destChild, std::move(n));
-            return it < destParent.end();
+            return it;
         }
 
         /**
