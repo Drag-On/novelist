@@ -94,19 +94,54 @@ TEST_CASE("ProjectModel insert", "[Model]")
     )
 
     DATA_SECTION("Good inserts",
-            TESTFUN([&model] (ModelPath const& p, int idx) {
-                REQUIRE(model.insertRow(idx, NodeType::Scene, "foobar", p.toModelIndex(&model)));
-                REQUIRE(model.nodeName(p.toModelIndex(&model).child(idx, 0)).toStdString() == "foobar");
-            }),
-            NAMED_ROW("In project root (front)", {0}, 0)
-            NAMED_ROW("In project root (middle)", {0}, 2)
-            NAMED_ROW("In project root (back)", {0}, 3)
-            NAMED_ROW("In notebook (front)", {1}, 0)
-            NAMED_ROW("In notebook (middle)", {1}, 2)
-            NAMED_ROW("In notebook (back)", {1}, 3)
-            NAMED_ROW("In chapter (front)", {0, 0}, 0)
-            NAMED_ROW("In chapter (middle)", {0, 0}, 1)
-            NAMED_ROW("In chapter (back)", {0, 0}, 2)
+        TESTFUN([&model] (ModelPath const& p, int idx) {
+            REQUIRE(model.insertRow(idx, NodeType::Scene, "foobar", p.toModelIndex(&model)));
+            REQUIRE(model.nodeName(p.toModelIndex(&model).child(idx, 0)).toStdString() == "foobar");
+        }),
+        NAMED_ROW("In project root (front)", {0}, 0)
+        NAMED_ROW("In project root (middle)", {0}, 2)
+        NAMED_ROW("In project root (back)", {0}, 3)
+        NAMED_ROW("In notebook (front)", {1}, 0)
+        NAMED_ROW("In notebook (middle)", {1}, 2)
+        NAMED_ROW("In notebook (back)", {1}, 3)
+        NAMED_ROW("In chapter (front)", {0, 0}, 0)
+        NAMED_ROW("In chapter (middle)", {0, 0}, 1)
+        NAMED_ROW("In chapter (back)", {0, 0}, 2)
+    )
+}
+
+TEST_CASE("ProjectModel remove", "[Model]")
+{
+    ProjectModel model{properties};
+    fillModel(model);
+
+    DATA_SECTION("Bad removals",
+        TESTFUN([&model] (ModelPath const& p, int idx) {
+            REQUIRE_FALSE(model.removeRow(idx, p.toModelIndex(&model)));
+        }),
+        NAMED_ROW("project root node", {}, 0)
+        NAMED_ROW("notebook node", {}, 1)
+        NAMED_ROW("nonexistent node", {0, 0, 0, 0, 0, 0, 0}, 0)
+        NAMED_ROW("child out of bounds", {0, 0}, 15)
+    )
+
+    DATA_SECTION("Good removals",
+        TESTFUN([&model] (ModelPath const& p, int idx) {
+            QPersistentModelIndex parentIdx = p.toModelIndex(&model);
+            QPersistentModelIndex elementIdx = parentIdx.child(idx, 0);
+            REQUIRE(model.removeRow(idx, parentIdx));
+            REQUIRE(parentIdx.isValid());
+            REQUIRE_FALSE(elementIdx.isValid());
+        }),
+        NAMED_ROW("In project root (front)", {0}, 0)
+        NAMED_ROW("In project root (middle)", {0}, 1)
+        NAMED_ROW("In project root (back)", {0}, 2)
+        NAMED_ROW("In notebook (front)", {1}, 0)
+        NAMED_ROW("In notebook (middle)", {1}, 1)
+        NAMED_ROW("In notebook (back)", {1}, 2)
+        NAMED_ROW("In chapter (front)", {0, 0, 1}, 0)
+        NAMED_ROW("In chapter (middle)", {0, 0, 1}, 1)
+        NAMED_ROW("In chapter (back)", {0, 0, 1}, 2)
     )
 }
 
