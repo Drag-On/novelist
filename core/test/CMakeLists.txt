@@ -5,6 +5,7 @@ enable_testing()
 
 add_executable(novelist_core_test
         main.cpp main.h
+        macros.h
         datastructures/TreeTest.cpp
         datastructures/SceneDocumentTest.cpp
         identity/IdentityTest.cpp
