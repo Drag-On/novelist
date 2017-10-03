@@ -497,6 +497,14 @@ namespace novelist {
         if (rowCount(sourceParent) <= sourceRow + count - 1)
             return false;
 
+        auto* srcParent = static_cast<Node*>(sourceParent.internalPointer());
+        auto* destParent = static_cast<Node*>(destinationParent.internalPointer());
+
+        if (sourceParent == destinationParent && destinationChild >= sourceRow && destinationChild < sourceRow)
+            return false;
+        if (destParent->inSubtreeOf(srcParent->at(sourceRow)) || destParent == &srcParent->at(sourceRow))
+            return false;
+
         for (int r = 0; r < count; ++r)
             m_undoStack.push(
                     new MoveRowCommand(sourceParent, sourceRow + count - r - 1, destinationParent, destinationChild,
@@ -764,34 +772,19 @@ namespace novelist {
     ProjectModel::doMoveRow(QModelIndex const& sourceParent, int sourceRow, QModelIndex const& destinationParent,
             int destinationRow)
     {
+        enum class MoveType { SameLevel, OneUp, OneDown, Other };
+        MoveType const moveType = [&] () -> MoveType {
+            if (sourceParent == destinationParent)
+                return MoveType::SameLevel; // Both pointers stay valid
+            else if(sourceParent.parent() == destinationParent)
+                return MoveType::OneUp; // Source parent becomes invalid
+            else if(destinationParent.parent() == sourceParent)
+                return MoveType::OneDown; // Destination parent becomes invalid
+            return MoveType::Other;
+        } ();
+
         auto* srcParent = static_cast<Node*>(sourceParent.internalPointer());
         auto* destParent = static_cast<Node*>(destinationParent.internalPointer());
-
-        if (sourceParent == destinationParent && destinationRow >= sourceRow && destinationRow < sourceRow)
-            return -1;
-
-        if (destParent->inSubtreeOf(srcParent->at(sourceRow)) || destParent == &srcParent->at(sourceRow))
-            return -1;
-
-        auto fixNodePtrs = [fixSrc = srcParent->parent() == destParent,
-                fixDest = destParent->parent() == srcParent,
-                srcParentIdx = srcParent->parentIndex(),
-                destParentIdx = destParent->parentIndex(),
-                &srcParent, &destParent, sourceRow, destinationRow]() {
-
-            if (fixDest) {
-                size_t destParIdx = destParentIdx.value();
-                if (sourceRow < destParentIdx)
-                    --destParIdx;
-                destParent = &srcParent->at(destParIdx);
-            }
-            else if (fixSrc) {
-                size_t srcParIdx = srcParentIdx.value();
-                if (destinationRow <= srcParentIdx)
-                    ++srcParIdx;
-                srcParent = &destParent->at(srcParIdx);
-            }
-        };
 
         QPersistentModelIndex persistentSrcParent{sourceParent};
         QPersistentModelIndex persistentDestParent{destinationParent};
@@ -801,30 +794,43 @@ namespace novelist {
         QModelIndexList indicesThatChangeAtSrc = childIndices(sourceParent);
         QModelIndexList indicesThatChangeAtDest = childIndices(destinationParent);
 
-        srcParent->move(sourceRow, *destParent, destinationRow);
+        auto destIter = srcParent->move(sourceRow, *destParent, destinationRow);
 
         // All children of parent might have been relocated, therefore update their persistent indices
-        if (sourceParent == destinationParent) {
-            QModelIndexList newIndicesAtSrc = childIndices(sourceParent);
-            Q_ASSERT(indicesThatChangeAtSrc.size() == newIndicesAtSrc.size());
-            if (destinationRow > sourceRow)
-                --destinationRow;
-            newIndicesAtSrc.move(destinationRow, sourceRow);
-            changePersistentIndexList(indicesThatChangeAtSrc, newIndicesAtSrc);
-        }
-        else {
-            fixNodePtrs();
-            QModelIndex newDest = createIndex(destinationRow, 0, &destParent->at(destinationRow));
-            QModelIndexList newIndicesAtSrc = childIndices(*srcParent);
-            newIndicesAtSrc.insert(sourceRow, newDest);
-            Q_ASSERT(indicesThatChangeAtSrc.size() == newIndicesAtSrc.size());
-            changePersistentIndexList(indicesThatChangeAtSrc, newIndicesAtSrc);
+        switch(moveType) {
+            case MoveType::SameLevel: {
+                QModelIndexList newIndicesAtSrc = childIndices(sourceParent);
+                Q_ASSERT(indicesThatChangeAtSrc.size() == newIndicesAtSrc.size());
+                if (destinationRow > sourceRow)
+                    --destinationRow;
+                newIndicesAtSrc.move(destinationRow, sourceRow);
+                changePersistentIndexList(indicesThatChangeAtSrc, newIndicesAtSrc);
+            } break;
+            case MoveType::Other:
+                [[fallthrough]]
+            case MoveType::OneUp: {
+                QModelIndexList newIndicesAtDest = childIndices(destinationParent);
+                auto moveToIdx = newIndicesAtDest.takeAt(std::distance(destParent->begin(), destIter));
+                Q_ASSERT(indicesThatChangeAtDest.size() == newIndicesAtDest.size());
+                changePersistentIndexList(indicesThatChangeAtDest, newIndicesAtDest);
 
-            QModelIndexList newIndicesAtDest = childIndices(*destParent);
-            newIndicesAtDest.erase(newIndicesAtDest.begin() + destinationRow,
-                    newIndicesAtDest.begin() + destinationRow + 1);
-            Q_ASSERT(indicesThatChangeAtDest.size() == newIndicesAtDest.size());
-            changePersistentIndexList(indicesThatChangeAtDest, newIndicesAtDest);
+                QModelIndexList newIndicesAtSrc = childIndices(persistentSrcParent);
+                newIndicesAtSrc.insert(sourceRow, moveToIdx);
+                Q_ASSERT(indicesThatChangeAtSrc.size() == newIndicesAtSrc.size());
+                changePersistentIndexList(indicesThatChangeAtSrc, newIndicesAtSrc);
+            } break;
+            case MoveType::OneDown: {
+                QModelIndexList newIndicesAtSrc = childIndices(sourceParent);
+                auto oldSrcIdx = indicesThatChangeAtSrc.takeAt(sourceRow);
+                Q_ASSERT(indicesThatChangeAtSrc.size() == newIndicesAtSrc.size());
+                changePersistentIndexList(indicesThatChangeAtSrc, newIndicesAtSrc);
+
+                destParent = static_cast<Node*>(persistentDestParent.internalPointer());
+                QModelIndexList newIndicesAtDest = childIndices(persistentDestParent);
+                indicesThatChangeAtDest.insert(std::distance(destParent->begin(), destIter), oldSrcIdx);
+                Q_ASSERT(indicesThatChangeAtDest.size() == newIndicesAtDest.size());
+                changePersistentIndexList(indicesThatChangeAtDest, newIndicesAtDest);
+            } break;
         }
 
         emit layoutChanged(layoutChangeParents);
