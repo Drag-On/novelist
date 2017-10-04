@@ -205,6 +205,108 @@ TEST_CASE("ProjectModel move", "[Model]")
     )
 }
 
+TEST_CASE("ProjectModel undo/redo", "[Model]")
+{
+    ProjectModel model{properties};
+    fillModel(model);
+
+    ProjectModel referenceModel{properties};
+    fillModel(referenceModel);
+
+    DATA_SECTION("insert",
+        TESTFUN([&] (ModelPath const& parent, int row) {
+            REQUIRE(model.insertRow(row, NodeType::Scene, "foo", parent.toModelIndex(&model)));
+            model.undoStack().undo();
+            REQUIRE(model == referenceModel);
+            REQUIRE(referenceModel.insertRow(row, NodeType::Scene, "foo", parent.toModelIndex(&referenceModel)));
+            model.undoStack().redo();
+            REQUIRE(model == referenceModel);
+        }),
+        NAMED_ROW("In project root", {0}, 0)
+        NAMED_ROW("In notebook root", {1}, 0)
+        NAMED_ROW("In chapter", {0, 0}, 0)
+    )
+
+    DATA_SECTION("remove",
+        TESTFUN([&] (ModelPath const& parent, int row) {
+            REQUIRE(model.removeRow(row, parent.toModelIndex(&model)));
+            model.undoStack().undo();
+            REQUIRE(model == referenceModel);
+            REQUIRE(referenceModel.removeRow(row, parent.toModelIndex(&referenceModel)));
+            model.undoStack().redo();
+            REQUIRE(model == referenceModel);
+        }),
+        NAMED_ROW("In project root", {0}, 0)
+        NAMED_ROW("In notebook root", {1}, 0)
+        NAMED_ROW("In chapter", {0, 0}, 0)
+    )
+
+    DATA_SECTION("move",
+        TESTFUN([&] (ModelPath const& src, ModelPath const& dest) {
+            { // Check undo
+                QPersistentModelIndex srcParent = src.parentPath().toModelIndex(&model);
+                int srcRow = src.leaf().first;
+                QPersistentModelIndex destParent = dest.parentPath().toModelIndex(&model);
+                int destRow = dest.leaf().first;
+
+                REQUIRE(model.moveRow(srcParent, srcRow, destParent, destRow));
+                model.undoStack().undo();
+                REQUIRE(model == referenceModel);
+            }
+            { // Check redo
+                QPersistentModelIndex srcParent = src.parentPath().toModelIndex(&referenceModel);
+                int srcRow = src.leaf().first;
+                QPersistentModelIndex destParent = dest.parentPath().toModelIndex(&referenceModel);
+                int destRow = dest.leaf().first;
+                REQUIRE(referenceModel.moveRow(srcParent, srcRow, destParent, destRow));
+                model.undoStack().redo();
+                REQUIRE(model == referenceModel);
+            }
+        }),
+        NAMED_ROW("Same level (up)", {0, 0, 1}, {0, 0, 0})
+        NAMED_ROW("Same level (down)", {0, 0, 0}, {0, 0, 2})
+        NAMED_ROW("Up in hierarchy (from below)", {0, 0, 1, 0}, {0, 0, 1})
+        NAMED_ROW("Up in hierarchy (from above)", {0, 0, 1, 0}, {0, 0, 2})
+        NAMED_ROW("2x up in hierarchy (from below)", {0, 0, 1, 0}, {0, 0})
+        NAMED_ROW("2x up in hierarchy (from above)", {0, 0, 1, 0}, {0, 1})
+        NAMED_ROW("Down in hierarchy (from below)", {0, 1}, {0, 0, 1})
+        NAMED_ROW("Down in hierarchy (from above)", {0, 0, 0}, {0, 0, 1, 0})
+        NAMED_ROW("2x down in hierarchy (from below)", {0, 1}, {0, 0, 1, 2})
+        NAMED_ROW("2x down in hierarchy (from above)", {0, 0}, {0, 1, 0, 0})
+        NAMED_ROW("Scene into unrelated chapter", {0, 0, 0}, {0, 1, 0})
+        NAMED_ROW("Scene to notebook", {0, 0, 0}, {1, 0})
+        NAMED_ROW("Chapter to notebook", {0, 0, 1}, {1, 0})
+    )
+
+    DATA_SECTION("rename",
+        TESTFUN([&model] (ModelPath const& path) {
+            const char* testName = "foobar";
+            QModelIndex idx = path.toModelIndex(&model);
+            std::string oldName = model.nodeName(idx).toStdString();
+            REQUIRE(model.setData(idx, testName, Qt::EditRole));
+            REQUIRE(model.nodeName(idx).toStdString() == testName);
+            model.undoStack().undo();
+            REQUIRE(model.nodeName(idx).toStdString() == oldName);
+            model.undoStack().redo();
+            REQUIRE(model.nodeName(idx).toStdString() == testName);
+        }),
+        NAMED_ROW("Project root", {0})
+        NAMED_ROW("Chapter", {0, 0})
+        NAMED_ROW("Section", {0, 0, 0})
+    )
+
+    SECTION("properties modification")
+    {
+        ProjectProperties oldProperties = model.properties();
+        ProjectProperties newProperties{"Awesome Title", "Superb Author", Language::en_US};
+        model.setProperties(newProperties);
+        model.undoStack().undo();
+        REQUIRE(model.properties() == oldProperties);
+        model.undoStack().redo();
+        REQUIRE(model.properties() == newProperties);
+    }
+}
+
 TEST_CASE("ProjectModel read/write", "[Model]")
 {
     ProjectModel model{properties};
