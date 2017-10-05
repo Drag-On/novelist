@@ -91,6 +91,8 @@ namespace novelist {
 
         void updateParagraphNumberArea(QRect const& rect, int dy);
 
+        void setDefaultBlockFormat();
+
         std::unique_ptr<internal::ParagraphNumberArea> m_paragraphNumberArea;
         int m_lastVerticalSliderPos = 0;
         int m_lastBlockCount = 0;

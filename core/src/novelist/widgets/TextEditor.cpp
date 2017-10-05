@@ -53,13 +53,16 @@ namespace novelist {
     void TextEditor::setDocument(SceneDocument* document)
     {
         QTextEdit::setDocument(document);
+        setDefaultBlockFormat();
     }
 
     void TextEditor::setDocument(QTextDocument* document)
     {
         auto* doc = dynamic_cast<SceneDocument*>(document);
-        if (doc != nullptr)
+        if (doc != nullptr) {
             setDocument(doc);
+            setDefaultBlockFormat();
+        }
         else
             throw std::runtime_error{"Tried to set document that isn't a SceneDocument."};
     }
@@ -81,8 +84,7 @@ namespace novelist {
 
 
         // Show bounding boxes for debug purposes
-        if constexpr(show_debug_info)
-        {
+        if constexpr(show_debug_info) {
             for (QTextBlock block = document()->begin(); block != document()->end(); block = block.next()) {
 
                 if (block.isValid() && block.isVisible()) {
@@ -210,6 +212,19 @@ namespace novelist {
 
         if (rect.contains(viewport()->rect()))
             updateParagraphNumberAreaWidth();
+    }
+
+    void TextEditor::setDefaultBlockFormat()
+    {
+        setUndoRedoEnabled(false);
+        QTextBlockFormat defaultBlockFormat;
+        defaultBlockFormat.setAlignment(Qt::AlignLeft);
+        defaultBlockFormat.setTextIndent(10);
+        QTextCursor cursor = textCursor();
+        cursor.setBlockFormat(defaultBlockFormat);
+        setTextCursor(cursor);
+        setUndoRedoEnabled(true);
+        document()->setModified(false);
     }
 
     namespace internal {
