@@ -11,6 +11,15 @@
 #include "util/ConnectionWrapper.h"
 
 namespace novelist {
+    ConnectionWrapper::ConnectionWrapper(ConnectionWrapper const& other) noexcept
+        : m_connection(other.m_connection)
+    {
+    }
+
+    ConnectionWrapper::ConnectionWrapper(ConnectionWrapper&& other) noexcept
+        : m_connection(std::move(other.m_connection))
+    {
+    }
 
     ConnectionWrapper::ConnectionWrapper(QMetaObject::Connection connection) noexcept
             :m_connection(std::move(connection))
@@ -45,6 +54,28 @@ namespace novelist {
             if (m_connection)
                 QObject::disconnect(m_connection);
             m_connection = connection;
+        }
+
+        return *this;
+    }
+
+    ConnectionWrapper& ConnectionWrapper::operator=(ConnectionWrapper const& other) noexcept
+    {
+        if(&m_connection != &other.m_connection) {
+            if (m_connection)
+                QObject::disconnect(m_connection);
+            m_connection = other.m_connection;
+        }
+
+        return *this;
+    }
+
+    ConnectionWrapper& ConnectionWrapper::operator=(ConnectionWrapper&& other) noexcept
+    {
+        if(&m_connection != &other.m_connection) {
+            if (m_connection)
+                QObject::disconnect(m_connection);
+            m_connection = std::move(other.m_connection);
         }
 
         return *this;

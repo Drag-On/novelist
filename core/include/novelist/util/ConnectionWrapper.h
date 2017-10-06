@@ -21,6 +21,10 @@ namespace novelist {
     public:
         ConnectionWrapper() = default;
 
+        ConnectionWrapper(ConnectionWrapper const& other) noexcept;
+
+        ConnectionWrapper(ConnectionWrapper&& other) noexcept;
+
         ConnectionWrapper(QMetaObject::Connection connection) noexcept;
 
         ConnectionWrapper(QMetaObject::Connection&& connection) noexcept;
@@ -30,6 +34,10 @@ namespace novelist {
         ConnectionWrapper& operator=(QMetaObject::Connection const& connection) noexcept;
 
         ConnectionWrapper& operator=(QMetaObject::Connection&& connection) noexcept;
+
+        ConnectionWrapper& operator=(ConnectionWrapper const& other) noexcept;
+
+        ConnectionWrapper& operator=(ConnectionWrapper&& other) noexcept;
 
     private:
         QMetaObject::Connection m_connection;
