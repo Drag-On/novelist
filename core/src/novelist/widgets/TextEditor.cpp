@@ -67,6 +67,20 @@ namespace novelist {
             throw std::runtime_error{"Tried to set document that isn't a SceneDocument."};
     }
 
+    bool TextEditor::canUndo() const
+    {
+        if (document())
+            return document()->isUndoAvailable();
+        return false;
+    }
+
+    bool TextEditor::canRedo() const
+    {
+        if (document())
+            return document()->isRedoAvailable();
+        return false;
+    }
+
     void TextEditor::resizeEvent(QResizeEvent* e)
     {
         QTextEdit::resizeEvent(e);

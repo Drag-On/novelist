@@ -55,6 +55,16 @@ namespace novelist {
          */
         void showProjectPropertiesDialog();
 
+        /**
+         * @return true if the project can be undone, otherwise false
+         */
+        QAction* undoAction() const;
+
+        /**
+         * @return true if the project can be redone, otherwise false
+         */
+        QAction* redoAction() const;
+
     signals:
         /**
          * Fires when the user requests to open a scene, e.g. via double click
@@ -138,6 +148,8 @@ namespace novelist {
         QAction* m_actionNewScene;
         QAction* m_actionRemoveEntry;
         QAction* m_actionProperties;
+        QAction* m_actionUndo;
+        QAction* m_actionRedo;
         QMenu* m_contextMenu;
         QColor const m_focusColor{QColor::fromRgb(196, 205, 221)};
 

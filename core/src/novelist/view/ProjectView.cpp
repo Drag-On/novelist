@@ -68,6 +68,10 @@ namespace novelist {
         m_treeView->setModel(model);
         connect(m_treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this,
                 &ProjectView::onSelectionChanged);
+        if(model != nullptr) {
+            m_actionUndo = model->undoStack().createUndoAction(this);
+            m_actionRedo = model->undoStack().createRedoAction(this);
+        }
         emit modelChanged(model);
     }
 
@@ -85,6 +89,16 @@ namespace novelist {
             if (wnd.exec() == QDialog::Accepted)
                 m->setProperties(wnd.properties());
         }
+    }
+
+    QAction* ProjectView::undoAction() const
+    {
+        return m_actionUndo;
+    }
+
+    QAction* ProjectView::redoAction() const
+    {
+        return m_actionRedo;
     }
 
     void ProjectView::onNewChapter()

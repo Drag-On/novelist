@@ -12,6 +12,8 @@
 #include <QtWidgets/QTabWidget>
 #include <QtCore/QFile>
 #include <QTabBar>
+#include "util/DelegateAction.h"
+#include "util/ConnectionWrapper.h"
 #include "model/ProjectModel.h"
 #include "TextEditor.h"
 
@@ -57,6 +59,20 @@ namespace novelist {
          */
         int indexOf(ProjectModel const* model, QModelIndex index) const;
 
+        /**
+         * Provides an action that undoes changes in the currently open document, if any
+         * @note Ownership remains with the tab widget
+         * @return Requested action
+         */
+        QAction* undoAction();
+
+        /**
+         * Provides an action that redoes changes in the currently open document, if any
+         * @note Ownership remains with the tab widget
+         * @return Requested action
+         */
+        QAction* redoAction();
+
     signals:
         /**
          * Fires when the widget received focus or lost it
@@ -72,6 +88,12 @@ namespace novelist {
     private slots:
 
         void onTabCloseRequested(int index);
+
+        void onCurrentChanged(int index);
+
+    private:
+        DelegateAction m_undoAction;
+        DelegateAction m_redoAction;
     };
 
     namespace internal {

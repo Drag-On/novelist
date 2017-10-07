@@ -11,6 +11,7 @@
 
 #include <QtWidgets/QMainWindow>
 #include <memory>
+#include "util/DelegateAction.h"
 #include "util/ConnectionWrapper.h"
 #include "model/ProjectModel.h"
 
@@ -42,18 +43,6 @@ namespace novelist {
 
         void onSaveProject();
 
-        void onCanRedoChanged(bool canRedo);
-
-        void onCanUndoChanged(bool canUndo);
-
-        void onRedoTextChanged(QString const& redoText);
-
-        void onUndoTextChanged(QString const& undoText);
-
-        void onRedoSourceChanged(std::function<void()> redo);
-
-        void onUndoSourceChanged(std::function<void()> undo);
-
     protected:
         void changeEvent(QEvent* event) override;
 
@@ -62,12 +51,8 @@ namespace novelist {
     private:
         std::unique_ptr<Ui::MainWindow> m_ui;
         std::unique_ptr<ProjectModel> m_model;
-        ConnectionWrapper m_undoTextChangedConnection;
-        ConnectionWrapper m_redoTextChangedConnection;
-        ConnectionWrapper m_canUndoChangedConnection;
-        ConnectionWrapper m_canRedoChangedConnection;
-        ConnectionWrapper m_undoSourceChangedConnection;
-        ConnectionWrapper m_redoSourceChangedConnection;
+        DelegateAction m_undoAction{"Undo"};
+        DelegateAction m_redoAction{"Redo"};
 
         bool continueCheckUnsavedChanges() const;
 
@@ -80,10 +65,6 @@ namespace novelist {
         void onProjectViewFocus(bool focus);
 
         void onSceneTabFocus(bool focus);
-
-        void onSceneTabChange(int index);
-
-        QString undoSceneModText() const;
     };
 }
 

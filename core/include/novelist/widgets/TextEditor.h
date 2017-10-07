@@ -50,6 +50,16 @@ namespace novelist {
          */
         void setDocument(QTextDocument* document);
 
+        /**
+         * @return true if there are undoable changes to the document, false otherwise
+         */
+        bool canUndo() const;
+
+        /**
+         * @return true if there are redoable changes to the document, false otherwise
+         */
+        bool canRedo() const;
+
     signals:
 
         /**

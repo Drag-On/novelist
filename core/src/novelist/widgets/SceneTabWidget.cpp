@@ -21,6 +21,7 @@ namespace novelist {
         setElideMode(Qt::ElideRight);
 
         connect(this, &SceneTabWidget::tabCloseRequested, this, &SceneTabWidget::onTabCloseRequested);
+        connect(this, &SceneTabWidget::currentChanged, this, &SceneTabWidget::onCurrentChanged);
     }
 
     void SceneTabWidget::openScene(ProjectModel* model, QModelIndex index)
@@ -90,9 +91,20 @@ namespace novelist {
         return -1;
     }
 
+    QAction* SceneTabWidget::undoAction()
+    {
+        return &m_undoAction;
+    }
+
+    QAction* SceneTabWidget::redoAction()
+    {
+        return &m_redoAction;
+    }
+
     void SceneTabWidget::focusInEvent(QFocusEvent* event)
     {
         emit focusReceived(true);
+        onCurrentChanged(currentIndex());
 
         QWidget::focusInEvent(event);
     }
@@ -107,5 +119,17 @@ namespace novelist {
     void SceneTabWidget::onTabCloseRequested(int index)
     {
         closeScene(index);
+    }
+
+    void SceneTabWidget::onCurrentChanged(int /*index*/)
+    {
+        auto* editor = dynamic_cast<internal::InternalTextEditor*>(currentWidget());
+        if (editor) {
+            QString title = editor->m_model->data(editor->m_modelIndex, Qt::DisplayRole).toString();
+            m_undoAction.setDelegate(editor, &TextEditor::undo, &TextEditor::canUndo, &TextEditor::undoAvailable,
+                    tr("Undo modification of \"%1\"").arg(title));
+            m_redoAction.setDelegate(editor, &TextEditor::redo, &TextEditor::canRedo, &TextEditor::redoAvailable,
+                    tr("Redo modification of \"%1\"").arg(title));
+        }
     }
 }
