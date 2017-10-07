@@ -20,7 +20,8 @@ add_library(novelist_core
         src/novelist/datastructures/SceneDocument.cpp include/novelist/datastructures/SceneDocument.h
         src/novelist/windows/MainWindow.cpp include/novelist/windows/MainWindow.h
         src/novelist/model/ModelPath.cpp include/novelist/model/ModelPath.h
-        src/novelist/util/ConnectionWrapper.cpp include/novelist/util/ConnectionWrapper.h)
+        src/novelist/util/ConnectionWrapper.cpp include/novelist/util/ConnectionWrapper.h
+        src/novelist/util/DelegateAction.cpp include/novelist/util/DelegateAction.h)
 
 target_include_directories(novelist_core
         PUBLIC
