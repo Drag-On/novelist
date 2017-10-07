@@ -39,6 +39,8 @@ namespace novelist {
 
         ConnectionWrapper& operator=(ConnectionWrapper&& other) noexcept;
 
+        bool disconnect() noexcept;
+
     private:
         QMetaObject::Connection m_connection;
     };

@@ -80,4 +80,9 @@ namespace novelist {
 
         return *this;
     }
+
+    bool ConnectionWrapper::disconnect() noexcept
+    {
+        return QObject::disconnect(m_connection);
+    }
 }
