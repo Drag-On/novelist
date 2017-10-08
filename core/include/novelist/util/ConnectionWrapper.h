@@ -41,6 +41,8 @@ namespace novelist {
 
         bool disconnect() noexcept;
 
+        bool isValid() const noexcept;
+
     private:
         QMetaObject::Connection m_connection;
     };

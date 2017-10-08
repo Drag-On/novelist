@@ -85,4 +85,9 @@ namespace novelist {
     {
         return QObject::disconnect(m_connection);
     }
+
+    bool ConnectionWrapper::isValid() const noexcept
+    {
+        return static_cast<bool>(m_connection);
+    }
 }
