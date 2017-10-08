@@ -325,6 +325,7 @@ namespace novelist {
         else
             curFormat.setFontWeight(QFont::Weight::Normal);
         textCursor().setCharFormat(curFormat);
+        setCurrentCharFormat(curFormat);
     }
 
     void TextEditor::onItalicActionToggled(bool checked)
@@ -335,6 +336,7 @@ namespace novelist {
         auto curFormat = textCursor().charFormat();
         curFormat.setFontItalic(checked);
         textCursor().setCharFormat(curFormat);
+        setCurrentCharFormat(curFormat);
     }
 
     void TextEditor::onUnderlineActionToggled(bool checked)
@@ -345,6 +347,7 @@ namespace novelist {
         auto curFormat = textCursor().charFormat();
         curFormat.setFontUnderline(checked);
         textCursor().setCharFormat(curFormat);
+        setCurrentCharFormat(curFormat);
     }
 
     void TextEditor::onOverlineActionToggled(bool checked)
@@ -355,6 +358,7 @@ namespace novelist {
         auto curFormat = textCursor().charFormat();
         curFormat.setFontOverline(checked);
         textCursor().setCharFormat(curFormat);
+        setCurrentCharFormat(curFormat);
     }
 
     void TextEditor::onStrikethroughActionToggled(bool checked)
@@ -365,6 +369,7 @@ namespace novelist {
         auto curFormat = textCursor().charFormat();
         curFormat.setFontStrikeOut(checked);
         textCursor().setCharFormat(curFormat);
+        setCurrentCharFormat(curFormat);
     }
 
     void TextEditor::onSmallCapsActionToggled(bool checked)
@@ -378,6 +383,7 @@ namespace novelist {
         else
             curFormat.setFontCapitalization(QFont::Capitalization::MixedCase);
         textCursor().setCharFormat(curFormat);
+        setCurrentCharFormat(curFormat);
     }
 
     namespace internal {
