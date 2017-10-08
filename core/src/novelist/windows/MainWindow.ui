@@ -71,8 +71,20 @@
     <addaction name="action_Undo"/>
     <addaction name="action_Redo"/>
    </widget>
+   <widget class="QMenu" name="menu_Format">
+    <property name="title">
+     <string>&amp;Format</string>
+    </property>
+    <addaction name="action_Bold"/>
+    <addaction name="action_Italic"/>
+    <addaction name="action_Underline"/>
+    <addaction name="action_Overline"/>
+    <addaction name="action_Strikethrough"/>
+    <addaction name="actionSmall_Caps"/>
+   </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_Edit"/>
+   <addaction name="menu_Format"/>
    <addaction name="menu_Help"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -180,6 +192,78 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+Z</string>
+   </property>
+  </action>
+  <action name="action_Bold">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Bold</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+B</string>
+   </property>
+  </action>
+  <action name="action_Italic">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Italic</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+I</string>
+   </property>
+  </action>
+  <action name="action_Underline">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Underline</string>
+   </property>
+  </action>
+  <action name="action_Overline">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Overline</string>
+   </property>
+  </action>
+  <action name="action_Strikethrough">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Strikethrough</string>
+   </property>
+  </action>
+  <action name="actionSmall_Caps">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Small &amp;Caps</string>
    </property>
   </action>
  </widget>

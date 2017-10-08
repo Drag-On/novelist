@@ -22,11 +22,37 @@ namespace novelist {
         connect(this, &TextEditor::textChanged, this, &TextEditor::onTextChanged);
         connect(this, &TextEditor::blockCountChanged, this, &TextEditor::updateParagraphNumberAreaWidth);
         connect(this, &TextEditor::cursorPositionChanged, this, &TextEditor::highlightCurrentLine);
+        connect(this, &TextEditor::cursorPositionChanged, this, &TextEditor::onCursorPositionChanged);
 
         setDocument(new SceneDocument{this}); // Overwrite default QTextDocument
 
         updateParagraphNumberAreaWidth();
         highlightCurrentLine();
+
+        m_onBoldActionConnection = Connection([this]() {
+            return connect(&m_boldAction, &QAction::toggled, this, &TextEditor::onBoldActionToggled);
+        });
+        m_onItalicActionConnection = Connection([this]() {
+           return connect(&m_italicAction, &QAction::toggled, this, &TextEditor::onItalicActionToggled);
+        });
+        m_onUnderlineActionConnection = Connection([this]() {
+            return connect(&m_underlineAction, &QAction::toggled, this, &TextEditor::onUnderlineActionToggled);
+        });
+        m_onOverlineActionConnection = Connection([this]() {
+            return connect(&m_overlineAction, &QAction::toggled, this, &TextEditor::onOverlineActionToggled);
+        });
+        m_onStrikethroughActionConnection = Connection([this]() {
+            return connect(&m_strikethroughAction, &QAction::toggled, this, &TextEditor::onStrikethroughActionToggled);
+        });
+        m_onSmallCapsActionConnection = Connection([this]() {
+            return connect(&m_smallCapsAction, &QAction::toggled, this, &TextEditor::onSmallCapsActionToggled);
+        });
+        m_boldAction.setCheckable(true);
+        m_italicAction.setCheckable(true);
+        m_underlineAction.setCheckable(true);
+        m_overlineAction.setCheckable(true);
+        m_strikethroughAction.setCheckable(true);
+        m_smallCapsAction.setCheckable(true);
     }
 
     TextEditor::~TextEditor() = default;
@@ -79,6 +105,36 @@ namespace novelist {
         if (document())
             return document()->isRedoAvailable();
         return false;
+    }
+
+    QAction* TextEditor::boldAction()
+    {
+        return &m_boldAction;
+    }
+
+    QAction* TextEditor::italicAction()
+    {
+        return &m_italicAction;
+    }
+
+    QAction* TextEditor::underlineAction()
+    {
+        return &m_underlineAction;
+    }
+
+    QAction* TextEditor::overlineAction()
+    {
+        return &m_overlineAction;
+    }
+
+    QAction* TextEditor::strikethroughAction()
+    {
+        return &m_strikethroughAction;
+    }
+
+    QAction* TextEditor::smallCapsAction()
+    {
+        return &m_smallCapsAction;
     }
 
     void TextEditor::resizeEvent(QResizeEvent* e)
@@ -165,6 +221,23 @@ namespace novelist {
         }
     }
 
+    void TextEditor::onCursorPositionChanged()
+    {
+        auto cursor = textCursor();
+        ConnectionBlocker blockBoldAction(m_onBoldActionConnection);
+        ConnectionBlocker blockItalicAction(m_onItalicActionConnection);
+        ConnectionBlocker blockUnderlineAction(m_onUnderlineActionConnection);
+        ConnectionBlocker blockOverlineAction(m_onOverlineActionConnection);
+        ConnectionBlocker blockStrikethroughAction(m_onStrikethroughActionConnection);
+        ConnectionBlocker blockSmallCapsAction(m_onSmallCapsActionConnection);
+        m_boldAction.setChecked(cursor.charFormat().fontWeight() > QFont::Weight::Normal);
+        m_italicAction.setChecked(cursor.charFormat().fontItalic());
+        m_underlineAction.setChecked(cursor.charFormat().fontUnderline());
+        m_overlineAction.setChecked(cursor.charFormat().fontOverline());
+        m_strikethroughAction.setChecked(cursor.charFormat().fontStrikeOut());
+        m_smallCapsAction.setChecked(cursor.charFormat().fontCapitalization() != QFont::Capitalization::MixedCase);
+    }
+
     void TextEditor::highlightCurrentLine()
     {
         QList<QTextEdit::ExtraSelection> extraSelections;
@@ -239,6 +312,72 @@ namespace novelist {
         setTextCursor(cursor);
         setUndoRedoEnabled(true);
         document()->setModified(false);
+    }
+
+    void TextEditor::onBoldActionToggled(bool checked)
+    {
+        if(!document())
+            return;
+
+        auto curFormat = textCursor().charFormat();
+        if (checked)
+            curFormat.setFontWeight(QFont::Weight::Bold);
+        else
+            curFormat.setFontWeight(QFont::Weight::Normal);
+        textCursor().setCharFormat(curFormat);
+    }
+
+    void TextEditor::onItalicActionToggled(bool checked)
+    {
+        if(!document())
+            return;
+
+        auto curFormat = textCursor().charFormat();
+        curFormat.setFontItalic(checked);
+        textCursor().setCharFormat(curFormat);
+    }
+
+    void TextEditor::onUnderlineActionToggled(bool checked)
+    {
+        if(!document())
+            return;
+
+        auto curFormat = textCursor().charFormat();
+        curFormat.setFontUnderline(checked);
+        textCursor().setCharFormat(curFormat);
+    }
+
+    void TextEditor::onOverlineActionToggled(bool checked)
+    {
+        if(!document())
+            return;
+
+        auto curFormat = textCursor().charFormat();
+        curFormat.setFontOverline(checked);
+        textCursor().setCharFormat(curFormat);
+    }
+
+    void TextEditor::onStrikethroughActionToggled(bool checked)
+    {
+        if(!document())
+            return;
+
+        auto curFormat = textCursor().charFormat();
+        curFormat.setFontStrikeOut(checked);
+        textCursor().setCharFormat(curFormat);
+    }
+
+    void TextEditor::onSmallCapsActionToggled(bool checked)
+    {
+        if(!document())
+            return;
+
+        auto curFormat = textCursor().charFormat();
+        if(checked)
+            curFormat.setFontCapitalization(QFont::Capitalization::SmallCaps);
+        else
+            curFormat.setFontCapitalization(QFont::Capitalization::MixedCase);
+        textCursor().setCharFormat(curFormat);
     }
 
     namespace internal {

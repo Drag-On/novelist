@@ -11,6 +11,9 @@
 
 #include <QtWidgets/QTextEdit>
 #include <memory>
+#include <QtWidgets/QAction>
+#include "util/Connection.h"
+#include "util/ConnectionWrapper.h"
 #include "datastructures/SceneDocument.h"
 
 namespace novelist {
@@ -60,6 +63,48 @@ namespace novelist {
          */
         bool canRedo() const;
 
+        /**
+         * Provides an action that can be used to make the currently selected text bold. It will also change checked
+         * state depending on the currently selected text.
+         * @return A non-owning pointer to the action
+         */
+        QAction* boldAction();
+
+        /**
+         * Provides an action that can be used to make the currently selected text italic. It will also change checked
+         * state depending on the currently selected text.
+         * @return A non-owning pointer to the action
+         */
+        QAction* italicAction();
+
+        /**
+         * Provides an action that can be used to make the currently selected text underlined. It will also change
+         * checked state depending on the currently selected text.
+         * @return A non-owning pointer to the action
+         */
+        QAction* underlineAction();
+
+        /**
+         * Provides an action that can be used to make the currently selected text overlined. It will also change
+         * checked state depending on the currently selected text.
+         * @return A non-owning pointer to the action
+         */
+        QAction* overlineAction();
+
+        /**
+         * Provides an action that can be used to make the currently selected text strikethrough. It will also change
+         * checked state depending on the currently selected text.
+         * @return A non-owning pointer to the action
+         */
+        QAction* strikethroughAction();
+
+        /**
+         * Provides an action that can be used to make the currently selected text small caps. It will also change
+         * checked state depending on the currently selected text.
+         * @return A non-owning pointer to the action
+         */
+        QAction* smallCapsAction();
+
     signals:
 
         /**
@@ -92,6 +137,8 @@ namespace novelist {
 
         void onTextChanged();
 
+        void onCursorPositionChanged();
+
         void highlightCurrentLine();
 
     private:
@@ -103,9 +150,33 @@ namespace novelist {
 
         void setDefaultBlockFormat();
 
+        void onBoldActionToggled(bool checked);
+
+        void onItalicActionToggled(bool checked);
+
+        void onUnderlineActionToggled(bool checked);
+
+        void onOverlineActionToggled(bool checked);
+
+        void onStrikethroughActionToggled(bool checked);
+
+        void onSmallCapsActionToggled(bool checked);
+
         std::unique_ptr<internal::ParagraphNumberArea> m_paragraphNumberArea;
         int m_lastVerticalSliderPos = 0;
         int m_lastBlockCount = 0;
+        Connection m_onBoldActionConnection;
+        Connection m_onItalicActionConnection;
+        Connection m_onUnderlineActionConnection;
+        Connection m_onOverlineActionConnection;
+        Connection m_onStrikethroughActionConnection;
+        Connection m_onSmallCapsActionConnection;
+        QAction m_boldAction{tr("Bold")};
+        QAction m_italicAction{tr("Italic")};
+        QAction m_underlineAction{tr("Underline")};
+        QAction m_overlineAction{tr("Overline")};
+        QAction m_strikethroughAction{tr("Strikethrough")};
+        QAction m_smallCapsAction{tr("Small Caps")};
         QColor const m_parNumberAreaColor = QColor(250, 250, 250);
         QColor const m_parNumberColor = QColor(130, 130, 130);
         QColor const m_curLineColor = QColor(255, 248, 217);

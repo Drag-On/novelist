@@ -73,6 +73,42 @@ namespace novelist {
          */
         QAction* redoAction();
 
+        /**
+         * Provides an action that makes the currently selected text bold (or reverts that)
+         * @return Non-owning pointer to the action
+         */
+        QAction* boldAction();
+
+        /**
+         * Provides an action that makes the currently selected text italic (or reverts that)
+         * @return Non-owning pointer to the action
+         */
+        QAction* italicAction();
+
+        /**
+         * Provides an action that makes the currently selected text underlined (or reverts that)
+         * @return Non-owning pointer to the action
+         */
+        QAction* underlineAction();
+
+        /**
+         * Provides an action that makes the currently selected text overlined (or reverts that)
+         * @return Non-owning pointer to the action
+         */
+        QAction* overlineAction();
+
+        /**
+         * Provides an action that makes the currently selected text strike through (or reverts that)
+         * @return Non-owning pointer to the action
+         */
+        QAction* strikethroughAction();
+
+        /**
+         * Provides an action that makes the currently selected text small caps (or reverts that)
+         * @return Non-owning pointer to the action
+         */
+        QAction* smallCapsAction();
+
     signals:
         /**
          * Fires when the widget received focus or lost it
@@ -94,6 +130,12 @@ namespace novelist {
     private:
         DelegateAction m_undoAction;
         DelegateAction m_redoAction;
+        DelegateAction m_boldAction;
+        DelegateAction m_italicAction;
+        DelegateAction m_underlineAction;
+        DelegateAction m_overlineAction;
+        DelegateAction m_strikethroughAction;
+        DelegateAction m_smallCapsAction;
     };
 
     namespace internal {

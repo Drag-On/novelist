@@ -20,6 +20,13 @@ namespace novelist {
         setMovable(true);
         setElideMode(Qt::ElideRight);
 
+        m_boldAction.setCheckable(true);
+        m_italicAction.setCheckable(true);
+        m_underlineAction.setCheckable(true);
+        m_overlineAction.setCheckable(true);
+        m_strikethroughAction.setCheckable(true);
+        m_smallCapsAction.setCheckable(true);
+
         connect(this, &SceneTabWidget::tabCloseRequested, this, &SceneTabWidget::onTabCloseRequested);
         connect(this, &SceneTabWidget::currentChanged, this, &SceneTabWidget::onCurrentChanged);
     }
@@ -101,6 +108,36 @@ namespace novelist {
         return &m_redoAction;
     }
 
+    QAction* SceneTabWidget::boldAction()
+    {
+        return &m_boldAction;
+    }
+
+    QAction* SceneTabWidget::italicAction()
+    {
+        return &m_italicAction;
+    }
+
+    QAction* SceneTabWidget::underlineAction()
+    {
+        return &m_underlineAction;
+    }
+
+    QAction* SceneTabWidget::overlineAction()
+    {
+        return &m_overlineAction;
+    }
+
+    QAction* SceneTabWidget::strikethroughAction()
+    {
+        return &m_strikethroughAction;
+    }
+
+    QAction* SceneTabWidget::smallCapsAction()
+    {
+        return &m_smallCapsAction;
+    }
+
     void SceneTabWidget::focusInEvent(QFocusEvent* event)
     {
         emit focusReceived(true);
@@ -130,6 +167,27 @@ namespace novelist {
                     tr("Undo modification of \"%1\"").arg(title));
             m_redoAction.setDelegate(editor, &TextEditor::redo, &TextEditor::canRedo, &TextEditor::redoAvailable,
                     tr("Redo modification of \"%1\"").arg(title));
+
+            m_boldAction.setEnabled(true);
+            m_boldAction.setDelegate(editor->boldAction());
+            m_italicAction.setEnabled(true);
+            m_italicAction.setDelegate(editor->italicAction());
+            m_underlineAction.setEnabled(true);
+            m_underlineAction.setDelegate(editor->underlineAction());
+            m_overlineAction.setEnabled(true);
+            m_overlineAction.setDelegate(editor->overlineAction());
+            m_strikethroughAction.setEnabled(true);
+            m_strikethroughAction.setDelegate(editor->strikethroughAction());
+            m_smallCapsAction.setEnabled(true);
+            m_smallCapsAction.setDelegate(editor->smallCapsAction());
+        }
+        else {
+            m_boldAction.setEnabled(false);
+            m_italicAction.setEnabled(false);
+            m_underlineAction.setEnabled(false);
+            m_overlineAction.setEnabled(false);
+            m_strikethroughAction.setEnabled(false);
+            m_smallCapsAction.setEnabled(false);
         }
     }
 }
