@@ -119,6 +119,37 @@
     </layout>
    </widget>
   </widget>
+  <widget class="QToolBar" name="toolBarFile">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="action_New_Project"/>
+   <addaction name="action_Open_Project"/>
+   <addaction name="action_Save"/>
+  </widget>
+  <widget class="QToolBar" name="toolBarFormat">
+   <property name="windowTitle">
+    <string>toolBar_2</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="action_Bold"/>
+   <addaction name="action_Italic"/>
+   <addaction name="action_Underline"/>
+   <addaction name="action_Overline"/>
+   <addaction name="action_Strikethrough"/>
+   <addaction name="actionSmall_Caps"/>
+  </widget>
   <action name="action_New_Project">
    <property name="text">
     <string>&amp;New Project</string>

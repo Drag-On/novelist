@@ -13,9 +13,19 @@
 #include "windows/MainWindow.h"
 #include "ui_MainWindow.h"
 
-void replaceMenuAction(QMenu* menu, QAction** old, QAction* replacement) {
+void replaceMenuAction(QMenu* menu, QAction** old, QAction* replacement)
+{
     menu->insertAction(*old, replacement);
     menu->removeAction(*old);
+    *old = replacement;
+}
+
+void replaceMenuAndToolbarAction(QMenu* menu, QToolBar* bar, QAction** old, QAction* replacement)
+{
+    menu->insertAction(*old, replacement);
+    bar->insertAction(*old, replacement);
+    menu->removeAction(*old);
+    bar->removeAction(*old);
     *old = replacement;
 }
 
@@ -30,12 +40,19 @@ namespace novelist {
         // Replace some actions with appropriate delegate actions
         replaceMenuAction(m_ui->menu_Edit, &m_ui->action_Undo, &m_undoAction);
         replaceMenuAction(m_ui->menu_Edit, &m_ui->action_Redo, &m_redoAction);
-        replaceMenuAction(m_ui->menu_Format, &m_ui->action_Bold, m_ui->sceneTabWidget->boldAction());
-        replaceMenuAction(m_ui->menu_Format, &m_ui->action_Italic, m_ui->sceneTabWidget->italicAction());
-        replaceMenuAction(m_ui->menu_Format, &m_ui->action_Underline, m_ui->sceneTabWidget->underlineAction());
-        replaceMenuAction(m_ui->menu_Format, &m_ui->action_Overline, m_ui->sceneTabWidget->overlineAction());
-        replaceMenuAction(m_ui->menu_Format, &m_ui->action_Strikethrough, m_ui->sceneTabWidget->strikethroughAction());
-        replaceMenuAction(m_ui->menu_Format, &m_ui->actionSmall_Caps, m_ui->sceneTabWidget->smallCapsAction());
+        replaceMenuAndToolbarAction(m_ui->menu_Format, m_ui->toolBarFormat, &m_ui->action_Bold,
+                m_ui->sceneTabWidget->boldAction());
+        replaceMenuAndToolbarAction(m_ui->menu_Format, m_ui->toolBarFormat, &m_ui->action_Italic,
+                m_ui->sceneTabWidget->italicAction());
+        replaceMenuAndToolbarAction(m_ui->menu_Format, m_ui->toolBarFormat, &m_ui->action_Underline,
+                m_ui->sceneTabWidget->underlineAction());
+        replaceMenuAndToolbarAction(m_ui->menu_Format, m_ui->toolBarFormat, &m_ui->action_Overline,
+                m_ui->sceneTabWidget->overlineAction());
+        replaceMenuAndToolbarAction(m_ui->menu_Format, m_ui->toolBarFormat, &m_ui->action_Strikethrough,
+                m_ui->sceneTabWidget->strikethroughAction());
+        replaceMenuAndToolbarAction(m_ui->menu_Format, m_ui->toolBarFormat, &m_ui->actionSmall_Caps,
+                m_ui->sceneTabWidget->smallCapsAction());
+
         m_ui->retranslateUi(this);
 
         connect(m_ui->projectView, &ProjectView::modelChanged, this, &MainWindow::onProjectChanged);
