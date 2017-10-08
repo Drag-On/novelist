@@ -29,6 +29,9 @@ namespace novelist {
     void DelegateAction::setDelegate(QAction* action) noexcept
     {
         setText(action->text());
+        setCheckable(action->isCheckable());
+        setChecked(action->isChecked());
+        setEnabled(action->isEnabled());
 
         m_triggerFun = std::bind(&QAction::trigger, action);
         m_canTriggerFun = std::bind(&QAction::isEnabled, action);
@@ -36,6 +39,7 @@ namespace novelist {
         onCanTriggerChanged();
         m_canTriggerChangedConnection = connect(action, &QAction::changed, this, &DelegateAction::onCanTriggerChanged);
         m_textChangedConnection = connect(action, &QAction::changed, [this, action](){ setText(action->text()); });
+        m_checkedChangedConnection = connect(action, &QAction::toggled, [this, action](bool checked){ setChecked(checked); });
 
         emit delegateChanged();
     }

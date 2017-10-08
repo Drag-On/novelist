@@ -17,8 +17,6 @@ namespace novelist {
     /**
      * Action that delegates to another action (or set of member functions). It always delegates to no or one action,
      * and the source can always be switched.
-     * @note Currently this will take over the underlying action's triggered() and canTrigger() functionality and take
-     *       on its text. Other properties are disregarded.
      */
     class DelegateAction : public QAction {
     Q_OBJECT
@@ -94,6 +92,7 @@ namespace novelist {
     private:
         ConnectionWrapper m_canTriggerChangedConnection;
         ConnectionWrapper m_textChangedConnection;
+        ConnectionWrapper m_checkedChangedConnection;
         std::function<void()> m_triggerFun;
         std::function<bool()> m_canTriggerFun;
 
