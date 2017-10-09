@@ -15,6 +15,8 @@
 
 void replaceMenuAction(QMenu* menu, QAction** old, QAction* replacement)
 {
+    replacement->setIcon((*old)->icon());
+
     menu->insertAction(*old, replacement);
     menu->removeAction(*old);
     *old = replacement;
@@ -22,6 +24,8 @@ void replaceMenuAction(QMenu* menu, QAction** old, QAction* replacement)
 
 void replaceMenuAndToolbarAction(QMenu* menu, QToolBar* bar, QAction** old, QAction* replacement)
 {
+    replacement->setIcon((*old)->icon());
+
     menu->insertAction(*old, replacement);
     bar->insertAction(*old, replacement);
     menu->removeAction(*old);

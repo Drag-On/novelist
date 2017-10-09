@@ -1,8 +1,14 @@
-<!DOCTYPE RCC><RCC version="1.0">
-    <qresource>
-        <file>icons/scene.png</file>
-        <file>icons/chapter.png</file>
-        <file>icons/book.png</file>
-        <file>icons/notebook.png</file>
-    </qresource>
+<RCC>
+  <qresource>
+    <file>icons/bold.png</file>
+    <file>icons/italic.png</file>
+    <file>icons/overline.png</file>
+    <file>icons/smallcaps.png</file>
+    <file>icons/strikethrough.png</file>
+    <file>icons/underline.png</file>
+    <file>icons/scene.png</file>
+    <file>icons/chapter.png</file>
+    <file>icons/book.png</file>
+    <file>icons/notebook.png</file>
+  </qresource>
 </RCC>

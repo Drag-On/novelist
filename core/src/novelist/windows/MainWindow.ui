@@ -151,6 +151,9 @@
    <addaction name="actionSmall_Caps"/>
   </widget>
   <action name="action_New_Project">
+   <property name="icon">
+    <iconset theme="document-new"/>
+   </property>
    <property name="text">
     <string>&amp;New Project</string>
    </property>
@@ -159,6 +162,9 @@
    </property>
   </action>
   <action name="action_Open_Project">
+   <property name="icon">
+    <iconset theme="document-open"/>
+   </property>
    <property name="text">
     <string>&amp;Open Project</string>
    </property>
@@ -170,6 +176,9 @@
    <property name="enabled">
     <bool>false</bool>
    </property>
+   <property name="icon">
+    <iconset theme="window-close"/>
+   </property>
    <property name="text">
     <string>&amp;Close Project</string>
    </property>
@@ -177,6 +186,9 @@
   <action name="action_Save">
    <property name="enabled">
     <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="document-save"/>
    </property>
    <property name="text">
     <string>&amp;Save</string>
@@ -186,6 +198,9 @@
    </property>
   </action>
   <action name="actionExit">
+   <property name="icon">
+    <iconset theme="application-exit"/>
+   </property>
    <property name="text">
     <string>&amp;Exit</string>
    </property>
@@ -207,6 +222,9 @@
    <property name="enabled">
     <bool>false</bool>
    </property>
+   <property name="icon">
+    <iconset theme="edit-undo"/>
+   </property>
    <property name="text">
     <string>&amp;Undo</string>
    </property>
@@ -217,6 +235,9 @@
   <action name="action_Redo">
    <property name="enabled">
     <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="edit-redo"/>
    </property>
    <property name="text">
     <string>&amp;Redo</string>
@@ -232,6 +253,10 @@
    <property name="enabled">
     <bool>false</bool>
    </property>
+   <property name="icon">
+    <iconset resource="../../../resources/resources.qrc">
+     <normaloff>:/icons/bold.png</normaloff>:/icons/bold.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Bold</string>
    </property>
@@ -245,6 +270,10 @@
    </property>
    <property name="enabled">
     <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../../resources/resources.qrc">
+     <normaloff>:/icons/italic.png</normaloff>:/icons/italic.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Italic</string>
@@ -260,6 +289,10 @@
    <property name="enabled">
     <bool>false</bool>
    </property>
+   <property name="icon">
+    <iconset resource="../../../resources/resources.qrc">
+     <normaloff>:/icons/underline.png</normaloff>:/icons/underline.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Underline</string>
    </property>
@@ -270,6 +303,10 @@
    </property>
    <property name="enabled">
     <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../../resources/resources.qrc">
+     <normaloff>:/icons/overline.png</normaloff>:/icons/overline.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Overline</string>
@@ -282,6 +319,10 @@
    <property name="enabled">
     <bool>false</bool>
    </property>
+   <property name="icon">
+    <iconset resource="../../../resources/resources.qrc">
+     <normaloff>:/icons/strikethrough.png</normaloff>:/icons/strikethrough.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Strikethrough</string>
    </property>
@@ -292,6 +333,10 @@
    </property>
    <property name="enabled">
     <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../../resources/resources.qrc">
+     <normaloff>:/icons/smallcaps.png</normaloff>:/icons/smallcaps.png</iconset>
    </property>
    <property name="text">
     <string>Small &amp;Caps</string>
@@ -311,7 +356,9 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../../resources/resources.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>actionExit</sender>
