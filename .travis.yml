@@ -7,8 +7,6 @@ before_install:
   # Remove pre-installed cmake since it clashes with the newer version from custom repository
   - sudo apt-get remove cmake cmake-data
   - sudo add-apt-repository ppa:zink-chimaera/cmake -y
-  - sudo apt-get clean
-  - sudo apt-key update
   - sudo apt-get update -q
   - sudo apt-get install cmake -y
   # Get a recent catch release
