@@ -37,7 +37,7 @@ TEST_CASE("TextMarker movement", "[TextMarker][Document]")
 {
     int argc = 0;
     char** argv = nullptr;
-    QApplication app{argc, argv};
+    QApplication app{argc, argv, false};
 
     QTextDocument doc;
     doc.setPlainText("This is a text. It isn't a long one, but it's something to work with.");
