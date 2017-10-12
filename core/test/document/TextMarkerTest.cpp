@@ -35,9 +35,10 @@ TEST_CASE("TextMarker construction", "[TextMarker][Document]")
 
 TEST_CASE("TextMarker movement", "[TextMarker][Document]")
 {
-    int argc = 0;
-    char** argv = nullptr;
-    QApplication app{argc, argv, false};
+    int argc = 1;
+    char str[] = "Foo";
+    char* argv[] = { str };
+    QApplication app(argc, argv); // QApplication requires at least one argument
 
     QTextDocument doc;
     doc.setPlainText("This is a text. It isn't a long one, but it's something to work with.");

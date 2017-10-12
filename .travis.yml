@@ -9,6 +9,7 @@ before_install:
   - sudo add-apt-repository ppa:zink-chimaera/cmake -y
   - sudo apt-get update -q
   - sudo apt-get install cmake -y
+  - sudo apt-get install xvfb
   # Get a recent catch release
   - mkdir -p ~/catch/single_include/
   - wget -P ~/catch/single_include/ https://github.com/philsquared/Catch/releases/download/v2.0.0-develop.4/catch.hpp
@@ -30,5 +31,5 @@ script:
   - CXX=/usr/bin/g++-7 CC=/usr/bin/gcc-7 cmake -D CATCH_DIR="~/catch" -D CMAKE_BUILD_TYPE=Debug .
   - cmake --build . -- -j2
   # Run tests
-  - core/test/novelist_core_test
+  - xvfb-run -a -e xvfb.log core/test/novelist_core_test
   
