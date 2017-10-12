@@ -12,6 +12,7 @@
 #include <QtCore/QObject>
 #include <QtGui/QTextDocument>
 #include <gsl/gsl>
+#include <util/Connection.h>
 
 namespace novelist {
 
@@ -41,6 +42,25 @@ namespace novelist {
                 TextMarkerAttachment attachment = TextMarkerAttachment::AttachLeft);
 
         /**
+         * Copy constructor
+         * @param other Marker to copy
+         */
+        TextMarker(TextMarker const& other) noexcept;
+
+        /**
+         * Copy assignment
+         * @param other Marker to copy
+         * @return Reference to this
+         */
+        TextMarker& operator=(TextMarker const& other) noexcept;
+
+        TextMarker(TextMarker&& other) noexcept;
+
+        TextMarker& operator=(TextMarker&& other) noexcept;
+
+        ~TextMarker() override = default;
+
+        /**
          * @return Global position of the marker
          */
         int position() const noexcept;
@@ -60,6 +80,18 @@ namespace novelist {
          */
         void setAttachment(TextMarkerAttachment attachment) noexcept;
 
+        bool operator==(TextMarker const& rhs) const;
+
+        bool operator!=(TextMarker const& rhs) const;
+
+        bool operator<(TextMarker const& rhs) const;
+
+        bool operator>(TextMarker const& rhs) const;
+
+        bool operator<=(TextMarker const& rhs) const;
+
+        bool operator>=(TextMarker const& rhs) const;
+
     signals:
         /**
          * Fired when the text left and right of the marker is erased. The marker then attaches to either the left or
@@ -72,6 +104,7 @@ namespace novelist {
         QTextDocument* m_doc;
         int m_pos;
         TextMarkerAttachment m_attachment;
+        Connection m_onContentsChangeConnection;
 
     private slots:
         void onContentsChange(int position, int charsRemoved, int charsAdded);
