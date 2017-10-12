@@ -14,7 +14,7 @@
 #include <QtWidgets/QAction>
 #include "util/Connection.h"
 #include "util/ConnectionWrapper.h"
-#include "datastructures/SceneDocument.h"
+#include "document/SceneDocument.h"
 
 namespace novelist {
     namespace internal {

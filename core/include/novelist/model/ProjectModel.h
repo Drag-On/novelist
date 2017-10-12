@@ -20,7 +20,7 @@
 #include <QtGui/QTextDocument>
 #include <QtWidgets/QUndoStack>
 #include <QMimeData>
-#include "datastructures/SceneDocument.h"
+#include "document/SceneDocument.h"
 #include "datastructures/Tree.h"
 #include "identity/Identity.h"
 #include "lang/Language.h"

@@ -7,12 +7,12 @@ add_executable(novelist_core_test
         main.cpp main.h
         macros.h
         datastructures/TreeTest.cpp
-        datastructures/SceneDocumentTest.cpp
+        document/SceneDocumentTest.cpp
         identity/IdentityTest.cpp
         model/ProjectModelTest.cpp
         view/ProjectViewTest.cpp
         widgets/TextEditorTest.cpp
-        )
+        document/TextMarkerTest.cpp)
 
 target_include_directories(novelist_core_test
         PUBLIC

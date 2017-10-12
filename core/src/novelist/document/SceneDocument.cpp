@@ -11,13 +11,12 @@
 #include <QTextBlockFormat>
 #include <QTextBlock>
 #include <QDebug>
-#include <QTextCursor>
 #include <gsl/gsl_assert>
 #include <gsl/gsl_util>
-#include "datastructures/SceneDocument.h"
+#include <QtGui/QtGui>
+#include "document/SceneDocument.h"
 
-namespace novelist
-{
+namespace novelist {
     bool SceneDocument::read(QFile& file)
     {
         file.open(QIODevice::ReadOnly | QIODevice::Text);
@@ -51,7 +50,7 @@ namespace novelist
     bool SceneDocument::write(QFile& file) const
     {
         QString xml;
-        if(!write(xml))
+        if (!write(xml))
             return false;
 
         if (!file.open(QIODevice::WriteOnly))
@@ -74,11 +73,9 @@ namespace novelist
         xmlWriter.writeAttribute("version", "1.0");
 
         xmlWriter.writeStartElement("content");
-        for(auto b = begin(); b != end(); b = b.next())
-        {
-            if(b.isValid())
-            {
-                if(!writeBlock(xmlWriter, b))
+        for (auto b = begin(); b != end(); b = b.next()) {
+            if (b.isValid()) {
+                if (!writeBlock(xmlWriter, b))
                     return false;
             }
         }
@@ -93,12 +90,12 @@ namespace novelist
 
     bool SceneDocument::operator==(SceneDocument const& other) const
     {
-        if(blockCount() != other.blockCount())
+        if (blockCount() != other.blockCount())
             return false;
         auto thisBlock = begin();
         auto otherBlock = other.begin();
-        for(int i = 0; i < blockCount(); ++i) {
-            if(thisBlock.text() != otherBlock.text())
+        for (int i = 0; i < blockCount(); ++i) {
+            if (thisBlock.text() != otherBlock.text())
                 return false;
             thisBlock = thisBlock.next();
             otherBlock = otherBlock.next();
@@ -160,7 +157,8 @@ namespace novelist
         if (xml.attributes().hasAttribute("indent"))
             format.setIndent(xml.attributes().value("indent").toInt());
         if (xml.attributes().hasAttribute("lineHeight") && xml.attributes().hasAttribute("lineHeightType"))
-            format.setLineHeight(xml.attributes().value("lineHeight").toFloat(), xml.attributes().value("lineHeightType").toInt());
+            format.setLineHeight(xml.attributes().value("lineHeight").toFloat(),
+                    xml.attributes().value("lineHeightType").toInt());
         if (xml.attributes().hasAttribute("textIndent"))
             format.setTextIndent(xml.attributes().value("textIndent").toFloat());
 
@@ -175,7 +173,8 @@ namespace novelist
 
             QTextCharFormat format;
             if (xml.attributes().hasAttribute("capitalization"))
-                format.setFontCapitalization(static_cast<QFont::Capitalization>(xml.attributes().value("capitalization").toInt()));
+                format.setFontCapitalization(
+                        static_cast<QFont::Capitalization>(xml.attributes().value("capitalization").toInt()));
             if (xml.attributes().hasAttribute("font"))
                 format.setFontFamily(xml.attributes().value("font").toString());
             if (xml.attributes().hasAttribute("italic"))
@@ -187,7 +186,8 @@ namespace novelist
             if (xml.attributes().hasAttribute("strikeout"))
                 format.setFontStrikeOut(xml.attributes().value("strikeout").toInt() != 0);
             if (xml.attributes().hasAttribute("style"))
-                format.setFontStyleHint(static_cast<QFont::StyleHint>(xml.attributes().value("style").toInt()), format.fontStyleStrategy());
+                format.setFontStyleHint(static_cast<QFont::StyleHint>(xml.attributes().value("style").toInt()),
+                        format.fontStyleStrategy());
             if (xml.attributes().hasAttribute("underline"))
                 format.setFontUnderline(xml.attributes().value("underline").toInt() != 0);
             if (xml.attributes().hasAttribute("weight"))
@@ -212,12 +212,10 @@ namespace novelist
         xml.writeAttribute("lineHeight", QString::number(block.blockFormat().lineHeight()));
         xml.writeAttribute("lineHeightType", QString::number(block.blockFormat().lineHeightType()));
 
-        for(auto iter = block.begin(); iter != block.end(); ++iter)
-        {
+        for (auto iter = block.begin(); iter != block.end(); ++iter) {
             QTextFragment currentFragment = iter.fragment();
-            if (currentFragment.isValid())
-            {
-                if(!writeFragment(xml, currentFragment))
+            if (currentFragment.isValid()) {
+                if (!writeFragment(xml, currentFragment))
                     return false;
             }
         }
