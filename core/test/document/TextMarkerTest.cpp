@@ -70,6 +70,8 @@ TEST_CASE("TextMarker movement", "[TextMarker][Document]")
         NAMED_ROW("Insert at end", doc.toPlainText().length(), " Woopsie.")
         NAMED_ROW("Insert before marker", 10, "nice ")
         NAMED_ROW("Insert at beginning", 0, "Whoa. ")
+        NAMED_ROW("Insert new block before marker", 0, "This is a new block.\n")
+        NAMED_ROW("Insert new block after marker", doc.toPlainText().length(), "\nThis is a new block.")
     );
 
     DATA_SECTION("Stability on deletion",
