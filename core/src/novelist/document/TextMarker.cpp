@@ -1,138 +1,162 @@
 /**********************************************************
  * @file   TextMarker.cpp
  * @author jan
- * @date   10/11/17
+ * @date   10/12/17
  * ********************************************************
  * @brief
  * @details
  **********************************************************/
 
-#include <QtGui/QTextBlock>
-#include <QDebug>
 #include "document/TextMarker.h"
 
 namespace novelist {
-
-    TextMarker::TextMarker(gsl::not_null<QTextDocument*> document, int position, TextMarkerAttachment attachment)
-            :m_doc(document),
-             m_pos(position),
-             m_attachment(attachment),
-             m_onContentsChangeConnection([this]{return connect(m_doc, &QTextDocument::contentsChange, this, &TextMarker::onContentsChange);})
+    TextMarker::TextMarker(gsl::not_null<QTextDocument*> doc, int left, int right, QTextCharFormat format)
+            :m_doc(doc),
+             m_cursor(doc),
+             m_format(std::move(format)),
+             m_contentsChangeConnection([this] {
+                 return connect(m_doc, &QTextDocument::contentsChange, this, &TextMarker::onContentsChange);
+             })
     {
-        int const lastBlockPos = m_doc->lastBlock().position();
-        int const lastBlockLength = m_doc->lastBlock().length();
-        int const lastPos = lastBlockPos + lastBlockLength;
-        if (m_pos < 0 || m_pos > lastPos)
-            throw std::out_of_range(
-                    "The position " + std::to_string(m_pos) + " is not in the allowed range of the document [0, "
-                            + std::to_string(lastPos) + "].");
+        int const textLength = m_doc->toRawText().length();
+        if (left < 0 || right < 0 || left > textLength || right > textLength)
+            throw std::out_of_range("The range [" + std::to_string(left) + ", " + std::to_string(right) +
+                    "] is not in the allowed range of the document [0, " + std::to_string(textLength) + "].");
+
+        m_cursor.setPosition(left);
+        m_cursor.setPosition(right, QTextCursor::MoveMode::KeepAnchor);
+        doFormat();
     }
 
-    TextMarker::TextMarker(TextMarker const& other) noexcept
-            :QObject(nullptr),
-             m_doc(other.m_doc),
-             m_pos(other.m_pos),
-             m_attachment(other.m_attachment),
-             m_onContentsChangeConnection([this]{return connect(m_doc, &QTextDocument::contentsChange, this, &TextMarker::onContentsChange);})
+    std::pair<int, int> TextMarker::range() noexcept
     {
+        return std::make_pair(m_cursor.selectionStart(), m_cursor.selectionEnd());
     }
 
-    TextMarker& TextMarker::operator=(TextMarker const& other) noexcept
+    void TextMarker::setRange(int left, int right)
     {
-        if(this != &other) {
-            m_doc = other.m_doc;
-            m_pos = other.m_pos;
-            m_attachment = other.m_attachment;
-            m_onContentsChangeConnection = Connection([this]{return connect(m_doc, &QTextDocument::contentsChange, this, &TextMarker::onContentsChange);});
+        int const textLength = m_doc->toRawText().length();
+        if (left < 0 || right < 0 || left > textLength || right > textLength)
+            throw std::out_of_range("The range [" + std::to_string(left) + ", " + std::to_string(right) +
+                    "] is not in the allowed range of the document [0, " + std::to_string(textLength) + "].");
+
+        m_cursor.setPosition(left);
+        m_cursor.setPosition(right, QTextCursor::MoveMode::KeepAnchor);
+        doFormat();
+    }
+
+    QTextCharFormat const& TextMarker::format() const noexcept
+    {
+        return m_format;
+    }
+
+    void TextMarker::setFormat(QTextCharFormat format) noexcept
+    {
+        m_format = std::move(format);
+        doFormat();
+    }
+
+    int TextMarker::length() const noexcept
+    {
+        return m_cursor.selectionEnd() - m_cursor.selectionStart();
+    }
+
+    QTextCursor TextMarker::toCursor() const noexcept
+    {
+        return m_cursor;
+    }
+
+    void TextMarker::doFormat()
+    {
+        int firstPos = m_cursor.selectionStart();
+        int secondPos = m_cursor.selectionEnd();
+
+        QTextBlock leftBlock = m_doc->findBlock(firstPos);
+        QTextBlock rightBlock = m_doc->findBlock(secondPos);
+        int leftBlockNo = leftBlock.blockNumber();
+        int leftBlockPos = firstPos - leftBlock.position();
+        int rightBlockNo = rightBlock.blockNumber();
+        int rightBlockPos = secondPos - rightBlock.position();
+
+        doFormat(leftBlockNo, leftBlockPos, rightBlockNo, rightBlockPos);
+    }
+
+    void TextMarker::doFormat(int leftBlockNo, int leftBlockPos, int rightBlockNo, int rightBlockPos)
+    {
+        if (!m_cursor.hasSelection())
+                emit collapsed(*this);
+
+        removeOldFormats();
+
+        for (int blockNo = leftBlockNo; blockNo <= rightBlockNo; ++blockNo) {
+            auto block = m_doc->findBlockByNumber(blockNo);
+            QTextLayout* layout = block.layout();
+            if (layout == nullptr)
+                continue;
+            auto ranges = layout->formats();
+
+            int rightPos = rightBlockPos;
+            if (blockNo != rightBlockNo)
+                rightPos = block.length();
+            int leftPos = leftBlockPos;
+            if (blockNo != leftBlockNo)
+                leftPos = 0;
+
+            QTextLayout::FormatRange newFormatRange;
+            newFormatRange.format = m_format;
+            newFormatRange.start = leftPos;
+            newFormatRange.length = rightPos - leftPos;
+
+            ranges.push_back(newFormatRange);
+            layout->setFormats(ranges);
+
+            m_cachedFormats.emplace_back(internal::CachedFormat{newFormatRange, block});
+
+            m_doc->markContentsDirty(block.position(), block.length());
         }
-        return *this;
     }
 
-    TextMarker::TextMarker(TextMarker&& other) noexcept
-            :QObject(nullptr),
-             m_doc(other.m_doc),
-             m_pos(other.m_pos),
-             m_attachment(other.m_attachment),
-             m_onContentsChangeConnection([this]{return connect(m_doc, &QTextDocument::contentsChange, this, &TextMarker::onContentsChange);})
+    void TextMarker::removeOldFormats()
     {
-    }
+        for (auto& c : m_cachedFormats) {
+            if (!c.m_block.isValid())
+                continue;
 
-    TextMarker& TextMarker::operator=(TextMarker&& other) noexcept
-    {
-        if(this != &other) {
-            m_doc = other.m_doc;
-            m_pos = other.m_pos;
-            m_attachment = other.m_attachment;
-            m_onContentsChangeConnection = Connection([this]{return connect(m_doc, &QTextDocument::contentsChange, this, &TextMarker::onContentsChange);});
+            auto formats = c.m_block.layout()->formats();
+
+            formats.erase(std::remove_if(formats.begin(), formats.end(), [&c](QTextLayout::FormatRange const& r) {
+                return r == c.m_range;
+            }), formats.end());
+
+            c.m_block.layout()->setFormats(formats);
         }
-        return *this;
+        m_cachedFormats.clear();
     }
 
-    int TextMarker::position() const noexcept
+    void TextMarker::onContentsChange(int pos, int erased, int added)
     {
-        return m_pos;
+        int firstPos = m_cursor.selectionStart();
+        int secondPos = m_cursor.selectionEnd();
+
+        QTextBlock leftBlock = m_doc->findBlock(firstPos);
+        QTextBlock rightBlock = m_doc->findBlock(secondPos);
+        int leftBlockNo = leftBlock.blockNumber();
+        int leftBlockPos = firstPos - leftBlock.position();
+        int rightBlockNo = rightBlock.blockNumber();
+        int rightBlockPos = secondPos - rightBlock.position();
+
+        QTextBlock firstAffectedBlock = m_doc->findBlock(pos);
+        QTextBlock lastAffectedBlock = m_doc->findBlock(pos + std::max(erased, added));
+
+        if ((firstAffectedBlock.blockNumber() >= leftBlockNo && firstAffectedBlock.blockNumber() <= rightBlockNo) ||
+                (lastAffectedBlock.blockNumber() >= leftBlockNo && lastAffectedBlock.blockNumber() <= rightBlockNo) ||
+                (firstAffectedBlock.blockNumber() < leftBlockNo && lastAffectedBlock.blockNumber() > rightBlockNo))
+            doFormat(leftBlockNo, leftBlockPos, rightBlockNo, rightBlockPos);
     }
 
-    std::pair<int, int> TextMarker::blockNoAndPos() const noexcept
+    std::ostream& operator<<(std::ostream& s, TextMarker const& m) noexcept
     {
-        auto block = m_doc->findBlock(m_pos);
-        return std::make_pair<int, int>(block.blockNumber(), m_pos - block.position());
-    }
-
-    TextMarkerAttachment TextMarker::attachment() const noexcept
-    {
-        return m_attachment;
-    }
-
-    void TextMarker::setAttachment(TextMarkerAttachment attachment) noexcept
-    {
-        m_attachment = attachment;
-    }
-
-    void TextMarker::onContentsChange(int position, int charsRemoved, int charsAdded)
-    {
-        if ((m_attachment == TextMarkerAttachment::AttachRight && m_pos >= position) || m_pos > position) {
-            if(position + charsRemoved > m_pos) {
-                int oldPos = m_pos;
-                m_pos -= m_pos - position;
-                if(m_attachment == TextMarkerAttachment::AttachRight)
-                    m_pos += charsAdded;
-                emit removed(oldPos);
-            }
-            else {
-                m_pos -= std::min(charsRemoved, m_pos - position);
-                m_pos += charsAdded;
-            }
-        }
-    }
-
-    bool TextMarker::operator==(TextMarker const& rhs) const
-    {
-        return m_doc == rhs.m_doc && m_pos == rhs.m_pos;
-    }
-
-    bool TextMarker::operator!=(TextMarker const& rhs) const
-    {
-        return !(rhs == *this);
-    }
-
-    bool TextMarker::operator<(TextMarker const& rhs) const
-    {
-        return m_pos < rhs.m_pos;
-    }
-
-    bool TextMarker::operator>(TextMarker const& rhs) const
-    {
-        return rhs < *this;
-    }
-
-    bool TextMarker::operator<=(TextMarker const& rhs) const
-    {
-        return !(rhs < *this);
-    }
-
-    bool TextMarker::operator>=(TextMarker const& rhs) const
-    {
-        return !(*this < rhs);
+        s << "[" << m.m_cursor.selectionStart() << ", " << m.m_cursor.selectionEnd() << "]";
+        return s;
     }
 }

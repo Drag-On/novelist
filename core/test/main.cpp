@@ -7,7 +7,7 @@
  * @details
  **********************************************************/
 
-#define CATCH_CONFIG_MAIN
+#define CATCH_CONFIG_RUNNER
 #include <catch.hpp>
 
 #include "main.h"
@@ -25,4 +25,13 @@ bool TestApplication::notify(QObject* receiver, QEvent* e)
         qDebug() << "Caught unknown exception";
         std::terminate();
     }
+}
+
+int main(int argc, char** argv)
+{
+    TestApplication app(argc, argv);
+
+    int result = Catch::Session().run( argc, argv );
+
+    return ( result < 0xff ? result : 0xff );
 }

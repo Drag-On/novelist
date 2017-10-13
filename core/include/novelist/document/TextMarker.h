@@ -1,7 +1,7 @@
 /**********************************************************
  * @file   TextMarker.h
  * @author jan
- * @date   10/11/17
+ * @date   10/12/17
  * ********************************************************
  * @brief
  * @details
@@ -9,106 +9,112 @@
 #ifndef NOVELIST_TEXTMARKER_H
 #define NOVELIST_TEXTMARKER_H
 
-#include <QtCore/QObject>
-#include <QtGui/QTextDocument>
+#include <QObject>
+#include <QTextDocument>
+#include <QTextLine>
+#include <QTextBlock>
 #include <gsl/gsl>
-#include <util/Connection.h>
+#include "util/Connection.h"
 
 namespace novelist {
 
-    /**
-     * Attachment policy for text markers
-     */
-    enum class TextMarkerAttachment {
-        AttachLeft,
-        AttachRight,
-    };
+    namespace internal {
+        class CachedFormat;
+    }
 
     /**
-     * Marks a position in a document. Marker will stay between its neighboring characters when the documents gets
-     * modified, i.e. its position may change. If both neighboring characters are removed, then the marker moves either
-     * left or right to the last unmodified position, depending on attachment policy.
+     * Marks a stretch of text in a text document, highlighting it with a char format. The underlying document is not
+     * modified.
      */
     class TextMarker : public QObject {
-        Q_OBJECT
+    Q_OBJECT
+
     public:
         /**
-         * Construct marker
-         * @param document Underlying document, pointer must stay valid
-         * @param position Global position in that document
-         * @param attachment Whether to attach to the left or the right character
+         * Construct a marker on a text document
+         * @param doc Pointer to the document. Must not be nullptr and is assumed to stay valid throughout the object's
+         *            lifetime
+         * @param left Left position of the marked range
+         * @param right Right position of the marked range
+         * @param format Format used to highlight the marker
+         * @throw std::out_of_range if the provided range is invalid
          */
-        explicit TextMarker(gsl::not_null<QTextDocument*> document, int position,
-                TextMarkerAttachment attachment = TextMarkerAttachment::AttachLeft);
+        TextMarker(gsl::not_null<QTextDocument*> doc, int left, int right, QTextCharFormat format);
 
         /**
-         * Copy constructor
-         * @param other Marker to copy
+         * @return The marked range on the document
          */
-        TextMarker(TextMarker const& other) noexcept;
+        std::pair<int, int> range() noexcept;
 
         /**
-         * Copy assignment
-         * @param other Marker to copy
-         * @return Reference to this
+         * Modify the marked range
+         * @param left Left position
+         * @param right Right position
+         * @throw std::out_of_range if the provided range is invalid
          */
-        TextMarker& operator=(TextMarker const& other) noexcept;
-
-        TextMarker(TextMarker&& other) noexcept;
-
-        TextMarker& operator=(TextMarker&& other) noexcept;
-
-        ~TextMarker() override = default;
+        void setRange(int left, int right);
 
         /**
-         * @return Global position of the marker
+         * @return Character format used for highlighting
          */
-        int position() const noexcept;
+        QTextCharFormat const& format() const noexcept;
 
         /**
-         * @return Block number and position within that block
+         * Set a new format for highlighting
+         * @param format New character format
          */
-        std::pair<int, int> blockNoAndPos() const noexcept;
+        void setFormat(QTextCharFormat format) noexcept;
 
         /**
-         * @return Marker attachment
+         * @return Distance between left and right marker
          */
-        TextMarkerAttachment attachment() const noexcept;
+        int length() const noexcept;
 
         /**
-         * @param attachment New marker attachment
+         * @return A text cursor that spans the marked text
          */
-        void setAttachment(TextMarkerAttachment attachment) noexcept;
+        QTextCursor toCursor() const noexcept;
 
-        bool operator==(TextMarker const& rhs) const;
-
-        bool operator!=(TextMarker const& rhs) const;
-
-        bool operator<(TextMarker const& rhs) const;
-
-        bool operator>(TextMarker const& rhs) const;
-
-        bool operator<=(TextMarker const& rhs) const;
-
-        bool operator>=(TextMarker const& rhs) const;
+        /**
+         * Formatted output of marker to a stream
+         * @param s Stream
+         * @param m Marker
+         * @return Stream
+         */
+        friend std::ostream& operator<<(std::ostream& s, TextMarker const& m) noexcept;
 
     signals:
+
         /**
-         * Fired when the text left and right of the marker is erased. The marker then attaches to either the left or
-         * the right, depending on attachment policy, but this gives you the option to be informed about it
-         * @param pos Position of the marker before removal
+         * Fires when the marker collapses to zero length
+         * @param marker Marker
          */
-        void removed(int pos);
+        void collapsed(TextMarker& marker);
 
     private:
-        QTextDocument* m_doc;
-        int m_pos;
-        TextMarkerAttachment m_attachment;
-        Connection m_onContentsChangeConnection;
+        QTextDocument* const m_doc;
+        QTextCursor m_cursor;
+        QTextCharFormat m_format;
+        std::vector<internal::CachedFormat> m_cachedFormats;
+        Connection m_contentsChangeConnection;
+
+        void doFormat();
+
+        void doFormat(int leftBlockNo, int leftBlockPos, int rightBlockNo, int rightBlockPos);
+
+        void removeOldFormats();
 
     private slots:
-        void onContentsChange(int position, int charsRemoved, int charsAdded);
+
+        void onContentsChange(int pos, int erased, int added);
     };
+
+    namespace internal {
+        struct CachedFormat {
+            QTextLayout::FormatRange m_range;
+            QTextBlock m_block;
+        };
+    }
 }
 
 #endif //NOVELIST_TEXTMARKER_H
