@@ -91,7 +91,7 @@ namespace novelist {
 
     void TextMarker::onContentsChange(int position, int charsRemoved, int charsAdded)
     {
-        if (m_pos > position) {
+        if ((m_attachment == TextMarkerAttachment::AttachRight && m_pos >= position) || m_pos > position) {
             if(position + charsRemoved > m_pos) {
                 int oldPos = m_pos;
                 m_pos -= m_pos - position;
