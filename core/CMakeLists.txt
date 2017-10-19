@@ -15,7 +15,8 @@ add_library(novelist_core
         include/novelist/identity/Identity.h
         src/novelist/view/ProjectView.cpp include/novelist/view/ProjectView.h
         src/novelist/widgets/LanguagePicker.cpp include/novelist/widgets/LanguagePicker.h
-        src/novelist/widgets/TextEditor.cpp include/novelist/widgets/TextEditor.h
+        src/novelist/widgets/texteditor/TextEditor.cpp include/novelist/widgets/texteditor/TextEditor.h
+        src/novelist/widgets/texteditor/TextAnnotation.cpp include/novelist/widgets/texteditor/TextAnnotation.h
         src/novelist/widgets/SceneTabWidget.cpp include/novelist/widgets/SceneTabWidget.h
         src/novelist/document/SceneDocument.cpp include/novelist/document/SceneDocument.h
         src/novelist/document/TextMarker.cpp include/novelist/document/TextMarker.h
@@ -24,6 +25,8 @@ add_library(novelist_core
         src/novelist/util/ConnectionWrapper.cpp include/novelist/util/ConnectionWrapper.h
         src/novelist/util/Connection.cpp include/novelist/util/Connection.h
         src/novelist/util/DelegateAction.cpp include/novelist/util/DelegateAction.h
+        include/novelist/inspection/IInsight.h
+        src/novelist/inspection/InsightModel.cpp include/novelist/inspection/InsightModel.h
         )
 
 target_include_directories(novelist_core

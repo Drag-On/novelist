@@ -8,7 +8,7 @@
  **********************************************************/
 #include <catch.hpp>
 #include "main.h"
-#include "widgets/TextEditor.h"
+#include "widgets/texteditor/TextEditor.h"
 
 using namespace novelist;
 

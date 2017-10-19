@@ -28,7 +28,7 @@ namespace novelist {
         doFormat();
     }
 
-    std::pair<int, int> TextMarker::range() noexcept
+    std::pair<int, int> TextMarker::range() const noexcept
     {
         return std::make_pair(m_cursor.selectionStart(), m_cursor.selectionEnd());
     }

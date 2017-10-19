@@ -44,7 +44,7 @@ namespace novelist {
         /**
          * @return The marked range on the document
          */
-        std::pair<int, int> range() noexcept;
+        std::pair<int, int> range() const noexcept;
 
         /**
          * Modify the marked range

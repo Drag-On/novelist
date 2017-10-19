@@ -10,15 +10,53 @@
 #define NOVELIST_TEXTEDITOR_H
 
 #include <QtWidgets/QTextEdit>
-#include <memory>
 #include <QtWidgets/QAction>
+#include <QtCore/QTimer>
+#include <QSyntaxHighlighter>
+#include <memory>
+#include "inspection/InsightModel.h"
+#include "inspection/ITextInspector.h"
 #include "util/Connection.h"
 #include "util/ConnectionWrapper.h"
 #include "document/SceneDocument.h"
 
 namespace novelist {
+    class TextEditor;
+
     namespace internal {
-        class ParagraphNumberArea;
+        /**
+         * Paragraph numbering area inside a TextEditor
+         */
+        class ParagraphNumberArea : public QWidget {
+        Q_OBJECT
+
+        public:
+            explicit ParagraphNumberArea(TextEditor* editor);
+
+            QSize sizeHint() const override;
+
+        protected:
+            void paintEvent(QPaintEvent* event) override;
+
+        private:
+            TextEditor* m_textEditor;
+        };
+
+        /**
+         * Manages annotations for a TextEditor instance
+         */
+        class TextAnnotationManager : public QObject {
+        Q_OBJECT
+
+        public:
+            explicit TextAnnotationManager(gsl::not_null<TextEditor*> editor) noexcept;
+
+        public slots:
+            void onMousePosChanged(QPoint pos);
+
+        private:
+            gsl::not_null<TextEditor*> m_editor;
+        };
     }
 
     /**
@@ -141,15 +179,6 @@ namespace novelist {
 
         void highlightCurrentLine();
 
-    private:
-        void paintParagraphNumberArea(QPaintEvent* event);
-
-        void updateParagraphNumberAreaWidth();
-
-        void updateParagraphNumberArea(QRect const& rect, int dy);
-
-        void setDefaultBlockFormat();
-
         void onBoldActionToggled(bool checked);
 
         void onItalicActionToggled(bool checked);
@@ -162,9 +191,25 @@ namespace novelist {
 
         void onSmallCapsActionToggled(bool checked);
 
+    private:
+        void paintParagraphNumberArea(QPaintEvent* event);
+
+        void updateParagraphNumberAreaWidth();
+
+        void updateParagraphNumberArea(QRect const& rect, int dy);
+
+        void setDefaultBlockFormat();
+
+    protected:
+        void mouseMoveEvent(QMouseEvent* e) override;
+
+    private:
+
         std::unique_ptr<internal::ParagraphNumberArea> m_paragraphNumberArea;
         int m_lastVerticalSliderPos = 0;
         int m_lastBlockCount = 0;
+        InsightModel m_insights;
+        internal::TextAnnotationManager m_textAnnotationMgr{this};
         Connection m_onBoldActionConnection;
         Connection m_onItalicActionConnection;
         Connection m_onUnderlineActionConnection;
@@ -184,25 +229,8 @@ namespace novelist {
         constexpr static bool show_debug_info = false;
 
         friend class internal::ParagraphNumberArea;
+        friend class internal::TextAnnotationManager;
     };
-
-    namespace internal {
-        /**
-         * Paragraph numbering area inside a TextEditor
-         */
-        class ParagraphNumberArea : public QWidget {
-        public:
-            explicit ParagraphNumberArea(TextEditor* editor);
-
-            QSize sizeHint() const override;
-
-        protected:
-            void paintEvent(QPaintEvent* event) override;
-
-        private:
-            TextEditor* m_textEditor;
-        };
-    }
 }
 
 #endif //NOVELIST_TEXTEDITOR_H

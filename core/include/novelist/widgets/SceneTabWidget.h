@@ -15,7 +15,7 @@
 #include "util/DelegateAction.h"
 #include "util/ConnectionWrapper.h"
 #include "model/ProjectModel.h"
-#include "TextEditor.h"
+#include "widgets/texteditor/TextEditor.h"
 
 namespace novelist {
     class SceneTabWidget : public QTabWidget {
