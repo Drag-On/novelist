@@ -15,7 +15,6 @@
 #include <QSyntaxHighlighter>
 #include <memory>
 #include "inspection/InsightModel.h"
-#include "inspection/ITextInspector.h"
 #include "util/Connection.h"
 #include "util/ConnectionWrapper.h"
 #include "document/SceneDocument.h"
