@@ -21,6 +21,7 @@ add_library(novelist_core
         src/novelist/document/SceneDocument.cpp include/novelist/document/SceneDocument.h
         src/novelist/document/TextMarker.cpp include/novelist/document/TextMarker.h
         src/novelist/windows/ProjectPropertiesWindow.cpp include/novelist/windows/ProjectPropertiesWindow.h
+        src/novelist/windows/NoteEditWindow.cpp include/novelist/windows/NoteEditWindow.h
         src/novelist/windows/MainWindow.cpp include/novelist/windows/MainWindow.h
         src/novelist/util/ConnectionWrapper.cpp include/novelist/util/ConnectionWrapper.h
         src/novelist/util/Connection.cpp include/novelist/util/Connection.h
