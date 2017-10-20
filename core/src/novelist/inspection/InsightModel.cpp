@@ -26,9 +26,9 @@ namespace novelist {
             std::advance(iter, index.row());
             switch (index.column()) {
                 case 0:
-                    return QVariant::fromValue<int>(iter->get()->parRange().first);
+                    return QVariant::fromValue<int>(iter->get()->parRange().first + 1);
                 case 1:
-                    return QVariant::fromValue<int>(iter->get()->parRange().second);
+                    return QVariant::fromValue<int>(iter->get()->parRange().second + 1);
                 case 2:
                     return QVariant::fromValue<QString>(iter->get()->type());
                 case 3:
