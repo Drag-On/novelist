@@ -12,6 +12,7 @@
 #include <QtWidgets/QTabWidget>
 #include <QtCore/QFile>
 #include <QTabBar>
+#include <QtWidgets/QAbstractItemView>
 #include "util/DelegateAction.h"
 #include "util/ConnectionWrapper.h"
 #include "model/ProjectModel.h"
@@ -22,6 +23,10 @@ namespace novelist {
     Q_OBJECT
 
     public:
+        /**
+         * Construct the scene tab widget
+         * @param parent Parent widget, may be nullptr.
+         */
         explicit SceneTabWidget(QWidget* parent = nullptr);
 
         /**
@@ -58,6 +63,13 @@ namespace novelist {
          * @return Index of the page with the editor for the requested scene, or -1 if it cannot be found
          */
         int indexOf(ProjectModel const* model, QModelIndex index) const;
+
+        /**
+         * @param insightView Pointer to the view that is supposed to show the insights of the currently open document.
+         *                    May be nullptr, but if it isn't the pointer must stay valid during the lifetime of this
+         *                    tab widget.
+         */
+        void useInsightView(QAbstractItemView* insightView);
 
         /**
          * Provides an action that undoes changes in the currently open document, if any
@@ -136,6 +148,7 @@ namespace novelist {
         DelegateAction m_overlineAction;
         DelegateAction m_strikethroughAction;
         DelegateAction m_smallCapsAction;
+        QAbstractItemView* m_insightView = nullptr;
     };
 
     namespace internal {

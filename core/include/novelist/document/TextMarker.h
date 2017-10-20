@@ -42,6 +42,11 @@ namespace novelist {
         TextMarker(gsl::not_null<QTextDocument*> doc, int left, int right, QTextCharFormat format);
 
         /**
+         * @return Paragraphs spanned by this insight
+         */
+        std::pair<int, int> parRange() const noexcept;
+
+        /**
          * @return The marked range on the document
          */
         std::pair<int, int> range() const noexcept;

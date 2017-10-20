@@ -98,6 +98,11 @@ namespace novelist {
         return -1;
     }
 
+    void SceneTabWidget::useInsightView(QAbstractItemView* insightView)
+    {
+        m_insightView = insightView;
+    }
+
     QAction* SceneTabWidget::undoAction()
     {
         return &m_undoAction;
@@ -180,6 +185,10 @@ namespace novelist {
             m_strikethroughAction.setDelegate(editor->strikethroughAction());
             m_smallCapsAction.setEnabled(true);
             m_smallCapsAction.setDelegate(editor->smallCapsAction());
+
+            if(m_insightView) {
+                m_insightView->setModel(editor->insights());
+            }
         }
         else {
             m_boldAction.setEnabled(false);
@@ -188,6 +197,10 @@ namespace novelist {
             m_overlineAction.setEnabled(false);
             m_strikethroughAction.setEnabled(false);
             m_smallCapsAction.setEnabled(false);
+
+            if(m_insightView) {
+                m_insightView->setModel(nullptr);
+            }
         }
     }
 }

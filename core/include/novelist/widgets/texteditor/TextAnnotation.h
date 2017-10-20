@@ -39,6 +39,11 @@ namespace novelist {
                 TextAnnotationType type = TextAnnotationType::Note);
 
         /**
+         * @return Paragraphs spanned by this insight
+         */
+        std::pair<int, int> parRange() const noexcept override;
+
+        /**
          * @return The marked range on the document
          */
         std::pair<int, int> range() const noexcept override;
@@ -60,6 +65,11 @@ namespace novelist {
          * @param msg New message
          */
         void setMessage(QString msg) noexcept;
+
+        /**
+         * @return Human-readable type of this insight
+         */
+        QString type() const noexcept override;
 
         /**
          * @return Distance between left and right marker
@@ -84,6 +94,7 @@ namespace novelist {
 
         TextMarker m_marker;
         QString m_msg;
+        TextAnnotationType m_type;
 
         inline static QTextCharFormat const s_defaultNoteFormat = [] {
             QTextCharFormat format;

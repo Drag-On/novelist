@@ -28,6 +28,12 @@ namespace novelist {
         doFormat();
     }
 
+    std::pair<int, int> TextMarker::parRange() const noexcept
+    {
+        return std::make_pair(m_doc->findBlock(m_cursor.selectionStart()).blockNumber(),
+                m_doc->findBlock(m_cursor.selectionEnd()).blockNumber());
+    }
+
     std::pair<int, int> TextMarker::range() const noexcept
     {
         return std::make_pair(m_cursor.selectionStart(), m_cursor.selectionEnd());

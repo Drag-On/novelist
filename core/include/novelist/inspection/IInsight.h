@@ -20,6 +20,11 @@ namespace novelist {
         virtual ~IInsight() = default;
 
         /**
+         * @return Paragraphs spanned by this insight
+         */
+        virtual std::pair<int, int> parRange() const noexcept = 0;
+
+        /**
          * Range of the insight in the document
          * @return Document position of first and last character included
          */
@@ -29,6 +34,11 @@ namespace novelist {
          * @return Insight message
          */
         virtual QString const& message() const noexcept = 0;
+
+        /**
+         * @return Human-readable type of this insight
+         */
+        virtual QString type() const noexcept = 0;
     };
 }
 

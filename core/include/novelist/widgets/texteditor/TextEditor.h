@@ -142,6 +142,11 @@ namespace novelist {
          */
         QAction* smallCapsAction();
 
+        /**
+         * @return Pointer to the model containing all current insights
+         */
+        InsightModel* insights();
+
     signals:
 
         /**

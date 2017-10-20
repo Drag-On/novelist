@@ -39,7 +39,13 @@ namespace novelist {
              m_ui{std::make_unique<Ui::MainWindow>()},
              m_model{nullptr}
     {
+        setCorner(Qt::Corner::BottomLeftCorner, Qt::DockWidgetArea::LeftDockWidgetArea);
+        setCorner(Qt::Corner::TopLeftCorner, Qt::DockWidgetArea::LeftDockWidgetArea);
+        setCorner(Qt::Corner::BottomRightCorner, Qt::DockWidgetArea::RightDockWidgetArea);
+        setCorner(Qt::Corner::TopRightCorner, Qt::DockWidgetArea::RightDockWidgetArea);
+
         m_ui->setupUi(this);
+        m_ui->sceneTabWidget->useInsightView(m_ui->tableView_insights);
 
         // Replace some actions with appropriate delegate actions
         replaceMenuAction(m_ui->menu_Edit, &m_ui->action_Undo, &m_undoAction);

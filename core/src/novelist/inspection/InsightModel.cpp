@@ -16,7 +16,7 @@ namespace novelist {
 
     int InsightModel::columnCount(QModelIndex const& /*parent*/) const
     {
-        return 3;
+        return 4;
     }
 
     QVariant InsightModel::data(const QModelIndex& index, int role) const
@@ -26,10 +26,12 @@ namespace novelist {
             std::advance(iter, index.row());
             switch (index.column()) {
                 case 0:
-                    return QVariant::fromValue<int>(iter->get()->range().first);
+                    return QVariant::fromValue<int>(iter->get()->parRange().first);
                 case 1:
-                    return QVariant::fromValue<int>(iter->get()->range().second);
+                    return QVariant::fromValue<int>(iter->get()->parRange().second);
                 case 2:
+                    return QVariant::fromValue<QString>(iter->get()->type());
+                case 3:
                     return QVariant::fromValue<QString>(iter->get()->message());
                 default:
                     return QVariant();
@@ -43,17 +45,22 @@ namespace novelist {
         return QVariant();
     }
 
-    QVariant InsightModel::headerData(int section, Qt::Orientation /*orientation*/, int /*role*/) const
+    QVariant InsightModel::headerData(int section, Qt::Orientation orientation, int role) const
     {
-        switch (section) {
-            case 0:
-                //: For "left"
-                return tr("l");
-            case 1:
-                //: For "right"
-                return tr("r");
-            case 2:
-                return tr("Message");
+        if (role != Qt::DisplayRole)
+            return QVariant();
+
+        if (orientation == Qt::Orientation::Horizontal) {
+            switch (section) {
+                case 0:
+                    return tr("First");
+                case 1:
+                    return tr("Last");
+                case 2:
+                    return tr("Type");
+                case 3:
+                    return tr("Message");
+            }
         }
         return QVariant();
     }

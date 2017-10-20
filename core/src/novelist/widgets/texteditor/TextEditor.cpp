@@ -141,6 +141,11 @@ namespace novelist {
         return &m_smallCapsAction;
     }
 
+    InsightModel* TextEditor::insights()
+    {
+        return &m_insights;
+    }
+
     void TextEditor::resizeEvent(QResizeEvent* e)
     {
         QTextEdit::resizeEvent(e);

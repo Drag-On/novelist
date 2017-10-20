@@ -14,8 +14,14 @@ namespace novelist {
             TextAnnotationType type)
             :QObject(nullptr),
              m_marker(doc, left, right, typeToFormat(type)),
-             m_msg(std::move(msg))
+             m_msg(std::move(msg)),
+             m_type(type)
     {
+    }
+
+    std::pair<int, int> TextAnnotation::parRange() const noexcept
+    {
+        return m_marker.parRange();
     }
 
     std::pair<int, int> TextAnnotation::range() const noexcept
@@ -36,6 +42,21 @@ namespace novelist {
     void TextAnnotation::setMessage(QString msg) noexcept
     {
         m_msg = std::move(msg);
+    }
+
+    QString TextAnnotation::type() const noexcept
+    {
+        switch (m_type) {
+            case TextAnnotationType::Info:
+                return tr("Info");
+            case TextAnnotationType::Note:
+                return tr("Note");
+            case TextAnnotationType::SpellingError:
+                return tr("Spelling");
+            case TextAnnotationType::GrammarError:
+                return tr("Grammar");
+        }
+        return "";
     }
 
     int TextAnnotation::length() const noexcept
