@@ -143,6 +143,11 @@ namespace novelist {
         return &m_smallCapsAction;
     }
 
+    QAction* SceneTabWidget::addNoteAction()
+    {
+        return &m_addNoteAction;
+    }
+
     void SceneTabWidget::focusInEvent(QFocusEvent* event)
     {
         emit focusReceived(true);
@@ -173,18 +178,13 @@ namespace novelist {
             m_redoAction.setDelegate(editor, &TextEditor::redo, &TextEditor::canRedo, &TextEditor::redoAvailable,
                     tr("Redo modification of \"%1\"").arg(title));
 
-            m_boldAction.setEnabled(true);
             m_boldAction.setDelegate(editor->boldAction());
-            m_italicAction.setEnabled(true);
             m_italicAction.setDelegate(editor->italicAction());
-            m_underlineAction.setEnabled(true);
             m_underlineAction.setDelegate(editor->underlineAction());
-            m_overlineAction.setEnabled(true);
             m_overlineAction.setDelegate(editor->overlineAction());
-            m_strikethroughAction.setEnabled(true);
             m_strikethroughAction.setDelegate(editor->strikethroughAction());
-            m_smallCapsAction.setEnabled(true);
             m_smallCapsAction.setDelegate(editor->smallCapsAction());
+            m_addNoteAction.setDelegate(editor->addNoteAction());
 
             if(m_insightView) {
                 m_insightView->setModel(editor->insights());
@@ -197,6 +197,7 @@ namespace novelist {
             m_overlineAction.setEnabled(false);
             m_strikethroughAction.setEnabled(false);
             m_smallCapsAction.setEnabled(false);
+            m_addNoteAction.setEnabled(false);
 
             if(m_insightView) {
                 m_insightView->setModel(nullptr);

@@ -62,6 +62,11 @@ namespace novelist {
          */
         bool remove(QModelIndex const& index);
 
+        /**
+         * Remove all elements
+         */
+        void clear();
+
     private:
         using InsightPtr = std::unique_ptr<IInsight>;
         std::set<InsightPtr, internal::InsightPtrComp> m_insights{};

@@ -25,6 +25,7 @@ namespace novelist {
         connect(this, &TextEditor::blockCountChanged, this, &TextEditor::updateParagraphNumberAreaWidth);
         connect(this, &TextEditor::cursorPositionChanged, this, &TextEditor::highlightCurrentLine);
         connect(this, &TextEditor::cursorPositionChanged, this, &TextEditor::onCursorPositionChanged);
+        connect(this, &TextEditor::selectionChanged, this, &TextEditor::onSelectionChanged);
 
         setDocument(new SceneDocument{this}); // Overwrite default QTextDocument
         setMouseTracking(true);
@@ -56,6 +57,8 @@ namespace novelist {
         m_overlineAction.setCheckable(true);
         m_strikethroughAction.setCheckable(true);
         m_smallCapsAction.setCheckable(true);
+
+        connect(&m_addNoteAction, &QAction::triggered, this, &TextEditor::makeSelectionIntoNote);
     }
 
     TextEditor::~TextEditor() = default;
@@ -81,9 +84,9 @@ namespace novelist {
 
     void TextEditor::setDocument(SceneDocument* document)
     {
+        m_insights.clear();
         QTextEdit::setDocument(document);
         setDefaultBlockFormat();
-
     }
 
     void TextEditor::setDocument(QTextDocument* document)
@@ -139,6 +142,11 @@ namespace novelist {
     QAction* TextEditor::smallCapsAction()
     {
         return &m_smallCapsAction;
+    }
+
+    QAction* TextEditor::addNoteAction()
+    {
+        return &m_addNoteAction;
     }
 
     InsightModel* TextEditor::insights()
@@ -245,6 +253,11 @@ namespace novelist {
         m_overlineAction.setChecked(cursor.charFormat().fontOverline());
         m_strikethroughAction.setChecked(cursor.charFormat().fontStrikeOut());
         m_smallCapsAction.setChecked(cursor.charFormat().fontCapitalization() != QFont::Capitalization::MixedCase);
+    }
+
+    void TextEditor::onSelectionChanged()
+    {
+        m_addNoteAction.setEnabled(textCursor().hasSelection());
     }
 
     void TextEditor::highlightCurrentLine()
@@ -393,6 +406,15 @@ namespace novelist {
             curFormat.setFontCapitalization(QFont::Capitalization::MixedCase);
         textCursor().setCharFormat(curFormat);
         setCurrentCharFormat(curFormat);
+    }
+
+    void TextEditor::makeSelectionIntoNote()
+    {
+        QTextCursor cursor = textCursor();
+        if(!cursor.hasSelection())
+            return;
+
+        m_insights.insert(new TextAnnotation(document(), cursor.selectionStart(), cursor.selectionEnd(), ""));
     }
 
     void TextEditor::mouseMoveEvent(QMouseEvent* e)

@@ -143,6 +143,12 @@ namespace novelist {
         QAction* smallCapsAction();
 
         /**
+         * Provides an action that can be used to make the currently selected text into a note.
+         * @return A non-owning pointer to the action
+         */
+        QAction* addNoteAction();
+
+        /**
          * @return Pointer to the model containing all current insights
          */
         InsightModel* insights();
@@ -181,6 +187,8 @@ namespace novelist {
 
         void onCursorPositionChanged();
 
+        void onSelectionChanged();
+
         void highlightCurrentLine();
 
         void onBoldActionToggled(bool checked);
@@ -194,6 +202,8 @@ namespace novelist {
         void onStrikethroughActionToggled(bool checked);
 
         void onSmallCapsActionToggled(bool checked);
+
+        void makeSelectionIntoNote();
 
     private:
         void paintParagraphNumberArea(QPaintEvent* event);
@@ -226,6 +236,7 @@ namespace novelist {
         QAction m_overlineAction{tr("Overline")};
         QAction m_strikethroughAction{tr("Strikethrough")};
         QAction m_smallCapsAction{tr("Small Caps")};
+        QAction m_addNoteAction{tr("Add Note")};
         QColor const m_parNumberAreaColor = QColor(250, 250, 250);
         QColor const m_parNumberColor = QColor(130, 130, 130);
         QColor const m_curLineColor = QColor(255, 248, 217);

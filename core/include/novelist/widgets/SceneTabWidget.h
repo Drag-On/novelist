@@ -121,6 +121,12 @@ namespace novelist {
          */
         QAction* smallCapsAction();
 
+        /**
+         * Provides an action that makes the currently selected text into a note
+         * @return  Non-owning pointer to the action
+         */
+        QAction* addNoteAction();
+
     signals:
         /**
          * Fires when the widget received focus or lost it
@@ -148,6 +154,7 @@ namespace novelist {
         DelegateAction m_overlineAction;
         DelegateAction m_strikethroughAction;
         DelegateAction m_smallCapsAction;
+        DelegateAction m_addNoteAction;
         QAbstractItemView* m_insightView = nullptr;
     };
 

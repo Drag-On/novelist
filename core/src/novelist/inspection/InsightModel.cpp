@@ -68,7 +68,10 @@ namespace novelist {
     QModelIndex InsightModel::insert(gsl::owner<IInsight*> insight)
     {
         auto result = m_insights.emplace(insight);
-        return index(gsl::narrow<int>(std::distance(m_insights.begin(), result.first)), 0);
+        auto idx = gsl::narrow<int>(std::distance(m_insights.begin(), result.first));
+        beginInsertRows(QModelIndex(), idx, idx);
+        endInsertRows();
+        return index(idx, 0);
     }
 
     bool InsightModel::remove(QModelIndex const& index)
@@ -81,8 +84,17 @@ namespace novelist {
 
         auto iter = m_insights.begin();
         std::advance(iter, index.row());
+        beginRemoveRows(index.parent(), index.row(), index.row());
         m_insights.erase(iter);
+        endRemoveRows();
 
         return true;
+    }
+
+    void InsightModel::clear()
+    {
+        beginResetModel();
+        m_insights.clear();
+        endResetModel();
     }
 }

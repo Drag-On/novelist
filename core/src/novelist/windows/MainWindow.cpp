@@ -62,6 +62,7 @@ namespace novelist {
                 m_ui->sceneTabWidget->strikethroughAction());
         replaceMenuAndToolbarAction(m_ui->menu_Format, m_ui->toolBarFormat, &m_ui->actionSmall_Caps,
                 m_ui->sceneTabWidget->smallCapsAction());
+        replaceMenuAction(m_ui->menu_Inspection, &m_ui->actionAdd_Note, m_ui->sceneTabWidget->addNoteAction());
 
         m_ui->retranslateUi(this);
 
