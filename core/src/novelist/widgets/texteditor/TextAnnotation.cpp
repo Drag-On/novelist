@@ -17,6 +17,7 @@ namespace novelist {
              m_msg(std::move(msg)),
              m_type(type)
     {
+        connect(&m_marker, &TextMarker::collapsed, [this] () { emit collapsed(this); });
     }
 
     std::pair<int, int> TextAnnotation::parRange() const noexcept

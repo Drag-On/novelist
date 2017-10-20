@@ -25,6 +25,7 @@ namespace novelist {
 
     class TextAnnotation : public QObject, public IInsight {
     Q_OBJECT
+    Q_INTERFACES(novelist::IInsight)
 
     public:
         /**
@@ -88,6 +89,9 @@ namespace novelist {
          * @return Stream
          */
         friend std::ostream& operator<<(std::ostream& s, TextAnnotation const& m) noexcept;
+
+    signals:
+        void collapsed(IInsight* insight) override;
 
     private:
         static QTextCharFormat const& typeToFormat(TextAnnotationType type);

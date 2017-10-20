@@ -7,8 +7,18 @@
  * @details
  **********************************************************/
 #include "inspection/InsightModel.h"
+#include <QtCore/QCoreApplication>
 
 namespace novelist {
+
+    namespace internal {
+        RemoveInsightEvent::RemoveInsightEvent(IInsight* insight)
+                :QEvent(s_eventId),
+                 m_insight(insight)
+        {
+        }
+    }
+
     int InsightModel::rowCount(QModelIndex const& /*parent*/) const
     {
         return gsl::narrow<int>(m_insights.size());
@@ -67,9 +77,17 @@ namespace novelist {
 
     QModelIndex InsightModel::insert(gsl::owner<IInsight*> insight)
     {
-        auto result = m_insights.emplace(insight);
-        auto idx = gsl::narrow<int>(std::distance(m_insights.begin(), result.first));
+        auto insight_ptr = std::unique_ptr<IInsight>(insight);
+        connect(dynamic_cast<QObject*>(insight_ptr.get()), SIGNAL(collapsed(IInsight * )),
+                this, SLOT(onInsightCollapsed(IInsight * )));
+
+        // Currently, insights can not change order. Once they can, this needs to be uncommented:
+        // std::sort(m_insights.begin(), m_insights.end(), internal::InsightPtrComp());
+        auto iter = findInsertLocation(insight_ptr);
+        auto idx = gsl::narrow<int>(std::distance(m_insights.begin(), iter));
+
         beginInsertRows(QModelIndex(), idx, idx);
+        m_insights.insert(iter, std::move(insight_ptr));
         endInsertRows();
         return index(idx, 0);
     }
@@ -96,5 +114,42 @@ namespace novelist {
         beginResetModel();
         m_insights.clear();
         endResetModel();
+    }
+
+    bool InsightModel::event(QEvent* event)
+    {
+        auto* e = dynamic_cast<internal::RemoveInsightEvent*>(event);
+        if(e) {
+            findAndRemove(e->m_insight);
+            e->accept();
+        }
+        return QObject::event(event);
+    }
+
+    auto InsightModel::findInsertLocation(std::unique_ptr<IInsight> const& ptr) -> std::vector<InsightPtr>::iterator
+    {
+        internal::InsightPtrComp comp;
+        auto iter = m_insights.begin();
+        for (; iter != m_insights.end(); ++iter) {
+            if (!comp(*iter, ptr))
+                break;
+        }
+        return iter;
+    }
+
+    void InsightModel::findAndRemove(IInsight* insight)
+    {
+        auto iter = std::find_if(m_insights.begin(), m_insights.end(), [insight](std::unique_ptr<IInsight> const& p) {
+            return p.get() == insight;
+        });
+        if (iter != m_insights.end())
+            remove(index(gsl::narrow<int>(std::distance(m_insights.begin(), iter)), 0));
+    }
+
+    void InsightModel::onInsightCollapsed(IInsight* insight)
+    {
+        // Note: Can't directly remove here, because it would delete the caller. Therefore post event that will then
+        // delete the correct element on next event update (see event(QEvent*)).
+        QCoreApplication::postEvent(this, new internal::RemoveInsightEvent(insight));
     }
 }

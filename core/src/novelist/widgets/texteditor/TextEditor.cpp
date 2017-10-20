@@ -13,6 +13,7 @@
 #include <QTextBlock>
 #include <QAbstractTextDocumentLayout>
 #include <QtWidgets/QToolTip>
+#include "widgets/texteditor/ManualTextAnnotation.h"
 #include "windows/NoteEditWindow.h"
 #include "widgets/texteditor/TextAnnotation.h"
 #include "widgets/texteditor/TextEditor.h"
@@ -417,7 +418,8 @@ namespace novelist {
 
         NoteEditWindow wnd;
         if(wnd.exec() == QDialog::Accepted)
-            m_insights.insert(new TextAnnotation(document(), cursor.selectionStart(), cursor.selectionEnd(), wnd.text()));
+            m_insights.insert(
+                    new ManualTextAnnotation(document(), cursor.selectionStart(), cursor.selectionEnd(), wnd.text()));
     }
 
     void TextEditor::mouseMoveEvent(QMouseEvent* e)

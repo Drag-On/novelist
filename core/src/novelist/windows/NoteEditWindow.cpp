@@ -7,15 +7,20 @@
  * @details
  **********************************************************/
 #include <QtCore/QEvent>
+#include <QPushButton>
 #include "windows/NoteEditWindow.h"
 #include "ui_NoteEditWindow.h"
 
 namespace novelist {
-    NoteEditWindow::NoteEditWindow(QWidget* parent, Qt::WindowFlags f)
+    NoteEditWindow::NoteEditWindow(bool allowRemove, QWidget* parent, Qt::WindowFlags f)
             :QDialog(parent, f),
              m_ui{std::make_unique<Ui::NoteEditDialog>()}
     {
         m_ui->setupUi(this);
+        if (allowRemove) {
+            QPushButton* b = m_ui->buttonBox->addButton(tr("Remove"), QDialogButtonBox::ButtonRole::DestructiveRole);
+            connect(b, &QPushButton::toggled, [this]{ this->setResult(DialogCode::Removed); this->close(); });
+        }
     }
 
     NoteEditWindow::~NoteEditWindow() = default;

@@ -10,6 +10,7 @@
 #define NOVELIST_IINSPECTION_H
 
 #include <QtCore/QString>
+#include <QtWidgets/QMenu>
 
 namespace novelist {
     /**
@@ -39,9 +40,22 @@ namespace novelist {
          * @return Human-readable type of this insight
          */
         virtual QString type() const noexcept = 0;
+
+        /**
+         * Provides a menu to show when the insight is right-clicked
+         * @return The menu
+         */
+        virtual QMenu const& menu() const noexcept = 0;
+
+    signals:
+        /**
+         * The insight's range has collapsed to zero length. It should probably be removed.
+         */
+        virtual void collapsed(IInsight*) = 0;
     };
 }
 
+Q_DECLARE_INTERFACE(novelist::IInsight, "novelist.IInsight")
 Q_DECLARE_METATYPE(novelist::IInsight*)
 
 #endif //NOVELIST_IINSPECTION_H

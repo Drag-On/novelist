@@ -17,6 +17,7 @@ add_library(novelist_core
         src/novelist/widgets/LanguagePicker.cpp include/novelist/widgets/LanguagePicker.h
         src/novelist/widgets/texteditor/TextEditor.cpp include/novelist/widgets/texteditor/TextEditor.h
         src/novelist/widgets/texteditor/TextAnnotation.cpp include/novelist/widgets/texteditor/TextAnnotation.h
+        src/novelist/widgets/texteditor/ManualTextAnnotation.cpp include/novelist/widgets/texteditor/ManualTextAnnotation.h
         src/novelist/widgets/SceneTabWidget.cpp include/novelist/widgets/SceneTabWidget.h
         src/novelist/document/SceneDocument.cpp include/novelist/document/SceneDocument.h
         src/novelist/document/TextMarker.cpp include/novelist/document/TextMarker.h

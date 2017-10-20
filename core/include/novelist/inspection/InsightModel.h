@@ -10,9 +10,10 @@
 #define NOVELIST_INSIGHTMODEL_H
 
 #include <QtCore/QAbstractTableModel>
+#include <QtCore/QEvent>
 #include <gsl/gsl>
 #include <memory>
-#include <set>
+#include <vector>
 #include "IInsight.h"
 
 namespace novelist {
@@ -23,6 +24,13 @@ namespace novelist {
                 return a->range().first < b->range().first ||
                         (a->range().first == b->range().first && a->range().second < b->range().second);
             }
+        };
+
+        class RemoveInsightEvent : public QEvent {
+        public:
+            explicit RemoveInsightEvent(IInsight* insight);
+            IInsight* m_insight;
+            static inline QEvent::Type const s_eventId = static_cast<QEvent::Type>(QEvent::registerEventType());
         };
     }
 
@@ -67,9 +75,18 @@ namespace novelist {
          */
         void clear();
 
+        bool event(QEvent* event) override;
+
     private:
         using InsightPtr = std::unique_ptr<IInsight>;
-        std::set<InsightPtr, internal::InsightPtrComp> m_insights{};
+        std::vector<InsightPtr> m_insights{};
+
+        std::vector<InsightPtr>::iterator findInsertLocation(std::unique_ptr<IInsight> const& ptr);
+
+        void findAndRemove(IInsight* insight);
+
+    private slots:
+        void onInsightCollapsed(IInsight* insight);
     };
 }
 
