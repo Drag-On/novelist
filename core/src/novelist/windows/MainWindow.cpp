@@ -33,6 +33,18 @@ void replaceMenuAndToolbarAction(QMenu* menu, QToolBar* bar, QAction** old, QAct
     *old = replacement;
 }
 
+/*
+ * Absorb the actions and submenus of "src" into "dest", inserting before "before" or at the end, if nullptr
+ */
+void absorbMenu(QMenu* dest, QAction* before, QMenu* src) {
+    for (QAction* a : src->actions()) {
+        if (before)
+            dest->insertAction(before, a);
+        else
+            dest->addAction(a);
+    }
+}
+
 namespace novelist {
     MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
             :QMainWindow(parent, flags),
@@ -72,6 +84,7 @@ namespace novelist {
         });
         connect(m_ui->projectView, &ProjectView::focusReceived, this, &MainWindow::onProjectViewFocus);
         connect(m_ui->sceneTabWidget, &SceneTabWidget::focusReceived, this, &MainWindow::onSceneTabFocus);
+        connect(m_ui->menu_Inspection, &QMenu::aboutToShow, this, &MainWindow::onAboutToShowInspectionMenu);
 
         connect(m_ui->action_New_Project, &QAction::triggered, this, &MainWindow::onNewProject);
         connect(m_ui->action_Open_Project, &QAction::triggered, this, &MainWindow::onOpenProject);
@@ -266,5 +279,22 @@ namespace novelist {
                 m_redoAction.setDelegate(m_ui->sceneTabWidget->redoAction());
             }
         }
+    }
+
+    void MainWindow::onAboutToShowInspectionMenu()
+    {
+        auto* editor = dynamic_cast<TextEditor*>(m_ui->sceneTabWidget->currentWidget());
+        if(editor) {
+            QModelIndex insightIdx = editor->insights()->find(editor->textCursor().position());
+            if (insightIdx.isValid()) {
+                m_ui->menuInsight->clear();
+                m_ui->menuInsight->setEnabled(true);
+                auto* insight = qvariant_cast<IInsight*>(
+                        editor->insights()->data(insightIdx, static_cast<int>(InsightModelRoles::DataRole)));
+                absorbMenu(m_ui->menuInsight, nullptr, const_cast<QMenu*>(&insight->menu()));
+                return;
+            }
+        }
+        m_ui->menuInsight->setEnabled(false);
     }
 }

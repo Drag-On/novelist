@@ -92,16 +92,16 @@
     <property name="title">
      <string>&amp;Inspection</string>
     </property>
-    <widget class="QMenu" name="menuNote">
+    <widget class="QMenu" name="menuInsight">
      <property name="enabled">
       <bool>false</bool>
      </property>
      <property name="title">
-      <string>Note</string>
+      <string>Insight</string>
      </property>
     </widget>
     <addaction name="actionAdd_Note"/>
-    <addaction name="menuNote"/>
+    <addaction name="menuInsight"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_Edit"/>

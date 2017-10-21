@@ -65,6 +65,8 @@ namespace novelist {
         void onProjectViewFocus(bool focus);
 
         void onSceneTabFocus(bool focus);
+
+        void onAboutToShowInspectionMenu();
     };
 }
 
