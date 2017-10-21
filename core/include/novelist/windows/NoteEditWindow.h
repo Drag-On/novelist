@@ -22,14 +22,11 @@ namespace novelist {
         Q_OBJECT
 
     public:
-        enum DialogCode { Rejected = QDialog::Rejected, Accepted, Removed };
-
         /**
-         * @param allowRemove Shows a button to remove the note if flag is true
          * @param parent Parent window
          * @param f Window flags
          */
-        explicit NoteEditWindow(bool allowRemove = false, QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags{});
+        explicit NoteEditWindow(QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags{});
 
         ~NoteEditWindow() noexcept override;
 

@@ -16,6 +16,9 @@ namespace novelist {
         connect(&m_editAction, &QAction::triggered, this, &ManualTextAnnotation::onEditAction);
         connect(&m_removeAction, &QAction::triggered, this, &ManualTextAnnotation::onRemoveAction);
 
+        m_editAction.setText(tr("Edit"));
+        m_removeAction.setText(tr("Remove"));
+
         m_menu.setTitle(tr("Note"));
         m_menu.addAction(&m_editAction);
         m_menu.addAction(&m_removeAction);
@@ -28,13 +31,11 @@ namespace novelist {
 
     void ManualTextAnnotation::onEditAction()
     {
-        NoteEditWindow wnd(true);
+        NoteEditWindow wnd;
         wnd.setText(message());
         auto result = wnd.exec();
-        if(result == NoteEditWindow::Accepted)
+        if(result == QDialog::Accepted)
             setMessage(wnd.text());
-        else if (result == NoteEditWindow::Removed)
-            setRange(0, 0); // This will trigger the collapsed() signal and the annotation will be removed
     }
 
     void ManualTextAnnotation::onRemoveAction()
