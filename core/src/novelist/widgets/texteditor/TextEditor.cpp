@@ -15,8 +15,6 @@
 #include <QtWidgets/QToolTip>
 #include "widgets/texteditor/ManualTextAnnotation.h"
 #include "windows/NoteEditWindow.h"
-#include "widgets/texteditor/TextAnnotation.h"
-#include "widgets/texteditor/TextEditor.h"
 
 namespace novelist {
     TextEditor::TextEditor(QWidget* parent)
@@ -39,7 +37,7 @@ namespace novelist {
             return connect(&m_boldAction, &QAction::toggled, this, &TextEditor::onBoldActionToggled);
         });
         m_onItalicActionConnection = Connection([this]() {
-           return connect(&m_italicAction, &QAction::toggled, this, &TextEditor::onItalicActionToggled);
+            return connect(&m_italicAction, &QAction::toggled, this, &TextEditor::onItalicActionToggled);
         });
         m_onUnderlineActionConnection = Connection([this]() {
             return connect(&m_underlineAction, &QAction::toggled, this, &TextEditor::onUnderlineActionToggled);
@@ -211,6 +209,28 @@ namespace novelist {
         QTextEdit::focusOutEvent(e);
     }
 
+    void TextEditor::contextMenuEvent(QContextMenuEvent* e)
+    {
+        QMenu* menu = createStandardContextMenu(e->pos());
+        auto cleanup = gsl::finally([menu] { delete menu; });
+        if (menu) {
+            auto* topAction = menu->actions().first();
+            // Add menu for insight if required
+            QModelIndex insightIdx = m_insights.find(cursorForPosition(e->pos()).position());
+            if (insightIdx.isValid()) {
+                auto* insight = qvariant_cast<IInsight*>(
+                        m_insights.data(insightIdx, static_cast<int>(InsightModelRoles::DataRole)));
+                menu->insertMenu(topAction, const_cast<QMenu*>(&insight->menu()));
+            }
+            // Add action for note insertion if text is selected
+            else if (textCursor().hasSelection()) {
+                menu->insertAction(topAction, addNoteAction());
+            }
+            menu->insertSeparator(topAction);
+            menu->exec(e->globalPos());
+        }
+    }
+
     QTextBlock TextEditor::firstVisibleBlock() const
     {
         QTextCursor curs{document()};
@@ -340,7 +360,7 @@ namespace novelist {
 
     void TextEditor::onBoldActionToggled(bool checked)
     {
-        if(!document())
+        if (!document())
             return;
 
         auto curFormat = textCursor().charFormat();
@@ -354,7 +374,7 @@ namespace novelist {
 
     void TextEditor::onItalicActionToggled(bool checked)
     {
-        if(!document())
+        if (!document())
             return;
 
         auto curFormat = textCursor().charFormat();
@@ -365,7 +385,7 @@ namespace novelist {
 
     void TextEditor::onUnderlineActionToggled(bool checked)
     {
-        if(!document())
+        if (!document())
             return;
 
         auto curFormat = textCursor().charFormat();
@@ -376,7 +396,7 @@ namespace novelist {
 
     void TextEditor::onOverlineActionToggled(bool checked)
     {
-        if(!document())
+        if (!document())
             return;
 
         auto curFormat = textCursor().charFormat();
@@ -387,7 +407,7 @@ namespace novelist {
 
     void TextEditor::onStrikethroughActionToggled(bool checked)
     {
-        if(!document())
+        if (!document())
             return;
 
         auto curFormat = textCursor().charFormat();
@@ -398,11 +418,11 @@ namespace novelist {
 
     void TextEditor::onSmallCapsActionToggled(bool checked)
     {
-        if(!document())
+        if (!document())
             return;
 
         auto curFormat = textCursor().charFormat();
-        if(checked)
+        if (checked)
             curFormat.setFontCapitalization(QFont::Capitalization::SmallCaps);
         else
             curFormat.setFontCapitalization(QFont::Capitalization::MixedCase);
@@ -413,11 +433,11 @@ namespace novelist {
     void TextEditor::makeSelectionIntoNote()
     {
         QTextCursor cursor = textCursor();
-        if(!cursor.hasSelection())
+        if (!cursor.hasSelection())
             return;
 
         NoteEditWindow wnd;
-        if(wnd.exec() == QDialog::Accepted)
+        if (wnd.exec() == QDialog::Accepted)
             m_insights.insert(
                     new ManualTextAnnotation(document(), cursor.selectionStart(), cursor.selectionEnd(), wnd.text()));
     }

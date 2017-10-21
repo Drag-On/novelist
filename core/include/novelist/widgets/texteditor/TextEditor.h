@@ -176,6 +176,8 @@ namespace novelist {
 
         void focusOutEvent(QFocusEvent* e) override;
 
+        void contextMenuEvent(QContextMenuEvent* e) override;
+
         /**
          * @return The first block that is currently visible on the screen
          */
