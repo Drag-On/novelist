@@ -75,6 +75,13 @@ namespace novelist {
          */
         void clear();
 
+        /**
+         * Finds the first insight that contains a given character position.
+         * @param charpos Character position in the document
+         * @return Index of the first insight that contains \p charpos or an invalid index.
+         */
+        QModelIndex find(int charpos) const noexcept;
+
         bool event(QEvent* event) override;
 
     private:

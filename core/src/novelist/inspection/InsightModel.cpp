@@ -116,6 +116,16 @@ namespace novelist {
         endResetModel();
     }
 
+    QModelIndex InsightModel::find(int charpos) const noexcept
+    {
+        auto iter = std::find_if(m_insights.begin(), m_insights.end(), [charpos](std::unique_ptr<IInsight> const& p) {
+            return p->range().first <= charpos && p->range().second > charpos;
+        });
+        if(iter != m_insights.end())
+            return index(gsl::narrow<int>(std::distance(m_insights.begin(), iter)), 0);
+        return QModelIndex();
+    }
+
     bool InsightModel::event(QEvent* event)
     {
         auto* e = dynamic_cast<internal::RemoveInsightEvent*>(event);
