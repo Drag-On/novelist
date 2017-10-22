@@ -26,7 +26,8 @@ namespace novelist {
         setCorner(Qt::Corner::TopRightCorner, Qt::DockWidgetArea::RightDockWidgetArea);
 
         m_ui->setupUi(this);
-        m_ui->sceneTabWidget->useInsightView(m_ui->tableView_insights);
+        m_ui->sceneTabWidget->useInsightView(m_ui->insightView);
+        m_ui->insightView->useSceneTabWidget(m_ui->sceneTabWidget);
 
         // Replace some actions with appropriate delegate actions
         m_ui->action_Undo = replaceMenuAction(m_ui->menu_Edit, m_ui->action_Undo, &m_undoAction);

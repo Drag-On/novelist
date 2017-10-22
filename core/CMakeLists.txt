@@ -14,6 +14,7 @@ add_library(novelist_core
         include/novelist/functional/Overloaded.h
         include/novelist/identity/Identity.h
         src/novelist/view/ProjectView.cpp include/novelist/view/ProjectView.h
+        src/novelist/view/InsightView.cpp include/novelist/view/InsightView.h
         src/novelist/widgets/LanguagePicker.cpp include/novelist/widgets/LanguagePicker.h
         src/novelist/widgets/texteditor/TextEditor.cpp include/novelist/widgets/texteditor/TextEditor.h
         src/novelist/widgets/texteditor/TextAnnotation.cpp include/novelist/widgets/texteditor/TextAnnotation.h

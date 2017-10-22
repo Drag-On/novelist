@@ -7,7 +7,8 @@ if (NOT NoDesigner)
             main.h main.cpp
             LanguagePickerPlugin.h LanguagePickerPlugin.cpp
             ProjectViewPlugin.cpp ProjectViewPlugin.h
-            SceneTabWidgetPlugin.cpp SceneTabWidgetPlugin.h)
+            SceneTabWidgetPlugin.cpp SceneTabWidgetPlugin.h
+            InsightViewPlugin.cpp InsightViewPlugin.h)
 
     target_link_libraries(novelist_core_designer
             PUBLIC

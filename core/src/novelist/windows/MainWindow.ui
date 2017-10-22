@@ -182,7 +182,7 @@
    <widget class="QWidget" name="dockWidgetContents_2">
     <layout class="QVBoxLayout" name="verticalLayout_3">
      <item>
-      <widget class="QTableView" name="tableView_insights">
+      <widget class="novelist::InsightView" name="insightView">
        <property name="editTriggers">
         <set>QAbstractItemView::NoEditTriggers</set>
        </property>
@@ -195,12 +195,6 @@
        <property name="selectionBehavior">
         <enum>QAbstractItemView::SelectRows</enum>
        </property>
-       <attribute name="horizontalHeaderDefaultSectionSize">
-        <number>50</number>
-       </attribute>
-       <attribute name="horizontalHeaderMinimumSectionSize">
-        <number>10</number>
-       </attribute>
        <attribute name="horizontalHeaderStretchLastSection">
         <bool>true</bool>
        </attribute>
@@ -425,6 +419,11 @@
    <class>novelist::ProjectView</class>
    <extends>QWidget</extends>
    <header>view/ProjectView.h</header>
+  </customwidget>
+  <customwidget>
+   <class>novelist::InsightView</class>
+   <extends>QTableView</extends>
+   <header>view/InsightView.h</header>
   </customwidget>
   <customwidget>
    <class>novelist::SceneTabWidget</class>
