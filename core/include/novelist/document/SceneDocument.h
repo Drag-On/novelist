@@ -76,9 +76,17 @@ namespace novelist {
 
         bool readText(QXmlStreamReader& xml, QTextCursor& cursor);
 
+        QTextBlockFormat readBlockFormatAttr(QXmlStreamReader& xml) const;
+
+        QTextCharFormat readCharFormatAttr(QXmlStreamReader& xml) const;
+
         bool writeBlock(QXmlStreamWriter& xml, QTextBlock const& block) const;
 
         bool writeFragment(QXmlStreamWriter& xml, QTextFragment const& fragment) const;
+
+        bool writeBlockFormatAttr(QXmlStreamWriter& xml, QTextBlockFormat const& format) const;
+
+        bool writeCharFormatAttr(QXmlStreamWriter& xml, QTextCharFormat const& format) const;
     };
 }
 

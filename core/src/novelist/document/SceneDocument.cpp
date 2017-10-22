@@ -143,25 +143,7 @@ namespace novelist {
     {
         Expects(xml.isStartElement() && xml.name() == "block");
 
-        QTextBlockFormat format;
-        if (xml.attributes().hasAttribute("align"))
-            format.setAlignment(static_cast<Qt::Alignment>(xml.attributes().value("align").toInt()));
-        if (xml.attributes().hasAttribute("botMargin"))
-            format.setBottomMargin(xml.attributes().value("botMargin").toFloat());
-        if (xml.attributes().hasAttribute("topMargin"))
-            format.setTopMargin(xml.attributes().value("topMargin").toFloat());
-        if (xml.attributes().hasAttribute("leftMargin"))
-            format.setLeftMargin(xml.attributes().value("leftMargin").toFloat());
-        if (xml.attributes().hasAttribute("rightMargin"))
-            format.setRightMargin(xml.attributes().value("rightMargin").toFloat());
-        if (xml.attributes().hasAttribute("indent"))
-            format.setIndent(xml.attributes().value("indent").toInt());
-        if (xml.attributes().hasAttribute("lineHeight") && xml.attributes().hasAttribute("lineHeightType"))
-            format.setLineHeight(xml.attributes().value("lineHeight").toFloat(),
-                    xml.attributes().value("lineHeightType").toInt());
-        if (xml.attributes().hasAttribute("textIndent"))
-            format.setTextIndent(xml.attributes().value("textIndent").toFloat());
-
+        QTextBlockFormat format = readBlockFormatAttr(xml);
         cursor.insertBlock(format);
 
         return readText(xml, cursor);
@@ -170,47 +152,68 @@ namespace novelist {
     bool SceneDocument::readText(QXmlStreamReader& xml, QTextCursor& cursor)
     {
         while (xml.readNextStartElement() && xml.name() == "text") {
-
-            QTextCharFormat format;
-            if (xml.attributes().hasAttribute("capitalization"))
-                format.setFontCapitalization(
-                        static_cast<QFont::Capitalization>(xml.attributes().value("capitalization").toInt()));
-            if (xml.attributes().hasAttribute("font"))
-                format.setFontFamily(xml.attributes().value("font").toString());
-            if (xml.attributes().hasAttribute("italic"))
-                format.setFontItalic(xml.attributes().value("italic").toInt() != 0);
-            if (xml.attributes().hasAttribute("overline"))
-                format.setFontOverline(xml.attributes().value("overline").toInt() != 0);
-            if (xml.attributes().hasAttribute("size"))
-                format.setFontPointSize(xml.attributes().value("size").toFloat());
-            if (xml.attributes().hasAttribute("strikeout"))
-                format.setFontStrikeOut(xml.attributes().value("strikeout").toInt() != 0);
-            if (xml.attributes().hasAttribute("style"))
-                format.setFontStyleHint(static_cast<QFont::StyleHint>(xml.attributes().value("style").toInt()),
-                        format.fontStyleStrategy());
-            if (xml.attributes().hasAttribute("underline"))
-                format.setFontUnderline(xml.attributes().value("underline").toInt() != 0);
-            if (xml.attributes().hasAttribute("weight"))
-                format.setFontWeight(xml.attributes().value("weight").toInt());
-
+            QTextCharFormat format = readCharFormatAttr(xml);
             cursor.insertText(xml.readElementText(), format);
         }
 
         return true;
     }
 
+    QTextBlockFormat SceneDocument::readBlockFormatAttr(QXmlStreamReader& xml) const
+    {
+        QTextBlockFormat format;
+//        if (xml.attributes().hasAttribute("align"))
+//            format.setAlignment(static_cast<Qt::Alignment>(xml.attributes().value("align").toInt()));
+//        if (xml.attributes().hasAttribute("botMargin"))
+//            format.setBottomMargin(xml.attributes().value("botMargin").toFloat());
+//        if (xml.attributes().hasAttribute("topMargin"))
+//            format.setTopMargin(xml.attributes().value("topMargin").toFloat());
+//        if (xml.attributes().hasAttribute("leftMargin"))
+//            format.setLeftMargin(xml.attributes().value("leftMargin").toFloat());
+//        if (xml.attributes().hasAttribute("rightMargin"))
+//            format.setRightMargin(xml.attributes().value("rightMargin").toFloat());
+//        if (xml.attributes().hasAttribute("indent"))
+//            format.setIndent(xml.attributes().value("indent").toInt());
+//        if (xml.attributes().hasAttribute("lineHeight") && xml.attributes().hasAttribute("lineHeightType"))
+//            format.setLineHeight(xml.attributes().value("lineHeight").toFloat(),
+//                    xml.attributes().value("lineHeightType").toInt());
+        if (xml.attributes().hasAttribute("textIndent"))
+            format.setTextIndent(xml.attributes().value("textIndent").toFloat());
+
+        return format;
+    }
+
+    QTextCharFormat SceneDocument::readCharFormatAttr(QXmlStreamReader& xml) const
+    {
+        QTextCharFormat format;
+        if (xml.attributes().hasAttribute("capitalization"))
+            format.setFontCapitalization(
+                    static_cast<QFont::Capitalization>(xml.attributes().value("capitalization").toInt()));
+        if (xml.attributes().hasAttribute("italic"))
+            format.setFontItalic(xml.attributes().value("italic").toInt() != 0);
+        if (xml.attributes().hasAttribute("overline"))
+            format.setFontOverline(xml.attributes().value("overline").toInt() != 0);
+        if (xml.attributes().hasAttribute("strikeout"))
+            format.setFontStrikeOut(xml.attributes().value("strikeout").toInt() != 0);
+        if (xml.attributes().hasAttribute("underline"))
+            format.setFontUnderline(xml.attributes().value("underline").toInt() != 0);
+        if (xml.attributes().hasAttribute("weight"))
+            format.setFontWeight(xml.attributes().value("weight").toInt());
+//        if (xml.attributes().hasAttribute("font"))
+//            format.setFontFamily(xml.attributes().value("font").toString());
+//        if (xml.attributes().hasAttribute("size"))
+//            format.setFontPointSize(xml.attributes().value("size").toFloat());
+//        if (xml.attributes().hasAttribute("style"))
+//            format.setFontStyleHint(static_cast<QFont::StyleHint>(xml.attributes().value("style").toInt()),
+//                    format.fontStyleStrategy());
+
+        return format;
+    }
+
     bool SceneDocument::writeBlock(QXmlStreamWriter& xml, QTextBlock const& block) const
     {
         xml.writeStartElement("block");
-        xml.writeAttribute("align", QString::number(static_cast<int>(block.blockFormat().alignment())));
-        xml.writeAttribute("botMargin", QString::number(block.blockFormat().bottomMargin()));
-        xml.writeAttribute("topMargin", QString::number(block.blockFormat().topMargin()));
-        xml.writeAttribute("rightMargin", QString::number(block.blockFormat().rightMargin()));
-        xml.writeAttribute("leftMargin", QString::number(block.blockFormat().leftMargin()));
-        xml.writeAttribute("indent", QString::number(block.blockFormat().indent()));
-        xml.writeAttribute("textIndent", QString::number(block.blockFormat().textIndent()));
-        xml.writeAttribute("lineHeight", QString::number(block.blockFormat().lineHeight()));
-        xml.writeAttribute("lineHeightType", QString::number(block.blockFormat().lineHeightType()));
+        writeBlockFormatAttr(xml, block.blockFormat());
 
         for (auto iter = block.begin(); iter != block.end(); ++iter) {
             QTextFragment currentFragment = iter.fragment();
@@ -227,22 +230,39 @@ namespace novelist {
 
     bool SceneDocument::writeFragment(QXmlStreamWriter& xml, QTextFragment const& fragment) const
     {
-        QFont const& font = fragment.charFormat().font();
         xml.writeStartElement("text");
-        xml.writeAttribute("capitalization", QString::number(font.capitalization()));
-        xml.writeAttribute("italic", QString::number(font.italic()));
-        xml.writeAttribute("overline", QString::number(font.overline()));
-        xml.writeAttribute("underline", QString::number(font.underline()));
-        xml.writeAttribute("strikeout", QString::number(font.strikeOut()));
-        xml.writeAttribute("weight", QString::number(font.weight()));
-        xml.writeAttribute("font", font.family());
-        xml.writeAttribute("style", QString::number(font.styleHint()));
-        xml.writeAttribute("size", QString::number(font.pointSizeF()));
-
+        writeCharFormatAttr(xml, fragment.charFormat());
         xml.writeCharacters(fragment.text());
-
         xml.writeEndElement();
 
+        return true;
+    }
+
+    bool SceneDocument::writeBlockFormatAttr(QXmlStreamWriter& xml, QTextBlockFormat const& format) const
+    {
+//        xml.writeAttribute("align", QString::number(static_cast<int>(format.alignment())));
+//        xml.writeAttribute("botMargin", QString::number(format.bottomMargin()));
+//        xml.writeAttribute("topMargin", QString::number(format.topMargin()));
+//        xml.writeAttribute("rightMargin", QString::number(format.rightMargin()));
+//        xml.writeAttribute("leftMargin", QString::number(format.leftMargin()));
+//        xml.writeAttribute("indent", QString::number(format.indent()));
+        xml.writeAttribute("textIndent", QString::number(format.textIndent()));
+//        xml.writeAttribute("lineHeight", QString::number(format.lineHeight()));
+//        xml.writeAttribute("lineHeightType", QString::number(format.lineHeightType()));
+        return true;
+    }
+
+    bool SceneDocument::writeCharFormatAttr(QXmlStreamWriter& xml, QTextCharFormat const& format) const
+    {
+        xml.writeAttribute("capitalization", QString::number(format.font().capitalization()));
+        xml.writeAttribute("italic", QString::number(format.font().italic()));
+        xml.writeAttribute("overline", QString::number(format.font().overline()));
+        xml.writeAttribute("underline", QString::number(format.font().underline()));
+        xml.writeAttribute("strikeout", QString::number(format.font().strikeOut()));
+        xml.writeAttribute("weight", QString::number(format.font().weight()));
+//        xml.writeAttribute("font", format.font().family());
+//        xml.writeAttribute("style", QString::number(format.font().styleHint()));
+//        xml.writeAttribute("size", QString::number(format.font().pointSizeF()));
         return true;
     }
 }
