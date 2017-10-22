@@ -11,6 +11,29 @@
 #include "widgets/SceneTabWidget.h"
 
 namespace novelist {
+    namespace internal {
+        InternalTabBar::InternalTabBar(SceneTabWidget* parent) noexcept
+                :QTabBar(parent)
+        {
+        }
+
+        void InternalTabBar::focusInEvent(QFocusEvent* event)
+        {
+            auto* tabWidget = dynamic_cast<SceneTabWidget*>(parent());
+            emit tabWidget->focusReceived(true);
+
+            QWidget::focusInEvent(event);
+        }
+
+        void InternalTabBar::focusOutEvent(QFocusEvent* event)
+        {
+            auto* tabWidget = dynamic_cast<SceneTabWidget*>(parent());
+            emit tabWidget->focusReceived(false);
+
+            QWidget::focusOutEvent(event);
+        }
+    }
+
     SceneTabWidget::SceneTabWidget(QWidget* parent)
             :QTabWidget(parent)
     {
@@ -37,31 +60,18 @@ namespace novelist {
 
         int tabIdx = indexOf(model, index);
         if (tabIdx == -1) {
-            auto* editor = new internal::InternalTextEditor(); // The tab will take ownership
+            auto& editor = m_editors.emplace_back(new internal::InternalTextEditor());
             editor->setFocusPolicy(focusPolicy());
             editor->m_model = model;
             editor->m_modelIndex = index;
             editor->setDocument(qvariant_cast<SceneDocument*>(model->data(index, ProjectModel::DocumentRole)));
 
             // Make sure the tab title and color change appropriately
-            auto onDataChanged =
-                    [this, editor, model](QModelIndex const& topLeft, QModelIndex const& bottomRight) {
-                        for (int i = topLeft.row(); i <= bottomRight.row(); ++i) {
-                            QModelIndex curIdx = model->index(i, 0, topLeft.parent());
-                            if (int tabIdx = indexOf(model, curIdx); tabIdx >= 0) {
-                                QString name = model->data(curIdx, Qt::DisplayRole).toString();
-                                tabBar()->setTabText(tabIdx, name);
-                                tabBar()->setTabToolTip(tabIdx, name);
-                                tabBar()->setTabTextColor(tabIdx,
-                                        qvariant_cast<QBrush>(model->data(curIdx, Qt::ForegroundRole)).color());
-                            }
-                        }
-                    };
-            connect(editor->m_model, &ProjectModel::dataChanged, onDataChanged);
-            connect(editor, &TextEditor::focusReceived, [this] (bool focus){ emit focusReceived(focus); });
+            connect(editor->m_model, &ProjectModel::dataChanged, this, &SceneTabWidget::onModelDataChanged);
+            connect(editor.get(), &TextEditor::focusReceived, [this](bool focus) { emit focusReceived(focus); });
 
             QString name = model->data(index, Qt::DisplayRole).toString();
-            tabIdx = addTab(editor, name);
+            tabIdx = addTab(editor.get(), name);
             tabBar()->setTabToolTip(tabIdx, name);
             tabBar()->setTabTextColor(tabIdx, qvariant_cast<QBrush>(model->data(index, Qt::ForegroundRole)).color());
         }
@@ -75,15 +85,23 @@ namespace novelist {
 
     void SceneTabWidget::closeScene(int index)
     {
-        if(index < 0)
+        if (index < 0 || index > count())
             return;
 
+        auto* w = dynamic_cast<internal::InternalTextEditor*>(widget(index));
         removeTab(index);
+
+        if (w != nullptr) {
+            m_editors.erase(std::remove_if(m_editors.begin(), m_editors.end(),
+                    [this, w](std::unique_ptr<internal::InternalTextEditor> const& p) {
+                        return p.get() == w;
+                    }));
+        }
     }
 
     void SceneTabWidget::closeAll()
     {
-        for(int c = count(), i = 0; i < c; ++i)
+        for (int c = count(), i = 0; i < c; ++i)
             closeScene(0);
     }
 
@@ -186,7 +204,7 @@ namespace novelist {
             m_smallCapsAction.setDelegate(editor->smallCapsAction());
             m_addNoteAction.setDelegate(editor->addNoteAction());
 
-            if(m_insightView) {
+            if (m_insightView) {
                 m_insightView->setModel(editor->insights());
             }
         }
@@ -199,8 +217,26 @@ namespace novelist {
             m_smallCapsAction.setEnabled(false);
             m_addNoteAction.setEnabled(false);
 
-            if(m_insightView) {
+            if (m_insightView) {
                 m_insightView->setModel(nullptr);
+            }
+        }
+    }
+
+    void SceneTabWidget::onModelDataChanged(QModelIndex const& topLeft, QModelIndex const& bottomRight)
+    {
+        auto const* model = dynamic_cast<ProjectModel const*>(topLeft.model());
+        if (model == nullptr)
+            return;
+
+        for (int i = topLeft.row(); i <= bottomRight.row(); ++i) {
+            QModelIndex curIdx = model->index(i, 0, topLeft.parent());
+            if (int tabIdx = indexOf(model, curIdx); tabIdx >= 0) {
+                QString name = model->data(curIdx, Qt::DisplayRole).toString();
+                tabBar()->setTabText(tabIdx, name);
+                tabBar()->setTabToolTip(tabIdx, name);
+                tabBar()->setTabTextColor(tabIdx,
+                        qvariant_cast<QBrush>(model->data(curIdx, Qt::ForegroundRole)).color());
             }
         }
     }

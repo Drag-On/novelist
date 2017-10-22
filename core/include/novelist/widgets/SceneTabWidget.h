@@ -13,12 +13,39 @@
 #include <QtCore/QFile>
 #include <QTabBar>
 #include <QtWidgets/QAbstractItemView>
+#include <vector>
 #include "util/DelegateAction.h"
 #include "util/ConnectionWrapper.h"
 #include "model/ProjectModel.h"
 #include "widgets/texteditor/TextEditor.h"
 
 namespace novelist {
+    class SceneTabWidget;
+
+    namespace internal {
+        class InternalTextEditor : public TextEditor {
+        Q_OBJECT
+
+        public:
+            using TextEditor::TextEditor;
+
+            ProjectModel* m_model;
+            QPersistentModelIndex m_modelIndex;
+        };
+
+        class InternalTabBar : public QTabBar {
+        Q_OBJECT
+
+        public:
+            explicit InternalTabBar(SceneTabWidget* parent) noexcept;
+
+        protected:
+            void focusInEvent(QFocusEvent* event) override;
+
+            void focusOutEvent(QFocusEvent* event) override;
+        };
+    }
+
     class SceneTabWidget : public QTabWidget {
     Q_OBJECT
 
@@ -145,6 +172,8 @@ namespace novelist {
 
         void onCurrentChanged(int index);
 
+        void onModelDataChanged(QModelIndex const& topLeft, QModelIndex const& bottomRight);
+
     private:
         DelegateAction m_undoAction;
         DelegateAction m_redoAction;
@@ -155,47 +184,9 @@ namespace novelist {
         DelegateAction m_strikethroughAction;
         DelegateAction m_smallCapsAction;
         DelegateAction m_addNoteAction;
+        std::vector<std::unique_ptr<internal::InternalTextEditor>> m_editors;
         QAbstractItemView* m_insightView = nullptr;
     };
-
-    namespace internal {
-        class InternalTextEditor : public TextEditor {
-        Q_OBJECT
-
-        public:
-            using TextEditor::TextEditor;
-
-            ProjectModel* m_model;
-            QPersistentModelIndex m_modelIndex;
-        };
-
-        class InternalTabBar : public QTabBar {
-            Q_OBJECT
-
-        public:
-            explicit InternalTabBar(SceneTabWidget* parent) noexcept
-             : QTabBar(parent)
-            {
-            }
-
-        protected:
-            void focusInEvent(QFocusEvent* event) override
-            {
-                auto* tabWidget = dynamic_cast<SceneTabWidget*>(parent());
-                emit tabWidget->focusReceived(true);
-
-                QWidget::focusInEvent(event);
-            }
-
-            void focusOutEvent(QFocusEvent* event) override
-            {
-                auto* tabWidget = dynamic_cast<SceneTabWidget*>(parent());
-                emit tabWidget->focusReceived(false);
-
-                QWidget::focusOutEvent(event);
-            }
-        };
-    }
 }
 
 #endif //NOVELIST_SCENETABWIDGET_H
