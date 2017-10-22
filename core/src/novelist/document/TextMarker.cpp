@@ -28,6 +28,11 @@ namespace novelist {
         doFormat();
     }
 
+    TextMarker::~TextMarker() noexcept
+    {
+        removeOldFormats();
+    }
+
     std::pair<int, int> TextMarker::parRange() const noexcept
     {
         return std::make_pair(m_doc->findBlock(m_cursor.selectionStart()).blockNumber(),

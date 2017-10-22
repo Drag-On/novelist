@@ -41,6 +41,16 @@ namespace novelist {
          */
         TextMarker(gsl::not_null<QTextDocument*> doc, int left, int right, QTextCharFormat format);
 
+        ~TextMarker() noexcept override;
+
+        TextMarker(TextMarker const&) = delete;
+
+        TextMarker operator=(TextMarker const&) = delete;
+
+        TextMarker(TextMarker&&) = default;
+
+        TextMarker& operator=(TextMarker&&) = default;
+
         /**
          * @return Paragraphs spanned by this insight
          */
