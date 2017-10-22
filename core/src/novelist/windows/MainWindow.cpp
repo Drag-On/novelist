@@ -10,40 +10,9 @@
 #include <QtCore/QEvent>
 #include <QtWidgets/QMessageBox>
 #include <QtWidgets/QFileDialog>
+#include "util/MenuHelper.h"
 #include "windows/MainWindow.h"
 #include "ui_MainWindow.h"
-
-void replaceMenuAction(QMenu* menu, QAction** old, QAction* replacement)
-{
-    replacement->setIcon((*old)->icon());
-
-    menu->insertAction(*old, replacement);
-    menu->removeAction(*old);
-    *old = replacement;
-}
-
-void replaceMenuAndToolbarAction(QMenu* menu, QToolBar* bar, QAction** old, QAction* replacement)
-{
-    replacement->setIcon((*old)->icon());
-
-    menu->insertAction(*old, replacement);
-    bar->insertAction(*old, replacement);
-    menu->removeAction(*old);
-    bar->removeAction(*old);
-    *old = replacement;
-}
-
-/*
- * Absorb the actions and submenus of "src" into "dest", inserting before "before" or at the end, if nullptr
- */
-void absorbMenu(QMenu* dest, QAction* before, QMenu* src) {
-    for (QAction* a : src->actions()) {
-        if (before)
-            dest->insertAction(before, a);
-        else
-            dest->addAction(a);
-    }
-}
 
 namespace novelist {
     MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
@@ -60,21 +29,22 @@ namespace novelist {
         m_ui->sceneTabWidget->useInsightView(m_ui->tableView_insights);
 
         // Replace some actions with appropriate delegate actions
-        replaceMenuAction(m_ui->menu_Edit, &m_ui->action_Undo, &m_undoAction);
-        replaceMenuAction(m_ui->menu_Edit, &m_ui->action_Redo, &m_redoAction);
-        replaceMenuAndToolbarAction(m_ui->menu_Format, m_ui->toolBarFormat, &m_ui->action_Bold,
+        m_ui->action_Undo = replaceMenuAction(m_ui->menu_Edit, m_ui->action_Undo, &m_undoAction);
+        m_ui->action_Redo = replaceMenuAction(m_ui->menu_Edit, m_ui->action_Redo, &m_redoAction);
+        m_ui->action_Bold = replaceMenuAndToolbarAction(m_ui->menu_Format, m_ui->toolBarFormat, m_ui->action_Bold,
                 m_ui->sceneTabWidget->boldAction());
-        replaceMenuAndToolbarAction(m_ui->menu_Format, m_ui->toolBarFormat, &m_ui->action_Italic,
+        m_ui->action_Italic = replaceMenuAndToolbarAction(m_ui->menu_Format, m_ui->toolBarFormat, m_ui->action_Italic,
                 m_ui->sceneTabWidget->italicAction());
-        replaceMenuAndToolbarAction(m_ui->menu_Format, m_ui->toolBarFormat, &m_ui->action_Underline,
-                m_ui->sceneTabWidget->underlineAction());
-        replaceMenuAndToolbarAction(m_ui->menu_Format, m_ui->toolBarFormat, &m_ui->action_Overline,
-                m_ui->sceneTabWidget->overlineAction());
-        replaceMenuAndToolbarAction(m_ui->menu_Format, m_ui->toolBarFormat, &m_ui->action_Strikethrough,
-                m_ui->sceneTabWidget->strikethroughAction());
-        replaceMenuAndToolbarAction(m_ui->menu_Format, m_ui->toolBarFormat, &m_ui->actionSmall_Caps,
-                m_ui->sceneTabWidget->smallCapsAction());
-        replaceMenuAction(m_ui->menu_Inspection, &m_ui->actionAdd_Note, m_ui->sceneTabWidget->addNoteAction());
+        m_ui->action_Underline = replaceMenuAndToolbarAction(m_ui->menu_Format, m_ui->toolBarFormat,
+                m_ui->action_Underline, m_ui->sceneTabWidget->underlineAction());
+        m_ui->action_Overline = replaceMenuAndToolbarAction(m_ui->menu_Format, m_ui->toolBarFormat,
+                m_ui->action_Overline, m_ui->sceneTabWidget->overlineAction());
+        m_ui->action_Strikethrough = replaceMenuAndToolbarAction(m_ui->menu_Format, m_ui->toolBarFormat,
+                m_ui->action_Strikethrough, m_ui->sceneTabWidget->strikethroughAction());
+        m_ui->actionSmall_Caps = replaceMenuAndToolbarAction(m_ui->menu_Format, m_ui->toolBarFormat,
+                m_ui->actionSmall_Caps, m_ui->sceneTabWidget->smallCapsAction());
+        m_ui->actionAdd_Note = replaceMenuAction(m_ui->menu_Inspection, m_ui->actionAdd_Note,
+                m_ui->sceneTabWidget->addNoteAction());
 
         m_ui->retranslateUi(this);
 
@@ -284,14 +254,14 @@ namespace novelist {
     void MainWindow::onAboutToShowInspectionMenu()
     {
         auto* editor = dynamic_cast<TextEditor*>(m_ui->sceneTabWidget->currentWidget());
-        if(editor) {
+        if (editor) {
             QModelIndex insightIdx = editor->insights()->find(editor->textCursor().position());
             if (insightIdx.isValid()) {
                 m_ui->menuInsight->clear();
                 m_ui->menuInsight->setEnabled(true);
                 auto* insight = qvariant_cast<IInsight*>(
                         editor->insights()->data(insightIdx, static_cast<int>(InsightModelRoles::DataRole)));
-                absorbMenu(m_ui->menuInsight, nullptr, const_cast<QMenu*>(&insight->menu()));
+                absorbMenu(m_ui->menuInsight, const_cast<QMenu*>(&insight->menu()));
                 return;
             }
         }

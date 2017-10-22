@@ -27,6 +27,7 @@ add_library(novelist_core
         src/novelist/util/ConnectionWrapper.cpp include/novelist/util/ConnectionWrapper.h
         src/novelist/util/Connection.cpp include/novelist/util/Connection.h
         src/novelist/util/DelegateAction.cpp include/novelist/util/DelegateAction.h
+        include/novelist/util/MenuHelper.h src/novelist/util/MenuHelper.cpp
         include/novelist/inspection/IInsight.h
         src/novelist/inspection/InsightModel.cpp include/novelist/inspection/InsightModel.h
         )
