@@ -68,7 +68,14 @@ namespace novelist {
         });
     }
 
-    MainWindow::~MainWindow() = default;
+    MainWindow::~MainWindow()
+    {
+        // Note: Due to Qt's quirky resource allocation model, the SceneTabWidget will be deallocated after the
+        //       ProjectModel. It can then happen that the tab widget tries to access the model, which results in a
+        //       SegFault. To circumvent this issue, all tabs are closed here before any other destructor is called.
+        //       This way, the tab widget will not try to access the model, as there are no open scenes anymore.
+        m_ui->sceneTabWidget->closeAll();
+    }
 
     void MainWindow::retranslateUi()
     {
