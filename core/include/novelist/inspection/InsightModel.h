@@ -84,6 +84,12 @@ namespace novelist {
 
         bool event(QEvent* event) override;
 
+    signals:
+        /**
+         * Fired whenever an insight has been removed
+         */
+        void insightRemoved();
+
     private:
         using InsightPtr = std::unique_ptr<IInsight>;
         std::vector<InsightPtr> m_insights{};

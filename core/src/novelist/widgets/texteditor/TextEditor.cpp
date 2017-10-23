@@ -26,6 +26,7 @@ namespace novelist {
         connect(this, &TextEditor::cursorPositionChanged, this, &TextEditor::highlightCurrentLine);
         connect(this, &TextEditor::cursorPositionChanged, this, &TextEditor::onCursorPositionChanged);
         connect(this, &TextEditor::selectionChanged, this, &TextEditor::onSelectionChanged);
+        connect(&m_insights, &InsightModel::insightRemoved, this, &TextEditor::onInsightRemoved);
 
         setDocument(new SceneDocument{this}); // Overwrite default QTextDocument
         setMouseTracking(true);
@@ -440,6 +441,19 @@ namespace novelist {
         if (wnd.exec() == QDialog::Accepted)
             m_insights.insert(
                     new ManualTextAnnotation(document(), cursor.selectionStart(), cursor.selectionEnd(), wnd.text()));
+    }
+
+    void TextEditor::onInsightRemoved()
+    {
+        // Re-layout document. This is required, otherwise weird visual bugs come up, like disappearing paragraphs that
+        // re-appear when the document is modified.
+        if(document()) {
+            int length = 0;
+            auto lastBlock = document()->lastBlock();
+            if(lastBlock.isValid())
+                length = lastBlock.position() + lastBlock.length();
+            document()->markContentsDirty(0, length);
+        }
     }
 
     void TextEditor::mouseMoveEvent(QMouseEvent* e)

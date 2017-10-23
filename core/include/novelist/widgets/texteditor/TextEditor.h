@@ -207,6 +207,8 @@ namespace novelist {
 
         void makeSelectionIntoNote();
 
+        void onInsightRemoved();
+
     private:
         void paintParagraphNumberArea(QPaintEvent* event);
 

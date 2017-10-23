@@ -106,6 +106,7 @@ namespace novelist {
         m_insights.erase(iter);
         endRemoveRows();
 
+        emit insightRemoved();
         return true;
     }
 
@@ -114,6 +115,8 @@ namespace novelist {
         beginResetModel();
         m_insights.clear();
         endResetModel();
+
+        emit insightRemoved();
     }
 
     QModelIndex InsightModel::find(int charpos) const noexcept
@@ -153,7 +156,10 @@ namespace novelist {
             return p.get() == insight;
         });
         if (iter != m_insights.end())
+        {
             remove(index(gsl::narrow<int>(std::distance(m_insights.begin(), iter)), 0));
+            emit insightRemoved();
+        }
     }
 
     void InsightModel::onInsightCollapsed(IInsight* insight)
