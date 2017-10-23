@@ -40,7 +40,7 @@ namespace novelist {
                 case 1:
                     return QVariant::fromValue<int>(iter->get()->parRange().second + 1);
                 case 2:
-                    return QVariant::fromValue<QString>(iter->get()->type());
+                    return QVariant::fromValue<QString>(insightTypeToDescription(iter->get()->type()));
                 case 3:
                     return QVariant::fromValue<QString>(iter->get()->message());
                 default:
@@ -124,7 +124,7 @@ namespace novelist {
         auto iter = std::find_if(m_insights.begin(), m_insights.end(), [charpos](std::unique_ptr<IInsight> const& p) {
             return p->range().first <= charpos && p->range().second > charpos;
         });
-        if(iter != m_insights.end())
+        if (iter != m_insights.end())
             return index(gsl::narrow<int>(std::distance(m_insights.begin(), iter)), 0);
         return QModelIndex();
     }
@@ -132,7 +132,7 @@ namespace novelist {
     bool InsightModel::event(QEvent* event)
     {
         auto* e = dynamic_cast<internal::RemoveInsightEvent*>(event);
-        if(e) {
+        if (e) {
             findAndRemove(e->m_insight);
             e->accept();
         }
@@ -155,8 +155,7 @@ namespace novelist {
         auto iter = std::find_if(m_insights.begin(), m_insights.end(), [insight](std::unique_ptr<IInsight> const& p) {
             return p.get() == insight;
         });
-        if (iter != m_insights.end())
-        {
+        if (iter != m_insights.end()) {
             remove(index(gsl::narrow<int>(std::distance(m_insights.begin(), iter)), 0));
             emit insightRemoved();
         }

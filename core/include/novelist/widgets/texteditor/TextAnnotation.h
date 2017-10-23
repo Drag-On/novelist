@@ -13,15 +13,6 @@
 #include "TextEditor.h"
 
 namespace novelist {
-    /**
-     * Available annotation types
-     */
-    enum class TextAnnotationType {
-        Note, //!< Note style, will be displayed with a bright green background
-        Info, //!< Info style, will be displayed with a bright violet background
-        SpellingError, //!< Spelling error style, will be displayed with red squiggly underline
-        GrammarError, //!< Grammar error style, will be displayed with blue squiggly underline
-    };
 
     class TextAnnotation : public QObject, public IInsight {
     Q_OBJECT
@@ -37,7 +28,7 @@ namespace novelist {
          * @param type Annotation type. This defines display style.
          */
         TextAnnotation(gsl::not_null<QTextDocument*> doc, int left, int right, QString msg,
-                TextAnnotationType type = TextAnnotationType::Note);
+                InsightType type = InsightType::Note);
 
         /**
          * @return Paragraphs spanned by this insight
@@ -68,9 +59,9 @@ namespace novelist {
         void setMessage(QString msg) noexcept;
 
         /**
-         * @return Human-readable type of this insight
+         * @return Type of this insight
          */
-        QString type() const noexcept override;
+        InsightType type() const noexcept override;
 
         /**
          * @return Distance between left and right marker
@@ -94,34 +85,9 @@ namespace novelist {
         void collapsed(IInsight* insight) override;
 
     private:
-        static QTextCharFormat const& typeToFormat(TextAnnotationType type);
-
         TextMarker m_marker;
         QString m_msg;
-        TextAnnotationType m_type;
-
-        inline static QTextCharFormat const s_defaultNoteFormat = [] {
-            QTextCharFormat format;
-            format.setBackground(QColor::fromRgb(180, 255, 145));
-            return format;
-        }();
-        inline static QTextCharFormat const s_defaultInfoFormat = [] {
-            QTextCharFormat format;
-            format.setBackground(QColor::fromRgb(180, 145, 255));
-            return format;
-        }();
-        inline static QTextCharFormat const s_defaultSpellingFormat = [] {
-            QTextCharFormat format;
-            format.setUnderlineStyle(QTextCharFormat::UnderlineStyle::WaveUnderline);
-            format.setUnderlineColor(QColor::fromRgb(255, 0, 0));
-            return format;
-        }();
-        inline static QTextCharFormat const s_defaultGrammarFormat = [] {
-            QTextCharFormat format;
-            format.setUnderlineStyle(QTextCharFormat::UnderlineStyle::WaveUnderline);
-            format.setUnderlineColor(QColor::fromRgb(0, 0, 255));
-            return format;
-        }();
+        InsightType m_type;
     };
 }
 

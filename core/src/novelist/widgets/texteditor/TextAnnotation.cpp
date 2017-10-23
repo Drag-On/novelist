@@ -11,9 +11,9 @@
 
 namespace novelist {
     TextAnnotation::TextAnnotation(gsl::not_null<QTextDocument*> doc, int left, int right, QString msg,
-            TextAnnotationType type)
+            InsightType type)
             :QObject(nullptr),
-             m_marker(doc, left, right, typeToFormat(type)),
+             m_marker(doc, left, right, insightTypeToFormat(type)),
              m_msg(std::move(msg)),
              m_type(type)
     {
@@ -45,19 +45,9 @@ namespace novelist {
         m_msg = std::move(msg);
     }
 
-    QString TextAnnotation::type() const noexcept
+    InsightType TextAnnotation::type() const noexcept
     {
-        switch (m_type) {
-            case TextAnnotationType::Info:
-                return tr("Info");
-            case TextAnnotationType::Note:
-                return tr("Note");
-            case TextAnnotationType::SpellingError:
-                return tr("Spelling");
-            case TextAnnotationType::GrammarError:
-                return tr("Grammar");
-        }
-        return "";
+        return m_type;
     }
 
     int TextAnnotation::length() const noexcept
@@ -68,21 +58,6 @@ namespace novelist {
     QTextCursor TextAnnotation::toCursor() const noexcept
     {
         return m_marker.toCursor();
-    }
-
-    QTextCharFormat const& TextAnnotation::typeToFormat(TextAnnotationType type)
-    {
-        switch (type) {
-            case TextAnnotationType::Note:
-                return s_defaultNoteFormat;
-            case TextAnnotationType::Info:
-                return s_defaultInfoFormat;
-            case TextAnnotationType::SpellingError:
-                return s_defaultSpellingFormat;
-            case TextAnnotationType::GrammarError:
-                return s_defaultGrammarFormat;
-        }
-        throw; // Should only ever happen if the enum is extended and this method isn't updated.
     }
 
     std::ostream& operator<<(std::ostream& s, TextAnnotation const& m) noexcept
