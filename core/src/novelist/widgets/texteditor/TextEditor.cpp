@@ -458,7 +458,7 @@ namespace novelist {
 
     void TextEditor::mouseMoveEvent(QMouseEvent* e)
     {
-        m_textAnnotationMgr.onMousePosChanged(e->pos());
+        m_insightMgr.onMousePosChanged(e->pos());
         QTextEdit::mouseMoveEvent(e);
     }
 
@@ -480,38 +480,6 @@ namespace novelist {
             QWidget::paintEvent(event);
 
             m_textEditor->paintParagraphNumberArea(event);
-        }
-
-        TextAnnotationManager::TextAnnotationManager(gsl::not_null<TextEditor*> editor) noexcept
-                :m_editor(editor)
-        {
-        }
-
-        void TextAnnotationManager::onMousePosChanged(QPoint pos)
-        {
-            auto const& insights = m_editor->m_insights;
-            for (int row = 0; row < insights.rowCount(); ++row) {
-                IInsight* insight = qvariant_cast<IInsight*>(
-                        insights.data(insights.index(row, 0), static_cast<int>(InsightModelRoles::DataRole)));
-                auto* annotation = dynamic_cast<TextAnnotation*>(insight);
-                if (!annotation)
-                    continue;
-
-                auto cursor = annotation->toCursor();
-                QTextCursor leftCursor(cursor.document());
-                leftCursor.setPosition(cursor.selectionStart());
-                QTextCursor rightCursor(cursor.document());
-                rightCursor.setPosition(cursor.selectionEnd());
-                QRect cursorRect = m_editor->cursorRect(leftCursor);
-                QRect otherRect = m_editor->cursorRect(rightCursor);
-                QRect selectionRect = cursorRect.united(otherRect);
-                if (selectionRect.height() > cursorRect.height()) {
-                    selectionRect.setLeft(0);
-                    selectionRect.setRight(m_editor->size().width());
-                }
-                if (selectionRect.contains(pos))
-                    QToolTip::showText(m_editor->mapToGlobal(pos), annotation->message(), m_editor, selectionRect);
-            }
         }
     }
 }

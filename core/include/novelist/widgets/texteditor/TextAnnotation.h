@@ -80,7 +80,7 @@ namespace novelist {
         /**
          * @return A text cursor that spans the marked text
          */
-        QTextCursor toCursor() const noexcept;
+        QTextCursor toCursor() const noexcept override;
 
         /**
          * Formatted output of annotation to a stream

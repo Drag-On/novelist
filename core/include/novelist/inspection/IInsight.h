@@ -11,6 +11,7 @@
 
 #include <QtCore/QString>
 #include <QtWidgets/QMenu>
+#include <QTextCursor>
 
 namespace novelist {
     /**
@@ -30,6 +31,11 @@ namespace novelist {
          * @return Document position of first and last character included
          */
         virtual std::pair<int, int> range() const noexcept = 0;
+
+        /**
+         * @return A text cursor that spans the marked text
+         */
+        virtual QTextCursor toCursor() const noexcept = 0;
 
         /**
          * @return Insight message

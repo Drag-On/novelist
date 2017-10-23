@@ -18,6 +18,7 @@
 #include "util/Connection.h"
 #include "util/ConnectionWrapper.h"
 #include "document/SceneDocument.h"
+#include "InsightManager.h"
 
 namespace novelist {
     class TextEditor;
@@ -39,22 +40,6 @@ namespace novelist {
 
         private:
             TextEditor* m_textEditor;
-        };
-
-        /**
-         * Manages annotations for a TextEditor instance
-         */
-        class TextAnnotationManager : public QObject {
-        Q_OBJECT
-
-        public:
-            explicit TextAnnotationManager(gsl::not_null<TextEditor*> editor) noexcept;
-
-        public slots:
-            void onMousePosChanged(QPoint pos);
-
-        private:
-            gsl::not_null<TextEditor*> m_editor;
         };
     }
 
@@ -183,6 +168,8 @@ namespace novelist {
          */
         QTextBlock firstVisibleBlock() const;
 
+        void mouseMoveEvent(QMouseEvent* e) override;
+
     private slots:
 
         void onTextChanged();
@@ -218,16 +205,13 @@ namespace novelist {
 
         void setDefaultBlockFormat();
 
-    protected:
-        void mouseMoveEvent(QMouseEvent* e) override;
-
     private:
 
         std::unique_ptr<internal::ParagraphNumberArea> m_paragraphNumberArea;
         int m_lastVerticalSliderPos = 0;
         int m_lastBlockCount = 0;
         InsightModel m_insights;
-        internal::TextAnnotationManager m_textAnnotationMgr{this};
+        InsightManager m_insightMgr{this};
         Connection m_onBoldActionConnection;
         Connection m_onItalicActionConnection;
         Connection m_onUnderlineActionConnection;
@@ -248,7 +232,7 @@ namespace novelist {
         constexpr static bool show_debug_info = false;
 
         friend class internal::ParagraphNumberArea;
-        friend class internal::TextAnnotationManager;
+        friend class InsightManager;
     };
 }
 
