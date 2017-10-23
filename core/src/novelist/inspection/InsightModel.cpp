@@ -110,6 +110,28 @@ namespace novelist {
         return true;
     }
 
+    bool InsightModel::removeAllWithTypeInRange(InsightType type, int start, int end)
+    {
+        bool removed = false;
+        auto overlap = [start, end](IInsight* a) {
+            return a->range().first < end && a->range().second > start;
+        };
+        for (auto iter = m_insights.begin(); iter != m_insights.end(); ) {
+            if (iter->get()->type() == type && overlap(iter->get())) {
+                auto idx = gsl::narrow<int>(std::distance(m_insights.begin(), iter));
+                beginRemoveRows(QModelIndex(), idx, idx);
+                iter = m_insights.erase(iter);
+                endRemoveRows();
+                removed = true;
+            }
+            else
+                ++iter;
+        }
+        if (removed)
+            emit insightRemoved();
+        return removed;
+    }
+
     void InsightModel::clear()
     {
         beginResetModel();

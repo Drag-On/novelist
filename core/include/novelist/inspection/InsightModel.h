@@ -71,6 +71,15 @@ namespace novelist {
         bool remove(QModelIndex const& index);
 
         /**
+         * Remove all elements in a certain range that match the requested type
+         * @param type Type to remove
+         * @param start Start of the range
+         * @param end End of the range
+         * @return True in case elements have been erased, otherwise false
+         */
+        bool removeAllWithTypeInRange(InsightType type, int start, int end);
+
+        /**
          * Remove all elements
          */
         void clear();
