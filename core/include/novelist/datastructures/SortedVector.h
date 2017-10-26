@@ -145,19 +145,19 @@ namespace novelist {
         }
 
         explicit SortedVector(vector_t&& other) noexcept
-                :vector_t(other)
+                :vector_t(std::move(other))
         {
             std::sort(vector_t::begin(), vector_t::end(), Pred());
         }
 
         SortedVector(vector_t&& other, Alloc const& alloc)
-                :vector_t(other, alloc)
+                :vector_t(std::move(other), alloc)
         {
             std::sort(vector_t::begin(), vector_t::end(), Pred());
         }
 
         SortedVector(SortedVector&& other) noexcept
-                :vector_t(other)
+                :vector_t(std::move(other))
         {
         }
 
@@ -175,7 +175,7 @@ namespace novelist {
 
         SortedVector& operator=(SortedVector&& other) noexcept
         {
-            vector_t::operator=(other);
+            vector_t::operator=(std::move(other));
             return *this;
         }
 
@@ -243,7 +243,7 @@ namespace novelist {
          */
         const_iterator insert(T&& value)
         {
-            return vector_t::insert(findInsertIdx(value), value);
+            return vector_t::insert(findInsertIdx(value), std::move(value));
         }
 
         /**
