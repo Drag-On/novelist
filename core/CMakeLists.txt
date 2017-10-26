@@ -11,6 +11,7 @@ add_library(novelist_core
         src/novelist/model/ProjectModel.cpp include/novelist/model/ProjectModel.h
         src/novelist/model/ModelPath.cpp include/novelist/model/ModelPath.h
         include/novelist/datastructures/Tree.h
+        include/novelist/datastructures/SortedVector.h
         include/novelist/functional/Overloaded.h
         include/novelist/identity/Identity.h
         src/novelist/view/ProjectView.cpp include/novelist/view/ProjectView.h

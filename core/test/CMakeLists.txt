@@ -13,7 +13,7 @@ add_executable(novelist_core_test
         model/ProjectModelTest.cpp
         view/ProjectViewTest.cpp
         widgets/TextEditorTest.cpp
-        )
+        datastructures/SortedVectorTest.cpp)
 
 target_include_directories(novelist_core_test
         PUBLIC
