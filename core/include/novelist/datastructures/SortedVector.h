@@ -12,6 +12,10 @@
 #include <functional>
 
 namespace novelist {
+
+    template<typename T, typename Pred, typename Alloc>
+    class SortedVector;
+
     /**
      * Move a range of elements to another position within the same collection.
      * @tparam Iter Iterator type
@@ -40,6 +44,27 @@ namespace novelist {
     }
 
     /**
+     * Find the location where a new element would be placed if it was inserted into a SortedVector
+     * @tparam T Element type
+     * @tparam Pred Order predicate
+     * @tparam Alloc Allocator
+     * @param vec Sorted vector instance
+     * @param element Element to find insert location for
+     * @return Iterator to the position where \p element would end up if inserted into \p vec
+     */
+    template<typename T, typename Pred, typename Alloc>
+    typename SortedVector<T, Pred, Alloc>::const_iterator findInsertIdx(SortedVector<T, Pred, Alloc> const& vec, T const& element)
+    {
+        Pred comp;
+        auto iter = vec.begin();
+        for (; iter != vec.end(); ++iter) {
+            if (!comp(*iter, element))
+                break;
+        }
+        return iter;
+    }
+
+    /**
      * A vector that is sorted at all times.
      * @tparam T Base type
      * @tparam Pred Comparison predicate, defaults to std::less
@@ -56,17 +81,6 @@ namespace novelist {
         using const_reverse_iterator = typename vector_t::const_reverse_iterator;
 
     private:
-        const_iterator findInsertIdx(T const& element) const
-        {
-            Pred comp;
-            auto iter = begin();
-            for (; iter != end(); ++iter) {
-                if (!comp(*iter, element))
-                    break;
-            }
-            return iter;
-        }
-
         const_iterator relocate(const_iterator iter)
         {
             typename vector_t::iterator mutIter = vector_t::begin() + std::distance(begin(), iter);
@@ -233,7 +247,20 @@ namespace novelist {
          */
         const_iterator insert(T const& value)
         {
-            return vector_t::insert(findInsertIdx(value), value);
+            return vector_t::insert(findInsertIdx(*this, value), value);
+        }
+
+        /**
+         * Insert an element into the vector, giving a hint to its destination. The better the hint, the less time this
+         * method takes to finish.
+         * @param value Value to insert
+         * @param hint Hint to the position to insert at
+         * @return Iterator to the inserted element
+         */
+        const_iterator insert(T const& value, const_iterator hint)
+        {
+            auto iter = vector_t::insert(hint, value);
+            return relocate(iter);
         }
 
         /**
@@ -243,7 +270,20 @@ namespace novelist {
          */
         const_iterator insert(T&& value)
         {
-            return vector_t::insert(findInsertIdx(value), std::move(value));
+            return vector_t::insert(findInsertIdx(*this, value), std::move(value));
+        }
+
+        /**
+         * Insert an element into the vector, giving a hint to its destination. The better the hint, the less time this
+         * method takes to finish.
+         * @param value Value to insert
+         * @param hint Hint to the position to insert at
+         * @return Iterator to the inserted element
+         */
+        const_iterator insert(T&& value, const_iterator hint)
+        {
+            auto iter = vector_t::insert(hint, std::move(value));
+            return relocate(iter);
         }
 
         /**
@@ -254,7 +294,7 @@ namespace novelist {
          */
         const_iterator insert(size_t count, T const& value)
         {
-            return vector_t::insert(findInsertIdx(value), count, value);
+            return vector_t::insert(findInsertIdx(*this, value), count, value);
         }
 
         /**
@@ -270,7 +310,7 @@ namespace novelist {
         void insert(InputIt first, InputIt last)
         {
             for (auto it = first; it != last; ++it)
-                vector_t::insert(findInsertIdx(*it), *it);
+                vector_t::insert(findInsertIdx(*this, *it), *it);
         }
 
         /**
