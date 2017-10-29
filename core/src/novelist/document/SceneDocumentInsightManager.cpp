@@ -74,15 +74,18 @@ namespace novelist {
 
     void SceneDocumentInsightManager::highlightBlock(QString const&)
     {
+        // Block state stores an index into the insights vector, indicating the first insight that might be relevant
+        // for the next block. This information is updated every time a block is highlighted.
         auto thisBlockState = previousBlockState() >= 0 ? previousBlockState() : 0;
         bool blockStateChanged = false;
+        bool foundValidInsight = false;
         int blockNum = currentBlock().blockNumber();
         int blockPos = currentBlock().position();
         auto coversCurBlock = [this, blockNum](int i) {
             return parRange(*m_insights[i]).first <= blockNum && parRange(*m_insights[i]).second >= blockNum;
         };
         for (int i = thisBlockState;
-             i < gsl::narrow_cast<int>(m_insights.size()) && (!blockStateChanged || coversCurBlock(i));
+             i < gsl::narrow_cast<int>(m_insights.size()) && (!foundValidInsight || coversCurBlock(i));
              ++i) {
 
             auto const& m = m_insights[i];
@@ -98,9 +101,11 @@ namespace novelist {
             // Skip if marker doesn't cover this block
             if (!coversCurBlock(i))
                 continue;
+            else
+                foundValidInsight = true;
 
             // Save the first item that spans into this paragraph
-            if (parRange.second >= blockNum && !blockStateChanged) {
+            if (parRange.second > blockNum && !blockStateChanged) {
                 thisBlockState = i;
                 blockStateChanged = true;
             }
