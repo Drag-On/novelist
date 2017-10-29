@@ -267,8 +267,8 @@ namespace novelist {
             if (insightIdx.isValid()) {
                 m_ui->menuInsight->clear();
                 m_ui->menuInsight->setEnabled(true);
-                auto* insight = qvariant_cast<IInsight*>(
-                        editor->insights()->data(insightIdx, static_cast<int>(InsightModelRoles::DataRole)));
+                auto* insight = qvariant_cast<Insight*>(
+                        editor->insights()->data(insightIdx, static_cast<int>(InsightModelRoles::InsightDataRole)));
                 absorbMenu(m_ui->menuInsight, const_cast<QMenu*>(&insight->menu()));
                 return;
             }

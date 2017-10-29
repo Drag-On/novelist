@@ -13,20 +13,21 @@
 #include <QTextBlock>
 #include <QAbstractTextDocumentLayout>
 #include <QtWidgets/QToolTip>
-#include "widgets/texteditor/ManualTextAnnotation.h"
+#include "document/NoteInsight.h"
+#include "widgets/texteditor/TextEditor.h"
 #include "windows/NoteEditWindow.h"
 
 namespace novelist {
     TextEditor::TextEditor(QWidget* parent)
             :QTextEdit(parent),
-             m_paragraphNumberArea{std::make_unique<internal::ParagraphNumberArea>(this)}
+             m_paragraphNumberArea{std::make_unique<internal::ParagraphNumberArea>(this)},
+             m_insights(document())
     {
         connect(this, &TextEditor::textChanged, this, &TextEditor::onTextChanged);
         connect(this, &TextEditor::blockCountChanged, this, &TextEditor::updateParagraphNumberAreaWidth);
         connect(this, &TextEditor::cursorPositionChanged, this, &TextEditor::highlightCurrentLine);
         connect(this, &TextEditor::cursorPositionChanged, this, &TextEditor::onCursorPositionChanged);
         connect(this, &TextEditor::selectionChanged, this, &TextEditor::onSelectionChanged);
-        connect(&m_insights, &InsightModel::insightRemoved, this, &TextEditor::onInsightRemoved);
 
         setDocument(new SceneDocument{this}); // Overwrite default QTextDocument
         setMouseTracking(true);
@@ -86,6 +87,7 @@ namespace novelist {
     void TextEditor::setDocument(SceneDocument* document)
     {
         m_insights.clear();
+        m_insights.setDocument(document);
         QTextEdit::setDocument(document);
         setDefaultBlockFormat();
     }
@@ -93,10 +95,8 @@ namespace novelist {
     void TextEditor::setDocument(QTextDocument* document)
     {
         auto* doc = dynamic_cast<SceneDocument*>(document);
-        if (doc != nullptr) {
+        if (doc != nullptr)
             setDocument(doc);
-            setDefaultBlockFormat();
-        }
         else
             throw std::runtime_error{"Tried to set document that isn't a SceneDocument."};
     }
@@ -219,8 +219,8 @@ namespace novelist {
             // Add menu for insight if required
             QModelIndex insightIdx = m_insights.find(cursorForPosition(e->pos()).position());
             if (insightIdx.isValid()) {
-                auto* insight = qvariant_cast<IInsight*>(
-                        m_insights.data(insightIdx, static_cast<int>(InsightModelRoles::DataRole)));
+                auto* insight = qvariant_cast<Insight*>(
+                        m_insights.data(insightIdx, static_cast<int>(InsightModelRoles::InsightDataRole)));
                 menu->insertMenu(topAction, const_cast<QMenu*>(&insight->menu()));
             }
             // Add action for note insertion if text is selected
@@ -254,6 +254,9 @@ namespace novelist {
 
     void TextEditor::onTextChanged()
     {
+        if (document() == nullptr)
+            return;
+
         // Emit block count changed signal if necessary
         if (document()->blockCount() != m_lastBlockCount) {
             emit blockCountChanged(document()->blockCount());
@@ -438,21 +441,8 @@ namespace novelist {
             return;
 
         NoteEditWindow wnd;
-        if (wnd.exec() == QDialog::Accepted)
-            m_insights.insert(
-                    new ManualTextAnnotation(document(), cursor.selectionStart(), cursor.selectionEnd(), wnd.text()));
-    }
-
-    void TextEditor::onInsightRemoved()
-    {
-        // Re-layout document. This is required, otherwise weird visual bugs come up, like disappearing paragraphs that
-        // re-appear when the document is modified.
-        if(document()) {
-            int length = 0;
-            auto lastBlock = document()->lastBlock();
-            if(lastBlock.isValid())
-                length = lastBlock.position() + lastBlock.length();
-            document()->markContentsDirty(0, length);
+        if (wnd.exec() == QDialog::Accepted) {
+            m_insights.insert(std::make_unique<NoteInsight>(document(), cursor.selectionStart(), cursor.selectionEnd(), wnd.text()));
         }
     }
 

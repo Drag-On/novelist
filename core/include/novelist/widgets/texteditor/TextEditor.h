@@ -14,11 +14,11 @@
 #include <QtCore/QTimer>
 #include <QSyntaxHighlighter>
 #include <memory>
-#include "inspection/InsightModel.h"
+#include "InsightModel.h"
 #include "util/Connection.h"
 #include "util/ConnectionWrapper.h"
 #include "document/SceneDocument.h"
-#include "InsightManager.h"
+#include "TextEditorInsightManager.h"
 
 namespace novelist {
     class TextEditor;
@@ -194,8 +194,6 @@ namespace novelist {
 
         void makeSelectionIntoNote();
 
-        void onInsightRemoved();
-
     private:
         void paintParagraphNumberArea(QPaintEvent* event);
 
@@ -205,13 +203,11 @@ namespace novelist {
 
         void setDefaultBlockFormat();
 
-    private:
-
         std::unique_ptr<internal::ParagraphNumberArea> m_paragraphNumberArea;
         int m_lastVerticalSliderPos = 0;
         int m_lastBlockCount = 0;
         InsightModel m_insights;
-        InsightManager m_insightMgr{this};
+        TextEditorInsightManager m_insightMgr{this};
         Connection m_onBoldActionConnection;
         Connection m_onItalicActionConnection;
         Connection m_onUnderlineActionConnection;
@@ -232,7 +228,7 @@ namespace novelist {
         constexpr static bool show_debug_info = false;
 
         friend class internal::ParagraphNumberArea;
-        friend class InsightManager;
+        friend class TextEditorInsightManager;
     };
 }
 

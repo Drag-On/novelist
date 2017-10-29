@@ -8,27 +8,29 @@
  **********************************************************/
 #include <QtWidgets/QToolTip>
 #include <QtGui/QTextCursor>
-#include "widgets/texteditor/TextAnnotation.h"
-#include "widgets/texteditor/InsightManager.h"
+#include <QtCore/QCoreApplication>
+#include "widgets/texteditor/TextEditorInsightManager.h"
+#include "widgets/texteditor/TextEditor.h"
 
 namespace novelist {
-    InsightManager::InsightManager(gsl::not_null<TextEditor*> editor) noexcept
-            :m_editor(editor)
+    TextEditorInsightManager::TextEditorInsightManager(gsl::not_null<TextEditor*> editor) noexcept
+            :QObject(nullptr),
+             m_editor(editor)
     {
     }
 
-    void InsightManager::onMousePosChanged(QPoint pos)
+    void TextEditorInsightManager::onMousePosChanged(QPoint pos)
     {
         auto const& insights = m_editor->m_insights;
         for (int row = 0; row < insights.rowCount(); ++row) {
-            IInsight* insight = qvariant_cast<IInsight*>(
-                    insights.data(insights.index(row, 0), static_cast<int>(InsightModelRoles::DataRole)));
+            auto* insight = qvariant_cast<Insight*>(
+                    insights.data(insights.index(row, 0), static_cast<int>(InsightModelRoles::InsightDataRole)));
 
-            auto cursor = insight->toCursor();
-            QTextCursor leftCursor(cursor.document());
-            leftCursor.setPosition(cursor.selectionStart());
-            QTextCursor rightCursor(cursor.document());
-            rightCursor.setPosition(cursor.selectionEnd());
+            auto range = insight->range();
+            QTextCursor leftCursor(insight->document());
+            leftCursor.setPosition(range.first);
+            QTextCursor rightCursor(insight->document());
+            rightCursor.setPosition(range.second);
             QRect cursorRect = m_editor->cursorRect(leftCursor);
             QRect otherRect = m_editor->cursorRect(rightCursor);
             QRect selectionRect = cursorRect.united(otherRect);

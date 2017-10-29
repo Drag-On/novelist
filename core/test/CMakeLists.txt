@@ -8,7 +8,6 @@ add_executable(novelist_core_test
         macros.h
         datastructures/TreeTest.cpp
         document/SceneDocumentTest.cpp
-        document/TextMarkerTest.cpp
         identity/IdentityTest.cpp
         model/ProjectModelTest.cpp
         view/ProjectViewTest.cpp

@@ -17,6 +17,19 @@
 #include "document/SceneDocument.h"
 
 namespace novelist {
+
+    SceneDocument::SceneDocument(QObject* parent)
+            :SceneDocument("", parent)
+    {
+    }
+
+    SceneDocument::SceneDocument(QString text, QObject* parent)
+            :QTextDocument(text, parent),
+             m_insightMgr(static_cast<QTextDocument*>(this))
+    {
+        m_insightMgr.setDocument(this);
+    }
+
     bool SceneDocument::read(QFile& file)
     {
         file.open(QIODevice::ReadOnly | QIODevice::Text);
@@ -107,6 +120,11 @@ namespace novelist {
     bool SceneDocument::operator!=(SceneDocument const& other) const
     {
         return !(*this == other);
+    }
+
+    SceneDocumentInsightManager& SceneDocument::insightManager()
+    {
+        return m_insightMgr;
     }
 
     bool SceneDocument::readInternal(QXmlStreamReader& xml)

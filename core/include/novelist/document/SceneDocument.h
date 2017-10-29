@@ -14,8 +14,15 @@
 #include <QFile>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
+#include <memory>
+#include "SceneDocumentInsightManager.h"
 
 namespace novelist {
+
+    class TextEditor;
+    class InsightModel;
+    class BaseInsight;
+
     /**
      * Formatted text for scenes
      */
@@ -23,7 +30,18 @@ namespace novelist {
     Q_OBJECT
 
     public:
-        using QTextDocument::QTextDocument;
+        /**
+         * Construct document
+         * @param parent Parent object
+         */
+        explicit SceneDocument(QObject* parent = nullptr);
+
+        /**
+         * Construct document and initialize it with a text
+         * @param text Initial text
+         * @param parent Parent object
+         */
+        explicit SceneDocument(QString text, QObject* parent = nullptr);
 
         /**
          * Read the scene from file
@@ -70,6 +88,8 @@ namespace novelist {
         bool operator!=(SceneDocument const& other) const;
 
     private:
+        SceneDocumentInsightManager m_insightMgr;
+
         bool readInternal(QXmlStreamReader& xml);
 
         bool readBlock(QXmlStreamReader& xml, QTextCursor& cursor);
@@ -87,6 +107,16 @@ namespace novelist {
         bool writeBlockFormatAttr(QXmlStreamWriter& xml, QTextBlockFormat const& format) const;
 
         bool writeCharFormatAttr(QXmlStreamWriter& xml, QTextCharFormat const& format) const;
+
+        /**
+         * Provides access to this document's insight manager
+         * @return Reference to the insight manager
+         */
+        SceneDocumentInsightManager& insightManager();
+
+        friend TextEditor;
+        friend InsightModel;
+        friend BaseInsight;
     };
 }
 

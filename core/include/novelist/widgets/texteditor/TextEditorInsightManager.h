@@ -6,8 +6,8 @@
  * @brief
  * @details
  **********************************************************/
-#ifndef NOVELIST_INSIGHTMANAGER_H
-#define NOVELIST_INSIGHTMANAGER_H
+#ifndef NOVELIST_TEXTEDITORINSIGHTMANAGER_H
+#define NOVELIST_TEXTEDITORINSIGHTMANAGER_H
 
 #include <QtCore/QObject>
 #include <QtCore/QPoint>
@@ -19,7 +19,7 @@ namespace novelist {
     /**
      * Manages insights of a TextEditor, such as displaying their tool tips on hover
      */
-    class InsightManager : public QObject {
+    class TextEditorInsightManager : public QObject {
     Q_OBJECT
 
     public:
@@ -27,12 +27,13 @@ namespace novelist {
          * Construct new manager
          * @param editor Non-owning pointer to the editor to manage. Pointer must stay valid during object lifetime.
          */
-        explicit InsightManager(gsl::not_null<TextEditor*> editor) noexcept;
+        explicit TextEditorInsightManager(gsl::not_null<TextEditor*> editor) noexcept;
 
     public slots:
+
         /**
-         * Call this whenever mous position was changed
-         * @param pos New mouse position relative o editor viewport
+         * Call this whenever mouse position was changed
+         * @param pos New mouse position relative to editor viewport
          */
         void onMousePosChanged(QPoint pos);
 
@@ -41,4 +42,4 @@ namespace novelist {
     };
 }
 
-#endif //NOVELIST_INSIGHTMANAGER_H
+#endif //NOVELIST_TEXTEDITORINSIGHTMANAGER_H

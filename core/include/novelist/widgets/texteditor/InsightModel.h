@@ -14,40 +14,29 @@
 #include <gsl/gsl>
 #include <memory>
 #include <vector>
-#include "IInsight.h"
+#include "util/ConnectionWrapper.h"
+#include "document/SceneDocument.h"
+#include "document/Insight.h"
 
 namespace novelist {
-    namespace internal {
-        struct InsightPtrComp {
-            bool operator()(std::unique_ptr<IInsight> const& a, std::unique_ptr<IInsight> const& b) const noexcept
-            {
-                return a->range().first < b->range().first ||
-                        (a->range().first == b->range().first && a->range().second < b->range().second);
-            }
-        };
-
-        class RemoveInsightEvent : public QEvent {
-        public:
-            explicit RemoveInsightEvent(IInsight* insight);
-            IInsight* m_insight;
-            static inline QEvent::Type const s_eventId = static_cast<QEvent::Type>(QEvent::registerEventType());
-        };
-    }
-
     /**
      * Additional roles for InsightModel
      */
     enum class InsightModelRoles {
-        DataRole = Qt::UserRole //!< To get a pointer to the insight
+        InsightDataRole = Qt::UserRole //!< To get a pointer to the insight
     };
 
+    class TextEditor;
+
     /**
-     * Contains insights that can be displayed in a table view
+     * Can be used to display all insights of a TextEditor's underlying SceneDocument in a table view
      */
     class InsightModel : public QAbstractTableModel {
     Q_OBJECT
 
     public:
+        explicit InsightModel(SceneDocument* doc);
+
         int rowCount(QModelIndex const& parent = QModelIndex{}) const override;
 
         int columnCount(QModelIndex const& parent = QModelIndex{}) const override;
@@ -56,12 +45,14 @@ namespace novelist {
 
         QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
+        void setDocument(SceneDocument* doc);
+
         /**
-         * Insert an insight. The model claims ownership over it.
+         * Insert an insight
          * @param insight New insight
          * @return Index of the newly inserted element
          */
-        QModelIndex insert(gsl::owner<IInsight*> insight);
+        QModelIndex insert(std::unique_ptr<Insight> insight);
 
         /**
          * Remove element at \p index
@@ -71,13 +62,12 @@ namespace novelist {
         bool remove(QModelIndex const& index);
 
         /**
-         * Remove all elements in a certain range that match the requested type
-         * @param type Type to remove
+         * Remove all non-persistent elements in a certain range
          * @param start Start of the range
          * @param end End of the range
          * @return True in case elements have been erased, otherwise false
          */
-        bool removeAllWithTypeInRange(InsightType type, int start, int end);
+        bool removeNonPersistentInRange(int start, int end);
 
         /**
          * Remove all elements
@@ -91,24 +81,15 @@ namespace novelist {
          */
         QModelIndex find(int charpos) const noexcept;
 
-        bool event(QEvent* event) override;
-
-    signals:
-        /**
-         * Fired whenever an insight has been removed
-         */
-        void insightRemoved();
-
     private:
-        using InsightPtr = std::unique_ptr<IInsight>;
-        std::vector<InsightPtr> m_insights{};
+        SceneDocument* m_doc = nullptr;
+        ConnectionWrapper m_aboutToAutoRemoveConnection;
+        ConnectionWrapper m_autoRemovedConnection;
 
-        std::vector<InsightPtr>::iterator findInsertLocation(std::unique_ptr<IInsight> const& ptr);
-
-        void findAndRemove(IInsight* insight);
-
-    private slots:
-        void onInsightCollapsed(IInsight* insight);
+        SceneDocumentInsightManager* insightManager();
+        SceneDocumentInsightManager const* insightManager() const;
+        void onAboutToAutoRemove(int idx);
+        void onAutoRemoved(int idx);
     };
 }
 

@@ -46,7 +46,7 @@ namespace novelist {
 
     void InsightView::onDoubleClicked(QModelIndex const& index)
     {
-        IInsight* insight = qvariant_cast<IInsight*>(model()->data(index, static_cast<int>(InsightModelRoles::DataRole)));
+        Insight* insight = qvariant_cast<Insight*>(model()->data(index, static_cast<int>(InsightModelRoles::InsightDataRole)));
         auto* editor = dynamic_cast<TextEditor*>(m_sceneTabs->currentWidget());
         if(editor) {
             auto cursor = editor->textCursor();
