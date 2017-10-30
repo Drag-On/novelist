@@ -9,7 +9,7 @@
 
 #include <QApplication>
 #include <QMessageBox>
-#include "plugin/IPlugin.h"
+#include "plugin/Plugin.h"
 #include "plugin/PluginManager.h"
 
 using namespace novelist;

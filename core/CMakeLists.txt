@@ -5,7 +5,7 @@ add_library(novelist_core
         SHARED
         resources/resources.qrc
         src/novelist/lang/Language.cpp include/novelist/lang/Language.h
-        include/novelist/plugin/IPlugin.h
+        include/novelist/plugin/Plugin.h
         include/novelist/plugin/PluginInfo.h
         src/novelist/plugin/PluginManager.cpp include/novelist/plugin/PluginManager.h
         src/novelist/model/ProjectModel.cpp include/novelist/model/ProjectModel.h

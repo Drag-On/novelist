@@ -19,10 +19,10 @@ namespace novelist
     /**
      * Interface for plugins
      */
-    class IPlugin
+    class Plugin
     {
     public:
-        virtual ~IPlugin() = default;
+        virtual ~Plugin() = default;
 
         /**
          * Initialize the plugin.
@@ -51,6 +51,6 @@ namespace novelist
     };
 }
 
-Q_DECLARE_INTERFACE(novelist::IPlugin, "novelist.IPlugin")
+Q_DECLARE_INTERFACE(novelist::Plugin, "novelist.Plugin")
 
 #endif //NOVELIST_ITESTINTERFACE_H

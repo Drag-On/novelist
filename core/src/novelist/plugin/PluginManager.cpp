@@ -8,7 +8,7 @@
  **********************************************************/
 
 #include <QtCore>
-#include "plugin/IPlugin.h"
+#include "plugin/Plugin.h"
 #include "plugin/PluginManager.h"
 
 namespace novelist
@@ -69,7 +69,7 @@ namespace novelist
         for(auto& p : m_plugins.values())
             if(p.pLoader->isLoaded())
             {
-                novelist::IPlugin* pPlugin = qobject_cast<IPlugin*>(p.pLoader->instance());
+                novelist::Plugin* pPlugin = qobject_cast<Plugin*>(p.pLoader->instance());
                 if(pPlugin)
                     pPlugin->setup(m_pluginInfo);
             }
@@ -88,7 +88,7 @@ namespace novelist
             if(loader->isLoaded())
             {
                 qInfo() << "Unloading plugin" << *iter;
-                novelist::IPlugin* pPlugin = qobject_cast<IPlugin*>(loader->instance());
+                novelist::Plugin* pPlugin = qobject_cast<Plugin*>(loader->instance());
                 if(pPlugin != nullptr)
                     pPlugin->unload();
                 loader->unload();
@@ -171,7 +171,7 @@ namespace novelist
             qWarning() << "Plugin" << uid << "could not be loaded.";
             return false;
         }
-        novelist::IPlugin* pPlugin = qobject_cast<IPlugin*>(plugin.pLoader->instance());
+        novelist::Plugin* pPlugin = qobject_cast<Plugin*>(plugin.pLoader->instance());
         if(pPlugin == nullptr)
         {
             qWarning() << "Plugin" << uid << "is corrupted.";

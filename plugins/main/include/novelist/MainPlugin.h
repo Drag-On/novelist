@@ -13,15 +13,15 @@
 #include <memory>
 #include <QtCore/QObject>
 #include <windows/MainWindow.h>
-#include <plugin/IPlugin.h>
+#include <plugin/Plugin.h>
 
 namespace novelist
 {
-    class MainPlugin : public QObject, public IPlugin
+    class MainPlugin : public QObject, public Plugin
     {
         Q_OBJECT
         Q_PLUGIN_METADATA(IID "novelist.MainPlugin" FILE "MainPlugin.json")
-        Q_INTERFACES(novelist::IPlugin)
+        Q_INTERFACES(novelist::Plugin)
 
     public:
         bool load() override;
