@@ -22,8 +22,8 @@
 #include <QMimeData>
 #include "document/SceneDocument.h"
 #include "datastructures/Tree.h"
-#include "identity/Identity.h"
-#include "lang/Language.h"
+#include "util/Identity.h"
+#include "Language.h"
 #include "ModelPath.h"
 
 namespace novelist {

@@ -4,16 +4,14 @@ project(novelist_core)
 add_library(novelist_core
         SHARED
         resources/resources.qrc
-        src/novelist/lang/Language.cpp include/novelist/lang/Language.h
         include/novelist/plugin/Plugin.h
         include/novelist/plugin/PluginInfo.h
         src/novelist/plugin/PluginManager.cpp include/novelist/plugin/PluginManager.h
         src/novelist/model/ProjectModel.cpp include/novelist/model/ProjectModel.h
         src/novelist/model/ModelPath.cpp include/novelist/model/ModelPath.h
+        src/novelist/model/Language.cpp include/novelist/model/Language.h
         include/novelist/datastructures/Tree.h
         include/novelist/datastructures/SortedVector.h
-        include/novelist/functional/Overloaded.h
-        include/novelist/identity/Identity.h
         src/novelist/view/ProjectView.cpp include/novelist/view/ProjectView.h
         src/novelist/view/InsightView.cpp include/novelist/view/InsightView.h
         src/novelist/widgets/LanguagePicker.cpp include/novelist/widgets/LanguagePicker.h
@@ -33,6 +31,8 @@ add_library(novelist_core
         src/novelist/windows/ProjectPropertiesWindow.cpp include/novelist/windows/ProjectPropertiesWindow.h
         src/novelist/windows/NoteEditWindow.cpp include/novelist/windows/NoteEditWindow.h
         src/novelist/windows/MainWindow.cpp include/novelist/windows/MainWindow.h
+        include/novelist/util/Overloaded.h
+        include/novelist/util/Identity.h
         src/novelist/util/ConnectionWrapper.cpp include/novelist/util/ConnectionWrapper.h
         src/novelist/util/Connection.cpp include/novelist/util/Connection.h
         src/novelist/util/DelegateAction.cpp include/novelist/util/DelegateAction.h

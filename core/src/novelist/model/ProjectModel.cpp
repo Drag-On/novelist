@@ -13,7 +13,7 @@
 #include <QBrush>
 #include <QIcon>
 #include <stack>
-#include "functional/Overloaded.h"
+#include "util/Overloaded.h"
 #include "model/ProjectModel.h"
 
 namespace novelist {

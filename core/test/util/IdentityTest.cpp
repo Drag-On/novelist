@@ -11,7 +11,7 @@
 #include <random>
 #include <set>
 #include <catch.hpp>
-#include "identity/Identity.h"
+#include "util/Identity.h"
 
 using namespace novelist;
 

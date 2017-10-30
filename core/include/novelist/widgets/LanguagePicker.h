@@ -10,7 +10,7 @@
 #define NOVELIST_LANGUAGEPICKER_H
 
 #include <QtWidgets/QComboBox>
-#include "lang/Language.h"
+#include "model/Language.h"
 
 namespace novelist {
     class LanguagePicker : public QComboBox {

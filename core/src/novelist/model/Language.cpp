@@ -8,7 +8,7 @@
  **********************************************************/
 
 #include <QtCore/QCoreApplication>
-#include "lang/Language.h"
+#include "model/Language.h"
 
 namespace novelist::lang {
 
