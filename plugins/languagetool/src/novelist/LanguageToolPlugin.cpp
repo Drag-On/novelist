@@ -7,12 +7,13 @@
  * @details
  **********************************************************/
 
+#include "LanguageToolInspector.h"
 #include "LanguageToolPlugin.h"
 
 namespace novelist
 {
     std::unique_ptr<Inspector> novelist::LanguageToolPlugin::createInspector() const noexcept
     {
-        return std::unique_ptr<Inspector>();
+        return std::make_unique<LanguageToolInspector>();
     }
 }

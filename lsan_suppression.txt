@@ -10,3 +10,5 @@ leak:libQt5DBus
 leak:libdbus-1
 leak:libqgtk3
 leak:libxcb
+leak:libqnmbearer
+leak:libQt5Network

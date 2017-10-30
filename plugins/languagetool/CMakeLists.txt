@@ -5,8 +5,8 @@ add_definitions(-DQT_PLUGIN)
 
 add_library(novelist_languagetool
         SHARED
-            include/novelist/LanguageToolPlugin.h src/novelist/LanguageToolPlugin.cpp
-        )
+            src/novelist/LanguageToolPlugin.cpp include/novelist/LanguageToolPlugin.h
+            src/novelist/LanguageToolInspector.cpp include/novelist/LanguageToolInspector.h)
 
 target_include_directories(novelist_languagetool
         PUBLIC
@@ -16,6 +16,7 @@ target_include_directories(novelist_languagetool
 target_link_libraries(novelist_languagetool
         PUBLIC
             novelist_core
+            Qt5::Network
         )
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
