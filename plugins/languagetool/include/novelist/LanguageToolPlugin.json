@@ -1,0 +1,12 @@
+{
+  "uid": "novelist.languagetool",
+  "version": "0.0.1",
+  "dependencies": [
+    {
+      "uid": "novelist.main",
+      "version": "0.0.1"
+    }
+  ],
+  "name": "LanguageTool Integration",
+  "description": "Integrates LanguageTool as an external inspection tool."
+}

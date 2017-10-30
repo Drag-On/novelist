@@ -6,6 +6,7 @@ add_library(novelist_core
         resources/resources.qrc
         include/novelist/plugin/Plugin.h
         include/novelist/plugin/PluginInfo.h
+        src/novelist/plugin/InspectionPlugin.cpp include/novelist/plugin/InspectionPlugin.h
         src/novelist/plugin/PluginManager.cpp include/novelist/plugin/PluginManager.h
         src/novelist/model/ProjectModel.cpp include/novelist/model/ProjectModel.h
         src/novelist/model/ModelPath.cpp include/novelist/model/ModelPath.h
