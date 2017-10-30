@@ -17,6 +17,7 @@
 #include "util/DelegateAction.h"
 #include "util/ConnectionWrapper.h"
 #include "model/ProjectModel.h"
+#include "widgets/texteditor/Inspector.h"
 #include "widgets/texteditor/TextEditor.h"
 
 namespace novelist {
@@ -43,6 +44,11 @@ namespace novelist {
             void focusInEvent(QFocusEvent* event) override;
 
             void focusOutEvent(QFocusEvent* event) override;
+        };
+
+        class DebugInspector : public Inspector {
+        public:
+            InspectionBlockResult inspect(QString const& text, Language lang) const noexcept override;
         };
     }
 
@@ -97,6 +103,12 @@ namespace novelist {
          *                    tab widget.
          */
         void useInsightView(QAbstractItemView* insightView);
+
+        /**
+         * Registers an inspector that will run on all scene text editors
+         * @param inspector New inspector
+         */
+        void registerInspector(std::unique_ptr<Inspector> inspector);
 
         /**
          * Provides an action that undoes changes in the currently open document, if any
@@ -184,8 +196,9 @@ namespace novelist {
         DelegateAction m_strikethroughAction;
         DelegateAction m_smallCapsAction;
         DelegateAction m_addNoteAction;
-        std::vector<std::unique_ptr<internal::InternalTextEditor>> m_editors;
         QAbstractItemView* m_insightView = nullptr;
+        std::vector<std::unique_ptr<internal::InternalTextEditor>> m_editors;
+        std::vector<std::unique_ptr<Inspector>> m_inspectors;
     };
 }
 

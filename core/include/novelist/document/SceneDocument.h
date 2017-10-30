@@ -16,6 +16,7 @@
 #include <QXmlStreamWriter>
 #include <memory>
 #include "SceneDocumentInsightManager.h"
+#include "model/Language.h"
 
 namespace novelist {
 
@@ -32,16 +33,18 @@ namespace novelist {
     public:
         /**
          * Construct document
+         * @param lang Document language
          * @param parent Parent object
          */
-        explicit SceneDocument(QObject* parent = nullptr);
+        explicit SceneDocument(Language lang, QObject* parent = nullptr);
 
         /**
          * Construct document and initialize it with a text
          * @param text Initial text
+         * @param lang Document language
          * @param parent Parent object
          */
-        explicit SceneDocument(QString text, QObject* parent = nullptr);
+        explicit SceneDocument(QString text, Language lang, QObject* parent = nullptr);
 
         /**
          * Read the scene from file
@@ -72,6 +75,11 @@ namespace novelist {
         bool write(QString& xml) const;
 
         /**
+         * @return Document language
+         */
+        Language language() const noexcept;
+
+        /**
          * Compares two documents for content-equality
          * @details This only considers text. Formatting is not considered.
          * @param other Document to compare to
@@ -89,6 +97,7 @@ namespace novelist {
 
     private:
         SceneDocumentInsightManager m_insightMgr;
+        Language m_lang;
 
         bool readInternal(QXmlStreamReader& xml);
 

@@ -19,6 +19,7 @@ add_library(novelist_core
         src/novelist/widgets/texteditor/TextEditorInsightManager.cpp include/novelist/widgets/texteditor/TextEditorInsightManager.h
         src/novelist/widgets/texteditor/InsightModel.cpp include/novelist/widgets/texteditor/InsightModel.h
         src/novelist/widgets/SceneTabWidget.cpp include/novelist/widgets/SceneTabWidget.h
+        include/novelist/widgets/texteditor/Inspector.h
         src/novelist/document/SceneDocument.cpp include/novelist/document/SceneDocument.h
         src/novelist/document/SceneDocumentInsightManager.cpp include/novelist/document/SceneDocumentInsightManager.h
         src/novelist/document/Insight.cpp include/novelist/document/Insight.h

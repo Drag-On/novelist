@@ -15,12 +15,12 @@ using namespace novelist;
 
 TEST_CASE("SceneDocument read/write", "[DataStructures][Document]")
 {
-    SceneDocument doc;
+    SceneDocument doc(Language::en_US);
     doc.setPlainText("This is some plain text.\nIt also has another block.");
     QString xml;
     REQUIRE(doc.write(xml));
 
-    SceneDocument docTest;
+    SceneDocument docTest(Language::en_US);
     REQUIRE(docTest.read(xml));
     REQUIRE(doc.toPlainText() == docTest.toPlainText());
 
@@ -29,7 +29,7 @@ TEST_CASE("SceneDocument read/write", "[DataStructures][Document]")
 
 TEST_CASE("SceneDocument Cursor test", "[DataStructures][Document]")
 {
-    SceneDocument doc;
+    SceneDocument doc(Language::en_US);
     doc.setPlainText("This is some plain text.\nIt also has another block.");
 
     QTextCursor cursor1{&doc};

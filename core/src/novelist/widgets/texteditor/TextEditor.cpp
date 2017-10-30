@@ -18,7 +18,7 @@
 #include "windows/NoteEditWindow.h"
 
 namespace novelist {
-    TextEditor::TextEditor(QWidget* parent)
+    TextEditor::TextEditor(Language lang, QWidget* parent)
             :QTextEdit(parent),
              m_paragraphNumberArea{std::make_unique<internal::ParagraphNumberArea>(this)},
              m_insights(document())
@@ -29,7 +29,7 @@ namespace novelist {
         connect(this, &TextEditor::cursorPositionChanged, this, &TextEditor::onCursorPositionChanged);
         connect(this, &TextEditor::selectionChanged, this, &TextEditor::onSelectionChanged);
 
-        setDocument(new SceneDocument{this}); // Overwrite default QTextDocument
+        setDocument(new SceneDocument{lang, this}); // Overwrite default QTextDocument
         setMouseTracking(true);
 
         updateParagraphNumberAreaWidth();
@@ -114,6 +114,11 @@ namespace novelist {
         if (document())
             return document()->isRedoAvailable();
         return false;
+    }
+
+    void TextEditor::useInspectors(std::vector<std::unique_ptr<Inspector>> const* inspectors)
+    {
+        m_inspectors = inspectors;
     }
 
     QAction* TextEditor::boldAction()

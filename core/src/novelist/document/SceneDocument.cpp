@@ -18,14 +18,15 @@
 
 namespace novelist {
 
-    SceneDocument::SceneDocument(QObject* parent)
-            :SceneDocument("", parent)
+    SceneDocument::SceneDocument(Language lang, QObject* parent)
+            :SceneDocument("", lang, parent)
     {
     }
 
-    SceneDocument::SceneDocument(QString text, QObject* parent)
+    SceneDocument::SceneDocument(QString text, Language lang, QObject* parent)
             :QTextDocument(text, parent),
-             m_insightMgr(static_cast<QTextDocument*>(this))
+             m_insightMgr(static_cast<QTextDocument*>(this)),
+             m_lang(lang)
     {
         m_insightMgr.setDocument(this);
     }
@@ -99,6 +100,11 @@ namespace novelist {
         xmlWriter.writeEndDocument();
 
         return true;
+    }
+
+    Language SceneDocument::language() const noexcept
+    {
+        return m_lang;
     }
 
     bool SceneDocument::operator==(SceneDocument const& other) const

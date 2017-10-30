@@ -17,7 +17,7 @@ TEST_CASE("TextEditor start", "[.Interactive][TextEditor][Widget]")
     int argc = 0;
     TestApplication app(argc, nullptr);
 
-    TextEditor editor{};
+    TextEditor editor{Language::en_US};
 
     QString xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
             "<scene version=\"1.0\">\n"
@@ -33,7 +33,7 @@ TEST_CASE("TextEditor start", "[.Interactive][TextEditor][Widget]")
             "    </content>\n"
             "</novel>";
 
-    SceneDocument doc;
+    SceneDocument doc{Language::en_US};
     if(!doc.read(xml))
         qDebug() << "Read failed";
     editor.setDocument(&doc);

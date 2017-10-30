@@ -19,6 +19,7 @@
 #include "util/ConnectionWrapper.h"
 #include "document/SceneDocument.h"
 #include "TextEditorInsightManager.h"
+#include "Inspector.h"
 
 namespace novelist {
     class TextEditor;
@@ -50,7 +51,7 @@ namespace novelist {
     Q_OBJECT
 
     public:
-        explicit TextEditor(QWidget* parent = nullptr);
+        explicit TextEditor(Language lang, QWidget* parent = nullptr);
 
         ~TextEditor() noexcept override;
 
@@ -84,6 +85,13 @@ namespace novelist {
          * @return true if there are redoable changes to the document, false otherwise
          */
         bool canRedo() const;
+
+        /**
+         * Makes the editor use the passed inspectors
+         * @param inspectors Non-owning pointer to a vector of inspectors. The pointer must stay valid during object
+         *                   lifetime or until this is called with another (possibly null) pointer
+         */
+        void useInspectors(std::vector<std::unique_ptr<Inspector>> const* inspectors);
 
         /**
          * Provides an action that can be used to make the currently selected text bold. It will also change checked
@@ -208,6 +216,7 @@ namespace novelist {
         int m_lastBlockCount = 0;
         InsightModel m_insights;
         TextEditorInsightManager m_insightMgr{this};
+        std::vector<std::unique_ptr<Inspector>> const* m_inspectors;
         Connection m_onBoldActionConnection;
         Connection m_onItalicActionConnection;
         Connection m_onUnderlineActionConnection;

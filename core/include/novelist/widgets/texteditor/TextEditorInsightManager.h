@@ -12,17 +12,19 @@
 #include <QtCore/QObject>
 #include <QtCore/QPoint>
 #include <QtCore/QFuture>
+#include <QtCore/QTimer>
 #include <gsl/gsl>
 #include "document/InsightFactory.h"
 #include "util/ConnectionWrapper.h"
 
 namespace novelist {
     class TextEditor;
+    class Inspector;
 
     /**
      * A single result as returned from an auto inspection tool
      */
-    struct InsightResult {
+    struct InspectionInsight {
         std::shared_ptr<InsightFactory> m_factory; //!< Factory object to create the actual insight
         int m_left; //!< Left start of the insight, relative to the block
         int m_right; //!< Right end of the insight, relative to the block
@@ -31,12 +33,12 @@ namespace novelist {
     /**
      * All insight results from a single block
      */
-    using InsightBlockResult = std::vector<InsightResult>;
+    using InspectionBlockResult = std::vector<InspectionInsight>;
 
     /**
      * Insight results for all requested blocks
      */
-    using AutoInsightResults = std::vector<InsightBlockResult>;
+    using InspectionResult = std::vector<InspectionBlockResult>;
 
     /**
      * Manages insights of a TextEditor, such as displaying their tool tips on hover and running auto-inspections
@@ -72,14 +74,15 @@ namespace novelist {
     private:
         gsl::not_null<TextEditor*> m_editor;
         ConnectionWrapper m_contentsChangeConnection;
-        QFuture<AutoInsightResults> m_updateResults;
+        QFuture<InspectionResult> m_updateResults;
         std::vector<QTextBlock> m_needUpdateBlocks;
         std::vector<QTextBlock> m_updatingBlocks;
         QTimer m_updateTimer;
 
         void startAutoInsightRefresh();
         void finishAutoInsightRefresh();
-        static AutoInsightResults runAutoInsightRefresh(std::vector<QString> blocks);
+        static InspectionResult runAutoInsightRefresh(std::vector<QString> blocks,
+                std::vector<std::unique_ptr<Inspector>> const* inspectors, Language lang);
 
     private slots:
 

@@ -10,9 +10,8 @@
 #include <QtGui/QTextCursor>
 #include <QtCore/QCoreApplication>
 #include <QtConcurrent/QtConcurrent>
-#include "document/SpellingInsight.h"
-#include "document/GrammarInsight.h"
 #include "widgets/texteditor/TextEditorInsightManager.h"
+#include "widgets/texteditor/Inspector.h"
 #include "widgets/texteditor/TextEditor.h"
 
 namespace novelist {
@@ -78,7 +77,8 @@ namespace novelist {
             blocks.push_back(e.text());
 
         m_updatingBlocks = std::move(m_needUpdateBlocks);
-        m_updateResults = QtConcurrent::run(runAutoInsightRefresh, blocks);
+        m_updateResults = QtConcurrent::run(runAutoInsightRefresh, blocks, m_editor->m_inspectors,
+                m_editor->document()->language());
     }
 
     void TextEditorInsightManager::finishAutoInsightRefresh()
@@ -107,60 +107,16 @@ namespace novelist {
         m_updateResults = decltype(m_updateResults)();
     }
 
-    AutoInsightResults TextEditorInsightManager::runAutoInsightRefresh(std::vector<QString> blocks)
+    InspectionResult TextEditorInsightManager::runAutoInsightRefresh(std::vector<QString> blocks,
+            std::vector<std::unique_ptr<Inspector>> const* inspectors, Language lang)
     {
-        AutoInsightResults results;
+        InspectionResult results;
         for (auto const& text : blocks) {
-            InsightBlockResult blockResult{};
 
-            // TODO: Currently, these are some hard coded sample inspections. This has to be replaced with a dedicated tool
-            {
-                QRegularExpression expression("\\b[Tt]eh\\b");
-                QRegularExpressionMatchIterator i = expression.globalMatch(text);
-                while (i.hasNext()) {
-                    QRegularExpressionMatch match = i.next();
-                    InsightResult insight;
-                    insight.m_left = match.capturedStart();
-                    insight.m_right = match.capturedEnd();
-                    insight.m_factory = std::make_unique<GeneralInsightFactory<SpellingInsight>>("Did you mean \"the\"?");
-                    blockResult.push_back(std::move(insight));
-                }
-            }
-            {
-                QRegularExpression expression("\\b[Ss]i\\b");
-                QRegularExpressionMatchIterator i = expression.globalMatch(text);
-                while (i.hasNext()) {
-                    QRegularExpressionMatch match = i.next();
-                    InsightResult insight;
-                    insight.m_left = match.capturedStart();
-                    insight.m_right = match.capturedEnd();
-                    insight.m_factory = std::make_unique<GeneralInsightFactory<SpellingInsight>>("Did you mean \"is\"?");
-                    blockResult.push_back(std::move(insight));
-                }
-            }
-            {
-                QRegularExpression expression("\\b[Cc]omming\\b");
-                QRegularExpressionMatchIterator i = expression.globalMatch(text);
-                while (i.hasNext()) {
-                    QRegularExpressionMatch match = i.next();
-                    InsightResult insight;
-                    insight.m_left = match.capturedStart();
-                    insight.m_right = match.capturedEnd();
-                    insight.m_factory = std::make_unique<GeneralInsightFactory<SpellingInsight>>("This is spelled \"coming\".");
-                    blockResult.push_back(std::move(insight));
-                }
-            }
-            {
-                QRegularExpression expression("\\b[Tt]here be dragons\\b");
-                QRegularExpressionMatchIterator i = expression.globalMatch(text);
-                while (i.hasNext()) {
-                    QRegularExpressionMatch match = i.next();
-                    InsightResult insight;
-                    insight.m_left = match.capturedStart();
-                    insight.m_right = match.capturedEnd();
-                    insight.m_factory = std::make_unique<GeneralInsightFactory<GrammarInsight>>("Maybe you mean \"There are dragons\"?");
-                    blockResult.push_back(std::move(insight));
-                }
+            InspectionBlockResult blockResult{};
+            for (auto const& inspector : *inspectors) {
+                auto result = inspector->inspect(text, lang);
+                blockResult.insert(blockResult.end(), result.begin(), result.end());
             }
 
             results.push_back(std::move(blockResult));

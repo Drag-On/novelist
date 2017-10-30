@@ -430,7 +430,7 @@ namespace novelist {
 
         auto& scene = std::get<SceneData>(*static_cast<Node*>(index.internalPointer())->m_data);
         QString filename = QString::fromStdString(scene.m_id.toString() + ".xml");
-        scene.m_doc = std::make_unique<SceneDocument>();
+        scene.m_doc = std::make_unique<SceneDocument>(properties().m_lang);
         if (auto d = contentDir(); d.exists(filename)) {
             QFile file {d.path() + QString{"/"} + filename};
             scene.m_doc->read(file);
@@ -908,7 +908,7 @@ namespace novelist {
                 return std::make_shared<NodeDataUnique>(ChapterData{name, m_chapterIdMgr.generate()});
             case InsertableNodeType::Scene:
                 return std::make_shared<NodeDataUnique>(SceneData{name, m_sceneIdMgr.generate(),
-                                                                  std::make_unique<SceneDocument>()});
+                                                                  std::make_unique<SceneDocument>(properties().m_lang)});
         }
 
         throw std::runtime_error{"Should never get here. Probably forgot to update switch statement."};
