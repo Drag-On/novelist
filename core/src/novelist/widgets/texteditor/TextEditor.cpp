@@ -90,6 +90,7 @@ namespace novelist {
         m_insights.setDocument(document);
         QTextEdit::setDocument(document);
         setDefaultBlockFormat();
+        m_insightMgr.onDocumentChanged();
     }
 
     void TextEditor::setDocument(QTextDocument* document)
