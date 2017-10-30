@@ -141,14 +141,14 @@ namespace novelist
             QVariant depVer = dependencyMap.value("version");
             if(!m_plugins.contains(depUid.toString()))
             {
-                qWarning() << "Disabling plugin" << info.uid << ". Missing dependency" << depUid << ".";
+                qWarning() << "Disabling plugin" << info.uid.toString() << ". Missing dependency" << depUid.toString() << ".";
                 info.enabled = false;
                 return false;
             }
             PluginData const& pDep = m_plugins.value(depUid.toString());
             if(m_pluginInfo[pDep.infoIdx].version != depVer)
             {
-                qWarning() << "Disabling plugin" << info.uid << ". Version mismatch with dependency" << depUid << ".";
+                qWarning() << "Disabling plugin" << info.uid.toString() << ". Version mismatch with dependency" << depUid.toString() << ".";
                 info.enabled = false;
                 return false;
             }
@@ -215,7 +215,7 @@ namespace novelist
             // Only add plugins if their uid is actually unique
             if(m_plugins.contains(info.uid.toString()))
             {
-                qWarning() << "Plugin uid" << info.uid << "is not unique.";
+                qWarning() << "Plugin uid" << info.uid.toString() << "is not unique.";
                 continue;
             }
             m_plugins.insert(info.uid.toString(), pluginData);
