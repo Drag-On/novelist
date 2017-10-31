@@ -80,6 +80,11 @@ namespace novelist {
         Language language() const noexcept;
 
         /**
+         * @param lang New document language
+         */
+        void setLanguage(Language lang) noexcept;
+
+        /**
          * Compares two documents for content-equality
          * @details This only considers text. Formatting is not considered.
          * @param other Document to compare to

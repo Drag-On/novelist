@@ -107,6 +107,11 @@ namespace novelist {
         return m_lang;
     }
 
+    void SceneDocument::setLanguage(Language lang) noexcept
+    {
+        m_lang = lang;
+    }
+
     bool SceneDocument::operator==(SceneDocument const& other) const
     {
         if (blockCount() != other.blockCount())

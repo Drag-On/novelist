@@ -55,6 +55,13 @@ namespace novelist {
     void ProjectModel::doSetProperties(ProjectProperties const& properties)
     {
         std::get<ProjectHeadData>(*m_root[0].m_data).m_properties = properties;
+        traverse_dfs(m_root, [&properties](Node& n) -> bool {
+            auto* scene = std::get_if<SceneData>(n.m_data.get());
+            if (scene)
+                scene->m_doc->setLanguage(properties.m_lang);
+            return false;
+        });
+
         emit dataChanged(projectRootIndex(), projectRootIndex());
     }
 
