@@ -10,7 +10,7 @@ In terms of compilers, gcc-7 and clang-5 should work. Unfortunately, MSVC 2017 d
 Given all these dependencies are in place, you should be able to build novelist using the provided CMake script.
 
 ## Project Structure
-The project consists of a barebone launcher application which loads shared libraries as plugins. Currently there is one such plugin, the "main" plugin which provides the main application window and much of the base functionality. More plugins are planned. Additionally there is a shared "core" library, which provides much the functionality that can be used accross plugins.
+The project consists of a barebone launcher application which loads shared libraries as plugins. Currently there are two such plugins, the "main" plugin which provides the main application window and much of the base functionality, and a plugin that integrates [LanguageTool](https://www.languagetool.org/) to provide spell and grammar checking. More plugins are planned. Additionally there is a shared "core" library, which provides much the functionality that can be used accross plugins.
 
 ## License
 Novelist is licensed under GPL-3.0. Please see the [license file](LICENSE). Note that the used external libraries might be licensed under different terms.
