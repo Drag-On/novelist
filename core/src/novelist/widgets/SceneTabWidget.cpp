@@ -34,60 +34,6 @@ namespace novelist {
 
             QWidget::focusOutEvent(event);
         }
-
-        InspectionBlockResult DebugInspector::inspect(QString const& text, Language /*lang*/) const noexcept
-        {
-            InspectionBlockResult blockResult{};
-            {
-                QRegularExpression expression("\\b[Tt]eh\\b");
-                QRegularExpressionMatchIterator i = expression.globalMatch(text);
-                while (i.hasNext()) {
-                    QRegularExpressionMatch match = i.next();
-                    InspectionInsight insight;
-                    insight.m_left = match.capturedStart();
-                    insight.m_right = match.capturedEnd();
-                    insight.m_factory = std::make_unique<GeneralInsightFactory<SpellingInsight>>("Did you mean \"the\"?");
-                    blockResult.push_back(std::move(insight));
-                }
-            }
-            {
-                QRegularExpression expression("\\b[Ss]i\\b");
-                QRegularExpressionMatchIterator i = expression.globalMatch(text);
-                while (i.hasNext()) {
-                    QRegularExpressionMatch match = i.next();
-                    InspectionInsight insight;
-                    insight.m_left = match.capturedStart();
-                    insight.m_right = match.capturedEnd();
-                    insight.m_factory = std::make_unique<GeneralInsightFactory<SpellingInsight>>("Did you mean \"is\"?");
-                    blockResult.push_back(std::move(insight));
-                }
-            }
-            {
-                QRegularExpression expression("\\b[Cc]omming\\b");
-                QRegularExpressionMatchIterator i = expression.globalMatch(text);
-                while (i.hasNext()) {
-                    QRegularExpressionMatch match = i.next();
-                    InspectionInsight insight;
-                    insight.m_left = match.capturedStart();
-                    insight.m_right = match.capturedEnd();
-                    insight.m_factory = std::make_unique<GeneralInsightFactory<SpellingInsight>>("This is spelled \"coming\".");
-                    blockResult.push_back(std::move(insight));
-                }
-            }
-            {
-                QRegularExpression expression("\\b[Tt]here be dragons\\b");
-                QRegularExpressionMatchIterator i = expression.globalMatch(text);
-                while (i.hasNext()) {
-                    QRegularExpressionMatch match = i.next();
-                    InspectionInsight insight;
-                    insight.m_left = match.capturedStart();
-                    insight.m_right = match.capturedEnd();
-                    insight.m_factory = std::make_unique<GeneralInsightFactory<GrammarInsight>>("Maybe you mean \"There are dragons\"?");
-                    blockResult.push_back(std::move(insight));
-                }
-            }
-            return blockResult;
-        }
     }
 
     SceneTabWidget::SceneTabWidget(QWidget* parent)
@@ -108,9 +54,6 @@ namespace novelist {
 
         connect(this, &SceneTabWidget::tabCloseRequested, this, &SceneTabWidget::onTabCloseRequested);
         connect(this, &SceneTabWidget::currentChanged, this, &SceneTabWidget::onCurrentChanged);
-
-        // TODO: Remove this
-        registerInspector(std::make_unique<internal::DebugInspector>());
     }
 
     void SceneTabWidget::openScene(ProjectModel* model, QModelIndex index)

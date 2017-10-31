@@ -26,10 +26,11 @@ add_library(novelist_core
         src/novelist/document/Insight.cpp include/novelist/document/Insight.h
         src/novelist/document/BaseInsight.cpp include/novelist/document/BaseInsight.h
         src/novelist/document/NoteInsight.cpp include/novelist/document/NoteInsight.h
-        include/novelist/document/InsightFactory.h
         src/novelist/document/AutoInsight.cpp include/novelist/document/AutoInsight.h
-        src/novelist/document/SpellingInsight.cpp include/novelist/document/SpellingInsight.h
         src/novelist/document/GrammarInsight.cpp include/novelist/document/GrammarInsight.h
+        src/novelist/document/SpellingInsight.cpp include/novelist/document/SpellingInsight.h
+        src/novelist/document/TypographyInsight.cpp include/novelist/document/TypographyInsight.h
+        include/novelist/document/InsightFactory.h
         src/novelist/windows/ProjectPropertiesWindow.cpp include/novelist/windows/ProjectPropertiesWindow.h
         src/novelist/windows/NoteEditWindow.cpp include/novelist/windows/NoteEditWindow.h
         src/novelist/windows/MainWindow.cpp include/novelist/windows/MainWindow.h

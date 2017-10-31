@@ -45,11 +45,6 @@ namespace novelist {
 
             void focusOutEvent(QFocusEvent* event) override;
         };
-
-        class DebugInspector : public Inspector {
-        public:
-            InspectionBlockResult inspect(QString const& text, Language lang) const noexcept override;
-        };
     }
 
     class SceneTabWidget : public QTabWidget {

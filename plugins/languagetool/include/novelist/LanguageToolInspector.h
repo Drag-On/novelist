@@ -18,6 +18,11 @@ namespace novelist {
     class LanguageToolInspector : public Inspector {
     public:
         InspectionBlockResult inspect(QString const& text, Language lang) const noexcept override;
+
+    private:
+        InspectionBlockResult parseJsonResponse(QJsonDocument const& json) const noexcept;
+
+        std::unique_ptr<InsightFactory> makeFactory(QString const& msg, QJsonObject const& rule) const noexcept;
     };
 }
 
