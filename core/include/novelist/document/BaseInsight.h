@@ -51,6 +51,8 @@ namespace novelist {
     protected:
         void setMessage(QString const& msg) noexcept;
 
+        void replaceMarkedText(QString const& text) noexcept;
+
         void postRemoveEvent() noexcept;
 
     private:

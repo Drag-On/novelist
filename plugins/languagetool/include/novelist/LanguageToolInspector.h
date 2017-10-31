@@ -22,7 +22,7 @@ namespace novelist {
     private:
         InspectionBlockResult parseJsonResponse(QJsonDocument const& json) const noexcept;
 
-        std::unique_ptr<InsightFactory> makeFactory(QString const& msg, QJsonObject const& rule) const noexcept;
+        std::unique_ptr<InsightFactory> makeFactory(QString const& msg, QStringList suggestions, QJsonObject const& rule) const noexcept;
     };
 }
 

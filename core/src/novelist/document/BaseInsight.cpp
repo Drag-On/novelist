@@ -46,6 +46,11 @@ namespace novelist {
         m_message = msg;
     }
 
+    void BaseInsight::replaceMarkedText(QString const& text) noexcept
+    {
+        m_cursor.insertText(text);
+    }
+
     void BaseInsight::postRemoveEvent() noexcept
     {
         QCoreApplication::postEvent(&document()->insightManager(), new internal::RemoveInsightEvent(this));

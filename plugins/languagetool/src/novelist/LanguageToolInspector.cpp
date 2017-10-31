@@ -64,6 +64,9 @@ namespace novelist {
                 int pos = obj.value("offset").toInt();
                 int length = obj.value("length").toInt();
                 QJsonArray replacements = obj.value("replacements").toArray();
+                QStringList replacementStrings;
+                for (auto o : replacements)
+                    replacementStrings.push_back(o.toObject().value("value").toString());
                 QJsonObject context = obj.value("context").toObject();
                 QString contextStr = context.value("text").toString();
                 QJsonObject rule = obj.value("rule").toObject();
@@ -73,20 +76,19 @@ namespace novelist {
                 if (!shortMsg.isEmpty())
                     aggregateMsg += shortMsg + "\n\n";
                 aggregateMsg += msg + "\n";
-                if (replacements.isEmpty())
+                if (replacementStrings.isEmpty())
                     aggregateMsg += QObject::tr("No suggestions available.\n", "LanguageToolInspector");
                 else {
                     aggregateMsg += QObject::tr("Suggestions: ", "LanguageToolInspector");
-                    aggregateMsg += replacements.first().toObject().value("value").toString("");
-                    for (auto iter = replacements.begin() + 1; iter != replacements.end(); ++iter) {
-                        auto repObj = iter->toObject();
-                        aggregateMsg += ", " + repObj.value("value").toString("");
+                    aggregateMsg += replacementStrings.first();
+                    for (auto iter = replacementStrings.begin() + 1; iter != replacementStrings.end(); ++iter) {
+                        aggregateMsg += ", " + *iter;
                     }
                     aggregateMsg += "\n";
                 }
                 aggregateMsg += QObject::tr("In this context: ", "LanguageToolInspector");
                 aggregateMsg += contextStr;
-                insight.m_factory = makeFactory(aggregateMsg, rule);
+                insight.m_factory = makeFactory(aggregateMsg, replacementStrings, rule);
                 insight.m_left = pos;
                 insight.m_right = pos + length;
 
@@ -97,16 +99,16 @@ namespace novelist {
     }
 
     std::unique_ptr<InsightFactory>
-    LanguageToolInspector::makeFactory(QString const& msg, QJsonObject const& rule) const noexcept
+    LanguageToolInspector::makeFactory(QString const& msg, QStringList suggestions, QJsonObject const& rule) const noexcept
     {
         QString issueType = rule.value("issueType").toString("");
         QString catId = rule.value("category").toObject().value("id").toString("");
 
         if (issueType.contains(QRegExp("grammar|grammatic", Qt::CaseSensitivity::CaseInsensitive)))
-            return std::make_unique<GeneralInsightFactory<GrammarInsight>>(msg);
+            return std::make_unique<AutoInsightFactory<GrammarInsight>>(msg, suggestions);
         else if (issueType.contains(QRegExp("typographical|typography", Qt::CaseSensitivity::CaseInsensitive)))
-            return std::make_unique<GeneralInsightFactory<TypographyInsight>>(msg);
+            return std::make_unique<AutoInsightFactory<TypographyInsight>>(msg, suggestions);
         else
-            return std::make_unique<GeneralInsightFactory<SpellingInsight>>(msg);
+            return std::make_unique<AutoInsightFactory<SpellingInsight>>(msg, suggestions);
     }
 }
