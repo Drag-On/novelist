@@ -103,10 +103,11 @@ namespace novelist {
     {
         QString issueType = rule.value("issueType").toString("");
         QString catId = rule.value("category").toObject().value("id").toString("");
+        QString combinedType = issueType + catId;
 
-        if (issueType.contains(QRegExp("grammar|grammatic", Qt::CaseSensitivity::CaseInsensitive)))
+        if (combinedType.contains(QRegExp("grammar|grammatic", Qt::CaseSensitivity::CaseInsensitive)))
             return std::make_unique<AutoInsightFactory<GrammarInsight>>(msg, suggestions);
-        else if (issueType.contains(QRegExp("typographical|typography", Qt::CaseSensitivity::CaseInsensitive)))
+        else if (combinedType.contains(QRegExp("typographical|typography", Qt::CaseSensitivity::CaseInsensitive)))
             return std::make_unique<AutoInsightFactory<TypographyInsight>>(msg, suggestions);
         else
             return std::make_unique<AutoInsightFactory<SpellingInsight>>(msg, suggestions);
