@@ -43,6 +43,8 @@ namespace novelist {
 
         void onSaveProject();
 
+        void onOpenSettings();
+
     protected:
         void changeEvent(QEvent* event) override;
 

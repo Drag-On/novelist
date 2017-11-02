@@ -34,12 +34,16 @@ add_library(novelist_core
         src/novelist/windows/ProjectPropertiesWindow.cpp include/novelist/windows/ProjectPropertiesWindow.h
         src/novelist/windows/NoteEditWindow.cpp include/novelist/windows/NoteEditWindow.h
         src/novelist/windows/MainWindow.cpp include/novelist/windows/MainWindow.h
+        src/novelist/windows/SettingsWindow.cpp include/novelist/windows/SettingsWindow.h
         include/novelist/util/Overloaded.h
         include/novelist/util/Identity.h
         src/novelist/util/ConnectionWrapper.cpp include/novelist/util/ConnectionWrapper.h
         src/novelist/util/Connection.cpp include/novelist/util/Connection.h
         src/novelist/util/DelegateAction.cpp include/novelist/util/DelegateAction.h
         src/novelist/util/MenuHelper.cpp include/novelist/util/MenuHelper.h
+        include/novelist/settings/SettingsPage.h
+        src/novelist/settings/Settings.cpp include/novelist/settings/Settings.h
+        src/novelist/settings/SettingsPage_General.cpp include/novelist/settings/SettingsPage_General.h
         )
 
 target_include_directories(novelist_core

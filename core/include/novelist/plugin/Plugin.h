@@ -12,6 +12,8 @@
 
 #include <QtCore/QObject>
 #include <QtWidgets/QApplication>
+#include <gsl/gsl>
+#include "settings/Settings.h"
 #include "PluginInfo.h"
 
 namespace novelist
@@ -29,9 +31,10 @@ namespace novelist
          *
          * This is guaranteed to be called after all dependencies have been loaded. Therefore, this is the place
          * to hook into other plugins.
+         * @param settings Application settings
          * @return True in case the plugin could be loaded successfully, otherwise false
          */
-        virtual bool load() = 0;
+        virtual bool load(gsl::not_null<Settings*> settings) = 0;
 
         /**
          * General set-up of the plugin.

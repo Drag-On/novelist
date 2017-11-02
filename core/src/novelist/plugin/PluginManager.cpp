@@ -8,14 +8,14 @@
  **********************************************************/
 
 #include <QtCore>
+#include <gsl/gsl>
 #include "plugin/Plugin.h"
 #include "plugin/PluginManager.h"
 
-namespace novelist
-{
-    PluginManager::PluginManager(QFileInfo const& config, QDir const& pluginPath)
-            : m_settings(config.absoluteFilePath(), QSettings::IniFormat),
-              m_pluginDir(pluginPath)
+namespace novelist {
+    PluginManager::PluginManager(gsl::not_null<Settings*> settings, QDir const& pluginPath)
+            :m_settings(settings),
+             m_pluginDir(pluginPath)
     {
     }
 
@@ -39,16 +39,14 @@ namespace novelist
         QMultiHash<QString, QString> depGraph = determineDependencyGraph();
         m_loadOrder.clear();
         QHash<QString, int> marks;
-        for(QString const& p : m_plugins.keys())
-            if(m_pluginInfo[m_plugins[p].infoIdx].enabled)
+        for (QString const& p : m_plugins.keys())
+            if (m_pluginInfo[m_plugins[p].infoIdx].enabled)
                 marks.insert(p, 0);
 
         // While there are unmarked nodes
-        while(!marks.keys(0).empty())
-        {
+        while (!marks.keys(0).empty()) {
             QString node = marks.keys(0).front();
-            if(!visitNode(node, marks, depGraph))
-            {
+            if (!visitNode(node, marks, depGraph)) {
                 qWarning() << "Plugin dependencies have cycles.";
                 break;
             }
@@ -58,19 +56,17 @@ namespace novelist
     int PluginManager::load()
     {
         int numLoaded = 0;
-        for (QString const& p : m_loadOrder)
-        {
+        for (QString const& p : m_loadOrder) {
             qInfo() << "Loading plugin" << p;
-            if(!tryLoad(p))
+            if (!tryLoad(p))
                 qWarning() << "Plugin" << p << "was not loaded properly.";
             else numLoaded++;
         }
 
-        for(auto& p : m_plugins.values())
-            if(p.pLoader->isLoaded())
-            {
+        for (auto& p : m_plugins.values())
+            if (p.pLoader->isLoaded()) {
                 novelist::Plugin* pPlugin = qobject_cast<Plugin*>(p.pLoader->instance());
-                if(pPlugin)
+                if (pPlugin)
                     pPlugin->setup(m_pluginInfo);
             }
 
@@ -81,15 +77,13 @@ namespace novelist
     {
         // Unload in opposite load order
         QList<QString>::const_iterator iter = m_loadOrder.constEnd();
-        while(iter != m_loadOrder.constBegin())
-        {
+        while (iter != m_loadOrder.constBegin()) {
             --iter;
             auto loader = m_plugins.find(*iter)->pLoader;
-            if(loader->isLoaded())
-            {
+            if (loader->isLoaded()) {
                 qInfo() << "Unloading plugin" << *iter;
                 novelist::Plugin* pPlugin = qobject_cast<Plugin*>(loader->instance());
-                if(pPlugin != nullptr)
+                if (pPlugin != nullptr)
                     pPlugin->unload();
                 loader->unload();
                 delete loader;
@@ -101,14 +95,12 @@ namespace novelist
     {
         QMultiHash<QString, QString> dependencyGraph;
 
-        for(PluginData& p : m_plugins)
-        {
-            if(!m_pluginInfo[p.infoIdx].enabled)
+        for (PluginData& p : m_plugins) {
+            if (!m_pluginInfo[p.infoIdx].enabled)
                 continue;
 
             // Insert dependencies into graph
-            for(QVariant dependency : m_pluginInfo[p.infoIdx].dependencies)
-            {
+            for (QVariant dependency : m_pluginInfo[p.infoIdx].dependencies) {
                 QVariantMap dependencyMap = dependency.toMap();
                 QVariant depUid = dependencyMap.value("uid");
                 dependencyGraph.insert(m_pluginInfo[p.infoIdx].uid.toString(), depUid.toString());
@@ -120,7 +112,7 @@ namespace novelist
 
     void PluginManager::checkAll()
     {
-        for(auto const& p : m_plugins)
+        for (auto const& p : m_plugins)
             check(m_pluginInfo[p.infoIdx].uid.toString());
     }
 
@@ -128,27 +120,26 @@ namespace novelist
     {
         PluginData& p = *m_plugins.find(uid);
         PluginInfo& info = m_pluginInfo[p.infoIdx];
-        info.enabled = m_settings.value(uid, false).toBool();
+        info.enabled = m_settings->value(s_pluginsSettingsGroup + "/" + uid, false).toBool();
 
-        if(!info.enabled)
+        if (!info.enabled)
             return true;
 
         // Check dependencies
-        for(QVariant const& dependency : info.dependencies)
-        {
+        for (QVariant const& dependency : info.dependencies) {
             QVariantMap dependencyMap = dependency.toMap();
             QVariant depUid = dependencyMap.value("uid");
             QVariant depVer = dependencyMap.value("version");
-            if(!m_plugins.contains(depUid.toString()))
-            {
-                qWarning() << "Disabling plugin" << info.uid.toString() << ". Missing dependency" << depUid.toString() << ".";
+            if (!m_plugins.contains(depUid.toString())) {
+                qWarning() << "Disabling plugin" << info.uid.toString() << ". Missing dependency" << depUid.toString()
+                           << ".";
                 info.enabled = false;
                 return false;
             }
             PluginData const& pDep = m_plugins.value(depUid.toString());
-            if(m_pluginInfo[pDep.infoIdx].version != depVer)
-            {
-                qWarning() << "Disabling plugin" << info.uid.toString() << ". Version mismatch with dependency" << depUid.toString() << ".";
+            if (m_pluginInfo[pDep.infoIdx].version != depVer) {
+                qWarning() << "Disabling plugin" << info.uid.toString() << ". Version mismatch with dependency"
+                           << depUid.toString() << ".";
                 info.enabled = false;
                 return false;
             }
@@ -159,28 +150,24 @@ namespace novelist
 
     bool PluginManager::tryLoad(QString uid)
     {
-        if(!m_plugins.contains(uid))
-        {
+        if (!m_plugins.contains(uid)) {
             qWarning() << "Plugin" << uid << "could not be found.";
             return false;
         }
 
         PluginData& plugin = *m_plugins.find(uid);
-        if(!plugin.pLoader->load())
-        {
+        if (!plugin.pLoader->load()) {
             qWarning() << "Plugin" << uid << "could not be loaded.";
             return false;
         }
         novelist::Plugin* pPlugin = qobject_cast<Plugin*>(plugin.pLoader->instance());
-        if(pPlugin == nullptr)
-        {
+        if (pPlugin == nullptr) {
             qWarning() << "Plugin" << uid << "is corrupted.";
             plugin.pLoader->unload();
             return false;
         }
 
-        if(!pPlugin->load())
-        {
+        if (!pPlugin->load(m_settings)) {
             qWarning() << "Failed to load plugin" << uid << ".";
             plugin.pLoader->unload();
             return false;
@@ -193,11 +180,10 @@ namespace novelist
 
     void PluginManager::searchPluginDir()
     {
-        for(QFileInfo const& file : m_pluginDir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot))
-        {
+        for (QFileInfo const& file : m_pluginDir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot)) {
             PluginData pluginData{};
             QString filename = file.absoluteFilePath();
-            if(!QLibrary::isLibrary(filename))
+            if (!QLibrary::isLibrary(filename))
                 continue;
 
             size_t infoId = static_cast<size_t>(m_pluginInfo.size());
@@ -208,13 +194,14 @@ namespace novelist
 
             info.uid = pluginData.pLoader->metaData().value("MetaData").toObject().value("uid").toVariant();
             info.version = pluginData.pLoader->metaData().value("MetaData").toObject().value("version").toVariant();
-            info.dependencies = pluginData.pLoader->metaData().value("MetaData").toObject().value("dependencies").toArray().toVariantList();
+            info.dependencies = pluginData.pLoader->metaData().value("MetaData").toObject().value(
+                    "dependencies").toArray().toVariantList();
             info.name = pluginData.pLoader->metaData().value("MetaData").toObject().value("name").toVariant();
-            info.description = pluginData.pLoader->metaData().value("MetaData").toObject().value("description").toVariant();
+            info.description = pluginData.pLoader->metaData().value("MetaData").toObject().value(
+                    "description").toVariant();
 
             // Only add plugins if their uid is actually unique
-            if(m_plugins.contains(info.uid.toString()))
-            {
+            if (m_plugins.contains(info.uid.toString())) {
                 qWarning() << "Plugin uid" << info.uid.toString() << "is not unique.";
                 continue;
             }
@@ -223,17 +210,17 @@ namespace novelist
         }
     }
 
-    bool PluginManager::visitNode(QString const& n, QHash<QString, int>& marks, QMultiHash<QString, QString> const& depGraph)
+    bool
+    PluginManager::visitNode(QString const& n, QHash<QString, int>& marks, QMultiHash<QString, QString> const& depGraph)
     {
-        if(marks.value(n) == 1) // temp mark
+        if (marks.value(n) == 1) // temp mark
             return false;
-        if(marks.value(n) == 0) // no mark
+        if (marks.value(n) == 0) // no mark
         {
             marks[n] = 1;
-            for(QString const& m : depGraph.keys(n))
-            {
+            for (QString const& m : depGraph.keys(n)) {
                 bool success = visitNode(m, marks, depGraph);
-                if(!success)
+                if (!success)
                     return false;
             }
             marks[n] = 2;
@@ -244,8 +231,10 @@ namespace novelist
 
     void PluginManager::storeSettings()
     {
-        for(auto const& p : m_plugins)
-            m_settings.setValue(m_pluginInfo[p.infoIdx].uid.toString(), m_pluginInfo[p.infoIdx].enabled);
-        m_settings.sync();
+        m_settings->beginGroup(s_pluginsSettingsGroup);
+        auto endGroup = gsl::finally([this] { m_settings->endGroup(); });
+        for (auto const& p : m_plugins)
+            m_settings->setValue(m_pluginInfo[p.infoIdx].uid.toString(), m_pluginInfo[p.infoIdx].enabled);
+        m_settings->sync();
     }
 }

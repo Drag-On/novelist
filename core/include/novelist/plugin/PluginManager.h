@@ -15,6 +15,8 @@
 #include <QtCore/QPluginLoader>
 #include <QtCore/QSettings>
 #include <QtCore/QVector>
+#include <gsl/gsl>
+#include "settings/Settings.h"
 
 namespace novelist
 {
@@ -26,10 +28,10 @@ namespace novelist
     public:
         /**
          * Constructor
-         * @param config Points to the ini file where enabled/disabled information is stored
+         * @param settings Settings object
          * @param pluginPath Folder where plugins are located
          */
-        PluginManager(QFileInfo const& config, QDir const& pluginPath);
+        PluginManager(gsl::not_null<Settings*> settings, QDir const& pluginPath);
 
         /**
          * Scans the plugin folder for plugins.
@@ -59,11 +61,12 @@ namespace novelist
             QPluginLoader* pLoader; ///< Loader object
         };
 
-        QSettings m_settings;
+        gsl::not_null<Settings*> m_settings;
         QDir m_pluginDir;
         QHash<QString, PluginData> m_plugins;
         QList<QString> m_loadOrder;
         QVector<PluginInfo> m_pluginInfo;
+        static inline QString const s_pluginsSettingsGroup = "plugins";
 
         void searchPluginDir();
 

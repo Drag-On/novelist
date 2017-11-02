@@ -22,7 +22,7 @@ namespace novelist {
     Q_INTERFACES(novelist::Plugin)
 
     public:
-        bool load() override;
+        bool load(gsl::not_null<Settings*> settings) override;
 
         void unload() override;
 

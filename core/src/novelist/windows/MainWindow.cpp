@@ -10,8 +10,9 @@
 #include <QtCore/QEvent>
 #include <QtWidgets/QMessageBox>
 #include <QtWidgets/QFileDialog>
-#include "util/MenuHelper.h"
+#include "windows/SettingsWindow.h"
 #include "windows/MainWindow.h"
+#include "util/MenuHelper.h"
 #include "ui_MainWindow.h"
 
 namespace novelist {
@@ -61,6 +62,7 @@ namespace novelist {
         connect(m_ui->action_Open_Project, &QAction::triggered, this, &MainWindow::onOpenProject);
         connect(m_ui->action_Close_Project, &QAction::triggered, this, &MainWindow::onCloseProject);
         connect(m_ui->action_Save, &QAction::triggered, this, &MainWindow::onSaveProject);
+        connect(m_ui->actionSettings, &QAction::triggered, this, &MainWindow::onOpenSettings);
         connect(m_ui->actionAbout_Qt, &QAction::triggered, [&]() { QMessageBox::aboutQt(this); });
         connect(m_ui->actionAbout_Novelist, &QAction::triggered, [&]() {
             QMessageBox::about(this, tr("About Novelist"),
@@ -152,6 +154,12 @@ namespace novelist {
             msgBox.setIcon(QMessageBox::Warning);
             msgBox.exec();
         }
+    }
+
+    void MainWindow::onOpenSettings()
+    {
+        SettingsWindow wnd;
+        wnd.exec();
     }
 
     void MainWindow::changeEvent(QEvent* event)

@@ -7,12 +7,15 @@
  * @details
  **********************************************************/
 
+#include <settings/SettingsPage_General.h>
 #include "MainPlugin.h"
 
 namespace novelist
 {
-    bool MainPlugin::load()
+    bool MainPlugin::load(gsl::not_null<Settings*> settings)
     {
+        settings->registerPage(std::make_unique<SettingsPage_General_Creator>());
+
         m_mainWindow = std::make_unique<MainWindow>();
         m_mainWindow->show();
 

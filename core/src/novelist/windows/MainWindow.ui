@@ -76,6 +76,8 @@
     </property>
     <addaction name="action_Undo"/>
     <addaction name="action_Redo"/>
+    <addaction name="separator"/>
+    <addaction name="actionSettings"/>
    </widget>
    <widget class="QMenu" name="menu_Format">
     <property name="title">
@@ -411,6 +413,11 @@
    </property>
    <property name="text">
     <string>Add Note</string>
+   </property>
+  </action>
+  <action name="actionSettings">
+   <property name="text">
+    <string>Settings</string>
    </property>
   </action>
  </widget>

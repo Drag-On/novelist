@@ -29,7 +29,7 @@ namespace novelist {
         qWarning() << "Unable to register inspection plugin.";
     }
 
-    bool InspectionPlugin::load()
+    bool InspectionPlugin::load(gsl::not_null<Settings*>)
     {
         return true;
     }
