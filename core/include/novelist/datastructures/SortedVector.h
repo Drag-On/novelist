@@ -45,6 +45,21 @@ namespace novelist {
 
     /**
      * Find the location where a new element would be placed if it was inserted into a SortedVector
+     * @tparam Iter Iterator type
+     * @param begin Begin iterator of a sorted vector
+     * @param end End iterator of a sorted vector
+     * @param element Element to find insert location for
+     * @return Iterator to the position where \p element would end up if inserted into the range
+     */
+    template<typename Iter>
+    Iter findInsertIdx(Iter begin, Iter end, typename std::iterator_traits<Iter>::value_type const& element)
+    {
+        typename Iter::predicate_type comp;
+        return std::lower_bound(begin, end, element, comp);
+    }
+
+    /**
+     * Find the location where a new element would be placed if it was inserted into a SortedVector
      * @tparam T Element type
      * @tparam Pred Order predicate
      * @tparam Alloc Allocator
@@ -53,15 +68,11 @@ namespace novelist {
      * @return Iterator to the position where \p element would end up if inserted into \p vec
      */
     template<typename T, typename Pred, typename Alloc>
-    typename SortedVector<T, Pred, Alloc>::const_iterator findInsertIdx(SortedVector<T, Pred, Alloc> const& vec, T const& element)
+    typename SortedVector<T, Pred, Alloc>::const_iterator findInsertIdx(SortedVector<T, Pred, Alloc> const& vec,
+            T const& element)
     {
         Pred comp;
-        auto iter = vec.begin();
-        for (; iter != vec.end(); ++iter) {
-            if (!comp(*iter, element))
-                break;
-        }
-        return iter;
+        return std::lower_bound(vec.begin(), vec.end(), element, comp);
     }
 
     /**
@@ -75,10 +86,54 @@ namespace novelist {
     private:
         using vector_t = std::vector<T, Alloc>;
 
+        struct iterator_t : public vector_t::iterator {
+            using predicate_type = Pred;
+            using vector_t::iterator::iterator;
+
+        private:
+            iterator_t(typename vector_t::iterator iter) : vector_t::iterator(iter) {}
+
+            friend SortedVector;
+        };
+
+        struct const_iterator_t : public vector_t::const_iterator {
+            using predicate_type = Pred;
+            using vector_t::const_iterator::const_iterator;
+
+            const_iterator_t(typename vector_t::const_iterator iter) : vector_t::const_iterator(iter) {}
+            const_iterator_t(typename vector_t::iterator iter) : vector_t::const_iterator(iter) {}
+
+            friend SortedVector;
+        };
+
+        struct reverse_iterator_t : public vector_t::reverse_iterator {
+            using predicate_type = Pred;
+            using vector_t::reverse_iterator::reverse_iterator;
+
+        private:
+            reverse_iterator_t(typename vector_t::reverse_iterator iter) : vector_t::reverse_iterator(iter) {}
+
+            friend SortedVector;
+        };
+
+        struct const_reverse_iterator_t : public vector_t::const_reverse_iterator {
+            using predicate_type = Pred;
+            using vector_t::const_reverse_iterator::const_reverse_iterator;
+
+        private:
+            const_reverse_iterator_t(typename vector_t::const_reverse_iterator iter) : vector_t::const_reverse_iterator(iter) {}
+            const_reverse_iterator_t(typename vector_t::reverse_iterator iter) : vector_t::const_reverse_iterator(iter) {}
+
+            friend SortedVector;
+        };
+
     public:
+
+        using iterator = iterator_t;
+        using const_iterator = const_iterator_t;
+        using reverse_iterator = reverse_iterator_t;
+        using const_reverse_iterator = const_reverse_iterator_t;
         using const_reference = typename vector_t::const_reference;
-        using const_iterator = typename vector_t::const_iterator;
-        using const_reverse_iterator = typename vector_t::const_reverse_iterator;
 
     private:
         const_iterator relocate(const_iterator iter)
@@ -86,31 +141,17 @@ namespace novelist {
             typename vector_t::iterator mutIter = vector_t::begin() + std::distance(begin(), iter);
 
             Pred comp;
-            // Try moving left
-            if (mutIter != begin()) {
-                auto lIter = std::make_reverse_iterator(mutIter);
-                auto lIterCopy = lIter;
-                for (; lIter != rend(); std::advance(lIter, 1)) {
-                    if (comp(*lIter, *mutIter))
-                        break;
-                }
-                if (lIter != lIterCopy) {
-                    auto lIterForward = lIter.base();
-                    return move_range(mutIter, 1, lIterForward);
-                }
+            if (iter != begin() && comp(*iter, *(iter - 1))) {
+                auto destIter = findInsertIdx(begin(), iter, *iter);
+                typename vector_t::iterator mutDestIter = vector_t::begin() + std::distance(begin(), destIter);
+                return move_range(mutIter, 1, mutDestIter);
             }
-            // Try moving right
-            if (mutIter != end()) {
-                auto rIter = mutIter;
-                std::advance(rIter, 1);
-                auto rIterCopy = rIter;
-                for (; rIter != end(); std::advance(rIter, 1)) {
-                    if (!comp(*rIter, *mutIter))
-                        break;
-                }
-                if (rIter != rIterCopy)
-                    return move_range(mutIter, 1, rIter);
+            else if (iter != rbegin().base() && comp(*(iter + 1), *iter)) {
+                auto destIter = findInsertIdx(const_iterator(iter + 1), end(), *iter);
+                typename vector_t::iterator mutDestIter = vector_t::end() - std::distance(destIter, end());
+                return move_range(mutIter, 1, mutDestIter);
             }
+
             return iter;
         }
 
