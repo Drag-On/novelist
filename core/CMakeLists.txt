@@ -44,6 +44,7 @@ add_library(novelist_core
         include/novelist/settings/SettingsPage.h
         src/novelist/settings/Settings.cpp include/novelist/settings/Settings.h
         src/novelist/settings/SettingsPage_General.cpp include/novelist/settings/SettingsPage_General.h
+        src/novelist/settings/SettingsPage_Editor.cpp include/novelist/settings/SettingsPage_Editor.h
         )
 
 target_include_directories(novelist_core
