@@ -46,6 +46,8 @@ namespace novelist {
     };
 
     class SettingsPage_General_Creator : public SettingsPage {
+    Q_OBJECT
+
     public:
         QString name() noexcept override;
 

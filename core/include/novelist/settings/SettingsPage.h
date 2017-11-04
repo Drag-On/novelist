@@ -17,9 +17,11 @@ namespace novelist {
     /**
      * Manages a single page in the settings dialog and makes sure the dialog and the actual data stays in sync
      */
-    class SettingsPage {
+    class SettingsPage : public QObject {
+    Q_OBJECT
+
     public:
-        virtual ~SettingsPage() = default;
+        ~SettingsPage() override = default;
 
         /**
          * @return Display name of the page
@@ -62,6 +64,13 @@ namespace novelist {
          * @return The widget to appear as a page
          */
         virtual QWidget* createWidget() noexcept = 0;
+
+    signals:
+
+        /**
+         * Fired whenever the settings of this page are being updated
+         */
+        void updateInitiated();
     };
 }
 

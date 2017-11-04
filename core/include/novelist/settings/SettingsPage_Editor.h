@@ -20,8 +20,8 @@ namespace Ui {
 namespace novelist {
     class SettingsPage_Editor_Creator;
 
-    class SettingsPage_Editor  : public QWidget {
-        Q_OBJECT
+    class SettingsPage_Editor : public QWidget {
+    Q_OBJECT
 
     public:
         /**
@@ -47,6 +47,8 @@ namespace novelist {
     };
 
     class SettingsPage_Editor_Creator : public SettingsPage {
+    Q_OBJECT
+
     public:
         QString name() noexcept override;
 

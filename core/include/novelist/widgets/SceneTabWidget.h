@@ -13,6 +13,7 @@
 #include <QtCore/QFile>
 #include <QTabBar>
 #include <QtWidgets/QAbstractItemView>
+#include <QSettings>
 #include <vector>
 #include "util/DelegateAction.h"
 #include "util/ConnectionWrapper.h"
@@ -181,6 +182,8 @@ namespace novelist {
 
         void onModelDataChanged(QModelIndex const& topLeft, QModelIndex const& bottomRight);
 
+        void onSettingsUpdate();
+
     private:
         DelegateAction m_undoAction;
         DelegateAction m_redoAction;
@@ -194,6 +197,8 @@ namespace novelist {
         QAbstractItemView* m_insightView = nullptr;
         std::vector<std::unique_ptr<internal::InternalTextEditor>> m_editors;
         std::vector<std::unique_ptr<Inspector>> m_inspectors;
+
+        void applySettingsToEditor(QSettings const& settings, TextEditor* editor) const;
     };
 }
 

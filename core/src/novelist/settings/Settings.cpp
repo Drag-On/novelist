@@ -15,6 +15,14 @@ namespace novelist {
         s_pages.push_back(std::move(page));
     }
 
+    SettingsPage* Settings::findPage(QString const& uid) noexcept
+    {
+        auto iter = std::find_if(s_pages.begin(), s_pages.end(), [&uid] (auto const& p) { return p->uid() == uid; });
+        if (iter != s_pages.end())
+            return iter->get();
+        return nullptr;
+    }
+
     void Settings::updateAll() noexcept
     {
         QSettings settings;

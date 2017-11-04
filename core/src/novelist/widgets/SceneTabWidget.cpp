@@ -8,8 +8,7 @@
  **********************************************************/
 
 #include <QTabBar>
-#include "document/GrammarInsight.h"
-#include "document/SpellingInsight.h"
+#include "settings/Settings.h"
 #include "widgets/SceneTabWidget.h"
 
 namespace novelist {
@@ -54,6 +53,9 @@ namespace novelist {
 
         connect(this, &SceneTabWidget::tabCloseRequested, this, &SceneTabWidget::onTabCloseRequested);
         connect(this, &SceneTabWidget::currentChanged, this, &SceneTabWidget::onCurrentChanged);
+        auto* editorPage = Settings::findPage("editor");
+        if (editorPage)
+            connect(editorPage, &SettingsPage::updateInitiated, this, &SceneTabWidget::onSettingsUpdate);
     }
 
     void SceneTabWidget::openScene(ProjectModel* model, QModelIndex index)
@@ -62,12 +64,16 @@ namespace novelist {
 
         int tabIdx = indexOf(model, index);
         if (tabIdx == -1) {
+            QSettings settings;
+
             auto& editor = m_editors.emplace_back(new internal::InternalTextEditor(model->properties().m_lang));
             editor->setFocusPolicy(focusPolicy());
             editor->m_model = model;
             editor->m_modelIndex = index;
             editor->setDocument(qvariant_cast<SceneDocument*>(model->data(index, ProjectModel::DocumentRole)));
+            editor->setWordWrapMode(QTextOption::WrapMode::WordWrap);
             editor->useInspectors(&m_inspectors);
+            applySettingsToEditor(settings, editor.get());
 
             // Make sure the tab title and color change appropriately
             connect(editor->m_model, &ProjectModel::dataChanged, this, &SceneTabWidget::onModelDataChanged);
@@ -239,13 +245,38 @@ namespace novelist {
 
         for (int i = topLeft.row(); i <= bottomRight.row(); ++i) {
             QModelIndex curIdx = model->index(i, 0, topLeft.parent());
-            if (int tabIdx = indexOf(model, curIdx); tabIdx >= 0) {
+            if (int tabIdx = indexOf(model, curIdx);
+            tabIdx >= 0) {
                 QString name = model->data(curIdx, Qt::DisplayRole).toString();
                 tabBar()->setTabText(tabIdx, name);
                 tabBar()->setTabToolTip(tabIdx, name);
                 tabBar()->setTabTextColor(tabIdx,
                         qvariant_cast<QBrush>(model->data(curIdx, Qt::ForegroundRole)).color());
             }
+        }
+    }
+
+    void SceneTabWidget::onSettingsUpdate()
+    {
+        QSettings settings;
+        for (int i = 0; i < count(); ++i) {
+            auto* w = dynamic_cast<TextEditor*>(widget(i));
+            if (w != nullptr) {
+                applySettingsToEditor(settings, w);
+            }
+        }
+    }
+
+    void SceneTabWidget::applySettingsToEditor(QSettings const& settings, TextEditor* editor) const
+    {
+        editor->setShowParagraphNumberArea(settings.value("editor/show_par_no", true).toBool());
+        int widthLimit = settings.value("editor/width_limit").toInt();
+        if (widthLimit > 0) {
+            editor->setLineWrapMode(TextEditor::LineWrapMode::FixedColumnWidth);
+            editor->setLineWrapColumnOrWidth(widthLimit);
+        }
+        else {
+            editor->setLineWrapMode(TextEditor::LineWrapMode::WidgetWidth);
         }
     }
 }

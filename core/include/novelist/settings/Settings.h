@@ -27,6 +27,13 @@ namespace novelist {
         static void registerPage(std::unique_ptr<SettingsPage> page) noexcept;
 
         /**
+         * Looks for the page with a given Id.
+         * @param uid Id to look for
+         * @return A non-owning pointer to the found page or nullptr
+         */
+        static SettingsPage* findPage(QString const& uid) noexcept;
+
+        /**
          * Updates the application based on all current settings
          */
         static void updateAll() noexcept;

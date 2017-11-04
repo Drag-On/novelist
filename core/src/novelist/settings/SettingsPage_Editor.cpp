@@ -70,7 +70,7 @@ namespace novelist {
 
     void SettingsPage_Editor_Creator::initiateUpdate(QSettings const& settings) noexcept
     {
-
+        emit updateInitiated();
     }
 
     void SettingsPage_Editor_Creator::restoreDefaults(QWidget const* widget) noexcept

@@ -67,6 +67,9 @@ namespace novelist {
 
     int TextEditor::paragraphNumberAreaWidth() const
     {
+        if (!m_showParagraphNumberArea)
+            return 0;
+
         int digits = 1;
         int max = qMax(1, document()->blockCount());
         while (max >= 10) {
@@ -77,6 +80,17 @@ namespace novelist {
         int space = 3 + fontMetrics().width(QLatin1Char('9')) * digits + 10;
 
         return space;
+    }
+
+    void TextEditor::setShowParagraphNumberArea(bool show) noexcept
+    {
+        m_showParagraphNumberArea = show;
+        updateParagraphNumberAreaWidth();
+    }
+
+    bool TextEditor::isShowParagraphNumberArea() const noexcept
+    {
+        return m_showParagraphNumberArea;
     }
 
     SceneDocument* TextEditor::document() const
@@ -173,7 +187,8 @@ namespace novelist {
     {
         QTextEdit::paintEvent(e);
 
-        updateParagraphNumberArea(e->rect(), verticalScrollBar()->value() - m_lastVerticalSliderPos);
+        if (m_showParagraphNumberArea)
+            updateParagraphNumberArea(e->rect(), verticalScrollBar()->value() - m_lastVerticalSliderPos);
         m_lastVerticalSliderPos = verticalScrollBar()->value();
 
 

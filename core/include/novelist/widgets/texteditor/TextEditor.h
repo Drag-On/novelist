@@ -61,6 +61,16 @@ namespace novelist {
         int paragraphNumberAreaWidth() const;
 
         /**
+         * @param show True to show paragraph numbers, false to hide
+         */
+        void setShowParagraphNumberArea(bool show) noexcept;
+
+        /**
+         * @return True if paragraph numbers are shown, otherwise false
+         */
+        bool isShowParagraphNumberArea() const noexcept;
+
+        /**
          * @return Underlying document
          */
         SceneDocument* document() const;
@@ -211,6 +221,7 @@ namespace novelist {
 
         void setDefaultBlockFormat();
 
+        bool m_showParagraphNumberArea = true;
         std::unique_ptr<internal::ParagraphNumberArea> m_paragraphNumberArea;
         int m_lastVerticalSliderPos = 0;
         int m_lastBlockCount = 0;
