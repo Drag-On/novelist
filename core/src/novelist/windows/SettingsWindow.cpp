@@ -7,7 +7,8 @@
  * @details
  **********************************************************/
 #include <QtCore/QEvent>
-#include <include/gsl/gsl_util>
+#include <QtWidgets/QPushButton>
+#include <gsl/gsl>
 #include "settings/Settings.h"
 #include "windows/SettingsWindow.h"
 #include "ui_SettingsWindow.h"
@@ -32,12 +33,26 @@ namespace novelist {
             m_ui->pagesStackedWidget->addWidget(widget);
         }
 
+        connect(m_ui->buttonBox->button(QDialogButtonBox::Apply), &QPushButton::clicked, this, &SettingsWindow::apply);
+        connect(m_ui->buttonBox->button(QDialogButtonBox::RestoreDefaults), &QPushButton::clicked, this,
+                &SettingsWindow::restoreDefaults);
         connect(m_ui->pagesListWidget, &QListWidget::currentItemChanged, this, &SettingsWindow::onChangePage);
     }
 
     SettingsWindow::~SettingsWindow() noexcept = default;
 
     void SettingsWindow::accept()
+    {
+        apply();
+        QDialog::accept();
+    }
+
+    void SettingsWindow::reject()
+    {
+        QDialog::reject();
+    }
+
+    void SettingsWindow::apply()
     {
         QSettings settings;
         for (auto iter = Settings::s_pages.begin(); iter != Settings::s_pages.end(); ++iter) {
@@ -46,12 +61,12 @@ namespace novelist {
             (*iter)->apply(m_ui->pagesStackedWidget->widget(idx), settings);
             settings.endGroup();
         }
-        QDialog::accept();
     }
 
-    void SettingsWindow::reject()
+    void SettingsWindow::restoreDefaults()
     {
-        QDialog::reject();
+        int curIdx = m_ui->pagesStackedWidget->currentIndex();
+        Settings::s_pages[curIdx]->restoreDefaults(m_ui->pagesStackedWidget->currentWidget());
     }
 
     void SettingsWindow::retranslateUi()

@@ -55,6 +55,8 @@ namespace novelist {
 
         void apply(QWidget const* widget, QSettings& settings) noexcept override;
 
+        void restoreDefaults(QWidget const* widget) override;
+
         QWidget* createWidget() noexcept override;
     };
 }

@@ -69,6 +69,18 @@ namespace novelist {
         font.setPointSize(page->m_ui->fontSizeSpinBox->value());
         settings.setValue("font", font.toString());
         settings.setValue("ui_lang", "english"); // TODO: fix this
+
+        qApp->setFont(font);
+    }
+
+    void SettingsPage_General_Creator::restoreDefaults(QWidget const* widget)
+    {
+        auto* page = dynamic_cast<SettingsPage_General const*>(widget);
+
+        QFont defaultFont = QFontDatabase::systemFont(QFontDatabase::SystemFont::GeneralFont);
+        page->m_ui->fontComboBox->setCurrentFont(defaultFont);
+        page->m_ui->fontSizeSpinBox->setValue(defaultFont.pointSize());
+        page->m_ui->langComboBox->setCurrentIndex(0); // TODO: Fix this
     }
 
     QWidget* SettingsPage_General_Creator::createWidget() noexcept

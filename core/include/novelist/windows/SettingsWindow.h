@@ -39,6 +39,10 @@ namespace novelist {
 
         void reject() override;
 
+        void apply();
+
+        void restoreDefaults();
+
     protected:
         void changeEvent(QEvent* event) override;
 

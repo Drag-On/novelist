@@ -46,6 +46,12 @@ namespace novelist {
         virtual void apply(QWidget const* widget, QSettings& settings) noexcept = 0;
 
         /**
+         * Restore default values on the widget
+         * @param widget Widget, guaranteed to be identical in type to an object created by createWidget() earlier
+         */
+        virtual void restoreDefaults(QWidget const* widget) = 0;
+
+        /**
          * Create a widget that is shown as the configuration page in the settings dialog
          * @return The widget to appear as a page
          */
