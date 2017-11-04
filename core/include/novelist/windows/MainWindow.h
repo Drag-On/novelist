@@ -58,6 +58,8 @@ namespace novelist {
 
         bool continueCheckUnsavedChanges() const;
 
+        QString generateWelcomeMessage() const;
+
     private slots:
 
         void onProjectChanged(ProjectModel* m);

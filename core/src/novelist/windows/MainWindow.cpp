@@ -10,6 +10,7 @@
 #include <QtCore/QEvent>
 #include <QtWidgets/QMessageBox>
 #include <QtWidgets/QFileDialog>
+#include <random>
 #include "windows/SettingsWindow.h"
 #include "windows/MainWindow.h"
 #include "util/MenuHelper.h"
@@ -68,6 +69,8 @@ namespace novelist {
             QMessageBox::about(this, tr("About Novelist"),
                     tr("Novelist is an integrated writing environment for authors."));
         });
+
+        statusBar()->showMessage(generateWelcomeMessage(), 30000);
     }
 
     MainWindow::~MainWindow()
@@ -203,6 +206,24 @@ namespace novelist {
             }
         }
         return true;
+    }
+
+    QString MainWindow::generateWelcomeMessage() const
+    {
+        static std::vector<QString> messages {
+                tr("Welcome!"),
+                tr("Hello there, sweetheart. Let's write a book together."),
+                tr("Aww, you came back for me!"),
+                tr("Isn't it just the perfect day to write a novel?"),
+                tr("Hey, you! Yeah, you with the pretty face! Wanna write a novel?"),
+                tr("Hi!"),
+                tr("Have I ever told you how it tickles when you type?"),
+                tr("Welcome back! We're such a great team. You're my best friend!"),
+        };
+        static std::random_device rd;
+        static std::mt19937 gen(rd());
+        std::uniform_int_distribution<size_t> dis(0, messages.size() - 1);
+        return messages[dis(gen)];
     }
 
     void MainWindow::onProjectChanged(ProjectModel* m)
