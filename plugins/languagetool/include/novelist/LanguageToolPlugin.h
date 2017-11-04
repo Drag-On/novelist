@@ -26,6 +26,8 @@ namespace novelist
         Q_PLUGIN_METADATA(IID "novelist.LanguageToolPlugin" FILE "LanguageToolPlugin.json")
 
     public:
+        bool load(gsl::not_null<Settings*> settings) override;
+
     protected:
         std::unique_ptr<Inspector> createInspector() const noexcept override;
     };

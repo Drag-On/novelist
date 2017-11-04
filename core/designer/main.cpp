@@ -12,11 +12,13 @@
 #include "ProjectViewPlugin.h"
 #include "SceneTabWidgetPlugin.h"
 #include "InsightViewPlugin.h"
+#include "FilePickerPlugin.h"
 
 CoreWidgetsPlugin::CoreWidgetsPlugin(QObject* parent)
         :QObject(parent)
 {
     m_widgets.append(new LanguagePickerPlugin(this));
+    m_widgets.append(new FilePickerPlugin(this));
     m_widgets.append(new ProjectViewPlugin(this));
     m_widgets.append(new InsightViewPlugin(this));
     m_widgets.append(new SceneTabWidgetPlugin(this));

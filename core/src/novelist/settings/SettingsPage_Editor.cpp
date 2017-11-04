@@ -68,7 +68,7 @@ namespace novelist {
         settings.setValue("show_par_no", page->m_ui->checkBoxShowParNo->isChecked());
     }
 
-    void SettingsPage_Editor_Creator::initiateUpdate(QSettings const& settings) noexcept
+    void SettingsPage_Editor_Creator::initiateUpdate(QSettings const& /*settings*/) noexcept
     {
         emit updateInitiated();
     }

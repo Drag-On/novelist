@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SettingsPage_LanguageTool</class>
+ <widget class="QWidget" name="SettingsPage_LanguageTool">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>407</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Settings - LanguageTool</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QGroupBox" name="groupBoxLanguageTool">
+     <property name="title">
+      <string>LanguageTool</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="labelServerUrl">
+        <property name="text">
+         <string>Server-URL</string>
+        </property>
+        <property name="buddy">
+         <cstring>lineEditServerUrl</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="lineEditServerUrl">
+        <property name="text">
+         <string>http://localhost:8081/</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="labelIgnoreRules">
+        <property name="text">
+         <string>Ignore rules</string>
+        </property>
+        <property name="buddy">
+         <cstring>lineEditIgnoreRules</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="lineEditIgnoreRules"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBoxAutoStart">
+     <property name="title">
+      <string>Start LT automatically</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <layout class="QFormLayout" name="formLayout_2">
+      <item row="0" column="0">
+       <widget class="QLabel" name="labelServerPath">
+        <property name="text">
+         <string>Path</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="novelist::FilePicker" name="filePicker"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="labelJava">
+        <property name="text">
+         <string>Java</string>
+        </property>
+        <property name="buddy">
+         <cstring>lineEditJava</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="lineEditJava">
+        <property name="text">
+         <string>java</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="labelserverArguments">
+        <property name="text">
+         <string>Arguments</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="lineEditServerArguments">
+        <property name="text">
+         <string>org.languagetool.server.HTTPServer --port 8081</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>novelist::FilePicker</class>
+   <extends>QWidget</extends>
+   <header>widgets/FilePicker.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

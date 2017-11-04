@@ -6,7 +6,8 @@ add_definitions(-DQT_PLUGIN)
 add_library(novelist_languagetool
         SHARED
             src/novelist/LanguageToolPlugin.cpp include/novelist/LanguageToolPlugin.h
-            src/novelist/LanguageToolInspector.cpp include/novelist/LanguageToolInspector.h)
+            src/novelist/LanguageToolInspector.cpp include/novelist/LanguageToolInspector.h
+            src/novelist/SettingsPage_LanguageTool.cpp include/novelist/SettingsPage_LanguageTool.h)
 
 target_include_directories(novelist_languagetool
         PUBLIC

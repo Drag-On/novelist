@@ -16,15 +16,20 @@ namespace novelist {
 
     InspectionBlockResult LanguageToolInspector::inspect(QString const& text, Language lang) const noexcept
     {
+        QSettings settings;
+        QString url = settings.value("languagetool/url").toString();
+        QString disabledRules = settings.value("languagetool/ignore_rules").toString();
+
         QNetworkAccessManager network;
         QLoggingCategory::setFilterRules("qt.network.ssl.warning=false");
 
-        QNetworkRequest dest(QUrl("http://localhost:8081/v2/check"));
+        QNetworkRequest dest(QUrl(url + "/v2/check"));
         dest.setHeader(QNetworkRequest::KnownHeaders::ContentTypeHeader, "application/x-www-form-urlencoded");
 
         QUrlQuery request;
         request.addQueryItem("text", text);
         request.addQueryItem("language", lang::identifier(lang));
+        request.addQueryItem("disabledRules", disabledRules);
         QString requestStr = request.toString(QUrl::FullyEncoded);
 
         QByteArray response;
