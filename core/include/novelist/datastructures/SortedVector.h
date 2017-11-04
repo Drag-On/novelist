@@ -91,7 +91,8 @@ namespace novelist {
             using vector_t::iterator::iterator;
 
         private:
-            iterator_t(typename vector_t::iterator iter) : vector_t::iterator(iter) {}
+            iterator_t(typename vector_t::iterator iter)
+                    :vector_t::iterator(iter) { }
 
             friend SortedVector;
         };
@@ -100,8 +101,11 @@ namespace novelist {
             using predicate_type = Pred;
             using vector_t::const_iterator::const_iterator;
 
-            const_iterator_t(typename vector_t::const_iterator iter) : vector_t::const_iterator(iter) {}
-            const_iterator_t(typename vector_t::iterator iter) : vector_t::const_iterator(iter) {}
+            const_iterator_t(typename vector_t::const_iterator iter)
+                    :vector_t::const_iterator(iter) { }
+
+            const_iterator_t(typename vector_t::iterator iter)
+                    :vector_t::const_iterator(iter) { }
 
             friend SortedVector;
         };
@@ -111,7 +115,8 @@ namespace novelist {
             using vector_t::reverse_iterator::reverse_iterator;
 
         private:
-            reverse_iterator_t(typename vector_t::reverse_iterator iter) : vector_t::reverse_iterator(iter) {}
+            reverse_iterator_t(typename vector_t::reverse_iterator iter)
+                    :vector_t::reverse_iterator(iter) { }
 
             friend SortedVector;
         };
@@ -121,8 +126,11 @@ namespace novelist {
             using vector_t::const_reverse_iterator::const_reverse_iterator;
 
         private:
-            const_reverse_iterator_t(typename vector_t::const_reverse_iterator iter) : vector_t::const_reverse_iterator(iter) {}
-            const_reverse_iterator_t(typename vector_t::reverse_iterator iter) : vector_t::const_reverse_iterator(iter) {}
+            const_reverse_iterator_t(typename vector_t::const_reverse_iterator iter)
+                    :vector_t::const_reverse_iterator(iter) { }
+
+            const_reverse_iterator_t(typename vector_t::reverse_iterator iter)
+                    :vector_t::const_reverse_iterator(iter) { }
 
             friend SortedVector;
         };
@@ -138,6 +146,9 @@ namespace novelist {
     private:
         const_iterator relocate(const_iterator iter)
         {
+            if (size() <= 1)
+                return iter;
+
             typename vector_t::iterator mutIter = vector_t::begin() + std::distance(begin(), iter);
 
             Pred comp;
@@ -146,7 +157,7 @@ namespace novelist {
                 typename vector_t::iterator mutDestIter = vector_t::begin() + std::distance(begin(), destIter);
                 return move_range(mutIter, 1, mutDestIter);
             }
-            else if (iter != rbegin().base() && comp(*(iter + 1), *iter)) {
+            else if (iter != (end() - 1) && comp(*(iter + 1), *iter)) {
                 auto destIter = findInsertIdx(const_iterator(iter + 1), end(), *iter);
                 typename vector_t::iterator mutDestIter = vector_t::end() - std::distance(destIter, end());
                 return move_range(mutIter, 1, mutDestIter);
