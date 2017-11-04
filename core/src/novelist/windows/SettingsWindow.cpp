@@ -28,7 +28,7 @@ namespace novelist {
 
             auto* widget = page->createWidget();
             settings.beginGroup(page->uid());
-            page->update(widget, settings);
+            page->initialize(widget, settings);
             settings.endGroup();
             m_ui->pagesStackedWidget->addWidget(widget);
         }
@@ -59,6 +59,7 @@ namespace novelist {
             settings.beginGroup((*iter)->uid());
             auto idx = gsl::narrow_cast<int>(std::distance(Settings::s_pages.begin(), iter));
             (*iter)->apply(m_ui->pagesStackedWidget->widget(idx), settings);
+            (*iter)->initiateUpdate(settings);
             settings.endGroup();
         }
     }

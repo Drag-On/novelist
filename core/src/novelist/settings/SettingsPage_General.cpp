@@ -47,7 +47,7 @@ namespace novelist {
         return "general_ui";
     }
 
-    void SettingsPage_General_Creator::update(QWidget* widget, QSettings const& settings) noexcept
+    void SettingsPage_General_Creator::initialize(QWidget* widget, QSettings const& settings) noexcept
     {
         auto* page = dynamic_cast<SettingsPage_General*>(widget);
 
@@ -68,12 +68,18 @@ namespace novelist {
         QFont font = page->m_ui->fontComboBox->currentFont();
         font.setPointSize(page->m_ui->fontSizeSpinBox->value());
         settings.setValue("font", font.toString());
-        settings.setValue("ui_lang", "english"); // TODO: fix this
+        settings.setValue("lang", "english"); // TODO: fix this
+    }
 
+    void SettingsPage_General_Creator::initiateUpdate(QSettings const& settings) noexcept
+    {
+        QFont font;
+        if (settings.contains("font"))
+            font.fromString(settings.value("font").toString());
         qApp->setFont(font);
     }
 
-    void SettingsPage_General_Creator::restoreDefaults(QWidget const* widget)
+    void SettingsPage_General_Creator::restoreDefaults(QWidget const* widget) noexcept
     {
         auto* page = dynamic_cast<SettingsPage_General const*>(widget);
 

@@ -26,6 +26,11 @@ namespace novelist {
          */
         static void registerPage(std::unique_ptr<SettingsPage> page) noexcept;
 
+        /**
+         * Updates the application based on all current settings
+         */
+        static void updateAll() noexcept;
+
     private:
         static inline std::vector<std::unique_ptr<SettingsPage>> s_pages;
 

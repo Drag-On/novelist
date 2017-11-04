@@ -32,24 +32,30 @@ namespace novelist {
         virtual QString uid() = 0;
 
         /**
-         * Update the widget based on the current settings
+         * Initialize the widget based on the current settings
          * @param widget Widget, guaranteed to be identical in type to an object created by createWidget() earlier
-         * @param settings Current settings
+         * @param settings Current settings of the page's group
          */
-        virtual void update(QWidget* widget, QSettings const& settings) noexcept = 0;
+        virtual void initialize(QWidget* widget, QSettings const& settings) noexcept = 0;
 
         /**
          * Change current settings according to the modifications in the page widget
          * @param widget Widget, guaranteed to be identical in type to an object created by createWidget() earlier
-         * @param settings Current settings
+         * @param settings Current settings of the page's group
          */
         virtual void apply(QWidget const* widget, QSettings& settings) noexcept = 0;
+
+        /**
+         * Initiate update of the application based on the changed settings
+         * @param settings Current settings of the page's group
+         */
+        virtual void initiateUpdate(QSettings const& settings) noexcept = 0;
 
         /**
          * Restore default values on the widget
          * @param widget Widget, guaranteed to be identical in type to an object created by createWidget() earlier
          */
-        virtual void restoreDefaults(QWidget const* widget) = 0;
+        virtual void restoreDefaults(QWidget const* widget) noexcept = 0;
 
         /**
          * Create a widget that is shown as the configuration page in the settings dialog

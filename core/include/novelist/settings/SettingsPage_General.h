@@ -51,11 +51,13 @@ namespace novelist {
 
         QString uid() noexcept override;
 
-        void update(QWidget* widget, QSettings const& settings) noexcept override;
+        void initialize(QWidget* widget, QSettings const& settings) noexcept override;
 
         void apply(QWidget const* widget, QSettings& settings) noexcept override;
 
-        void restoreDefaults(QWidget const* widget) override;
+        void initiateUpdate(QSettings const& settings) noexcept override;
+
+        void restoreDefaults(QWidget const* widget) noexcept override;
 
         QWidget* createWidget() noexcept override;
     };

@@ -70,6 +70,8 @@ namespace novelist {
                     pPlugin->setup(m_pluginInfo);
             }
 
+        Settings::updateAll();
+
         return numLoaded;
     }
 
