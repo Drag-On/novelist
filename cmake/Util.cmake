@@ -34,3 +34,23 @@ function(enable_cxx17 target)
                 )
     endif ()
 endfunction()
+
+# ============================================================== #
+# Enable qt internationalization tools for target
+# ============================================================== #
+function(enable_i18n target)
+    set(TRANSLATION_FILES
+            translations/${target}_en.ts
+            translations/${target}_de.ts
+            )
+
+    option(UPDATE_TRANSLATIONS "Update source translation files")
+    if(UPDATE_TRANSLATIONS)
+        qt5_create_translation(${target}_QM_FILES src/ include/ ${TRANSLATION_FILES})
+    else(UPDATE_TRANSLATIONS)
+        qt5_add_translation(${target}_QM_FILES ${TRANSLATION_FILES})
+    endif(UPDATE_TRANSLATIONS)
+    add_custom_target(${target}_translations ALL DEPENDS ${${target}_QM_FILES})
+    install(FILES ${${target}_QM_FILES} DESTINATION ${CMAKE_INSTALL_PREFIX}/translations)
+    set_directory_properties(PROPERTIES CLEAN_NO_CUSTOM ON)
+endfunction()

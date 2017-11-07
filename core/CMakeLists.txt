@@ -69,6 +69,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 endif()
 
 enable_cxx17(novelist_core)
+enable_i18n(novelist_core)
 
 add_subdirectory(test)
 add_subdirectory(designer)
