@@ -48,12 +48,14 @@ namespace novelist {
         m_registered[locale].push_back(file);
     }
 
-    void TranslationManager::registerInDirectory(QDir const& dir, QString const& prefix) noexcept
+    void TranslationManager::registerInDirectory(QDir const& dir, QString const& prefix, bool noNew) noexcept
     {
         QStringList fileNames = dir.entryList(QStringList(prefix + "_*.qm"));
 
         for (auto const& f : fileNames) {
             QLocale locale = extractLocaleFromTranslationFile(f);
+            if (noNew && !isLocaleKnown(locale))
+                continue;
             if (locale != QLocale("C"))
                 registerTranslation(locale, dir.absoluteFilePath(f));
             else

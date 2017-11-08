@@ -17,10 +17,10 @@ namespace novelist
 {
     bool MainPlugin::load(gsl::not_null<Settings*> settings)
     {
-        auto qtLangDir = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
-        TranslationManager::instance().registerInDirectory(qtLangDir, "qt");
         auto langDir = QDir(QApplication::applicationDirPath() + "/core");
         TranslationManager::instance().registerInDirectory(langDir, "novelist_core");
+        auto qtLangDir = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
+        TranslationManager::instance().registerInDirectory(qtLangDir, "qt", true);
 
         settings->registerPage(std::make_unique<SettingsPage_General_Creator>());
         settings->registerPage(std::make_unique<SettingsPage_Editor_Creator>());

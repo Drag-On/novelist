@@ -60,8 +60,9 @@ namespace novelist {
          * Registers all translations found in a particular directory
          * @param dir Directory
          * @param prefix Prefix of all language files, e.g. "novelist_core"
+         * @param noNew Indicates whether to allow loading of locales which are not known already
          */
-        void registerInDirectory(QDir const& dir, QString const& prefix) noexcept;
+        void registerInDirectory(QDir const& dir, QString const& prefix, bool noNew = false) noexcept;
 
         /**
          * Switch language to the requested locale. This unloads the previously active translation(s) and loads every
