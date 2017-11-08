@@ -41,11 +41,13 @@ add_library(novelist_core
         src/novelist/util/Connection.cpp include/novelist/util/Connection.h
         src/novelist/util/DelegateAction.cpp include/novelist/util/DelegateAction.h
         src/novelist/util/MenuHelper.cpp include/novelist/util/MenuHelper.h
+        src/novelist/util/TranslationManager.cpp include/novelist/util/TranslationManager.h
         include/novelist/settings/SettingsPage.h
         src/novelist/settings/Settings.cpp include/novelist/settings/Settings.h
         src/novelist/settings/SettingsPage_General.cpp include/novelist/settings/SettingsPage_General.h
         src/novelist/settings/SettingsPage_Editor.cpp include/novelist/settings/SettingsPage_Editor.h
-        src/novelist/widgets/FilePicker.cpp include/novelist/widgets/FilePicker.h)
+        src/novelist/widgets/FilePicker.cpp include/novelist/widgets/FilePicker.h
+        )
 
 target_include_directories(novelist_core
         PUBLIC
