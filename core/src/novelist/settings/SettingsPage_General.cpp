@@ -7,6 +7,7 @@
  * @details
  **********************************************************/
 #include <QtCore/QEvent>
+#include "util/TranslationManager.h"
 #include "settings/SettingsPage_General.h"
 #include "ui_SettingsPage_General.h"
 
@@ -49,16 +50,21 @@ namespace novelist {
 
     void SettingsPage_General_Creator::initialize(QWidget* widget, QSettings const& settings) noexcept
     {
+        restoreDefaults(widget);
+
         auto* page = dynamic_cast<SettingsPage_General*>(widget);
 
-        QFont font;
-        if (settings.contains("font"))
+        if (settings.contains("font")) {
+            QFont font;
             font.fromString(settings.value("font").toString());
-        else
-            font = page->font();
-        page->m_ui->fontComboBox->setCurrentFont(font);
-        page->m_ui->fontSizeSpinBox->setValue(font.pointSize());
-        page->m_ui->langComboBox->setCurrentIndex(0); // TODO: Fix this
+            page->m_ui->fontComboBox->setCurrentFont(font);
+            page->m_ui->fontSizeSpinBox->setValue(font.pointSize());
+        }
+
+        if (settings.contains("lang")) {
+            QLocale locale(settings.value("lang").toString());
+            page->m_ui->langComboBox->setCurrentText(QLocale::languageToString(QLocale(locale).language()));
+        }
     }
 
     void SettingsPage_General_Creator::apply(QWidget const* widget, QSettings& settings) noexcept
@@ -68,15 +74,24 @@ namespace novelist {
         QFont font = page->m_ui->fontComboBox->currentFont();
         font.setPointSize(page->m_ui->fontSizeSpinBox->value());
         settings.setValue("font", font.toString());
-        settings.setValue("lang", "english"); // TODO: fix this
+
+        QLocale locale = page->m_ui->langComboBox->currentData(Qt::UserRole).toLocale();
+        settings.setValue("lang", locale.bcp47Name());
     }
 
     void SettingsPage_General_Creator::initiateUpdate(QSettings const& settings) noexcept
     {
-        QFont font;
-        if (settings.contains("font"))
+        if (settings.contains("font")) {
+            QFont font;
             font.fromString(settings.value("font").toString());
-        qApp->setFont(font);
+            qApp->setFont(font);
+        }
+
+        if (settings.contains("lang")) {
+            QLocale locale(settings.value("lang").toString());
+            if (TranslationManager::instance().isLocaleKnown(locale))
+                TranslationManager::instance().switchLanguage(locale);
+        }
     }
 
     void SettingsPage_General_Creator::restoreDefaults(QWidget const* widget) noexcept
@@ -86,7 +101,24 @@ namespace novelist {
         QFont defaultFont = QFontDatabase::systemFont(QFontDatabase::SystemFont::GeneralFont);
         page->m_ui->fontComboBox->setCurrentFont(defaultFont);
         page->m_ui->fontSizeSpinBox->setValue(defaultFont.pointSize());
-        page->m_ui->langComboBox->setCurrentIndex(0); // TODO: Fix this
+
+        auto knownLocales = TranslationManager::instance().knownLocales();
+        if (!knownLocales.empty()) {
+            page->m_ui->langComboBox->clear();
+            QLocale defaultLocale;
+            int defaultIdx = -1;
+            int curIdx = 0;
+            for (auto& locale : knownLocales) {
+                if (locale.language() == defaultLocale.language())
+                    defaultIdx = curIdx;
+                page->m_ui->langComboBox->addItem(QLocale::languageToString(QLocale(locale).language()), locale);
+                ++curIdx;
+            }
+            if (defaultIdx >= 0)
+                page->m_ui->langComboBox->setCurrentIndex(defaultIdx);
+            else
+                page->m_ui->langComboBox->setCurrentIndex(0);
+        }
     }
 
     QWidget* SettingsPage_General_Creator::createWidget() noexcept

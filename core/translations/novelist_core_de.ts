@@ -263,7 +263,7 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/settings/SettingsPage_General.cpp" line="42"/>
+        <location filename="../src/novelist/settings/SettingsPage_General.cpp" line="43"/>
         <source>General</source>
         <comment>SettingsPage_General</comment>
         <translation>Allgemein</translation>
@@ -331,11 +331,6 @@
         <location filename="../src/novelist/settings/SettingsPage_General.ui" line="59"/>
         <source>Language</source>
         <translation>Sprache</translation>
-    </message>
-    <message>
-        <location filename="../src/novelist/settings/SettingsPage_General.ui" line="73"/>
-        <source>English</source>
-        <translation></translation>
     </message>
 </context>
 <context>
