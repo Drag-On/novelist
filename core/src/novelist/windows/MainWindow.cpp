@@ -49,8 +49,6 @@ namespace novelist {
         m_ui->actionAdd_Note = replaceMenuAction(m_ui->menu_Inspection, m_ui->actionAdd_Note,
                 m_ui->sceneTabWidget->addNoteAction());
 
-        m_ui->retranslateUi(this);
-
         connect(m_ui->projectView, &ProjectView::modelChanged, this, &MainWindow::onProjectChanged);
         connect(m_ui->projectView, &ProjectView::openSceneRequested, [&](QModelIndex idx) {
             m_ui->sceneTabWidget->openScene(m_ui->projectView->model(), idx);
@@ -70,7 +68,7 @@ namespace novelist {
                     tr("Novelist is an integrated writing environment for authors."));
         });
 
-        statusBar()->showMessage(generateWelcomeMessage(), 30000);
+        retranslateUi();
     }
 
     MainWindow::~MainWindow()
@@ -183,6 +181,13 @@ namespace novelist {
             event->accept();
         else
             event->ignore();
+    }
+
+    void MainWindow::showEvent(QShowEvent* event)
+    {
+        statusBar()->showMessage(generateWelcomeMessage(), 30000);
+
+        QWidget::showEvent(event);
     }
 
     bool MainWindow::continueCheckUnsavedChanges() const

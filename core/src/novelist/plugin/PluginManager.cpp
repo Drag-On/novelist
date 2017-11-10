@@ -63,14 +63,14 @@ namespace novelist {
             else numLoaded++;
         }
 
+        Settings::updateAll();
+
         for (auto& p : m_plugins.values())
             if (p.pLoader->isLoaded()) {
                 novelist::Plugin* pPlugin = qobject_cast<Plugin*>(p.pLoader->instance());
                 if (pPlugin)
                     pPlugin->setup(m_pluginInfo);
             }
-
-        Settings::updateAll();
 
         return numLoaded;
     }

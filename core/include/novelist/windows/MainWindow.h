@@ -50,6 +50,8 @@ namespace novelist {
 
         void closeEvent(QCloseEvent* event) override;
 
+        void showEvent(QShowEvent* event) override;
+
     private:
         std::unique_ptr<Ui::MainWindow> m_ui;
         std::unique_ptr<ProjectModel> m_model;
