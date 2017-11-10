@@ -42,8 +42,9 @@ namespace novelist {
         loop.exec();
         response += reply->readAll();
 
-        if (reply->error() != QNetworkReply::NetworkError::NoError) {
-            qWarning() << "Communication with local LanguageTool server failed.";
+        auto error = reply->error();
+        if (error != QNetworkReply::NetworkError::NoError) {
+            qWarning() << "Communication with local LanguageTool server failed." << error;
             return InspectionBlockResult();
         }
 
