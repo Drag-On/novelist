@@ -71,7 +71,10 @@ namespace novelist {
     {
         auto* page = dynamic_cast<SettingsPage_LanguageTool const*>(widget);
 
-        settings.setValue("url", page->m_ui->lineEditServerUrl->text());
+        QString url = page->m_ui->lineEditServerUrl->text();
+        while (url.endsWith('/'))
+            url.truncate(url.size()-1);
+        settings.setValue("url", url);
         settings.setValue("ignore_rules", page->m_ui->lineEditIgnoreRules->text());
         settings.setValue("autostart", page->m_ui->groupBoxAutoStart->isChecked());
         settings.setValue("path", page->m_ui->filePicker->selectedFile());
