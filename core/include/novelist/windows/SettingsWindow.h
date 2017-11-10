@@ -50,6 +50,8 @@ namespace novelist {
         std::unique_ptr<Ui::SettingsDialog> m_ui;
 
         void onChangePage(QListWidgetItem* current, QListWidgetItem* previous);
+
+        void setupPages() const noexcept;
     };
 }
 

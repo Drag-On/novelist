@@ -19,7 +19,16 @@ namespace novelist {
              m_ui{std::make_unique<Ui::SettingsDialog>()}
     {
         m_ui->setupUi(this);
+        setupPages();
 
+        connect(m_ui->buttonBox->button(QDialogButtonBox::Apply), &QPushButton::clicked, this, &SettingsWindow::apply);
+        connect(m_ui->buttonBox->button(QDialogButtonBox::RestoreDefaults), &QPushButton::clicked, this,
+                &SettingsWindow::restoreDefaults);
+        connect(m_ui->pagesListWidget, &QListWidget::currentItemChanged, this, &SettingsWindow::onChangePage);
+    }
+
+    void SettingsWindow::setupPages() const noexcept
+    {
         QSettings settings;
         for (auto& page : Settings::s_pages) {
             auto* listPageItem = new QListWidgetItem(m_ui->pagesListWidget);
@@ -32,11 +41,6 @@ namespace novelist {
             settings.endGroup();
             m_ui->pagesStackedWidget->addWidget(widget);
         }
-
-        connect(m_ui->buttonBox->button(QDialogButtonBox::Apply), &QPushButton::clicked, this, &SettingsWindow::apply);
-        connect(m_ui->buttonBox->button(QDialogButtonBox::RestoreDefaults), &QPushButton::clicked, this,
-                &SettingsWindow::restoreDefaults);
-        connect(m_ui->pagesListWidget, &QListWidget::currentItemChanged, this, &SettingsWindow::onChangePage);
     }
 
     SettingsWindow::~SettingsWindow() noexcept = default;
@@ -73,6 +77,9 @@ namespace novelist {
     void SettingsWindow::retranslateUi()
     {
         m_ui->retranslateUi(this);
+
+        for (int i = 0; i < m_ui->pagesListWidget->count(); ++i)
+            m_ui->pagesListWidget->item(i)->setText(Settings::s_pages[i]->name());
     }
 
     void SettingsWindow::changeEvent(QEvent* event)
