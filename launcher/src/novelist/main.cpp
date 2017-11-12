@@ -90,6 +90,7 @@ int main(int argc, char* argv[])
 
     int retCode = 0;
 
+    Settings::setDefaultFormat(QSettings::Format::IniFormat);
     Settings settings;
     auto const settingsFile = settings.fileName();
     auto const pluginDir = QDir(app.applicationDirPath() + "/" + pluginSubDir);
