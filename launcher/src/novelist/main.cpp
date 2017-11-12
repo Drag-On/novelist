@@ -12,11 +12,73 @@
 #include <settings/Settings.h>
 #include <plugin/Plugin.h>
 #include <plugin/PluginManager.h>
+#include <iostream>
+#include <string>
+#include <ctime>
+#include <iomanip>
+#include <fstream>
 
 using namespace novelist;
 
+std::string curTimePretty() noexcept {
+    std::time_t t = std::time(nullptr);
+    std::tm tm = *std::localtime(&t);
+    std::stringstream ss;
+    ss.imbue(std::locale("en_US.utf8"));
+    ss << std::put_time(&tm, "%c") << '\n';
+    std::string time = ss.str();
+    time = std::string(time.begin(), time.end() - 1); // Remove trailing newline
+    return time;
+}
+
+std::string curTime() noexcept {
+    std::time_t t = std::time(nullptr);
+    std::tm tm = *std::localtime(&t);
+    std::stringstream ss;
+    ss << std::put_time(&tm, "%Y%m%d_%H%M%S") << '\n';
+    std::string time = ss.str();
+    time = std::string(time.begin(), time.end() - 1); // Remove trailing newline
+    return time;
+}
+
+void logMessage(QtMsgType type, QMessageLogContext const& context, QString const& msg)
+{
+    static std::ofstream log(QCoreApplication::applicationDirPath().toStdString() + "/logs/" + curTime() + ".log");
+
+    QByteArray localMsg = msg.toLocal8Bit();
+    std::string msgStr = std::string(localMsg.constData()) + " (" + context.file + ":" + std::to_string(context.line) + ", " + context.function + ")\n";
+    std::string typeStr;
+    switch (type) {
+        case QtDebugMsg:
+            typeStr = "Debug";
+            break;
+        case QtInfoMsg:
+            typeStr = "Info";
+            break;
+        case QtWarningMsg:
+            typeStr = "Warning";
+            break;
+        case QtCriticalMsg:
+            typeStr = "Critical";
+            break;
+        case QtFatalMsg:
+            typeStr = "Fatal";
+            break;
+    }
+
+    std::string time = curTimePretty();
+    std::cerr << time << ": " << typeStr << ": " << msgStr;
+    if (log.is_open())
+        log << time << ": " << typeStr << ": " << msgStr;
+
+    if (type == QtFatalMsg)
+        std::terminate();
+}
+
 int main(int argc, char* argv[])
 {
+    qInstallMessageHandler(logMessage);
+
     QApplication app(argc, argv);
     QApplication::setApplicationDisplayName("Novelist");
     QApplication::setApplicationName("Novelist");
