@@ -1,35 +1,39 @@
 
-project(novelist_core_test)
+if (catch_FOUND)
 
-enable_testing()
+    project(novelist_core_test)
 
-add_executable(novelist_core_test
-        main.cpp main.h
-        macros.h
-        datastructures/TreeTest.cpp
-        document/SceneDocumentTest.cpp
-        util/IdentityTest.cpp
-        model/ProjectModelTest.cpp
-        view/ProjectViewTest.cpp
-        widgets/TextEditorTest.cpp
-        datastructures/SortedVectorTest.cpp)
+    enable_testing()
 
-target_include_directories(novelist_core_test
-        PUBLIC
-            ${CMAKE_CURRENT_SOURCE_DIR}
-        )
+    add_executable(novelist_core_test
+            main.cpp main.h
+            macros.h
+            datastructures/TreeTest.cpp
+            document/SceneDocumentTest.cpp
+            util/IdentityTest.cpp
+            model/ProjectModelTest.cpp
+            view/ProjectViewTest.cpp
+            widgets/TextEditorTest.cpp
+            datastructures/SortedVectorTest.cpp)
 
-target_link_libraries(novelist_core_test
-        PRIVATE
-            novelist_core
-            Catch
-        )
-
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    target_compile_options(novelist_core_test
-            PRIVATE
-                -Wall -Wextra -Wpedantic
+    target_include_directories(novelist_core_test
+            PUBLIC
+                ${CMAKE_CURRENT_SOURCE_DIR}
             )
-endif()
 
-enable_cxx17(novelist_core_test)
+    target_link_libraries(novelist_core_test
+            PRIVATE
+                novelist_core
+                Catch
+            )
+
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        target_compile_options(novelist_core_test
+                PRIVATE
+                    -Wall -Wextra -Wpedantic
+                )
+    endif()
+
+    enable_cxx17(novelist_core_test)
+
+endif(catch_FOUND)
