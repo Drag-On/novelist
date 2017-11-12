@@ -46,7 +46,10 @@ void logMessage(QtMsgType type, QMessageLogContext const& context, QString const
     static std::ofstream log(QCoreApplication::applicationDirPath().toStdString() + "/logs/" + curTime() + ".log");
 
     QByteArray localMsg = msg.toLocal8Bit();
-    std::string msgStr = std::string(localMsg.constData()) + " (" + context.file + ":" + std::to_string(context.line) + ", " + context.function + ")\n";
+    std::string msgStr = std::string(localMsg.constData());
+    if (context.file != nullptr && context.function != nullptr)
+        msgStr += " (" + std::string(context.file) + ":" + std::to_string(context.line) + ", " + context.function + ")";
+    msgStr += "\n";
     std::string typeStr;
     switch (type) {
         case QtDebugMsg:
