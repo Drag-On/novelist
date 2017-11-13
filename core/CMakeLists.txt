@@ -68,7 +68,15 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
             PRIVATE
                 -Wall -Wextra -Wpedantic
             )
-endif()
+endif ()
+
+# Output library to binary dir instead of subfolder because windows can't link to libraries not in standard locations.
+set_target_properties(novelist_core
+        PROPERTIES
+        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+        )
 
 enable_cxx17(novelist_core)
 enable_i18n(novelist_core)
