@@ -140,6 +140,10 @@ namespace novelist {
             QFileDialog dialog(this);
             dialog.setFileMode(QFileDialog::Directory);
             dialog.setAcceptMode(QFileDialog::AcceptSave);
+#ifdef _WIN32
+            // Windows doesn't seem to be able to provide a save dialog for directories. Therefore use the qt dialog.
+            dialog.setOptions(QFileDialog::DontUseNativeDialog);
+#endif
             if (dialog.exec() == QFileDialog::Accepted)
                 m_ui->projectView->model()->setSaveDir(dialog.selectedFiles().front());
             else
