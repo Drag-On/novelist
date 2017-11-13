@@ -24,8 +24,7 @@ std::string curTimePretty() noexcept {
     std::time_t t = std::time(nullptr);
     std::tm tm = *std::localtime(&t);
     std::stringstream ss;
-    ss.imbue(std::locale("en_US.utf8"));
-    ss << std::put_time(&tm, "%c") << '\n';
+    ss << std::put_time(&tm, "%Y-%m-%d %H:%M:%S (%z)") << '\n';
     std::string time = ss.str();
     time = std::string(time.begin(), time.end() - 1); // Remove trailing newline
     return time;
