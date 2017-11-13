@@ -619,15 +619,19 @@ namespace novelist {
         QString contentPath = contentDir().path() + "/";
         QFile file{m_saveDir.path() + "/project.xml"};
 
-        if (!m_saveDir.exists())
+        if (!m_saveDir.exists()) {
+            qInfo() << "Directory" << m_saveDir << "doesn't exist.";
             return false;
+        }
         else {
             if (!m_saveDir.exists(m_contentDirName))
                 m_saveDir.mkdir(m_contentDirName);
         }
 
-        if (!write(file))
+        if (!write(file)) {
+            qInfo() << "Writing project to" << file.fileName() << "failed";
             return false;
+        }
 
         bool success = true;
         traverse_dfs(m_root, [&](Node& n) {
