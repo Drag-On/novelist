@@ -159,18 +159,18 @@ namespace novelist {
 
         PluginData& plugin = *m_plugins.find(uid);
         if (!plugin.pLoader->load()) {
-            qWarning() << "Plugin" << uid << "could not be loaded.";
+            qWarning() << "Plugin" << uid << "(" << plugin.pLoader->fileName()  << ") could not be loaded." << plugin.pLoader->errorString();
             return false;
         }
         novelist::Plugin* pPlugin = qobject_cast<Plugin*>(plugin.pLoader->instance());
         if (pPlugin == nullptr) {
-            qWarning() << "Plugin" << uid << "is corrupted.";
+            qWarning() << "Plugin" << uid << "(" << plugin.pLoader->fileName()  << ") is corrupted." << plugin.pLoader->errorString();
             plugin.pLoader->unload();
             return false;
         }
 
         if (!pPlugin->load(m_settings)) {
-            qWarning() << "Failed to load plugin" << uid << ".";
+            qWarning() << "Failed to load plugin" << uid << "(" << plugin.pLoader->fileName()  << ").";
             plugin.pLoader->unload();
             return false;
         }
