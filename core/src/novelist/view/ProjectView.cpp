@@ -309,8 +309,8 @@ namespace novelist {
     {
         initResources();
 
-        m_iconNewScene = overlayThemeIcon(":/icons/scene.png", "list-add", 0.7f);
-        m_iconNewChapter = overlayThemeIcon(":/icons/chapter.png", "list-add", 0.7f);
+        m_iconNewScene = overlayThemeIcon(":/icons/node-scene", "list-add", 0.7f);
+        m_iconNewChapter = overlayThemeIcon(":/icons/node-chapter", "list-add", 0.7f);
         QString iconThemeName = QStringLiteral("list-remove");
         if (QIcon::hasThemeIcon(iconThemeName))
             m_iconRemove = QIcon::fromTheme(iconThemeName);

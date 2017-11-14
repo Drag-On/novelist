@@ -9,6 +9,9 @@
 
 #include <QApplication>
 #include <QMessageBox>
+#ifdef _WIN32
+#include <QIcon>
+#endif
 #include <settings/Settings.h>
 #include <plugin/Plugin.h>
 #include <plugin/PluginManager.h>
@@ -86,6 +89,11 @@ int main(int argc, char* argv[])
     QApplication::setApplicationName("Novelist");
     QApplication::setOrganizationName("Novelist-Org");
     QApplication::setOrganizationDomain("novelist-nodomain.org");
+
+#ifdef _WIN32
+    QIcon::setThemeSearchPaths(QStringList(":/icons"));
+    QIcon::setThemeName("tango");
+#endif
 
     int retCode = 0;
 

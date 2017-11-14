@@ -142,13 +142,13 @@ namespace novelist {
             case Qt::DecorationRole: {
                 switch (nodeType(*item)) {
                     case NodeType::Scene:
-                        return QIcon(":/icons/scene.png");
+                        return QIcon(":/icons/node-scene");
                     case NodeType::Chapter:
-                        return QIcon(":/icons/chapter.png");
+                        return QIcon(":/icons/node-chapter");
                     case NodeType::ProjectHead:
-                        return QIcon(":/icons/book.png");
+                        return QIcon(":/icons/node-project");
                     case NodeType::NotebookHead:
-                        return QIcon(":/icons/notebook.png");
+                        return QIcon(":/icons/node-notebook");
                     default:
                         return QVariant{};
                 }

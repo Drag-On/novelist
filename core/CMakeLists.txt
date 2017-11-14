@@ -4,6 +4,7 @@ project(novelist_core)
 add_library(novelist_core
         SHARED
         resources/resources.qrc
+        resources/icons/tango/tango.qrc
         include/novelist/plugin/Plugin.h
         include/novelist/plugin/PluginInfo.h
         src/novelist/plugin/InspectionPlugin.cpp include/novelist/plugin/InspectionPlugin.h
