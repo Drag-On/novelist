@@ -72,9 +72,9 @@ void logMessage(QtMsgType type, QMessageLogContext const& context, QString const
     }
 
     std::string time = curTimePretty();
-    std::cerr << time << ": " << typeStr << ": " << msgStr;
+    std::cerr << time << ": " << typeStr << ": " << msgStr << std::flush;
     if (log.is_open())
-        log << time << ": " << typeStr << ": " << msgStr;
+        log << time << ": " << typeStr << ": " << msgStr << std::flush;
 
     if (type == QtFatalMsg)
         std::terminate();
