@@ -32,4 +32,13 @@ script:
   - cmake --build . -- -j2
   # Run tests
   - xvfb-run -a -e xvfb.log core/test/novelist_core_test
-  
+
+env:
+  global:
+    secure: I2sM0SNeZpuTIA3NQuBnETCNOj/wpfaLfUAD0+HKvYi+7MTCN9//+tU4v1zWbxZNr9YZ5k2jtlP3LAFpdHiJF/N5oWSe6bwrkbC3VzvrbgPKTUjfqufJABnnfhidyDYAlM9fhxl/XvldPQMNTUnvEEFW/O5iaUy504Bzu2XIpXaoS27R+zSVC8o2Z7USGoXfu4lsiOvzUjJnim/KtOIFxkwqnIJY3Q+vUu/W2/yNObfY88K9buKAuxuPcyJi/r/+P99NcUTBHT9r42Yuhs5jqBKQS69Eq5LrDRPhxIVIaSFU7hF6rDSB2JM9jGDN3V3+8IqCbjhh19uQRm4AbNa37/uOP0smi0tHVHJO2ZutE2qH+hU2VefjuDQogsVyeoMlnKmWVtoz3IDE0J6Y97etrXSs1PavTLR7+a4G9Jbv5DNvzprJZT5HoKhmkmOpvJPhLJGB/chgSsiq/GhbhgTcGl5OKE1Y4S9igrevm8rEA7P7dHLqRZlPe7KpEKbuTkqHQubgFZEh1k3PAZ8oSeFfNL7UY5Z9yodBMkiuq/rfRM2c2BYoATHoKwkJ256kUyjiQ9WVKZZzjgLsJIEOUoeAuuBimT4L0hcmKteGPQQC1Pl/pfaHb+F87wmMFxI0dkrVrVm1t9dpSgcyUyWpl3RyL4SL5q7OwUN9XWjCpwMeT1A=
+
+# Don't clone git lfs files for CI
+# Reason: Travis clone is run unauthenicated on a free plan and thus runs into the GitHub API rate limit
+# Also see https://github.com/concept-to-clinic/concept-to-clinic/issues/69
+git:
+  lfs_skip_smudge: true
