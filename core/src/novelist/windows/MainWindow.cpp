@@ -154,7 +154,9 @@ namespace novelist {
             else
                 return;
         }
-        if (!m_ui->projectView->model()->save()) {
+        if (m_ui->projectView->model()->save())
+            statusBar()->showMessage(tr("Project successfully saved."), 1000);
+        else {
             QMessageBox msgBox;
             msgBox.setWindowTitle(tr("Novelist"));
             msgBox.setText(tr("Saving the project failed."));
@@ -224,7 +226,7 @@ namespace novelist {
 
     QString MainWindow::generateWelcomeMessage() const
     {
-        static std::vector<QString> messages {
+        static std::vector<QString> messages{
                 tr("Welcome!"),
                 tr("Hello there, sweetheart. Let's write a book together."),
                 tr("Aww, you came back for me!"),
