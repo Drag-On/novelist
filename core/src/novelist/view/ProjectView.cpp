@@ -80,15 +80,18 @@ namespace novelist {
         return dynamic_cast<ProjectModel*>(m_treeView->model());
     }
 
-    void ProjectView::showProjectPropertiesDialog()
+    QDialog::DialogCode ProjectView::showProjectPropertiesDialog()
     {
         auto* m = model();
         if (m != nullptr) {
             ProjectPropertiesWindow wnd(this, Qt::WindowFlags());
             wnd.setProperties(m->properties());
-            if (wnd.exec() == QDialog::Accepted)
+            QDialog::DialogCode code = static_cast<QDialog::DialogCode>(wnd.exec());
+            if (code == QDialog::Accepted)
                 m->setProperties(wnd.properties());
+            return code;
         }
+        return QDialog::DialogCode::Rejected;
     }
 
     QAction* ProjectView::undoAction() const

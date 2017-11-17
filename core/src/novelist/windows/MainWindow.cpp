@@ -91,7 +91,12 @@ namespace novelist {
             m_ui->sceneTabWidget->closeAll();
             m_model = std::make_unique<ProjectModel>();
             m_ui->projectView->setModel(m_model.get());
-            m_ui->projectView->showProjectPropertiesDialog();
+            if (m_ui->projectView->showProjectPropertiesDialog() == QDialog::DialogCode::Rejected) {
+                // If the user aborts the dialog, close the new project again
+                m_ui->sceneTabWidget->closeAll();
+                m_ui->projectView->setModel(nullptr);
+                m_model.reset();
+            }
         }
     }
 

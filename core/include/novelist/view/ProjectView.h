@@ -15,6 +15,7 @@
 #include <QtWidgets/QToolButton>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QAction>
+#include <QtWidgets/QDialog>
 #include "model/ProjectModel.h"
 
 namespace novelist {
@@ -52,8 +53,9 @@ namespace novelist {
 
         /**
          * Shows the project properties dialog. If the current model is nullptr, does nothing.
+         * @return Dialog code
          */
-        void showProjectPropertiesDialog();
+        QDialog::DialogCode showProjectPropertiesDialog();
 
         /**
          * @return true if the project can be undone, otherwise false
