@@ -618,8 +618,8 @@ namespace novelist {
 
     bool ProjectModel::save()
     {
-        QString contentPath = contentDir().path() + "/";
-        QFile file{m_saveDir.path() + "/project.xml"};
+        QString contentPath = contentDir().path() + QDir::separator();
+        QFile file{m_saveDir.path() + QDir::separator() + "project.xml"};
 
         if (!m_saveDir.exists()) {
             qInfo() << "Directory" << m_saveDir << "doesn't exist.";
@@ -671,8 +671,7 @@ namespace novelist {
 
     QDir ProjectModel::contentDir() const
     {
-        QDir contentDir = saveDir();
-        contentDir.cd(m_contentDirName);
+        QDir contentDir = saveDir().path() + QDir::separator() + m_contentDirName;
         return contentDir;
     }
 
