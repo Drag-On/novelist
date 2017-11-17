@@ -71,6 +71,7 @@ namespace novelist {
             return false;
 
         QTextStream stream(&file);
+        stream.setCodec("UTF-8");
         stream << xml;
 
         return true;
@@ -79,6 +80,7 @@ namespace novelist {
     bool SceneDocument::write(QString& xml) const
     {
         QXmlStreamWriter xmlWriter(&xml);
+        xmlWriter.setCodec("UTF-8");
         xmlWriter.setAutoFormatting(true);
 
         xmlWriter.writeStartDocument();

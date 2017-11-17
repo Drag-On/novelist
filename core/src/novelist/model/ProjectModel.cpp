@@ -559,6 +559,7 @@ namespace novelist {
             return false;
 
         QTextStream stream(&file);
+        stream.setCodec("UTF-8");
         stream << xml;
 
         file.close();
@@ -571,6 +572,7 @@ namespace novelist {
         // Write project xml file
         //
         QXmlStreamWriter xmlWriter(&xml);
+        xmlWriter.setCodec("UTF-8");
         xmlWriter.setAutoFormatting(true);
 
         xmlWriter.writeStartDocument();
