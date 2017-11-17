@@ -639,7 +639,7 @@ namespace novelist {
         traverse_dfs(m_root, [&](Node& n) {
             if (nodeType(n) == NodeType::Scene) {
                 auto& data = std::get<SceneData>(*n.m_data);
-                if (data.m_doc != nullptr && data.m_doc->isModified()) {
+                if (data.m_doc != nullptr) {
                     QFile sceneFile{contentPath + QString::fromStdString(data.m_id.toString() + ".xml")};
                     bool localSuccess = data.m_doc->write(sceneFile);
                     if (localSuccess)
