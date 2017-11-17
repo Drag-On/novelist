@@ -65,12 +65,15 @@ namespace novelist {
         int tabIdx = indexOf(model, index);
         if (tabIdx == -1) {
             QSettings settings;
+            SceneDocument* document = qvariant_cast<SceneDocument*>(model->data(index, ProjectModel::DocumentRole));
+            bool prevModified = document->isModified();
 
             auto& editor = m_editors.emplace_back(new internal::InternalTextEditor(model->properties().m_lang));
             editor->setFocusPolicy(focusPolicy());
             editor->m_model = model;
             editor->m_modelIndex = index;
-            editor->setDocument(qvariant_cast<SceneDocument*>(model->data(index, ProjectModel::DocumentRole)));
+            editor->setDocument(document);
+            document->setModified(prevModified); // setDocument() resets modified state
             editor->setWordWrapMode(QTextOption::WrapMode::WordWrap);
             editor->useInspectors(&m_inspectors);
             applySettingsToEditor(settings, editor.get());
@@ -245,8 +248,7 @@ namespace novelist {
 
         for (int i = topLeft.row(); i <= bottomRight.row(); ++i) {
             QModelIndex curIdx = model->index(i, 0, topLeft.parent());
-            if (int tabIdx = indexOf(model, curIdx);
-            tabIdx >= 0) {
+            if (int tabIdx = indexOf(model, curIdx); tabIdx >= 0) {
                 QString name = model->data(curIdx, Qt::DisplayRole).toString();
                 tabBar()->setTabText(tabIdx, name);
                 tabBar()->setTabToolTip(tabIdx, name);
