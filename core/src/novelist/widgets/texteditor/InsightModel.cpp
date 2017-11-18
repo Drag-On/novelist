@@ -34,10 +34,10 @@ namespace novelist {
         if (!insightManager())
             return QVariant();
 
-        if (role == Qt::DisplayRole) {
+        if (role == Qt::DisplayRole || role == Qt::ToolTipRole) {
             auto iter = insightManager()->begin();
             std::advance(iter, index.row());
-            Insight* insight = dynamic_cast<Insight*>(iter->get());
+            auto* insight = dynamic_cast<Insight*>(iter->get());
             if (!insight)
                 return QVariant();
             switch (index.column()) {
