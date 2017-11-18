@@ -50,7 +50,8 @@ namespace novelist {
         auto* editor = dynamic_cast<TextEditor*>(m_sceneTabs->currentWidget());
         if(editor) {
             auto cursor = editor->textCursor();
-            cursor.setPosition(insight->range().first);
+            cursor.setPosition(insight->range().second);
+            cursor.setPosition(insight->range().first, QTextCursor::KeepAnchor);
             editor->setTextCursor(cursor);
             editor->setFocus();
         }
