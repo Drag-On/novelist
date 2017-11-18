@@ -79,7 +79,7 @@ namespace novelist {
             applySettingsToEditor(settings, editor.get());
 
             // Make sure the tab title and color change appropriately
-            connect(editor->m_model, &ProjectModel::dataChanged, this, &SceneTabWidget::onModelDataChanged);
+            m_modelDataChangedConnections[editor->m_model] = connect(editor->m_model, &ProjectModel::dataChanged, this, &SceneTabWidget::onModelDataChanged);
             connect(editor.get(), &TextEditor::focusReceived, [this](bool focus) { emit focusReceived(focus); });
 
             QString name = model->data(index, Qt::DisplayRole).toString();
