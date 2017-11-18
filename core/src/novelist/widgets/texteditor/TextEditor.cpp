@@ -63,8 +63,10 @@ namespace novelist {
         m_onSmallCapsActionConnection = Connection([this]() {
             return connect(&m_smallCapsAction, &QAction::toggled, this, &TextEditor::onSmallCapsActionToggled);
         });
+        m_boldAction.setShortcut(tr("Ctrl+B"));
         m_boldAction.setCheckable(true);
         m_italicAction.setCheckable(true);
+        m_italicAction.setShortcut(tr("Ctrl+I"));
         m_underlineAction.setCheckable(true);
         m_overlineAction.setCheckable(true);
         m_strikethroughAction.setCheckable(true);

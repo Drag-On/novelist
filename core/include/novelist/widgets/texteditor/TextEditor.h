@@ -246,12 +246,12 @@ namespace novelist {
         Connection m_onSmallCapsActionConnection;
         QAction* m_undoAction;
         QAction* m_redoAction;
-        QAction m_boldAction{tr("Bold")};
-        QAction m_italicAction{tr("Italic")};
-        QAction m_underlineAction{tr("Underline")};
-        QAction m_overlineAction{tr("Overline")};
-        QAction m_strikethroughAction{tr("Strikethrough")};
-        QAction m_smallCapsAction{tr("Small Caps")};
+        QAction m_boldAction{QIcon(":/icons/format-text-bold"), tr("Bold")};
+        QAction m_italicAction{QIcon(":/icons/format-text-italic"), tr("Italic")};
+        QAction m_underlineAction{QIcon(":/icons/format-text-underline"), tr("Underline")};
+        QAction m_overlineAction{QIcon(":/icons/format-text-overline"), tr("Overline")};
+        QAction m_strikethroughAction{QIcon(":/icons/format-text-strikethrough"), tr("Strikethrough")};
+        QAction m_smallCapsAction{QIcon(":/icons/format-text-smallcaps"), tr("Small Caps")};
         QAction m_addNoteAction{tr("Add Note")};
         QColor const m_parNumberAreaColor = QColor(250, 250, 250);
         QColor const m_parNumberColor = QColor(130, 130, 130);
