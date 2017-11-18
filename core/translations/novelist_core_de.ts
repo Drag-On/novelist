@@ -92,127 +92,127 @@
         <translation>Einblicke</translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.ui" line="217"/>
+        <location filename="../src/novelist/windows/MainWindow.ui" line="216"/>
         <source>&amp;New Project</source>
         <translation>&amp;Neues Projekt</translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.ui" line="220"/>
+        <location filename="../src/novelist/windows/MainWindow.ui" line="219"/>
         <source>Ctrl+N</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.ui" line="229"/>
+        <location filename="../src/novelist/windows/MainWindow.ui" line="227"/>
         <source>&amp;Open Project</source>
         <translation>&amp;Projekt öffnen</translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.ui" line="232"/>
+        <location filename="../src/novelist/windows/MainWindow.ui" line="230"/>
         <source>Ctrl+O</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.ui" line="244"/>
+        <location filename="../src/novelist/windows/MainWindow.ui" line="242"/>
         <source>&amp;Close Project</source>
         <translation>&amp;Projekt schließen</translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.ui" line="256"/>
+        <location filename="../src/novelist/windows/MainWindow.ui" line="253"/>
         <source>&amp;Save</source>
         <translation>&amp;Speichern</translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.ui" line="259"/>
+        <location filename="../src/novelist/windows/MainWindow.ui" line="256"/>
         <source>Ctrl+S</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.ui" line="268"/>
+        <location filename="../src/novelist/windows/MainWindow.ui" line="265"/>
         <source>&amp;Exit</source>
         <translation>&amp;Beenden</translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.ui" line="271"/>
+        <location filename="../src/novelist/windows/MainWindow.ui" line="268"/>
         <source>Ctrl+Q</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.ui" line="276"/>
+        <location filename="../src/novelist/windows/MainWindow.ui" line="273"/>
         <source>About Qt</source>
         <translation>Über Qt</translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.ui" line="281"/>
+        <location filename="../src/novelist/windows/MainWindow.ui" line="278"/>
         <source>About Novelist</source>
         <translation>Über Novelist</translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.ui" line="293"/>
+        <location filename="../src/novelist/windows/MainWindow.ui" line="290"/>
         <source>&amp;Undo</source>
         <translation>&amp;Rückgängig</translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.ui" line="296"/>
+        <location filename="../src/novelist/windows/MainWindow.ui" line="293"/>
         <source>Ctrl+Z</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.ui" line="308"/>
+        <location filename="../src/novelist/windows/MainWindow.ui" line="305"/>
         <source>&amp;Redo</source>
         <translation>&amp;Wiederherstellen</translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.ui" line="311"/>
+        <location filename="../src/novelist/windows/MainWindow.ui" line="308"/>
         <source>Ctrl+Shift+Z</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.ui" line="326"/>
+        <location filename="../src/novelist/windows/MainWindow.ui" line="323"/>
         <source>&amp;Bold</source>
         <translation>&amp;Fett</translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.ui" line="329"/>
+        <location filename="../src/novelist/windows/MainWindow.ui" line="326"/>
         <source>Ctrl+B</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.ui" line="344"/>
+        <location filename="../src/novelist/windows/MainWindow.ui" line="341"/>
         <source>&amp;Italic</source>
         <translation>&amp;Kursiv</translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.ui" line="347"/>
+        <location filename="../src/novelist/windows/MainWindow.ui" line="344"/>
         <source>Ctrl+I</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.ui" line="362"/>
+        <location filename="../src/novelist/windows/MainWindow.ui" line="359"/>
         <source>&amp;Underline</source>
         <translation>&amp;Unterstrichen</translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.ui" line="377"/>
+        <location filename="../src/novelist/windows/MainWindow.ui" line="374"/>
         <source>&amp;Overline</source>
         <translation>&amp;Überstrichen</translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.ui" line="392"/>
+        <location filename="../src/novelist/windows/MainWindow.ui" line="389"/>
         <source>&amp;Strikethrough</source>
         <translation>&amp;Durchgestrichen</translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.ui" line="407"/>
+        <location filename="../src/novelist/windows/MainWindow.ui" line="404"/>
         <source>Small &amp;Caps</source>
         <translation>&amp;Kapitälchen</translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.ui" line="415"/>
+        <location filename="../src/novelist/windows/MainWindow.ui" line="412"/>
         <source>Add Note</source>
         <translation>Anmerkung hinzufügen</translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.ui" line="420"/>
+        <location filename="../src/novelist/windows/MainWindow.ui" line="417"/>
         <source>Settings</source>
         <translation>Einstellungen</translation>
     </message>
@@ -295,7 +295,7 @@
         <translation>Maximale Zeilenlänge</translation>
     </message>
     <message>
-        <location filename="../src/novelist/settings/SettingsPage_Editor.ui" line="50"/>
+        <location filename="../src/novelist/settings/SettingsPage_Editor.ui" line="53"/>
         <source>Show paragraph numbers</source>
         <translation>Absatznummerierung</translation>
     </message>
@@ -336,32 +336,28 @@
 <context>
     <name>novelist</name>
     <message>
-        <location filename="../src/novelist/document/GrammarInsight.cpp" line="26"/>
         <source>Grammar</source>
-        <translation>Grammatik</translation>
+        <translation type="vanished">Grammatik</translation>
     </message>
     <message>
-        <location filename="../src/novelist/document/NoteInsight.cpp" line="40"/>
         <source>Note</source>
-        <translation>Anmerkung</translation>
+        <translation type="vanished">Anmerkung</translation>
     </message>
     <message>
-        <location filename="../src/novelist/document/SpellingInsight.cpp" line="26"/>
         <source>Spelling</source>
-        <translation>Rechtschreibung</translation>
+        <translation type="vanished">Rechtschreibung</translation>
     </message>
     <message>
-        <location filename="../src/novelist/document/TypographyInsight.cpp" line="26"/>
         <source>Typography</source>
-        <translation>Typografie</translation>
+        <translation type="vanished">Typografie</translation>
     </message>
     <message>
-        <location filename="../src/novelist/model/ProjectModel.cpp" line="904"/>
+        <location filename="../src/novelist/model/ProjectModel.cpp" line="909"/>
         <source>scene</source>
         <translation>Szene</translation>
     </message>
     <message>
-        <location filename="../src/novelist/model/ProjectModel.cpp" line="906"/>
+        <location filename="../src/novelist/model/ProjectModel.cpp" line="911"/>
         <source>chapter</source>
         <translation>Kapitel</translation>
     </message>
@@ -369,30 +365,41 @@
 <context>
     <name>novelist::AutoInsight</name>
     <message>
-        <location filename="../src/novelist/document/AutoInsight.cpp" line="17"/>
+        <location filename="../src/novelist/document/AutoInsight.cpp" line="39"/>
         <source>Suggestions</source>
         <translation>Vorschläge</translation>
     </message>
 </context>
 <context>
+    <name>novelist::GrammarInsight</name>
+    <message>
+        <location filename="../src/novelist/document/GrammarInsight.cpp" line="27"/>
+        <source>Grammar</source>
+        <translation>Grammatik</translation>
+    </message>
+</context>
+<context>
     <name>novelist::InsightModel</name>
     <message>
-        <location filename="../src/novelist/widgets/texteditor/InsightModel.cpp" line="72"/>
         <source>First</source>
-        <translation>Anfang</translation>
+        <translation type="vanished">Anfang</translation>
     </message>
     <message>
-        <location filename="../src/novelist/widgets/texteditor/InsightModel.cpp" line="74"/>
         <source>Last</source>
-        <translation>Ende</translation>
+        <translation type="vanished">Ende</translation>
     </message>
     <message>
-        <location filename="../src/novelist/widgets/texteditor/InsightModel.cpp" line="76"/>
+        <location filename="../src/novelist/widgets/texteditor/InsightModel.cpp" line="75"/>
+        <source>Paragraph</source>
+        <translation>Absatz</translation>
+    </message>
+    <message>
+        <location filename="../src/novelist/widgets/texteditor/InsightModel.cpp" line="77"/>
         <source>Type</source>
         <translation>Typ</translation>
     </message>
     <message>
-        <location filename="../src/novelist/widgets/texteditor/InsightModel.cpp" line="78"/>
+        <location filename="../src/novelist/widgets/texteditor/InsightModel.cpp" line="79"/>
         <source>Message</source>
         <translation>Meldung</translation>
     </message>
@@ -400,89 +407,94 @@
 <context>
     <name>novelist::MainWindow</name>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="69"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="67"/>
         <source>About Novelist</source>
         <translation>Über Novelist</translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="70"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="68"/>
         <source>Novelist is an integrated writing environment for authors.</source>
         <translation>Novelist ist eine integrierte Schreibumgebung für Autoren.</translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="115"/>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="152"/>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="192"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="118"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="161"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="208"/>
         <source>Novelist</source>
         <translation>Novelist</translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="116"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="119"/>
         <source>Open project failed.</source>
         <translation>Projekt konnte nicht geöffnet werden.</translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="117"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="120"/>
         <source>The selected directory does not contain a valid project.</source>
         <translation>Der ausgewählte Ordner enthält kein gültiges Projekt.</translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="153"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="158"/>
+        <source>Project successfully saved.</source>
+        <translation>Projekt erfolgreich gespeichert.</translation>
+    </message>
+    <message>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="162"/>
         <source>Saving the project failed.</source>
         <translation>Speichern fehlgeschlagen.</translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="154"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="163"/>
         <source>Check if you have write privileges.</source>
         <translation>Überprüfen Sie, ob sie die nötigen Schreibrechte besitzen.</translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="193"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="209"/>
         <source>There are unsaved changes.</source>
         <translation>Es gibt ungespeicherte Änderungen.</translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="195"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="211"/>
         <source>If you continue, all changes will be lost. Are you sure you want to continue?</source>
         <translation>Wenn Sie fortfahren werden alle Änderungen verworfen. Sind Sie sicher, dass Sie fortfahren wollen?</translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="214"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="230"/>
         <source>Welcome!</source>
         <translation>Willkommen!</translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="215"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="231"/>
         <source>Hello there, sweetheart. Let&apos;s write a book together.</source>
         <translation>Hallo Liebling. Lass uns ein Buch schreiben.</translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="216"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="232"/>
         <source>Aww, you came back for me!</source>
         <translation>Aww, du bist für mich zurückgekommen!</translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="217"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="233"/>
         <source>Isn&apos;t it just the perfect day to write a novel?</source>
         <translation>Ist dies nicht der perfekte Tag, um einen Roman zu schreiben?</translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="218"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="234"/>
         <source>Hey, you! Yeah, you with the pretty face! Wanna write a novel?</source>
         <translation>Hey du! Ja, du mit dem hübschen Gesicht! Magst du einen Roman schreiben?</translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="219"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="235"/>
         <source>Hi!</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="220"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="236"/>
         <source>Have I ever told you how it tickles when you type?</source>
         <translation>Hab ich dir jemals gesagt wie sehr es kitzelt, wenn du tippst?</translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="221"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="237"/>
         <source>Welcome back! We&apos;re such a great team. You&apos;re my best friend!</source>
         <translation>Willkommen zurück! Wir sind so ein gutes Team. Du bist mein bester Freund!</translation>
     </message>
@@ -490,17 +502,18 @@
 <context>
     <name>novelist::NoteInsight</name>
     <message>
-        <location filename="../src/novelist/document/NoteInsight.cpp" line="20"/>
+        <location filename="../src/novelist/document/NoteInsight.cpp" line="48"/>
         <source>Edit</source>
         <translation>Bearbeiten</translation>
     </message>
     <message>
-        <location filename="../src/novelist/document/NoteInsight.cpp" line="21"/>
+        <location filename="../src/novelist/document/NoteInsight.cpp" line="49"/>
         <source>Remove</source>
         <translation>Entfernen</translation>
     </message>
     <message>
-        <location filename="../src/novelist/document/NoteInsight.cpp" line="23"/>
+        <location filename="../src/novelist/document/NoteInsight.cpp" line="46"/>
+        <location filename="../src/novelist/document/NoteInsight.cpp" line="51"/>
         <source>Note</source>
         <translation>Anmerkung</translation>
     </message>
@@ -513,32 +526,32 @@
         <translation>&lt;unbenannt&gt;</translation>
     </message>
     <message>
-        <location filename="../src/novelist/model/ProjectModel.cpp" line="948"/>
+        <location filename="../src/novelist/model/ProjectModel.cpp" line="953"/>
         <source>Notebook</source>
         <translation>Notizbuch</translation>
     </message>
     <message>
-        <location filename="../src/novelist/model/ProjectModel.cpp" line="1015"/>
+        <location filename="../src/novelist/model/ProjectModel.cpp" line="1020"/>
         <source>inserting &quot;%1&quot;</source>
         <translation>\&quot;%1\&quot; einfügen</translation>
     </message>
     <message>
-        <location filename="../src/novelist/model/ProjectModel.cpp" line="1035"/>
+        <location filename="../src/novelist/model/ProjectModel.cpp" line="1040"/>
         <source>removing &quot;%1&quot;</source>
         <translation>\&quot;%1&quot; entfernen</translation>
     </message>
     <message>
-        <location filename="../src/novelist/model/ProjectModel.cpp" line="1058"/>
+        <location filename="../src/novelist/model/ProjectModel.cpp" line="1063"/>
         <source>moving &quot;%1&quot;</source>
         <translation>\&quot;%1\&quot; bewegen</translation>
     </message>
     <message>
-        <location filename="../src/novelist/model/ProjectModel.cpp" line="1092"/>
+        <location filename="../src/novelist/model/ProjectModel.cpp" line="1097"/>
         <source>changing name from &quot;%1&quot; to &quot;%2&quot;</source>
         <translation>Änderung des Namens von \&quot;%1\&quot; nach \&quot;%2\&quot;</translation>
     </message>
     <message>
-        <location filename="../src/novelist/model/ProjectModel.cpp" line="1118"/>
+        <location filename="../src/novelist/model/ProjectModel.cpp" line="1123"/>
         <source>changing project properties</source>
         <translation>Änderung der Projekteigenschaften</translation>
     </message>
@@ -586,14 +599,14 @@
         <translation>&amp;Eigenschaften</translation>
     </message>
     <message>
-        <location filename="../src/novelist/view/ProjectView.cpp" line="122"/>
-        <location filename="../src/novelist/view/ProjectView.cpp" line="127"/>
+        <location filename="../src/novelist/view/ProjectView.cpp" line="125"/>
+        <location filename="../src/novelist/view/ProjectView.cpp" line="130"/>
         <source>Chapter %1</source>
         <translation>Kapitel %1</translation>
     </message>
     <message>
-        <location filename="../src/novelist/view/ProjectView.cpp" line="151"/>
-        <location filename="../src/novelist/view/ProjectView.cpp" line="156"/>
+        <location filename="../src/novelist/view/ProjectView.cpp" line="154"/>
+        <location filename="../src/novelist/view/ProjectView.cpp" line="159"/>
         <source>Scene %1</source>
         <translation>Szene %1</translation>
     </message>
@@ -601,14 +614,22 @@
 <context>
     <name>novelist::SceneTabWidget</name>
     <message>
-        <location filename="../src/novelist/widgets/SceneTabWidget.cpp" line="209"/>
+        <location filename="../src/novelist/widgets/SceneTabWidget.cpp" line="212"/>
         <source>Undo modification of &quot;%1&quot;</source>
         <translation>Bearbeitung von \&quot;%1\&quot; rückgängig machen</translation>
     </message>
     <message>
-        <location filename="../src/novelist/widgets/SceneTabWidget.cpp" line="211"/>
+        <location filename="../src/novelist/widgets/SceneTabWidget.cpp" line="214"/>
         <source>Redo modification of &quot;%1&quot;</source>
         <translation>Bearbeitung von \&quot;%1\&quot; wiederherstellen</translation>
+    </message>
+</context>
+<context>
+    <name>novelist::SpellingInsight</name>
+    <message>
+        <location filename="../src/novelist/document/SpellingInsight.cpp" line="27"/>
+        <source>Spelling</source>
+        <translation>Rechtschreibung</translation>
     </message>
 </context>
 <context>
@@ -647,6 +668,14 @@
         <location filename="../include/novelist/widgets/texteditor/TextEditor.h" line="243"/>
         <source>Add Note</source>
         <translation>Anmerkung hinzufügen</translation>
+    </message>
+</context>
+<context>
+    <name>novelist::TypographyInsight</name>
+    <message>
+        <location filename="../src/novelist/document/TypographyInsight.cpp" line="27"/>
+        <source>Typography</source>
+        <translation>Typografie</translation>
     </message>
 </context>
 </TS>
