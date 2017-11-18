@@ -14,7 +14,7 @@ namespace novelist {
             :BaseInsight(doc, left, right, msg),
              m_suggestions(std::move(suggestions))
     {
-        m_menu.setTitle(tr("Suggestions"));
+        retranslate();
         for (QString const& s : m_suggestions) {
             auto* act = new QAction(s, &m_menu);
             connect(act, &QAction::triggered, [this, s] {
@@ -32,5 +32,10 @@ namespace novelist {
     QMenu const& AutoInsight::menu() const noexcept
     {
         return m_menu;
+    }
+
+    void AutoInsight::retranslate() noexcept
+    {
+        m_menu.setTitle(tr("Suggestions"));
     }
 }

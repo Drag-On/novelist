@@ -21,9 +21,9 @@ namespace novelist {
         return typographyFormat;
     }
 
-    QString const& TypographyInsight::category() const noexcept
+    void TypographyInsight::retranslate() noexcept
     {
-        static QString category = tr("Typography");
-        return category;
+        AutoInsight::retranslate();
+        setCategory(tr("Typography"));
     }
 }

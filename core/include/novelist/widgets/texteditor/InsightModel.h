@@ -81,6 +81,11 @@ namespace novelist {
          */
         QModelIndex find(int charpos) const noexcept;
 
+        /**
+         * Retranslates headers and possibly insights
+         */
+        void retranslate() noexcept;
+
     private:
         SceneDocument* m_doc = nullptr;
         ConnectionWrapper m_aboutToAutoRemoveConnection;

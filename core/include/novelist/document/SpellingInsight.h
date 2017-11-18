@@ -16,12 +16,18 @@ namespace novelist {
      * A non-persistent insight that is used to represent spelling errors
      */
     class SpellingInsight : public AutoInsight {
-    public:
-        using AutoInsight::AutoInsight;
+    Q_OBJECT
 
+    public:
         QTextCharFormat const& format() const noexcept override;
 
-        QString const& category() const noexcept override;
+        void retranslate() noexcept override;
+
+    protected:
+        using AutoInsight::AutoInsight;
+
+        template <typename, typename>
+        friend class BaseInsightFactory;
     };
 }
 

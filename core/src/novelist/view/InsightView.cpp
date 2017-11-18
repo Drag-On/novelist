@@ -44,9 +44,24 @@ namespace novelist {
         return dynamic_cast<InsightModel*>(QAbstractItemView::model());
     }
 
+    void InsightView::changeEvent(QEvent* event)
+    {
+        QTableView::changeEvent(event);
+        switch (event->type()) {
+            case QEvent::LanguageChange:
+            {
+                if (model())
+                    model()->retranslate();
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
     void InsightView::onDoubleClicked(QModelIndex const& index)
     {
-        Insight* insight = qvariant_cast<Insight*>(model()->data(index, static_cast<int>(InsightModelRoles::InsightDataRole)));
+        auto* insight = qvariant_cast<Insight*>(model()->data(index, static_cast<int>(InsightModelRoles::InsightDataRole)));
         auto* editor = dynamic_cast<TextEditor*>(m_sceneTabs->currentWidget());
         if(editor) {
             auto cursor = editor->textCursor();

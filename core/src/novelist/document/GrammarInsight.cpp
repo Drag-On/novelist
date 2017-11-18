@@ -21,9 +21,9 @@ namespace novelist {
         return grammarFormat;
     }
 
-    QString const& GrammarInsight::category() const noexcept
+    void GrammarInsight::retranslate() noexcept
     {
-        static QString category = tr("Grammar");
-        return category;
+        AutoInsight::retranslate();
+        setCategory(tr("Grammar"));
     }
 }

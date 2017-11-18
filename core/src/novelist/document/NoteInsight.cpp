@@ -12,15 +12,11 @@
 namespace novelist {
 
     NoteInsight::NoteInsight(gsl::not_null<SceneDocument*> doc, int left, int right, QString msg)
-            :BaseInsight(doc, left, right, msg)
+            :BaseInsight(doc, left, right, std::move(msg))
     {
         connect(&m_editAction, &QAction::triggered, this, &NoteInsight::onEditAction);
         connect(&m_removeAction, &QAction::triggered, this, &NoteInsight::onRemoveAction);
 
-        m_editAction.setText(tr("Edit"));
-        m_removeAction.setText(tr("Remove"));
-
-        m_menu.setTitle(tr("Note"));
         m_menu.addAction(&m_editAction);
         m_menu.addAction(&m_removeAction);
     }
@@ -35,12 +31,6 @@ namespace novelist {
         return noteFormat;
     }
 
-    QString const& NoteInsight::category() const noexcept
-    {
-        static QString category = tr("Note");
-        return category;
-    }
-
     bool NoteInsight::isPersistent() const noexcept
     {
         return true;
@@ -49,6 +39,16 @@ namespace novelist {
     QMenu const& NoteInsight::menu() const noexcept
     {
         return m_menu;
+    }
+
+    void NoteInsight::retranslate() noexcept
+    {
+        setCategory(tr("Note"));
+
+        m_editAction.setText(tr("Edit"));
+        m_removeAction.setText(tr("Remove"));
+
+        m_menu.setTitle(tr("Note"));
     }
 
     void NoteInsight::onEditAction()

@@ -46,6 +46,16 @@ namespace novelist {
         m_message = msg;
     }
 
+    QString const& BaseInsight::category() const noexcept
+    {
+        return m_category;
+    }
+
+    void BaseInsight::setCategory(QString const& category) noexcept
+    {
+        m_category = category;
+    }
+
     void BaseInsight::replaceMarkedText(QString const& text) noexcept
     {
         m_cursor.insertText(text);

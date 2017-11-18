@@ -37,6 +37,9 @@ namespace novelist {
 
         InsightModel* model() const;
 
+    protected:
+        void changeEvent(QEvent* event) override;
+
     private:
         SceneTabWidget* m_sceneTabs = nullptr;
         ConnectionWrapper m_doubleClickedConnectionWrapper;

@@ -19,6 +19,15 @@ namespace novelist {
         Q_OBJECT
 
     public:
+        QTextCharFormat const& format() const noexcept override;
+
+        bool isPersistent() const noexcept override;
+
+        QMenu const& menu() const noexcept override;
+
+        void retranslate() noexcept override;
+
+    protected:
         /**
          * Construct insight on a document
          * @param doc Document
@@ -28,14 +37,6 @@ namespace novelist {
          */
         NoteInsight(gsl::not_null<SceneDocument*> doc, int left, int right, QString msg);
 
-        QTextCharFormat const& format() const noexcept override;
-
-        QString const& category() const noexcept override;
-
-        bool isPersistent() const noexcept override;
-
-        QMenu const& menu() const noexcept override;
-
     private:
         QMenu m_menu;
         QAction m_editAction;
@@ -44,6 +45,9 @@ namespace novelist {
         void onEditAction();
 
         void onRemoveAction();
+
+        template <typename, typename>
+        friend class BaseInsightFactory;
     };
 }
 

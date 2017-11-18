@@ -13,12 +13,18 @@
 
 namespace novelist {
     class TypographyInsight : public AutoInsight {
+    Q_OBJECT
+    
     public:
-        using AutoInsight::AutoInsight;
-
         QTextCharFormat const& format() const noexcept override;
 
-        QString const& category() const noexcept override;
+        void retranslate() noexcept override;
+
+    protected:
+        using AutoInsight::AutoInsight;
+
+        template <typename, typename>
+        friend class BaseInsightFactory;
     };
 }
 

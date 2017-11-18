@@ -34,6 +34,8 @@ namespace novelist {
 
         QMenu const& menu() const noexcept override;
 
+        void retranslate() noexcept override;
+
     private:
         QMenu m_menu;
         QStringList m_suggestions;

@@ -180,6 +180,13 @@ namespace novelist {
         return QModelIndex();
     }
 
+    void InsightModel::retranslate() noexcept
+    {
+        for (auto const& insight : *insightManager()) {
+            insight->retranslate();
+        }
+    }
+
     SceneDocumentInsightManager* InsightModel::insightManager()
     {
         if (m_doc)

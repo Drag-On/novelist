@@ -15,7 +15,8 @@
 
 namespace novelist {
     /**
-     * Interface class for all insights used with SceneDocument and TextEditor
+     * Interface class for all insights used with SceneDocument and TextEditor.
+     * @details Note that Insights can not be instantiated directly. Instead, use an InsightFactory.
      */
     class Insight {
     public:
@@ -55,6 +56,11 @@ namespace novelist {
          * @return The menu to show when right-clicking the insight
          */
         virtual QMenu const& menu() const noexcept = 0;
+
+        /**
+         * Translate insight to current application language
+         */
+        virtual void retranslate() noexcept = 0;
     };
 
     /**

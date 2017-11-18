@@ -21,9 +21,9 @@ namespace novelist {
         return spellingFormat;
     }
 
-    QString const& SpellingInsight::category() const noexcept
+    void SpellingInsight::retranslate() noexcept
     {
-        static QString category = tr("Spelling");
-        return category;
+        AutoInsight::retranslate();
+        setCategory(tr("Spelling"));
     }
 }

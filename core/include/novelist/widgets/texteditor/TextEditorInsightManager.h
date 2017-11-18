@@ -13,7 +13,9 @@
 #include <QtCore/QPoint>
 #include <QtCore/QFuture>
 #include <QtCore/QTimer>
+#include <QTextBlock>
 #include <gsl/gsl>
+#include "model/Language.h"
 #include "document/InsightFactory.h"
 #include "util/ConnectionWrapper.h"
 

@@ -470,7 +470,8 @@ namespace novelist {
 
         NoteEditWindow wnd;
         if (wnd.exec() == QDialog::Accepted) {
-            m_insights.insert(std::make_unique<NoteInsight>(document(), cursor.selectionStart(), cursor.selectionEnd(), wnd.text()));
+            auto note = BaseInsightFactory<NoteInsight>(wnd.text());
+            m_insights.insert(note.create(document(), cursor.selectionStart(), cursor.selectionEnd()));
         }
     }
 

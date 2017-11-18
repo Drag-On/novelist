@@ -13,10 +13,12 @@
 #include <type_traits>
 #include <gsl/gsl>
 #include "Insight.h"
-#include "SceneDocument.h"
-#include "AutoInsight.h"
 
 namespace novelist {
+    class BaseInsight;
+    class AutoInsight;
+    class SceneDocument;
+
     /**
      * Produces an insight
      */
@@ -46,16 +48,22 @@ namespace novelist {
 
         std::unique_ptr<Insight> create(gsl::not_null<SceneDocument*> doc, int left, int right) noexcept override
         {
+            return doCreate(doc, left, right, m_msg);
+        }
+
+    protected:
+        template <typename... Ts>
+        std::unique_ptr<Insight> doCreate(Ts... vars) noexcept {
             std::unique_ptr<Insight> obj;
             try {
-                obj = std::make_unique<T>(doc, left, right, m_msg);
+                obj.reset(new T(std::forward<Ts>(vars)...));
+                obj->retranslate();
             }
             catch (...) {
             }
             return obj;
         }
 
-    protected:
         QString const& message() const { return m_msg; }
 
     private:
@@ -75,13 +83,7 @@ namespace novelist {
 
         std::unique_ptr<Insight> create(gsl::not_null<SceneDocument*> doc, int left, int right) noexcept override
         {
-            std::unique_ptr<Insight> obj;
-            try {
-                obj = std::make_unique<T>(doc, left, right, BaseInsightFactory<T>::message(), m_suggestions);
-            }
-            catch (...) {
-            }
-            return obj;
+            return BaseInsightFactory<T>::doCreate(doc, left, right, BaseInsightFactory<T>::message(), m_suggestions);
         }
 
     private:
