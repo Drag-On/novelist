@@ -208,10 +208,18 @@ namespace novelist {
         auto* editor = dynamic_cast<internal::InternalTextEditor*>(currentWidget());
         if (editor) {
             QString title = editor->m_model->data(editor->m_modelIndex, Qt::DisplayRole).toString();
-            m_undoAction.setDelegate(editor, &TextEditor::undo, &TextEditor::canUndo, &TextEditor::undoAvailable,
-                    tr("Undo modification of \"%1\"").arg(title));
-            m_redoAction.setDelegate(editor, &TextEditor::redo, &TextEditor::canRedo, &TextEditor::redoAvailable,
-                    tr("Redo modification of \"%1\"").arg(title));
+            m_undoAction.setDelegate(editor->undoAction());
+            { // Use a different text in menu than in context menu
+                auto cleanup = gsl::finally([this] {m_undoAction.setKeepDelegateUpdated(true);});
+                m_undoAction.setKeepDelegateUpdated(false);
+                m_undoAction.setText(tr("Undo modification of \"%1\"").arg(title));
+            }
+            m_redoAction.setDelegate(editor->redoAction());
+            { // Use a different text in menu than in context menu
+                auto cleanup = gsl::finally([this] {m_redoAction.setKeepDelegateUpdated(true);});
+                m_redoAction.setKeepDelegateUpdated(false);
+                m_redoAction.setText(tr("Redo modification of \"%1\"").arg(title));
+            }
 
             m_boldAction.setDelegate(editor->boldAction());
             m_italicAction.setDelegate(editor->italicAction());

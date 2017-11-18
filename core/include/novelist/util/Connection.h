@@ -29,8 +29,9 @@ namespace novelist {
          * Construct a connection using a function object that establishes it
          * @details \p setupFun is called immediately on construction to establish the connection.
          * @param setupFun Function object that established the connection
+         * @param autoConnect Determines whether to connect right away
          */
-        explicit Connection(std::function<QMetaObject::Connection()> setupFun) noexcept;
+        explicit Connection(std::function<QMetaObject::Connection()> setupFun, bool autoConnect = true) noexcept;
 
         /**
          * Sets up the connection

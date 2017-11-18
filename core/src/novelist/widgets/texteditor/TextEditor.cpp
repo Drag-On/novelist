@@ -32,6 +32,16 @@ namespace novelist {
         setDocument(new SceneDocument{lang, this}); // Overwrite default QTextDocument
         setMouseTracking(true);
 
+        // This is a hacky way to get access to the undo/redo actions. Unfortunately there is no other way to get them.
+        auto menu = createStandardContextMenu();
+        auto deleteMenu = gsl::finally([menu]{delete menu;});
+        m_undoAction = menu->actions()[0];
+        m_undoAction->setParent(this);
+        m_redoAction = menu->actions()[1];
+        m_redoAction->setParent(this);
+        connect(this, &TextEditor::undoAvailable, m_undoAction, &QAction::setEnabled);
+        connect(this, &TextEditor::redoAvailable, m_redoAction, &QAction::setEnabled);
+
         updateParagraphNumberAreaWidth();
         highlightCurrentLine();
 
@@ -133,6 +143,16 @@ namespace novelist {
     void TextEditor::useInspectors(std::vector<std::unique_ptr<Inspector>> const* inspectors)
     {
         m_inspectors = inspectors;
+    }
+
+    QAction* TextEditor::undoAction()
+    {
+        return m_undoAction;
+    }
+
+    QAction* TextEditor::redoAction()
+    {
+        return m_redoAction;
     }
 
     QAction* TextEditor::boldAction()

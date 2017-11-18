@@ -104,6 +104,16 @@ namespace novelist {
         void useInspectors(std::vector<std::unique_ptr<Inspector>> const* inspectors);
 
         /**
+         * @return Undo action
+         */
+        QAction* undoAction();
+
+        /**
+         * @return Redo action
+         */
+        QAction* redoAction();
+
+        /**
          * Provides an action that can be used to make the currently selected text bold. It will also change checked
          * state depending on the currently selected text.
          * @return A non-owning pointer to the action
@@ -234,6 +244,8 @@ namespace novelist {
         Connection m_onOverlineActionConnection;
         Connection m_onStrikethroughActionConnection;
         Connection m_onSmallCapsActionConnection;
+        QAction* m_undoAction;
+        QAction* m_redoAction;
         QAction m_boldAction{tr("Bold")};
         QAction m_italicAction{tr("Italic")};
         QAction m_underlineAction{tr("Underline")};

@@ -11,12 +11,12 @@
 
 #include <QtWidgets/QAction>
 #include <QDebug>
-#include "ConnectionWrapper.h"
+#include "Connection.h"
 
 namespace novelist {
     /**
-     * Action that delegates to another action (or set of member functions). It always delegates to no or one action,
-     * and the source can always be switched.
+     * Action that delegates to another action. It always delegates to no or one action, and the source can be exchanged
+     * at any point.
      */
     class DelegateAction : public QAction {
     Q_OBJECT
@@ -45,97 +45,68 @@ namespace novelist {
 
         /**
          * Switch to another action
-         * @param action New action to delegate to
+         * @param action New action to delegate to. If this is nullptr, then the previous delegate is removed and this
+         *               action disabled.
          */
         void setDelegate(QAction* action) noexcept;
 
         /**
-         * Switch to a set of member functions
-         * @tparam T Object type
-         * @tparam U Type convertible to T
-         * @tparam V Type convertible to T
-         * @tparam W Type convertible to T
-         * @param src Source object
-         * @param trigger Member function to trigger the action
-         * @param canTrigger Member function allowing to check if the action can be triggered
-         * @param canTriggerChanged Signal that fires when the trigger availablity changes
-         * @param text Descriptive text
+         * @param updateDelegate Indicates whether the delegate should be kept up-to-date with modifications of this action
          */
-        template<typename T, typename U, typename V, typename W, typename = std::enable_if<
-                std::is_convertible_v<T*, U*> && std::is_convertible_v<T*, V*> && std::is_convertible_v<T*, W*>>>
-        void setDelegate(T* src, void (U::* trigger)(), bool (V::* canTrigger)() const,
-                void (W::* canTriggerChanged)(), QString const& text = "") noexcept;
+        void setKeepDelegateUpdated(bool updateDelegate) noexcept;
 
         /**
-         * Switch to a set of member functions
-         * @tparam T Object type
-         * @tparam U Type convertible to T
-         * @tparam V Type convertible to T
-         * @tparam W Type convertible to T
-         * @param src Source object
-         * @param trigger Member function to trigger the action
-         * @param canTrigger Member function allowing to check if the action can be triggered
-         * @param canTriggerChanged Signal that fires when the trigger availablity changes
-         * @param text Descriptive text
+         * Indicates whether the set delegate is kept up-to-date with this action.
+         * @details If this is set to true, then all changes made to this action will be forwarded to the delegate, e.g.
+         *          text or icon changes and triggers.
+         * @return True if the delegate action is kept up-to-date with changes to this action, otherwise false
          */
-        template<typename T, typename U, typename V, typename W, typename = std::enable_if<
-                std::is_convertible_v<T*, U*> && std::is_convertible_v<T*, V*> && std::is_convertible_v<T*, W*>>>
-        void setDelegate(T* src, void (U::* trigger)(), bool (V::* canTrigger)() const,
-                void (W::* canTriggerChanged)(bool), QString const& text = "") noexcept;
+        bool isKeepDelegateUpdated() const noexcept;
+
+        /**
+         * @param updateSelf Indicates whether this action should be kept up-to-date with modifications to the delegate
+         */
+        void setKeepSelfUpdated(bool updateSelf) noexcept;
+
+        /**
+         * Indicates whether changes of the delegate are also applied to this action
+         * @details If this is set to true, then all changes made to the delegate action will be forwarded to this action,
+         *          e.g. text or icon changes and triggers.
+         * @return True if this action is kept up-to-date with changes to the delegate action, otherwise false
+         */
+        bool isKeepSelfUpdated() const noexcept;
 
     signals:
         /**
-         * Fires whenever the delegate was changed
+         * Fires whenever the action delegated to was replaced
          */
-        void delegateChanged();
+        void delegateReplaced();
 
     private:
-        ConnectionWrapper m_canTriggerChangedConnection;
-        ConnectionWrapper m_textChangedConnection;
-        ConnectionWrapper m_checkedChangedConnection;
-        std::function<void()> m_triggerFun;
-        std::function<bool()> m_canTriggerFun;
+        Connection m_delegateChangedConnection;
+        Connection m_delegateToggledConnection;
+        Connection m_delegateTriggeredConnection;
+        Connection m_changedConnection;
+        Connection m_toggledConnection;
+        Connection m_triggeredConnection;
+        QAction* m_action;
+        bool m_keepDelegateUpdated = true;
+        bool m_keepSelfUpdated = true;
 
     private slots:
 
-        void onCanTriggerChanged();
+        void onDelegateChanged();
+
+        void onDelegateToggled(bool checked);
+
+        void onDelegateTriggered(bool checked = false);
+
+        void onChanged();
+
+        void onToggled(bool checked);
 
         void onTriggered(bool checked = false);
     };
-
-    template<typename T, typename U, typename V, typename W, typename = std::enable_if<
-            std::is_convertible_v<T*, U*> && std::is_convertible_v<T*, V*> && std::is_convertible_v<T*, W*>>>
-    void DelegateAction::setDelegate(T* src, void (U::* trigger)(), bool (V::* canTrigger)() const,
-            void (W::* canTriggerChanged)(), QString const& text) noexcept
-    {
-        if(!text.isEmpty())
-            setText(text);
-
-        m_triggerFun = std::bind(trigger, src);
-        m_canTriggerFun = std::bind(canTrigger, src);
-
-        onCanTriggerChanged();
-        m_canTriggerChangedConnection = connect(src, canTriggerChanged, this, &DelegateAction::onCanTriggerChanged);
-
-        emit delegateChanged();
-    }
-
-    template<typename T, typename U, typename V, typename W, typename = std::enable_if<
-            std::is_convertible_v<T*, U*> && std::is_convertible_v<T*, V*> && std::is_convertible_v<T*, W*>>>
-    void DelegateAction::setDelegate(T* src, void (U::* trigger)(), bool (V::* canTrigger)() const,
-            void (W::* canTriggerChanged)(bool), QString const& text) noexcept
-    {
-        if(!text.isEmpty())
-            setText(text);
-
-        m_triggerFun = std::bind(trigger, src);
-        m_canTriggerFun = std::bind(canTrigger, src);
-
-        onCanTriggerChanged();
-        m_canTriggerChangedConnection = connect(src, canTriggerChanged, [this](bool) { onCanTriggerChanged(); });
-
-        emit delegateChanged();
-    }
 }
 
 #endif //NOVELIST_UNDOMANAGER_H

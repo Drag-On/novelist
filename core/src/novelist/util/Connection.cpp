@@ -11,16 +11,15 @@
 namespace novelist {
 
     Connection::Connection() noexcept
-            :m_setupFun([]() { return QMetaObject::Connection{}; })
+            :Connection([]() { return QMetaObject::Connection{}; })
     {
-        m_connection = m_setupFun();
     }
 
-    Connection::Connection(std::function<QMetaObject::Connection()> setupFun) noexcept
+    Connection::Connection(std::function<QMetaObject::Connection()> setupFun, bool autoConnect) noexcept
             :m_setupFun(std::move(setupFun))
     {
-        auto con = m_setupFun();
-        m_connection = con;
+        if (autoConnect)
+            m_connection = m_setupFun();
     }
 
     bool Connection::connect() noexcept
