@@ -128,12 +128,22 @@ namespace novelist {
 
     void DelegateAction::onDelegateToggled(bool checked)
     {
+        // Block the internal toggled-connection because we're changing it ourselves
+        ConnectionBlocker blockToggledConnection(m_toggledConnection);
+
         setChecked(checked);
     }
 
-    void DelegateAction::onDelegateTriggered(bool /*checked*/)
+    void DelegateAction::onDelegateTriggered(bool checked)
     {
-        trigger();
+        if (isCheckable()) {
+            ConnectionBlocker blockToggledConnection(m_toggledConnection);
+            setChecked(checked);
+        }
+        else {
+            ConnectionBlocker blockTriggeredConnection(m_triggeredConnection);
+            trigger();
+        }
     }
 
     void DelegateAction::onChanged()
@@ -165,13 +175,21 @@ namespace novelist {
     {
         Expects(m_action != nullptr);
 
+        ConnectionBlocker blockToggledConnection(m_delegateToggledConnection);
         m_action->setChecked(checked);
     }
 
-    void DelegateAction::onTriggered(bool /*checked*/)
+    void DelegateAction::onTriggered(bool checked)
     {
         Expects(m_action != nullptr);
 
-        m_action->trigger();
+        if (m_action->isCheckable()) {
+            ConnectionBlocker blockToggledConnection(m_delegateToggledConnection);
+            m_action->setChecked(checked);
+        }
+        else {
+            ConnectionBlocker blockTriggeredConnection(m_delegateTriggeredConnection);
+            m_action->trigger();
+        }
     }
 }
