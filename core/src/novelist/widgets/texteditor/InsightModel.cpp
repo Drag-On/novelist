@@ -26,7 +26,7 @@ namespace novelist {
 
     int InsightModel::columnCount(QModelIndex const& /*parent*/) const
     {
-        return 4;
+        return 3;
     }
 
     QVariant InsightModel::data(const QModelIndex& index, int role) const
@@ -42,12 +42,15 @@ namespace novelist {
                 return QVariant();
             switch (index.column()) {
                 case 0:
-                    return QVariant::fromValue<int>(parRange(*insight).first + 1);
+                {
+                    QString parStr = QString::number(parRange(*insight).first + 1);
+                    if (parRange(*insight).first != parRange(*insight).second)
+                        parStr += " - " + QString::number(parRange(*insight).second + 1);
+                    return QVariant::fromValue<QString>(parStr);
+                }
                 case 1:
-                    return QVariant::fromValue<int>(parRange(*insight).second + 1);
-                case 2:
                     return QVariant::fromValue<QString>(insight->category());
-                case 3:
+                case 2:
                     return QVariant::fromValue<QString>(insight->message());
                 default:
                     return QVariant();
@@ -69,12 +72,10 @@ namespace novelist {
         if (orientation == Qt::Orientation::Horizontal) {
             switch (section) {
                 case 0:
-                    return tr("First");
+                    return tr("Paragraph");
                 case 1:
-                    return tr("Last");
-                case 2:
                     return tr("Type");
-                case 3:
+                case 2:
                     return tr("Message");
             }
         }
