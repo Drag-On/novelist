@@ -616,12 +616,12 @@
     <message>
         <location filename="../src/novelist/widgets/SceneTabWidget.cpp" line="212"/>
         <source>Undo modification of &quot;%1&quot;</source>
-        <translation>Bearbeitung von \&quot;%1\&quot; rückgängig machen</translation>
+        <translation>Bearbeitung von &quot;%1&quot; rückgängig machen</translation>
     </message>
     <message>
         <location filename="../src/novelist/widgets/SceneTabWidget.cpp" line="214"/>
         <source>Redo modification of &quot;%1&quot;</source>
-        <translation>Bearbeitung von \&quot;%1\&quot; wiederherstellen</translation>
+        <translation>Bearbeitung von &quot;%1&quot; wiederherstellen</translation>
     </message>
 </context>
 <context>
