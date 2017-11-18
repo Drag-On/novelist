@@ -78,7 +78,7 @@ namespace novelist {
         auto* page = dynamic_cast<SettingsPage_Editor const*>(widget);
 
         page->m_ui->checkBoxLimitWidth->setChecked(false);
-        page->m_ui->spinBoxTextWidth->setValue(page->m_ui->spinBoxTextWidth->minimum());
+        page->m_ui->spinBoxTextWidth->setValue(350);
         page->m_ui->checkBoxShowParNo->setChecked(true);
     }
 

@@ -274,7 +274,7 @@ namespace novelist {
         editor->setShowParagraphNumberArea(settings.value("editor/show_par_no", true).toBool());
         int widthLimit = settings.value("editor/width_limit").toInt();
         if (widthLimit > 0) {
-            editor->setLineWrapMode(TextEditor::LineWrapMode::FixedColumnWidth);
+            editor->setLineWrapMode(TextEditor::LineWrapMode::FixedPixelWidth);
             editor->setLineWrapColumnOrWidth(widthLimit);
         }
         else {

@@ -191,6 +191,13 @@ namespace novelist {
             updateParagraphNumberArea(e->rect(), verticalScrollBar()->value() - m_lastVerticalSliderPos);
         m_lastVerticalSliderPos = verticalScrollBar()->value();
 
+        // Show maximum line width if set
+        if (lineWrapColumnOrWidth() > 0 && lineWrapMode() == LineWrapMode::FixedPixelWidth) {
+            QPainter painter(viewport());
+            painter.setPen(QColor::fromRgb(220, 220, 220));
+            painter.drawLine(lineWrapColumnOrWidth(), 0, lineWrapColumnOrWidth(), viewport()->height());
+        }
+
 
         // Show bounding boxes for debug purposes
         if constexpr(show_debug_info) {
