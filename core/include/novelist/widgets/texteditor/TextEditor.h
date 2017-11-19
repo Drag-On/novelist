@@ -13,6 +13,7 @@
 #include <QtWidgets/QAction>
 #include <QtCore/QTimer>
 #include <QSyntaxHighlighter>
+#include <QtCore/QReadWriteLock>
 #include <memory>
 #include "InsightModel.h"
 #include "util/Connection.h"
@@ -236,8 +237,9 @@ namespace novelist {
         int m_lastVerticalSliderPos = 0;
         int m_lastBlockCount = 0;
         InsightModel m_insights;
-        TextEditorInsightManager m_insightMgr{this};
+        QReadWriteLock m_inspectorsLock;
         std::vector<std::unique_ptr<Inspector>> const* m_inspectors;
+        TextEditorInsightManager m_insightMgr{this};
         Connection m_onBoldActionConnection;
         Connection m_onItalicActionConnection;
         Connection m_onUnderlineActionConnection;
