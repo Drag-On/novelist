@@ -25,6 +25,13 @@ namespace novelist {
         m_updateTimer.start(1000);
     }
 
+    TextEditorInsightManager::~TextEditorInsightManager() noexcept
+    {
+        m_updateTimer.stop();
+        if (m_updateResults.isRunning())
+            m_updateResults.waitForFinished();
+    }
+
     void TextEditorInsightManager::reinspect() noexcept
     {
         if (m_editor->document()) {

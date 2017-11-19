@@ -55,6 +55,8 @@ namespace novelist {
          */
         explicit TextEditorInsightManager(gsl::not_null<TextEditor*> editor) noexcept;
 
+        ~TextEditorInsightManager() noexcept;
+
         /**
          * Runs inspection on the whole underlying document
          */
