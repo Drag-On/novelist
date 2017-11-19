@@ -49,6 +49,7 @@ namespace novelist {
         m_ui->actionAdd_Note = replaceMenuAction(m_ui->menu_Inspection, m_ui->actionAdd_Note,
                 m_ui->sceneTabWidget->addNoteAction());
 
+        connect(m_ui->projectView, &ProjectView::modelChanged, [this](ProjectModel* m) {emit projectChanged(m);});
         connect(m_ui->projectView, &ProjectView::modelChanged, this, &MainWindow::onProjectChanged);
         connect(m_ui->projectView, &ProjectView::openSceneRequested, [&](QModelIndex idx) {
             m_ui->sceneTabWidget->openScene(m_ui->projectView->model(), idx);
