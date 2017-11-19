@@ -190,8 +190,10 @@ namespace novelist {
 
     void MainWindow::closeEvent(QCloseEvent* event)
     {
-        if (continueCheckUnsavedChanges())
+        if (continueCheckUnsavedChanges()) {
+            m_ui->projectView->setModel(nullptr);
             event->accept();
+        }
         else
             event->ignore();
     }
