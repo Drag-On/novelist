@@ -7,6 +7,7 @@ add_library(novelist_core
         resources/icons/tango/tango.qrc
         include/novelist/plugin/Plugin.h
         include/novelist/plugin/PluginInfo.h
+        src/novelist/plugin/BasePlugin.cpp include/novelist/plugin/BasePlugin.h
         src/novelist/plugin/InspectionPlugin.cpp include/novelist/plugin/InspectionPlugin.h
         src/novelist/plugin/PluginManager.cpp include/novelist/plugin/PluginManager.h
         src/novelist/model/ProjectModel.cpp include/novelist/model/ProjectModel.h
