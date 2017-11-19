@@ -85,7 +85,7 @@ namespace novelist {
 
         m_updatingBlocks = std::move(m_needUpdateBlocks);
         m_updateResults = QtConcurrent::run(runAutoInsightRefresh, blocks, m_editor->m_inspectors,
-                m_editor->document()->language());
+                &m_editor->m_inspectorsLock, m_editor->document()->language());
     }
 
     void TextEditorInsightManager::finishAutoInsightRefresh()
@@ -115,11 +115,12 @@ namespace novelist {
     }
 
     InspectionResult TextEditorInsightManager::runAutoInsightRefresh(std::vector<QString> blocks,
-            std::vector<std::unique_ptr<Inspector>> const* inspectors, Language lang)
+            std::vector<std::unique_ptr<Inspector>> const* inspectors, QReadWriteLock* rwlock, Language lang)
     {
         InspectionResult results;
         for (auto const& text : blocks) {
 
+            QReadLocker lock(rwlock);
             InspectionBlockResult blockResult{};
             for (auto const& inspector : *inspectors) {
                 auto result = inspector->inspect(text, lang);

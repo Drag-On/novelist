@@ -12,6 +12,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QPoint>
 #include <QtCore/QFuture>
+#include <QtCore/QReadWriteLock>
 #include <QtCore/QTimer>
 #include <QTextBlock>
 #include <gsl/gsl>
@@ -86,7 +87,7 @@ namespace novelist {
         void startAutoInsightRefresh();
         void finishAutoInsightRefresh();
         static InspectionResult runAutoInsightRefresh(std::vector<QString> blocks,
-                std::vector<std::unique_ptr<Inspector>> const* inspectors, Language lang);
+                std::vector<std::unique_ptr<Inspector>> const* inspectors, QReadWriteLock* rwlock, Language lang);
 
     private slots:
 

@@ -144,6 +144,7 @@ namespace novelist {
 
     void TextEditor::useInspectors(std::vector<std::unique_ptr<Inspector>> const* inspectors)
     {
+        QWriteLocker lock(&m_inspectorsLock);
         m_inspectors = inspectors;
     }
 
