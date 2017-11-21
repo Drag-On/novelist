@@ -18,6 +18,9 @@
 #include <util/ConnectionWrapper.h>
 
 namespace novelist {
+
+    struct StatDataRow;
+
     namespace internal {
         struct Node {
             QString m_name;
@@ -30,19 +33,19 @@ namespace novelist {
             std::vector<Node> m_nodes;
         };
 
-        struct AnalysisResult {
-            QDateTime m_timeStamp;
-            size_t m_numCharacters;
-        };
-
-        AnalysisResult analyze(AnalysisJob job) noexcept;
+        StatDataRow analyze(AnalysisJob job) noexcept;
     }
+
+    struct StatDataRow {
+        QDateTime m_timeStamp;
+        size_t m_numCharacters;
+    };
 
     class ProjectStatCollector : public QObject {
     Q_OBJECT
 
     public:
-        ~ProjectStatCollector() noexcept;
+        ~ProjectStatCollector() noexcept override;
 
     public slots:
 
@@ -54,6 +57,8 @@ namespace novelist {
 
         void onTimeOut();
 
+        void onProjectSaved(QDir const& saveDir);
+
     private:
         void setupWatcher() noexcept;
 
@@ -61,14 +66,17 @@ namespace novelist {
 
         std::vector<internal::Node> buildNodeTree(QModelIndex const& root) const noexcept;
 
-        void storeResults(internal::AnalysisResult result) noexcept;
+        void storeResults(StatDataRow result) noexcept;
 
         ProjectModel* m_model = nullptr;
         QTimer m_timer;
         int m_watchInterval = 30000;//1800000; // 30 minutes interval
         ConnectionWrapper m_timeoutConnection;
-        QFuture<internal::AnalysisResult> m_future;
-        std::vector<internal::AnalysisResult> m_dataPoints;
+        ConnectionWrapper m_projectSavedConnection;
+        QFuture<StatDataRow> m_future;
+        std::vector<StatDataRow> m_dataPoints;
+
+        inline static std::string const s_filename = "statistics.csv";
     };
 }
 
