@@ -54,6 +54,7 @@ namespace novelist {
         m_model = model;
         if (m_model) {
             m_projectSavedConnection = connect(m_model, &ProjectModel::projectSaved, this, &ProjectStatCollector::onProjectSaved);
+            onTimeOut();
             setupWatcher();
         }
         else {
