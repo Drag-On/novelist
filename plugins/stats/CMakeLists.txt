@@ -20,6 +20,7 @@ target_include_directories(novelist_stats
 target_link_libraries(novelist_stats
         PUBLIC
         novelist_core
+        Qt5::Charts
         )
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")

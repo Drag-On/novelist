@@ -11,8 +11,10 @@
 
 #include <QtCore/QArgument>
 #include <QtWidgets/QDialog>
+#include <QtCharts/QLineSeries>
 #include <memory>
 #include <model/ProjectModel.h>
+#include <ProjectStatCollector.h>
 
 namespace Ui {
     class StatsDialog;
@@ -42,6 +44,13 @@ namespace novelist {
 
     private:
         std::unique_ptr<Ui::StatsDialog> m_ui;
+        ProjectModel* m_project;
+
+        std::vector<StatDataRow> readData() const noexcept;
+
+        void createWordsChart(std::unique_ptr<QT_CHARTS_NAMESPACE::QLineSeries> data) noexcept;
+
+        void createLettersChart(std::unique_ptr<QT_CHARTS_NAMESPACE::QLineSeries> data) noexcept;
     };
 }
 
