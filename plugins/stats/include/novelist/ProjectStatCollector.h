@@ -21,6 +21,7 @@
 namespace novelist {
 
     struct StatDataRow;
+    class StatsPlugin;
 
     namespace internal {
         struct Node {
@@ -47,6 +48,8 @@ namespace novelist {
 
     public:
         ~ProjectStatCollector() noexcept override;
+
+        static char const* filename() noexcept;
 
     public slots:
 
@@ -77,7 +80,9 @@ namespace novelist {
         QFuture<StatDataRow> m_future;
         std::vector<StatDataRow> m_dataPoints;
 
-        inline static std::string const s_filename = "stats.csv";
+        inline static constexpr const char s_filename[] = "stats.csv";
+
+        friend StatsPlugin;
     };
 }
 

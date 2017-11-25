@@ -45,6 +45,11 @@ namespace novelist {
             m_future.waitForFinished();
     }
 
+    char const* ProjectStatCollector::filename() noexcept
+    {
+        return s_filename;
+    }
+
     void ProjectStatCollector::onProjectAboutToChange(ProjectModel* /*oldModel*/)
     {
         m_timer.stop();

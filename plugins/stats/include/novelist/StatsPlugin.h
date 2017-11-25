@@ -30,6 +30,7 @@ namespace novelist
 
     private:
         std::unique_ptr<ProjectStatCollector> m_statCollector;
+        std::unique_ptr<QAction> m_openStatsAction;
     };
 }
 
