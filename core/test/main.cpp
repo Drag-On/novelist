@@ -9,23 +9,9 @@
 
 #define CATCH_CONFIG_RUNNER
 #include <catch.hpp>
+#include "test/TestApplication.h"
 
-#include "main.h"
-
-bool TestApplication::notify(QObject* receiver, QEvent* e)
-{
-    try {
-        return QApplication::notify(receiver, e);
-    }
-    catch (std::exception& e) {
-        qDebug() << "Caught exception: " << e.what();
-        std::terminate();
-    }
-    catch (...) {
-        qDebug() << "Caught unknown exception";
-        std::terminate();
-    }
-}
+using namespace novelist;
 
 int main(int argc, char** argv)
 {
