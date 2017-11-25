@@ -32,6 +32,7 @@ TEST_CASE("TextAnalyzer", "[TextAnalyzer][String]")
             NAMED_ROW("Hiragana", QStringLiteral("あなたの なまえは なんですか。"), 16, 3)
             NAMED_ROW("French", QStringLiteral("Que vous êtes joli! Cette leçon vaut bien un fromage."), 53, 10)
             NAMED_ROW("Symbols", QStringLiteral("❤☀ ☯♞♫"), 6, 0)
+            NAMED_ROW("Newline", QStringLiteral("The brown fox is dead.\nBut the red one is alive!"), 47, 11)
     )
 
     SECTION("Combine") {

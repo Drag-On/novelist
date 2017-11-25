@@ -20,7 +20,7 @@ namespace novelist {
             Stats r{};
             State s = NoWord;
             for (auto const& c : text) {
-                if (!c.isHighSurrogate())
+                if (!c.isHighSurrogate() && !c.isNonCharacter() && c != QChar::SpecialCharacter::LineFeed)
                     ++r.m_charCount;
                 switch (s) {
                     case NoWord:
