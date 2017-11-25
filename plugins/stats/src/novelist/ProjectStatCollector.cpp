@@ -38,6 +38,11 @@ namespace novelist {
         }
     }
 
+    ProjectStatCollector::ProjectStatCollector() noexcept
+    {
+        connect(&m_futureWatcher, &QFutureWatcher<StatDataRow>::finished, this, &ProjectStatCollector::onFutureReady);
+    }
+
     ProjectStatCollector::~ProjectStatCollector() noexcept
     {
         m_timer.stop();
@@ -75,11 +80,16 @@ namespace novelist {
         Expects(m_model != nullptr);
 
         if (m_future.isFinished()) {
-            if (!m_future.isCanceled())
-                storeResults(std::move(m_future.result()));
             auto job = makeJob();
             m_future = QtConcurrent::run(internal::analyze, job);
+            m_futureWatcher.setFuture(m_future);
         }
+    }
+
+    void ProjectStatCollector::onFutureReady()
+    {
+        if (m_future.isFinished() && !m_future.isCanceled())
+            storeResults(std::move(m_future.result()));
     }
 
     void ProjectStatCollector::onProjectSaved(QDir const& saveDir)

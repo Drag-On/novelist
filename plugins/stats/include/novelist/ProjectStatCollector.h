@@ -16,6 +16,7 @@
 #include <vector>
 #include <model/ProjectModel.h>
 #include <util/ConnectionWrapper.h>
+#include <QtCore/QFutureWatcher>
 #include "TextAnalyzer.h"
 
 namespace novelist {
@@ -47,6 +48,8 @@ namespace novelist {
     Q_OBJECT
 
     public:
+        ProjectStatCollector() noexcept;
+
         ~ProjectStatCollector() noexcept override;
 
         static char const* filename() noexcept;
@@ -61,6 +64,8 @@ namespace novelist {
 
         void onTimeOut();
 
+        void onFutureReady();
+
         void onProjectSaved(QDir const& saveDir);
 
     private:
@@ -74,10 +79,11 @@ namespace novelist {
 
         ProjectModel* m_model = nullptr;
         QTimer m_timer;
-        int m_watchInterval = 30000;//1800000; // 30 minutes interval
+        int m_watchInterval = 900000; // 15 minutes interval
         ConnectionWrapper m_timeoutConnection;
         ConnectionWrapper m_projectSavedConnection;
         QFuture<StatDataRow> m_future;
+        QFutureWatcher<StatDataRow> m_futureWatcher;
         std::vector<StatDataRow> m_dataPoints;
 
         inline static constexpr const char s_filename[] = "stats.csv";
