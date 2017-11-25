@@ -16,6 +16,7 @@
 #include <vector>
 #include <model/ProjectModel.h>
 #include <util/ConnectionWrapper.h>
+#include "TextAnalyzer.h"
 
 namespace novelist {
 
@@ -38,7 +39,7 @@ namespace novelist {
 
     struct StatDataRow {
         QDateTime m_timeStamp;
-        size_t m_numCharacters;
+        TextAnalyzer::Stats m_stats;
     };
 
     class ProjectStatCollector : public QObject {
@@ -76,7 +77,7 @@ namespace novelist {
         QFuture<StatDataRow> m_future;
         std::vector<StatDataRow> m_dataPoints;
 
-        inline static std::string const s_filename = "statistics.csv";
+        inline static std::string const s_filename = "stats.csv";
     };
 }
 

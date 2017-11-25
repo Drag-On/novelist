@@ -7,15 +7,16 @@
  * @details
  **********************************************************/
 #include "ProjectStatCollector.h"
+#include <fstream>
 #include <QtConcurrent/QtConcurrent>
 #include <util/Overloaded.h>
-#include <fstream>
 
 namespace novelist {
     namespace internal {
         void analyzeNode(StatDataRow& result, Node const& n)
         {
-            result.m_numCharacters += n.m_name.size() + n.m_text.size();
+            result.m_stats = TextAnalyzer::combine(std::move(result.m_stats), TextAnalyzer::analyze(n.m_name),
+                    TextAnalyzer::analyze(n.m_text));
             for (auto const& c : n.m_children)
                 analyzeNode(result, c);
         }
@@ -33,7 +34,7 @@ namespace novelist {
 
         bool onlyTimestampDiffers(StatDataRow const& r1, StatDataRow const& r2) noexcept
         {
-            return r1.m_numCharacters == r2.m_numCharacters;
+            return r1.m_stats == r2.m_stats;
         }
     }
 
@@ -53,7 +54,8 @@ namespace novelist {
     {
         m_model = model;
         if (m_model) {
-            m_projectSavedConnection = connect(m_model, &ProjectModel::projectSaved, this, &ProjectStatCollector::onProjectSaved);
+            m_projectSavedConnection = connect(m_model, &ProjectModel::projectSaved, this,
+                    &ProjectStatCollector::onProjectSaved);
             onTimeOut();
             setupWatcher();
         }
@@ -84,7 +86,8 @@ namespace novelist {
             if (out.is_open()) {
                 for (auto const& row : m_dataPoints) {
                     out << row.m_timeStamp.toSecsSinceEpoch() << ","
-                        << row.m_numCharacters << "\n";
+                        << row.m_stats.m_charCount << ","
+                        << row.m_stats.m_wordCount << "\n";
                 }
                 m_dataPoints.clear();
             }

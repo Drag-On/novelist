@@ -8,7 +8,7 @@ add_library(novelist_stats
         include/novelist/StatsPlugin.h src/novelist/StatsPlugin.cpp
         src/novelist/SettingsPage_Stats.cpp include/novelist/SettingsPage_Stats.h
         src/novelist/ProjectStatCollector.cpp include/novelist/ProjectStatCollector.h
-        )
+        src/novelist/TextAnalyzer.cpp include/novelist/TextAnalyzer.h)
 
 target_include_directories(novelist_stats
         PUBLIC
@@ -28,3 +28,5 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 endif ()
 
 enable_cxx17(novelist_stats)
+
+add_subdirectory(test)
