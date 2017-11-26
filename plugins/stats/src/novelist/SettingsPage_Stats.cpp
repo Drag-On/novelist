@@ -48,23 +48,31 @@ namespace novelist {
         return "stats";
     }
 
-    void SettingsPage_Stats_Creator::initialize(QWidget* /*widget*/, QSettings const& /*settings*/) noexcept
+    void SettingsPage_Stats_Creator::initialize(QWidget* widget, QSettings const& settings) noexcept
     {
-//        auto* page = dynamic_cast<SettingsPage_Stats*>(widget);
+        restoreDefaults(widget);
+
+        auto* page = dynamic_cast<SettingsPage_Stats*>(widget);
+        if (settings.contains("interval"))
+            page->m_ui->spinBoxTiming->setValue(settings.value("interval").toInt());
     }
 
-    void SettingsPage_Stats_Creator::apply(QWidget const* /*widget*/, QSettings& /*settings*/) noexcept
+    void SettingsPage_Stats_Creator::apply(QWidget const* widget, QSettings& settings) noexcept
     {
-//        auto* page = dynamic_cast<SettingsPage_Stats const*>(widget);
+        auto* page = dynamic_cast<SettingsPage_Stats const*>(widget);
+
+        settings.setValue("interval", page->m_ui->spinBoxTiming->value());
     }
 
     void SettingsPage_Stats_Creator::initiateUpdate(QSettings const& /*settings*/) noexcept
     {
     }
 
-    void SettingsPage_Stats_Creator::restoreDefaults(QWidget const* /*widget*/) noexcept
+    void SettingsPage_Stats_Creator::restoreDefaults(QWidget const* widget) noexcept
     {
-//        auto* page = dynamic_cast<SettingsPage_Stats const*>(widget);
+        auto* page = dynamic_cast<SettingsPage_Stats const*>(widget);
+
+        page->m_ui->spinBoxTiming->setValue(15);
     }
 
     QWidget* SettingsPage_Stats_Creator::createWidget() noexcept
