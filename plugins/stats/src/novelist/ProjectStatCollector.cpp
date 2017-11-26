@@ -50,6 +50,16 @@ namespace novelist {
             m_future.waitForFinished();
     }
 
+    void ProjectStatCollector::setWatchInterval(int minutes) noexcept
+    {
+        m_watchInterval = minutes * 60 * 1000;
+    }
+
+    int ProjectStatCollector::getWatchInterval() const noexcept
+    {
+        return m_watchInterval / 60000;
+    }
+
     char const* ProjectStatCollector::filename() noexcept
     {
         return s_filename;

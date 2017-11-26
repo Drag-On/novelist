@@ -18,7 +18,7 @@ namespace novelist {
         m_openStatsAction = std::make_unique<QAction>(tr("Statistics"));
         m_openStatsAction->setEnabled(false);
 
-        settings->registerPage(std::make_unique<SettingsPage_Stats_Creator>());
+        settings->registerPage(std::make_unique<SettingsPage_Stats_Creator>(m_statCollector.get()));
 
         return true;
     }

@@ -52,6 +52,20 @@ namespace novelist {
 
         ~ProjectStatCollector() noexcept override;
 
+        /**
+         * Set the watch interval
+         * @param minutes Interval in minutes
+         */
+        void setWatchInterval(int minutes) noexcept;
+
+        /*
+         * @return The watch interval in minutes
+         */
+        int getWatchInterval() const noexcept;
+
+        /**
+         * @return Name of the stats file
+         */
         static char const* filename() noexcept;
 
     public slots:

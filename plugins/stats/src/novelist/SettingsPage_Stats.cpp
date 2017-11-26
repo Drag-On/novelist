@@ -8,6 +8,7 @@
  **********************************************************/
 #include "SettingsPage_Stats.h"
 #include "ui_SettingsPage_Stats.h"
+#include "ProjectStatCollector.h"
 
 namespace novelist {
     SettingsPage_Stats::SettingsPage_Stats(QWidget* parent, Qt::WindowFlags f)
@@ -34,6 +35,11 @@ namespace novelist {
             default:
                 break;
         }
+    }
+
+    SettingsPage_Stats_Creator::SettingsPage_Stats_Creator(gsl::not_null<ProjectStatCollector*> collector) noexcept
+            :m_collector(collector)
+    {
     }
 
     SettingsPage_Stats_Creator::~SettingsPage_Stats_Creator() = default;
@@ -64,8 +70,9 @@ namespace novelist {
         settings.setValue("interval", page->m_ui->spinBoxTiming->value());
     }
 
-    void SettingsPage_Stats_Creator::initiateUpdate(QSettings const& /*settings*/) noexcept
+    void SettingsPage_Stats_Creator::initiateUpdate(QSettings const& settings) noexcept
     {
+        m_collector->setWatchInterval(settings.value("interval").toInt());
     }
 
     void SettingsPage_Stats_Creator::restoreDefaults(QWidget const* widget) noexcept

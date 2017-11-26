@@ -12,6 +12,7 @@
 #include <QtCore/QEvent>
 #include <QtWidgets/QWidget>
 #include <QtCore/QProcess>
+#include <gsl/gsl>
 #include <memory>
 #include <settings/SettingsPage.h>
 #include <util/ConnectionWrapper.h>
@@ -22,6 +23,7 @@ namespace Ui {
 
 namespace novelist {
     class SettingsPage_Stats_Creator;
+    class ProjectStatCollector;
 
     class SettingsPage_Stats : public QWidget {
     Q_OBJECT
@@ -53,6 +55,8 @@ namespace novelist {
     Q_OBJECT
 
     public:
+        SettingsPage_Stats_Creator(gsl::not_null<ProjectStatCollector*> collector) noexcept;
+
         ~SettingsPage_Stats_Creator() noexcept;
 
         QString name() noexcept override;
@@ -68,6 +72,9 @@ namespace novelist {
         void restoreDefaults(QWidget const* widget) noexcept override;
 
         QWidget* createWidget() noexcept override;
+
+    private:
+        gsl::not_null<ProjectStatCollector*> m_collector;
     };
 }
 
