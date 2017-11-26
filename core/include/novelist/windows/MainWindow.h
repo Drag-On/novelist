@@ -14,13 +14,14 @@
 #include "util/DelegateAction.h"
 #include "util/ConnectionWrapper.h"
 #include "model/ProjectModel.h"
+#include "novelist_core_export.h"
 
 namespace Ui {
     class MainWindow;
 }
 
 namespace novelist {
-    class MainWindow : public QMainWindow {
+    class NOVELIST_CORE_EXPORT MainWindow : public QMainWindow {
     Q_OBJECT
 
     public:

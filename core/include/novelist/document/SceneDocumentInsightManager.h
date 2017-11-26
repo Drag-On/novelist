@@ -14,6 +14,7 @@
 #include <QtGui/QSyntaxHighlighter>
 #include "datastructures/SortedVector.h"
 #include "Insight.h"
+#include <novelist_core_export.h>
 
 namespace novelist {
     namespace internal {
@@ -39,7 +40,7 @@ namespace novelist {
      * Manages markers on a document, i.e. makes sure that they are removed when they collapse to zero length and it
      * also makes sure they are properly rendered.
      */
-    class SceneDocumentInsightManager : public QSyntaxHighlighter {
+    class NOVELIST_CORE_EXPORT SceneDocumentInsightManager : public QSyntaxHighlighter {
         Q_OBJECT
 
     public:

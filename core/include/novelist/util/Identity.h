@@ -15,13 +15,14 @@
 #include <iomanip>
 #include <vector>
 #include <algorithm>
+#include <novelist_core_export.h>
 
 namespace novelist {
 
     /**
      * Exception thrown when an ID is requested that isn't available anymore
      */
-    class uniqueness_error : public std::logic_error {
+    class NOVELIST_CORE_EXPORT uniqueness_error : public std::logic_error {
     public:
         using std::logic_error::logic_error;
     };

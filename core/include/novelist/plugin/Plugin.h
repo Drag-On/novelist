@@ -15,13 +15,14 @@
 #include <gsl/gsl>
 #include "settings/Settings.h"
 #include "PluginInfo.h"
+#include <novelist_core_export.h>
 
 namespace novelist
 {
     /**
      * Interface for plugins
      */
-    class Plugin
+    class NOVELIST_CORE_EXPORT Plugin
     {
     public:
         virtual ~Plugin() = default;

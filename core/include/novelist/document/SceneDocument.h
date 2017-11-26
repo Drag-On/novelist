@@ -27,7 +27,7 @@ namespace novelist {
     /**
      * Formatted text for scenes
      */
-    class SceneDocument : public QTextDocument {
+    class NOVELIST_CORE_EXPORT SceneDocument : public QTextDocument {
     Q_OBJECT
 
     public:

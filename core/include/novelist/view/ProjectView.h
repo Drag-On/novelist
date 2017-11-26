@@ -17,6 +17,7 @@
 #include <QtWidgets/QAction>
 #include <QtWidgets/QDialog>
 #include "model/ProjectModel.h"
+#include <novelist_core_export.h>
 
 namespace novelist {
 
@@ -27,7 +28,7 @@ namespace novelist {
     /**
      * Specialized tree view for projects
      */
-    class ProjectView : public QWidget {
+    class NOVELIST_CORE_EXPORT ProjectView : public QWidget {
     Q_OBJECT
 
     public:

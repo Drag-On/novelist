@@ -14,13 +14,14 @@
 #include "Insight.h"
 #include "InsightFactory.h"
 #include "SceneDocument.h"
+#include <novelist_core_export.h>
 
 namespace novelist {
 
     /**
      * Implements some common functionality for insight specializations
      */
-    class BaseInsight : public QObject, public Insight {
+    class NOVELIST_CORE_EXPORT BaseInsight : public QObject, public Insight {
     Q_OBJECT
     Q_INTERFACES(novelist::Insight)
 

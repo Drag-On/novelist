@@ -19,6 +19,7 @@
 #include "model/Language.h"
 #include "document/InsightFactory.h"
 #include "util/ConnectionWrapper.h"
+#include <novelist_core_export.h>
 
 namespace novelist {
     class TextEditor;
@@ -27,7 +28,7 @@ namespace novelist {
     /**
      * A single result as returned from an auto inspection tool
      */
-    struct InspectionInsight {
+    struct NOVELIST_CORE_EXPORT InspectionInsight {
         std::shared_ptr<InsightFactory> m_factory; //!< Factory object to create the actual insight
         int m_left; //!< Left start of the insight, relative to the block
         int m_right; //!< Right end of the insight, relative to the block
@@ -46,7 +47,7 @@ namespace novelist {
     /**
      * Manages insights of a TextEditor, such as displaying their tool tips on hover and running auto-inspections
      */
-    class TextEditorInsightManager : public QObject {
+    class NOVELIST_CORE_EXPORT TextEditorInsightManager : public QObject {
     Q_OBJECT
 
     public:

@@ -10,6 +10,8 @@
 #include "settings/Settings.h"
 
 namespace novelist {
+    std::vector<std::unique_ptr<SettingsPage>> Settings::s_pages{};
+
     void Settings::registerPage(std::unique_ptr<SettingsPage> page) noexcept
     {
         s_pages.push_back(std::move(page));

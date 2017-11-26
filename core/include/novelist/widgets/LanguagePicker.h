@@ -11,9 +11,10 @@
 
 #include <QtWidgets/QComboBox>
 #include "model/Language.h"
+#include <novelist_core_export.h>
 
 namespace novelist {
-    class LanguagePicker : public QComboBox {
+    class NOVELIST_CORE_EXPORT LanguagePicker : public QComboBox {
     Q_OBJECT
 
     public:

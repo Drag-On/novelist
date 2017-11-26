@@ -15,6 +15,7 @@
 #include <memory>
 #include <vector>
 #include <QtCore/QDir>
+#include <novelist_core_export.h>
 
 namespace novelist {
     namespace internal {
@@ -36,12 +37,12 @@ namespace novelist {
      * @param filename Translation filename
      * @return The detected locale or the "C" locale, if the filename couldn't be parsed
      */
-    QLocale extractLocaleFromTranslationFile(QString filename) noexcept;
+    NOVELIST_CORE_EXPORT QLocale extractLocaleFromTranslationFile(QString filename) noexcept;
 
     /**
      * Manages translations of the whole program, can be used to switch language at runtime
      */
-    class TranslationManager {
+    class NOVELIST_CORE_EXPORT TranslationManager {
     public:
         /**
          * @return Reference to the singleton instance of this class

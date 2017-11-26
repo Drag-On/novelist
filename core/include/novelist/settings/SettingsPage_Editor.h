@@ -20,7 +20,7 @@ namespace Ui {
 namespace novelist {
     class SettingsPage_Editor_Creator;
 
-    class SettingsPage_Editor : public QWidget {
+    class NOVELIST_CORE_EXPORT SettingsPage_Editor : public QWidget {
     Q_OBJECT
 
     public:
@@ -46,7 +46,7 @@ namespace novelist {
         friend SettingsPage_Editor_Creator;
     };
 
-    class SettingsPage_Editor_Creator : public SettingsPage {
+    class NOVELIST_CORE_EXPORT SettingsPage_Editor_Creator : public SettingsPage {
     Q_OBJECT
 
     public:

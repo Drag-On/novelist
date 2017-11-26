@@ -11,12 +11,13 @@
 
 #include "model/Language.h"
 #include "TextEditorInsightManager.h"
+#include <novelist_core_export.h>
 
 namespace novelist {
     /**
      * Interface class for inspectors to implement
      */
-    class Inspector {
+    class NOVELIST_CORE_EXPORT Inspector {
     public:
         virtual ~Inspector() noexcept = default;
 

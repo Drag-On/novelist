@@ -12,6 +12,7 @@
 #include <QtWidgets/QTableView>
 #include <gsl/gsl>
 #include "widgets/texteditor/TextEditor.h"
+#include <novelist_core_export.h>
 
 namespace novelist {
     class SceneTabWidget;
@@ -20,7 +21,7 @@ namespace novelist {
      * A specialized table view for showing all insights of the currently active TextEditor in a SceneTabWidget. Double
      * clicking an entry will take the TextEditor's cursor to the selected insight.
      */
-    class InsightView : public QTableView {
+    class NOVELIST_CORE_EXPORT InsightView : public QTableView {
         Q_OBJECT
 
     public:

@@ -17,13 +17,14 @@
 #include <QtCore/QVector>
 #include <gsl/gsl>
 #include "settings/Settings.h"
+#include <novelist_core_export.h>
 
 namespace novelist
 {
     /**
      * The plugin manager tracks plugins, checks if their requirements are met and loads them in an appropriate order.
      */
-    class PluginManager
+    class NOVELIST_CORE_EXPORT PluginManager
     {
     public:
         /**
@@ -66,7 +67,7 @@ namespace novelist
         QHash<QString, PluginData> m_plugins;
         QList<QString> m_loadOrder;
         QVector<PluginInfo> m_pluginInfo;
-        static inline QString const s_pluginsSettingsGroup = "plugins";
+        static QString const s_pluginsSettingsGroup;
 
         void searchPluginDir();
 

@@ -15,7 +15,7 @@ namespace novelist {
     /**
      * Common base class for insights that are not user-generated, but rather by tools such as spellcheckers
      */
-    class AutoInsight : public BaseInsight {
+    class NOVELIST_CORE_EXPORT AutoInsight : public BaseInsight {
     Q_OBJECT
 
     public:

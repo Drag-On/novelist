@@ -20,6 +20,7 @@
 #include "model/ProjectModel.h"
 #include "widgets/texteditor/Inspector.h"
 #include "widgets/texteditor/TextEditor.h"
+#include <novelist_core_export.h>
 
 namespace novelist {
     class SceneTabWidget;
@@ -48,7 +49,7 @@ namespace novelist {
         };
     }
 
-    class SceneTabWidget : public QTabWidget {
+    class NOVELIST_CORE_EXPORT SceneTabWidget : public QTabWidget {
     Q_OBJECT
 
     public:

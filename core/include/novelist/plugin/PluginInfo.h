@@ -11,13 +11,14 @@
 #define NOVELIST_PLUGININFO_H
 
 #include <QtCore/QVariantList>
+#include <novelist_core_export.h>
 
 namespace novelist
 {
     /**
      * Stores meta information about a plugin
      */
-    struct PluginInfo
+    struct NOVELIST_CORE_EXPORT PluginInfo
     {
         QVariant uid;               ///< Unique identifier
         QVariant version;           ///< Version number

@@ -3,6 +3,7 @@ project(novelist)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
 
+include(GenerateExportHeader)
 include(cmake/Options.cmake)
 include(cmake/Util.cmake)
 include(cmake/Dependencies.cmake)

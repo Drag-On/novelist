@@ -12,13 +12,14 @@
 #include <utility>
 #include <QtGui/QTextCharFormat>
 #include <QtWidgets/QMenu>
+#include <novelist_core_export.h>
 
 namespace novelist {
     /**
      * Interface class for all insights used with SceneDocument and TextEditor.
      * @details Note that Insights can not be instantiated directly. Instead, use an InsightFactory.
      */
-    class Insight {
+    class NOVELIST_CORE_EXPORT Insight {
     public:
         virtual ~Insight() noexcept = default;
 
@@ -66,7 +67,7 @@ namespace novelist {
     /**
      * Compares Insights by their marked range. Left position is most relevant, then right position.
      */
-    class InsightOrderCompare {
+    class NOVELIST_CORE_EXPORT InsightOrderCompare {
     public:
         bool operator() (Insight const& lhs, Insight const& rhs) {
             return lhs.range().first < rhs.range().first ||
@@ -78,19 +79,19 @@ namespace novelist {
      * @param insight An insight
      * @return Paragraphs spanned by this insight
      */
-    std::pair<int, int> parRange(Insight const& insight) noexcept;
+    NOVELIST_CORE_EXPORT std::pair<int, int> parRange(Insight const& insight) noexcept;
 
     /**
      * @param insight An insight
      * @return True in case the insight has zero-length, otherwise false
      */
-    bool empty(Insight const& insight) noexcept;
+    NOVELIST_CORE_EXPORT bool empty(Insight const& insight) noexcept;
 
     /**
      * @param insight An insight
      * @return Amount of characters spanned by the insight
      */
-    int length(Insight const& insight) noexcept;
+    NOVELIST_CORE_EXPORT int length(Insight const& insight) noexcept;
 }
 
 Q_DECLARE_INTERFACE(novelist::Insight, "novelist::Insight")

@@ -15,7 +15,7 @@ namespace novelist {
     /**
      * Implements a persistent note insight that is intended to be placed by the user manually
      */
-    class NoteInsight : public BaseInsight {
+    class NOVELIST_CORE_EXPORT NoteInsight : public BaseInsight {
         Q_OBJECT
 
     public:
