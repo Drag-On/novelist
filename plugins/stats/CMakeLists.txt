@@ -9,7 +9,7 @@ add_library(novelist_stats
         src/novelist/SettingsPage_Stats.cpp include/novelist/SettingsPage_Stats.h
         src/novelist/ProjectStatCollector.cpp include/novelist/ProjectStatCollector.h
         src/novelist/TextAnalyzer.cpp include/novelist/TextAnalyzer.h
-        src/novelist/StatsDialog.cpp src/novelist/StatsDialog.h
+        src/novelist/StatsDialog.cpp include/novelist/StatsDialog.h
         )
 
 target_include_directories(novelist_stats
