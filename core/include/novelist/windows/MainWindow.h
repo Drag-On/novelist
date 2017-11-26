@@ -45,6 +45,11 @@ namespace novelist {
 
         void onOpenSettings();
 
+    signals:
+        void projectAboutToChange(ProjectModel* model);
+
+        void projectChanged(ProjectModel* model);
+
     protected:
         void changeEvent(QEvent* event) override;
 

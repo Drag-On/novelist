@@ -6,15 +6,13 @@ if (catch_FOUND)
     enable_testing()
 
     add_executable(novelist_core_test
-            main.cpp main.h
-            macros.h
+            main.cpp
             datastructures/TreeTest.cpp
+            datastructures/SortedVectorTest.cpp
             document/SceneDocumentTest.cpp
             util/IdentityTest.cpp
             model/ProjectModelTest.cpp
-            view/ProjectViewTest.cpp
-            widgets/TextEditorTest.cpp
-            datastructures/SortedVectorTest.cpp)
+            )
 
     target_include_directories(novelist_core_test
             PUBLIC

@@ -11,15 +11,15 @@
 
 #include <widgets/texteditor/Inspector.h>
 #include "Plugin.h"
+#include "BasePlugin.h"
 
 namespace novelist {
     /**
      * Abstract base class for plugins that want to provide an inspector. It will automatically be registered and used
      * in all scene editors.
      */
-    class InspectionPlugin : public QObject, public Plugin {
+    class InspectionPlugin : public BasePlugin {
     Q_OBJECT
-    Q_INTERFACES(novelist::Plugin)
 
     public:
         bool load(gsl::not_null<Settings*> settings) override;

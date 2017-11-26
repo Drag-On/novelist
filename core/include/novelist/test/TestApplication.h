@@ -1,5 +1,5 @@
 /**********************************************************
- * @file   macros.h
+ * @file   TestApplication.h
  * @author jan
  * @date   10/3/17
  * ********************************************************
@@ -32,5 +32,19 @@
  * Define a data row without a name
  */
 #define ROW(...) NAMED_ROW(#__VA_ARGS__, __VA_ARGS__)
+
+#include <QApplication>
+#include <QDebug>
+
+namespace novelist {
+    class TestApplication final : public QApplication {
+    Q_OBJECT
+
+    public:
+        using QApplication::QApplication;
+
+        bool notify(QObject* receiver, QEvent* e) override;
+    };
+}
 
 #endif //NOVELIST_MACROS_H

@@ -440,6 +440,18 @@ namespace novelist {
          */
         void beforeItemRemoved(QModelIndex const& idx, NodeType type);
 
+        /**
+         * Called when the project is saved
+         * @param saveDir Directory the project was saved to
+         */
+        void projectSaved(QDir const& saveDir);
+
+        /**
+         * Called when the project was loaded
+         * @param loadDir Directory the project was loaded from
+         */
+        void projectOpened(QDir const& loadDir);
+
     private:
         using Node = TreeNode<NodeData>;
 

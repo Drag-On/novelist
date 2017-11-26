@@ -1,0 +1,12 @@
+{
+  "uid": "novelist.stats",
+  "version": "0.0.1",
+  "dependencies": [
+    {
+      "uid": "novelist.main",
+      "version": "0.0.1"
+    }
+  ],
+  "name": "Statistics",
+  "description": "Collects statistics about the project."
+}

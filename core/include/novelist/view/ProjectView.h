@@ -75,6 +75,12 @@ namespace novelist {
         void openSceneRequested(QModelIndex idx);
 
         /**
+         * Fires when the underlying model is about to be switched out
+         * @param m Old model
+         */
+        void modelAboutToChange(ProjectModel* m);
+
+        /**
          * Fires when the underlying model was switched out
          * @param m New model
          */

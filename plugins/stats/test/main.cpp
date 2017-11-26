@@ -1,7 +1,7 @@
 /**********************************************************
  * @file   main.cpp
  * @author jan
- * @date   16.06.17
+ * @date   11/25/17
  * ********************************************************
  * @brief
  * @details
@@ -9,7 +9,7 @@
 
 #define CATCH_CONFIG_RUNNER
 #include <catch.hpp>
-#include "test/TestApplication.h"
+#include <test/TestApplication.h>
 
 using namespace novelist;
 

@@ -11,18 +11,18 @@
 #include "plugin/InspectionPlugin.h"
 
 namespace novelist {
-    void InspectionPlugin::setup(QVector<PluginInfo> const& /*pluginInfo*/)
+    void InspectionPlugin::setup(QVector<PluginInfo> const& pluginInfo)
     {
-        for(QWidget* w : qApp->topLevelWidgets()) {
-            auto* window = dynamic_cast<MainWindow*>(w);
-            if (window) {
-                auto* tabWidget = window->findChild<SceneTabWidget*>();
-                if (tabWidget) {
-                    auto inspector = createInspector();
-                    if (inspector) {
-                        tabWidget->registerInspector(std::move(inspector));
-                        return;
-                    }
+        BasePlugin::setup(pluginInfo);
+
+        auto* window = mainWindow();
+        if (window) {
+            auto* tabWidget = window->findChild<SceneTabWidget*>();
+            if (tabWidget) {
+                auto inspector = createInspector();
+                if (inspector) {
+                    tabWidget->registerInspector(std::move(inspector));
+                    return;
                 }
             }
         }

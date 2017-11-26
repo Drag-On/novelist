@@ -10,7 +10,7 @@
 #include <iostream>
 #include <catch.hpp>
 #include "model/ProjectModel.h"
-#include "macros.h"
+#include "test/TestApplication.h"
 
 using namespace novelist;
 

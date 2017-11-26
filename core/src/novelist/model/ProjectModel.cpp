@@ -612,6 +612,7 @@ namespace novelist {
         if (success) {
             m_undoStack.clear();
             m_neverSaved = false;
+            emit projectOpened(dir);
         }
         return success;
     }
@@ -653,6 +654,7 @@ namespace novelist {
         if (success) {
             m_undoStack.setClean();
             m_neverSaved = false;
+            emit projectSaved(m_saveDir);
         }
 
         return success;

@@ -7,6 +7,7 @@ add_library(novelist_core
         resources/icons/tango/tango.qrc
         include/novelist/plugin/Plugin.h
         include/novelist/plugin/PluginInfo.h
+        src/novelist/plugin/BasePlugin.cpp include/novelist/plugin/BasePlugin.h
         src/novelist/plugin/InspectionPlugin.cpp include/novelist/plugin/InspectionPlugin.h
         src/novelist/plugin/PluginManager.cpp include/novelist/plugin/PluginManager.h
         src/novelist/model/ProjectModel.cpp include/novelist/model/ProjectModel.h
@@ -48,6 +49,7 @@ add_library(novelist_core
         src/novelist/settings/SettingsPage_General.cpp include/novelist/settings/SettingsPage_General.h
         src/novelist/settings/SettingsPage_Editor.cpp include/novelist/settings/SettingsPage_Editor.h
         src/novelist/widgets/FilePicker.cpp include/novelist/widgets/FilePicker.h
+        src/novelist/test/TestApplication.cpp include/novelist/test/TestApplication.h
         )
 
 target_include_directories(novelist_core

@@ -9,7 +9,7 @@
 
 #include <catch.hpp>
 #include <datastructures/SortedVector.h>
-#include <macros.h>
+#include <test/TestApplication.h>
 
 using namespace novelist;
 

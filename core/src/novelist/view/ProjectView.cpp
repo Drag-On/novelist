@@ -65,6 +65,7 @@ namespace novelist {
 
     void ProjectView::setModel(ProjectModel* model)
     {
+        emit modelAboutToChange(this->model());
         m_treeView->setModel(model);
         connect(m_treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this,
                 &ProjectView::onSelectionChanged);
