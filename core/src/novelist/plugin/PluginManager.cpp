@@ -9,6 +9,7 @@
 
 #include <QtCore>
 #include <gsl/gsl>
+#include <QtWidgets/QMessageBox>
 #include "plugin/Plugin.h"
 #include "plugin/PluginManager.h"
 
@@ -122,7 +123,18 @@ namespace novelist {
     {
         PluginData& p = *m_plugins.find(uid);
         PluginInfo& info = m_pluginInfo[p.infoIdx];
-        info.enabled = m_settings->value(s_pluginsSettingsGroup + "/" + uid, false).toBool();
+
+        auto const settingsKey = s_pluginsSettingsGroup + "/" + uid;
+        if (!m_settings->contains(settingsKey)) {
+            QMessageBox msgBox;
+            msgBox.setWindowTitle("Unknown plugin");
+            msgBox.setText("The plugin \"" % uid % "\" has never been loaded before. Should it be loaded?");
+            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+            msgBox.setIcon(QMessageBox::Question);
+            msgBox.setDefaultButton(QMessageBox::No);
+            m_settings->setValue(settingsKey, msgBox.exec() == QMessageBox::Yes);
+        }
+        info.enabled = m_settings->value(settingsKey).toBool();
 
         if (!info.enabled)
             return true;
@@ -159,18 +171,20 @@ namespace novelist {
 
         PluginData& plugin = *m_plugins.find(uid);
         if (!plugin.pLoader->load()) {
-            qWarning() << "Plugin" << uid << "(" << plugin.pLoader->fileName()  << ") could not be loaded." << plugin.pLoader->errorString();
+            qWarning() << "Plugin" << uid << "(" << plugin.pLoader->fileName() << ") could not be loaded."
+                       << plugin.pLoader->errorString();
             return false;
         }
         novelist::Plugin* pPlugin = qobject_cast<Plugin*>(plugin.pLoader->instance());
         if (pPlugin == nullptr) {
-            qWarning() << "Plugin" << uid << "(" << plugin.pLoader->fileName()  << ") is corrupted." << plugin.pLoader->errorString();
+            qWarning() << "Plugin" << uid << "(" << plugin.pLoader->fileName() << ") is corrupted."
+                       << plugin.pLoader->errorString();
             plugin.pLoader->unload();
             return false;
         }
 
         if (!pPlugin->load(m_settings)) {
-            qWarning() << "Failed to load plugin" << uid << "(" << plugin.pLoader->fileName()  << ").";
+            qWarning() << "Failed to load plugin" << uid << "(" << plugin.pLoader->fileName() << ").";
             plugin.pLoader->unload();
             return false;
         }
