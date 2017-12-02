@@ -14,6 +14,8 @@
 #include "plugin/PluginManager.h"
 
 namespace novelist {
+    QString const PluginManager::s_pluginsSettingsGroup = "plugins";
+
     PluginManager::PluginManager(gsl::not_null<Settings*> settings, QDir const& pluginPath)
             :m_settings(settings),
              m_pluginDir(pluginPath)

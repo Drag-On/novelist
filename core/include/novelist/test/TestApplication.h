@@ -9,6 +9,8 @@
 #ifndef NOVELIST_MACROS_H
 #define NOVELIST_MACROS_H
 
+#include <novelist_core_export.h>
+
 /**
  * Define a data-driven section in a catch TEST_CASE
  */
@@ -37,7 +39,7 @@
 #include <QDebug>
 
 namespace novelist {
-    class TestApplication final : public QApplication {
+    class NOVELIST_CORE_EXPORT TestApplication final : public QApplication {
     Q_OBJECT
 
     public:

@@ -15,7 +15,7 @@ namespace novelist {
     /**
      * A non-persistent insight that is used to represent spelling errors
      */
-    class SpellingInsight : public AutoInsight {
+    class NOVELIST_CORE_EXPORT SpellingInsight : public AutoInsight {
     Q_OBJECT
 
     public:

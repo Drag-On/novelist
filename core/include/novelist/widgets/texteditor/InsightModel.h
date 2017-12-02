@@ -17,6 +17,7 @@
 #include "util/ConnectionWrapper.h"
 #include "document/SceneDocument.h"
 #include "document/Insight.h"
+#include <novelist_core_export.h>
 
 namespace novelist {
     /**
@@ -31,7 +32,7 @@ namespace novelist {
     /**
      * Can be used to display all insights of a TextEditor's underlying SceneDocument in a table view
      */
-    class InsightModel : public QAbstractTableModel {
+    class NOVELIST_CORE_EXPORT InsightModel : public QAbstractTableModel {
     Q_OBJECT
 
     public:

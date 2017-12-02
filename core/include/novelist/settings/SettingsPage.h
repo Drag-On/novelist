@@ -12,12 +12,13 @@
 #include <memory>
 #include <QtWidgets/QWidget>
 #include <QtCore/QSettings>
+#include <novelist_core_export.h>
 
 namespace novelist {
     /**
      * Manages a single page in the settings dialog and makes sure the dialog and the actual data stays in sync
      */
-    class SettingsPage : public QObject {
+    class NOVELIST_CORE_EXPORT SettingsPage : public QObject {
     Q_OBJECT
 
     public:

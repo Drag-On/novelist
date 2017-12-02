@@ -21,6 +21,7 @@
 #include "document/SceneDocument.h"
 #include "TextEditorInsightManager.h"
 #include "Inspector.h"
+#include <novelist_core_export.h>
 
 namespace novelist {
     class TextEditor;
@@ -48,7 +49,7 @@ namespace novelist {
     /**
      * Custom rich text editor with paragraph numbering
      */
-    class TextEditor : public QTextEdit {
+    class NOVELIST_CORE_EXPORT TextEditor : public QTextEdit {
     Q_OBJECT
 
     public:

@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.8)
 project(novelist)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG_BUILD")
 
+include(GenerateExportHeader)
 include(cmake/Options.cmake)
 include(cmake/Util.cmake)
 include(cmake/Dependencies.cmake)

@@ -173,7 +173,7 @@ namespace novelist {
 
         auto iter = std::find_if(insightManager()->begin(), insightManager()->end(),
                 [charpos](std::unique_ptr<Insight> const& p) {
-                    return p->range().first <= charpos && p->range().second > charpos;
+                    return p->range().first <= charpos && p->range().second >= charpos;
                 });
         if (iter != insightManager()->end())
             return index(gsl::narrow<int>(std::distance(insightManager()->begin(), iter)), 0);

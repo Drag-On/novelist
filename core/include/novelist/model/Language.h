@@ -12,6 +12,7 @@
 #include <QtCore/QString>
 #include <QtGui/QIcon>
 #include <stdexcept>
+#include <novelist_core_export.h>
 
 namespace novelist {
 
@@ -38,45 +39,45 @@ namespace novelist {
          * @param lang Language ID
          * @return Identifier as string in the form aa-AA, e.g. "en-US".
          */
-        QString identifier(Language lang);
+        NOVELIST_CORE_EXPORT QString identifier(Language lang);
 
         /**
          * @param lang Language ID
          * @return Country code as string, e.g. "US"
          */
-        QString countryCode(Language lang);
+        NOVELIST_CORE_EXPORT QString countryCode(Language lang);
 
         /**
          * @param lang Language ID
          * @return Language code as string, e.g. "en"
          */
-        QString languageCode(Language lang);
+        NOVELIST_CORE_EXPORT QString languageCode(Language lang);
 
         /**
          * @param lang Language ID
          * @return Description string, e.g. "English (United States)"
          */
-        QString description(Language lang);
+        NOVELIST_CORE_EXPORT QString description(Language lang);
 
         /**
          * Attempts to load the system's flag icon for the language. Might return an empty icon, if not available.
          * @param lang Language ID
          * @return Icon for the language
          */
-        QIcon icon(Language lang);
+        NOVELIST_CORE_EXPORT QIcon icon(Language lang);
 
         /**
          * @param identifier String containing language identifier of the form aa-AA, e.g. "en-US".
          * @return The appropriate language ID
          * @throws language_error if the identifier was invalid
          */
-        Language fromIdentifier(QString const& identifier);
+        NOVELIST_CORE_EXPORT Language fromIdentifier(QString const& identifier);
     }
 
     /**
      * Exception thrown when an unknown (or unsupported) language is requested
      */
-    class language_error : public std::logic_error {
+    class NOVELIST_CORE_EXPORT language_error : public std::logic_error {
     public:
         using std::logic_error::logic_error;
     };

@@ -25,6 +25,7 @@
 #include "util/Identity.h"
 #include "Language.h"
 #include "ModelPath.h"
+#include <novelist_core_export.h>
 
 namespace novelist {
 
@@ -37,7 +38,7 @@ namespace novelist {
     /**
      * Basic project properties
      */
-    struct ProjectProperties {
+    struct NOVELIST_CORE_EXPORT ProjectProperties {
         QString m_name; //!< project name
         QString m_author; //!< project author
         Language m_lang = Language::en_US; //!< project language
@@ -53,7 +54,7 @@ namespace novelist {
     /**
      * The project model provides means to add chapters and scenes in a tree
      */
-    class ProjectModel : public QAbstractItemModel {
+    class NOVELIST_CORE_EXPORT ProjectModel : public QAbstractItemModel {
     Q_OBJECT
 
     public:

@@ -11,6 +11,7 @@
 
 #include <QtCore/QSettings>
 #include "SettingsPage.h"
+#include <novelist_core_export.h>
 
 namespace novelist {
     class SettingsWindow;
@@ -18,28 +19,28 @@ namespace novelist {
     /**
      * Application-wide settings
      */
-    class Settings : public QSettings {
+    class NOVELIST_CORE_EXPORT Settings : public QSettings {
     public:
         /**
          * Register a page in the settings dialog
          * @param page Page to register
          */
-        static void registerPage(std::unique_ptr<SettingsPage> page) noexcept;
+        NOVELIST_CORE_EXPORT static void registerPage(std::unique_ptr<SettingsPage> page) noexcept;
 
         /**
          * Looks for the page with a given Id.
          * @param uid Id to look for
          * @return A non-owning pointer to the found page or nullptr
          */
-        static SettingsPage* findPage(QString const& uid) noexcept;
+        NOVELIST_CORE_EXPORT static SettingsPage* findPage(QString const& uid) noexcept;
 
         /**
          * Updates the application based on all current settings
          */
-        static void updateAll() noexcept;
+        NOVELIST_CORE_EXPORT static void updateAll() noexcept;
 
     private:
-        static inline std::vector<std::unique_ptr<SettingsPage>> s_pages;
+        static std::vector<std::unique_ptr<SettingsPage>> s_pages;
 
         friend SettingsWindow;
     };

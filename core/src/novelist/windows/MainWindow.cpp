@@ -134,6 +134,15 @@ namespace novelist {
         if (continueCheckUnsavedChanges()) {
             m_ui->sceneTabWidget->closeAll();
             m_ui->projectView->setModel(nullptr);
+            if (auto ptr = dynamic_cast<DelegateAction*>(m_ui->action_Undo); ptr != nullptr) ptr->setDelegate(nullptr);
+            if (auto ptr = dynamic_cast<DelegateAction*>(m_ui->action_Redo); ptr != nullptr) ptr->setDelegate(nullptr);
+            if (auto ptr = dynamic_cast<DelegateAction*>(m_ui->action_Bold); ptr != nullptr) ptr->setDelegate(nullptr);
+            if (auto ptr = dynamic_cast<DelegateAction*>(m_ui->action_Italic); ptr != nullptr) ptr->setDelegate(nullptr);
+            if (auto ptr = dynamic_cast<DelegateAction*>(m_ui->action_Underline); ptr != nullptr) ptr->setDelegate(nullptr);
+            if (auto ptr = dynamic_cast<DelegateAction*>(m_ui->action_Overline); ptr != nullptr) ptr->setDelegate(nullptr);
+            if (auto ptr = dynamic_cast<DelegateAction*>(m_ui->action_Strikethrough); ptr != nullptr) ptr->setDelegate(nullptr);
+            if (auto ptr = dynamic_cast<DelegateAction*>(m_ui->actionSmall_Caps); ptr != nullptr) ptr->setDelegate(nullptr);
+            if (auto ptr = dynamic_cast<DelegateAction*>(m_ui->actionAdd_Note); ptr != nullptr) ptr->setDelegate(nullptr);
             m_model.reset();
         }
     }
@@ -263,7 +272,6 @@ namespace novelist {
             m_ui->action_Save->setEnabled(true);
             m_ui->action_Undo->setEnabled(false);
             m_ui->action_Redo->setEnabled(false);
-            m_ui->retranslateUi(this);
 
             connect(m, &ProjectModel::beforeItemRemoved, this, &MainWindow::onItemAboutToRemoved);
         }

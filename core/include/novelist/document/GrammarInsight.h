@@ -15,7 +15,7 @@ namespace novelist {
     /**
      * A non-persistent insight that is used to represent grammar issues
      */
-    class GrammarInsight : public AutoInsight {
+    class NOVELIST_CORE_EXPORT GrammarInsight : public AutoInsight {
     Q_OBJECT
 
     public:

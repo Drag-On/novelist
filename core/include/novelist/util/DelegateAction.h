@@ -12,13 +12,14 @@
 #include <QtWidgets/QAction>
 #include <QDebug>
 #include "Connection.h"
+#include <novelist_core_export.h>
 
 namespace novelist {
     /**
      * Action that delegates to another action. It always delegates to no or one action, and the source can be exchanged
      * at any point.
      */
-    class DelegateAction : public QAction {
+    class NOVELIST_CORE_EXPORT DelegateAction : public QAction {
     Q_OBJECT
 
     public:

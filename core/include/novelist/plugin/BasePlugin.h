@@ -18,7 +18,7 @@ namespace novelist {
      * Abstract base class for plugins that require access to the main window. This assumes that the plugin has
      * novelist_main set as a dependency.
      */
-    class BasePlugin : public QObject, public Plugin {
+    class NOVELIST_CORE_EXPORT BasePlugin : public QObject, public Plugin {
     Q_OBJECT
         Q_INTERFACES(novelist::Plugin)
 

@@ -18,7 +18,7 @@ namespace novelist {
      * Abstract base class for plugins that want to provide an inspector. It will automatically be registered and used
      * in all scene editors.
      */
-    class InspectionPlugin : public BasePlugin {
+    class NOVELIST_CORE_EXPORT InspectionPlugin : public BasePlugin {
     Q_OBJECT
 
     public:

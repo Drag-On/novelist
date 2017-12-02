@@ -13,12 +13,13 @@
 #include <functional>
 #include <qobjectdefs.h>
 #include "ConnectionWrapper.h"
+#include <novelist_core_export.h>
 
 namespace novelist {
     /**
      * Wrapper to a signal-slot connection which can be used to connect and disconnect the same connection at any time
      */
-    class Connection {
+    class NOVELIST_CORE_EXPORT Connection {
     public:
         /**
          * Construct invalid connection
@@ -60,7 +61,7 @@ namespace novelist {
     /**
      * Temporarily disconnects a connection. Reconnection happens on destruction.
      */
-    class ConnectionBlocker {
+    class NOVELIST_CORE_EXPORT ConnectionBlocker {
     private:
         Connection& m_connection;
 

@@ -55,6 +55,7 @@ add_library(novelist_core
 target_include_directories(novelist_core
         PUBLIC
             ${CMAKE_CURRENT_SOURCE_DIR}/include/novelist/
+            ${PROJECT_BINARY_DIR}
         )
 
 target_link_libraries(novelist_core
@@ -79,6 +80,11 @@ set_target_properties(novelist_core
         ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+        )
+
+generate_export_header(novelist_core
+        EXPORT_MACRO_NAME NOVELIST_CORE_EXPORT
+        EXPORT_FILE_NAME novelist_core_export.h
         )
 
 enable_cxx17(novelist_core)

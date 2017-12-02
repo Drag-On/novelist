@@ -12,13 +12,14 @@
 #include <memory>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QListWidgetItem>
+#include <novelist_core_export.h>
 
 namespace Ui {
     class SettingsDialog;
 }
 
 namespace novelist {
-    class SettingsWindow : public QDialog {
+    class NOVELIST_CORE_EXPORT SettingsWindow : public QDialog {
     Q_OBJECT
 
     public:

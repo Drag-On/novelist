@@ -10,6 +10,7 @@
 #define NOVELIST_CONENCTIONWRAPPER_H
 
 #include <qobjectdefs.h>
+#include <novelist_core_export.h>
 
 namespace novelist {
     /**
@@ -17,7 +18,7 @@ namespace novelist {
      *
      * @example ConnectionWrapper con = QObject::connect(obj, &QObject::destroyed, otherObj, &MyObject::onDestroyed);
      */
-    class ConnectionWrapper {
+    class NOVELIST_CORE_EXPORT ConnectionWrapper {
     public:
         ConnectionWrapper() = default;
 

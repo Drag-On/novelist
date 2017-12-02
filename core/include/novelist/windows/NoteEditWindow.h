@@ -11,6 +11,7 @@
 
 #include <memory>
 #include <QtWidgets/QDialog>
+#include <novelist_core_export.h>
 
 namespace Ui {
     class NoteEditDialog;
@@ -18,7 +19,7 @@ namespace Ui {
 
 namespace novelist {
 
-    class NoteEditWindow : public QDialog {
+    class NOVELIST_CORE_EXPORT NoteEditWindow : public QDialog {
         Q_OBJECT
 
     public:

@@ -13,6 +13,7 @@
 #include <initializer_list>
 #include <vector>
 #include <QModelIndex>
+#include <novelist_core_export.h>
 
 namespace novelist {
     /**
@@ -28,7 +29,7 @@ namespace novelist {
      * actually exists, has existed before but is now deleted, or if an element on that position has been moved to
      * another location.
      */
-    class ModelPath {
+    class NOVELIST_CORE_EXPORT ModelPath {
     public:
         using iterator = decltype(std::declval<std::vector<RowColumnIdx>>().begin());
         using const_iterator = decltype(std::declval<std::vector<RowColumnIdx>>().cbegin());

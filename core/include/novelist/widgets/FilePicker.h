@@ -13,12 +13,13 @@
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QFileDialog>
+#include <novelist_core_export.h>
 
 namespace novelist {
     /**
      * A simple file picker widget, consisting of a line edit that shows the path and a button to browse for it
      */
-    class FilePicker : public QWidget {
+    class NOVELIST_CORE_EXPORT FilePicker : public QWidget {
     Q_OBJECT
 
     public:

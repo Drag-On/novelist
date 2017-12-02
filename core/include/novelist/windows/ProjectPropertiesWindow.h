@@ -12,6 +12,7 @@
 #include <QDialog>
 #include <memory>
 #include "model/ProjectModel.h"
+#include <novelist_core_export.h>
 
 namespace Ui {
     class ProjectPropertiesWindow;
@@ -21,7 +22,7 @@ namespace novelist {
     /**
      * Modal dialog used to edit project properties
      */
-    class ProjectPropertiesWindow : public QDialog {
+    class NOVELIST_CORE_EXPORT ProjectPropertiesWindow : public QDialog {
     Q_OBJECT
 
     public:

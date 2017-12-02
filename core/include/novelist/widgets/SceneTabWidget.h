@@ -20,6 +20,7 @@
 #include "model/ProjectModel.h"
 #include "widgets/texteditor/Inspector.h"
 #include "widgets/texteditor/TextEditor.h"
+#include <novelist_core_export.h>
 
 namespace novelist {
     class SceneTabWidget;
@@ -48,7 +49,7 @@ namespace novelist {
         };
     }
 
-    class SceneTabWidget : public QTabWidget {
+    class NOVELIST_CORE_EXPORT SceneTabWidget : public QTabWidget {
     Q_OBJECT
 
     public:
@@ -168,6 +169,18 @@ namespace novelist {
          * @param focused True when focus was gained, otherwise false
          */
         void focusReceived(bool focused);
+
+        /**
+         * Fires whenever a new scene editor is opened
+         * @param editor Pointer to the new editor
+         */
+        void sceneOpened(gsl::not_null<TextEditor*> editor);
+
+        /**
+         * Fires whenever a scene editor is closed
+         * @param editor Pointer to the closing editor
+         */
+        void sceneClosing(gsl::not_null<TextEditor*> editor);
 
     protected:
         void focusInEvent(QFocusEvent* event) override;

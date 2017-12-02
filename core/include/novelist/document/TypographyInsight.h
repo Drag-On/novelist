@@ -12,7 +12,7 @@
 #include "AutoInsight.h"
 
 namespace novelist {
-    class TypographyInsight : public AutoInsight {
+    class NOVELIST_CORE_EXPORT TypographyInsight : public AutoInsight {
     Q_OBJECT
     
     public:
