@@ -263,7 +263,6 @@ namespace novelist {
             m_ui->action_Save->setEnabled(true);
             m_ui->action_Undo->setEnabled(false);
             m_ui->action_Redo->setEnabled(false);
-            m_ui->retranslateUi(this);
 
             connect(m, &ProjectModel::beforeItemRemoved, this, &MainWindow::onItemAboutToRemoved);
         }
