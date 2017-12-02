@@ -47,18 +47,21 @@ namespace novelist {
         clear();
 
         QXmlStreamReader xmlReader(xml);
+        auto final_action = gsl::finally([&xmlReader] {
+            if (xmlReader.hasError())
+                qWarning() << "Error while reading scene file." << xmlReader.errorString() << "At line"
+                           << xmlReader.lineNumber() << ", column" << xmlReader.columnNumber() << ", character offset"
+                           << xmlReader.characterOffset();
+        });
+
         if (xmlReader.readNextStartElement()) {
-            if (xmlReader.name() == "scene" && xmlReader.attributes().value("version") == "1.0")
+            if (xmlReader.name() == "scene" && xmlReader.attributes().value("version") == "1.0") {
                 if (readInternal(xmlReader)) {
                     setModified(false);
                     return true;
                 }
-
+            }
         }
-        if (xmlReader.hasError())
-            qWarning() << "Error while reading scene file." << xmlReader.errorString() << "At line"
-                       << xmlReader.lineNumber() << ", column" << xmlReader.columnNumber() << ", character offset"
-                       << xmlReader.characterOffset();
 
         return false;
     }
