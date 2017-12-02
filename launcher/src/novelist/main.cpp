@@ -72,7 +72,9 @@ void logMessage(QtMsgType type, QMessageLogContext const& context, QString const
     }
 
     std::string time = curTimePretty();
+#ifdef DEBUG_BUILD
     std::cerr << time << ": " << typeStr << ": " << msgStr << std::flush;
+#endif
     if (log.is_open())
         log << time << ": " << typeStr << ": " << msgStr << std::flush;
 
