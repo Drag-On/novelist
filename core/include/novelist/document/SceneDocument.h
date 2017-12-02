@@ -114,6 +114,8 @@ namespace novelist {
 
         QTextCharFormat readCharFormatAttr(QXmlStreamReader& xml) const;
 
+        bool readInsight(QXmlStreamReader& xml);
+
         bool writeBlock(QXmlStreamWriter& xml, QTextBlock const& block) const;
 
         bool writeFragment(QXmlStreamWriter& xml, QTextFragment const& fragment) const;
@@ -121,6 +123,10 @@ namespace novelist {
         bool writeBlockFormatAttr(QXmlStreamWriter& xml, QTextBlockFormat const& format) const;
 
         bool writeCharFormatAttr(QXmlStreamWriter& xml, QTextCharFormat const& format) const;
+
+        bool writeInsight(QXmlStreamWriter& xml, Insight const* insight) const;
+
+        bool writeInsightAttr(QXmlStreamWriter& xml, Insight const* insight) const;
 
         /**
          * Provides access to this document's insight manager

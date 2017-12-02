@@ -14,6 +14,8 @@
 #include <gsl/gsl_assert>
 #include <gsl/gsl_util>
 #include <QtGui/QtGui>
+#include "document/InsightFactory.h"
+#include "document/NoteInsight.h"
 #include "document/SceneDocument.h"
 
 namespace novelist {
@@ -97,6 +99,14 @@ namespace novelist {
         }
         xmlWriter.writeEndElement();
 
+        xmlWriter.writeStartElement("notes");
+        for (auto const& insight : m_insightMgr) {
+            if (insight->isPersistent())
+                if (!writeInsight(xmlWriter, insight.get()))
+                    return false;
+        }
+        xmlWriter.writeEndElement();
+
         xmlWriter.writeEndElement();
 
         xmlWriter.writeEndDocument();
@@ -157,16 +167,20 @@ namespace novelist {
                     if (!readBlock(xml, cursor))
                         return false;
                 }
+                // Remove first block (which was there by default)
+                cursor.movePosition(QTextCursor::Start);
+                cursor.deleteChar();
+            }
+            else if (xml.name() == "notes") {
+                while (xml.readNextStartElement()) {
+                    if (!readInsight(xml))
+                        return false;
+                }
             }
             else
                 xml.skipCurrentElement();
         }
 
-        // Remove first block (which was there by default)
-        cursor.movePosition(QTextCursor::Start);
-        cursor.select(QTextCursor::BlockUnderCursor);
-        cursor.removeSelectedText();
-        cursor.deleteChar(); // Note: previous operation should be sufficient, yet on the first block this is needed.
         return true;
     }
 
@@ -241,6 +255,27 @@ namespace novelist {
         return format;
     }
 
+    bool SceneDocument::readInsight(QXmlStreamReader& xml)
+    {
+        Expects(xml.isStartElement() && xml.name() == "note");
+
+        int start = 0;
+        int end = 0;
+        if (xml.attributes().hasAttribute("start"))
+            start = xml.attributes().value("start").toInt();
+        if (xml.attributes().hasAttribute("end"))
+            end = xml.attributes().value("end").toInt();
+        QString msg = xml.readElementText();
+        BaseInsightFactory<NoteInsight> insightFactory(msg);
+        auto ptr = insightFactory.create(this, start, end);
+        if (ptr)
+            m_insightMgr.insert(std::move(ptr));
+        else
+            qWarning() << "Unable to load insight:" << start << "to" << end << "(" << msg << ")";
+
+        return true;
+    }
+
     bool SceneDocument::writeBlock(QXmlStreamWriter& xml, QTextBlock const& block) const
     {
         xml.writeStartElement("block");
@@ -294,6 +329,24 @@ namespace novelist {
 //        xml.writeAttribute("font", format.font().family());
 //        xml.writeAttribute("style", QString::number(format.font().styleHint()));
 //        xml.writeAttribute("size", QString::number(format.font().pointSizeF()));
+        return true;
+    }
+
+    bool SceneDocument::writeInsight(QXmlStreamWriter& xml, Insight const* insight) const
+    {
+        xml.writeStartElement("note");
+        if (!writeInsightAttr(xml, insight))
+            return false;
+
+        xml.writeCharacters(insight->message());
+        xml.writeEndElement();
+        return true;
+    }
+
+    bool SceneDocument::writeInsightAttr(QXmlStreamWriter& xml, Insight const* insight) const
+    {
+        xml.writeAttribute("start", QString::number(insight->range().first));
+        xml.writeAttribute("end", QString::number(insight->range().second));
         return true;
     }
 }
