@@ -86,6 +86,8 @@ namespace novelist {
             tabIdx = addTab(editor.get(), name);
             tabBar()->setTabToolTip(tabIdx, name);
             tabBar()->setTabTextColor(tabIdx, qvariant_cast<QBrush>(model->data(index, Qt::ForegroundRole)).color());
+
+            emit sceneOpened(editor.get());
         }
         setCurrentIndex(tabIdx);
     }
@@ -104,6 +106,7 @@ namespace novelist {
         removeTab(index);
 
         if (w != nullptr) {
+            emit sceneClosing(w);
             m_editors.erase(std::remove_if(m_editors.begin(), m_editors.end(),
                     [this, w](std::unique_ptr<internal::InternalTextEditor> const& p) {
                         return p.get() == w;

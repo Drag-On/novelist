@@ -170,6 +170,18 @@ namespace novelist {
          */
         void focusReceived(bool focused);
 
+        /**
+         * Fires whenever a new scene editor is opened
+         * @param editor Pointer to the new editor
+         */
+        void sceneOpened(gsl::not_null<TextEditor*> editor);
+
+        /**
+         * Fires whenever a scene editor is closed
+         * @param editor Pointer to the closing editor
+         */
+        void sceneClosing(gsl::not_null<TextEditor*> editor);
+
     protected:
         void focusInEvent(QFocusEvent* event) override;
 
