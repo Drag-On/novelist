@@ -68,7 +68,7 @@ namespace novelist {
             SceneDocument* document = qvariant_cast<SceneDocument*>(model->data(index, ProjectModel::DocumentRole));
             bool prevModified = document->isModified();
 
-            auto& editor = m_editors.emplace_back(new internal::InternalTextEditor(model->properties().m_lang));
+            auto& editor = m_editors.emplace_back(std::make_unique<internal::InternalTextEditor>(model->properties().m_lang));
             editor->setFocusPolicy(focusPolicy());
             editor->m_model = model;
             editor->m_modelIndex = index;
