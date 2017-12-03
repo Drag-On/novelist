@@ -16,6 +16,7 @@ target_include_directories(novelist_export_odt
 target_link_libraries(novelist_export_odt
         PUBLIC
         novelist_core
+        zip
         )
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")

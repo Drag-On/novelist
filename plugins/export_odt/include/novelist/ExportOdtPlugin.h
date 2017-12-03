@@ -25,6 +25,8 @@ namespace novelist
         gsl::not_null<QAction*> exportAction() const noexcept override;
 
     private:
+        void onExport() const noexcept;
+
         std::unique_ptr<QAction> m_action;
     };
 }

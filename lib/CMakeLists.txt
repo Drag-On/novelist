@@ -15,3 +15,5 @@ set_target_properties(utils_tests PROPERTIES EXCLUDE_FROM_ALL TRUE)
 set_target_properties(owner_tests PROPERTIES EXCLUDE_FROM_ALL TRUE)
 set_target_properties(byte_tests PROPERTIES EXCLUDE_FROM_ALL TRUE)
 set_target_properties(algorithm_tests PROPERTIES EXCLUDE_FROM_ALL TRUE)
+
+add_subdirectory(libzip)
