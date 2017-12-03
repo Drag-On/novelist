@@ -27,6 +27,9 @@ namespace novelist
     private:
         void onExport() const noexcept;
         QString createManifest() const noexcept;
+        QString createMeta(ProjectModel const* model) const noexcept;
+        QString createMimeType() const noexcept;
+        QString createStyles(ProjectModel const* model) const noexcept;
 
         std::unique_ptr<QAction> m_action;
     };
