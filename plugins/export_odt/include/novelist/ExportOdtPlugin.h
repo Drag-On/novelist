@@ -26,6 +26,7 @@ namespace novelist
 
     private:
         void onExport() const noexcept;
+        QString createManifest() const noexcept;
 
         std::unique_ptr<QAction> m_action;
     };

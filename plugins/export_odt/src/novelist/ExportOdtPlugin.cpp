@@ -68,13 +68,28 @@ namespace novelist {
             auto filename = dialog.selectedFiles().first().toStdString();
             qInfo() << "Export to" << filename.c_str();
 
+            auto manifestXml = createManifest().toStdString();
+
             int errCode = 0;
             zip_t* zip = zip_open(filename.c_str(), ZIP_CREATE | ZIP_TRUNCATE, &errCode);
             if (errCode == 0) {
                 auto closeZip = gsl::finally([zip] { zip_close(zip); });
 
-                zip_int64_t idx = zip_dir_add(zip, "META-INF", ZIP_FL_ENC_UTF_8);
-                if (idx < 0) {
+                // META-INF
+                zip_int64_t dirIdx = zip_dir_add(zip, "META-INF", ZIP_FL_ENC_UTF_8);
+                if (dirIdx < 0) {
+                    handleError(zip);
+                    return;
+                }
+                // META-INF/manifest.xml
+                zip_source_t* fileSrc = zip_source_buffer(zip, manifestXml.c_str(), manifestXml.size(), 0);
+                if (fileSrc == nullptr) {
+                    handleError(zip);
+                    return;
+                }
+                zip_int64_t fileIdx = zip_file_add(zip, "META-INF/manifest.xml", fileSrc, ZIP_FL_ENC_UTF_8);
+                if (fileIdx < 0) {
+                    zip_source_free(fileSrc);
                     handleError(zip);
                     return;
                 }
@@ -89,5 +104,56 @@ namespace novelist {
                 notifyUserOnError(msg);
             }
         }
+    }
+
+    QString ExportOdtPlugin::createManifest() const noexcept
+    {
+        QString xml;
+        QXmlStreamWriter xmlWriter(&xml);
+        xmlWriter.setCodec("UTF-8");
+        xmlWriter.setAutoFormatting(true);
+
+        xmlWriter.writeStartDocument();
+
+        xmlWriter.writeStartElement("manifest:manifest");
+        xmlWriter.writeAttribute("xmlns:manifest", "urn:oasis:names:tc:opendocument:xmlns:manifest:1.0");
+        xmlWriter.writeAttribute("manifest:version", "1.2");
+
+        xmlWriter.writeStartElement("manifest:file-entry");
+        xmlWriter.writeAttribute("manifest:full-path", "/");
+        xmlWriter.writeAttribute("manifest:version", "1.2");
+        xmlWriter.writeAttribute("manifest:media-type", "application/vnd.oasis.opendocument.text");
+        xmlWriter.writeEndElement();
+
+        xmlWriter.writeStartElement("manifest:file-entry");
+        xmlWriter.writeAttribute("manifest:full-path", "content.xml");
+        xmlWriter.writeAttribute("manifest:media-type", "text/xml");
+        xmlWriter.writeEndElement();
+
+        xmlWriter.writeStartElement("manifest:file-entry");
+        xmlWriter.writeAttribute("manifest:full-path", "styles.xml");
+        xmlWriter.writeAttribute("manifest:media-type", "text/xml");
+        xmlWriter.writeEndElement();
+
+        xmlWriter.writeStartElement("manifest:file-entry");
+        xmlWriter.writeAttribute("manifest:full-path", "meta.xml");
+        xmlWriter.writeAttribute("manifest:media-type", "text/xml");
+        xmlWriter.writeEndElement();
+
+        xmlWriter.writeStartElement("manifest:file-entry");
+        xmlWriter.writeAttribute("manifest:full-path", "settings.xml");
+        xmlWriter.writeAttribute("manifest:media-type", "text/xml");
+        xmlWriter.writeEndElement();
+
+        xmlWriter.writeStartElement("manifest:file-entry");
+        xmlWriter.writeAttribute("manifest:full-path", "manifest.rdf");
+        xmlWriter.writeAttribute("manifest:media-type", "application/rdf+xml");
+        xmlWriter.writeEndElement();
+
+        xmlWriter.writeEndElement();
+
+        xmlWriter.writeEndDocument();
+
+        return xml;
     }
 }
