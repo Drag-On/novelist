@@ -1,0 +1,12 @@
+{
+  "uid": "novelist.export_odt",
+  "version": "0.0.1",
+  "dependencies": [
+    {
+      "uid": "novelist.main",
+      "version": "0.0.1"
+    }
+  ],
+  "name": "OpenDocument export",
+  "description": "Exports projects to OpenDocument format."
+}
