@@ -87,6 +87,16 @@ namespace novelist {
         m_ui->retranslateUi(this);
     }
 
+    ProjectModel* MainWindow::project() noexcept
+    {
+        return m_model.get();
+    }
+
+    ProjectModel const* MainWindow::project() const noexcept
+    {
+        return m_model.get();
+    }
+
     void MainWindow::onNewProject()
     {
         if (continueCheckUnsavedChanges()) {
@@ -258,6 +268,7 @@ namespace novelist {
     void MainWindow::onProjectChanged(ProjectModel* m)
     {
         if (m == nullptr) {
+            m_ui->menuExport->setEnabled(!m_ui->menuExport->isEmpty());
             m_ui->action_New_Project->setEnabled(true);
             m_ui->action_Open_Project->setEnabled(true);
             m_ui->action_Close_Project->setEnabled(false);
@@ -266,6 +277,7 @@ namespace novelist {
             m_ui->action_Redo->setEnabled(false);
         }
         else {
+            m_ui->menuExport->setEnabled(false);
             m_ui->action_New_Project->setEnabled(true);
             m_ui->action_Open_Project->setEnabled(true);
             m_ui->action_Close_Project->setEnabled(true);

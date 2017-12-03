@@ -9,6 +9,7 @@ add_library(novelist_core
         include/novelist/plugin/PluginInfo.h
         src/novelist/plugin/BasePlugin.cpp include/novelist/plugin/BasePlugin.h
         src/novelist/plugin/InspectionPlugin.cpp include/novelist/plugin/InspectionPlugin.h
+        src/novelist/plugin/ExporterPlugin.cpp include/novelist/plugin/ExporterPlugin.h
         src/novelist/plugin/PluginManager.cpp include/novelist/plugin/PluginManager.h
         src/novelist/model/ProjectModel.cpp include/novelist/model/ProjectModel.h
         src/novelist/model/ModelPath.cpp include/novelist/model/ModelPath.h
@@ -23,6 +24,7 @@ add_library(novelist_core
         src/novelist/widgets/texteditor/InsightModel.cpp include/novelist/widgets/texteditor/InsightModel.h
         src/novelist/widgets/SceneTabWidget.cpp include/novelist/widgets/SceneTabWidget.h
         include/novelist/widgets/texteditor/Inspector.h
+        src/novelist/widgets/FilePicker.cpp include/novelist/widgets/FilePicker.h
         src/novelist/document/SceneDocument.cpp include/novelist/document/SceneDocument.h
         src/novelist/document/SceneDocumentInsightManager.cpp include/novelist/document/SceneDocumentInsightManager.h
         src/novelist/document/Insight.cpp include/novelist/document/Insight.h
@@ -48,7 +50,6 @@ add_library(novelist_core
         src/novelist/settings/Settings.cpp include/novelist/settings/Settings.h
         src/novelist/settings/SettingsPage_General.cpp include/novelist/settings/SettingsPage_General.h
         src/novelist/settings/SettingsPage_Editor.cpp include/novelist/settings/SettingsPage_Editor.h
-        src/novelist/widgets/FilePicker.cpp include/novelist/widgets/FilePicker.h
         src/novelist/test/TestApplication.cpp include/novelist/test/TestApplication.h
         )
 
