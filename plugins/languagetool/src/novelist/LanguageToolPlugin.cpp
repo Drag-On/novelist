@@ -15,6 +15,9 @@ namespace novelist
 {
     bool LanguageToolPlugin::load(gsl::not_null<Settings*> settings)
     {
+        if (!BasePlugin::load(settings))
+            return false;
+
         settings->registerPage(std::make_unique<SettingsPage_LanguageTool_Creator>());
 
         return InspectionPlugin::load(settings);

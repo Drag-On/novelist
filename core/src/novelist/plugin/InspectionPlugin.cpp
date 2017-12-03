@@ -11,10 +11,8 @@
 #include "plugin/InspectionPlugin.h"
 
 namespace novelist {
-    void InspectionPlugin::setup(QVector<PluginInfo> const& pluginInfo)
+    void InspectionPlugin::setup(QVector<PluginInfo> const& /*pluginInfo*/)
     {
-        BasePlugin::setup(pluginInfo);
-
         auto* window = mainWindow();
         if (window) {
             auto* tabWidget = window->findChild<SceneTabWidget*>();
@@ -29,9 +27,9 @@ namespace novelist {
         qWarning() << "Unable to register inspection plugin.";
     }
 
-    bool InspectionPlugin::load(gsl::not_null<Settings*>)
+    bool InspectionPlugin::load(gsl::not_null<Settings*> settings)
     {
-        return true;
+        return BasePlugin::load(settings);
     }
 
     void InspectionPlugin::unload()
