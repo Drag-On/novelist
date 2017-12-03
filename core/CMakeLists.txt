@@ -83,6 +83,8 @@ set_target_properties(novelist_core
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
         )
 
+set_property(TARGET novelist_core PROPERTY POSITION_INDEPENDENT_CODE ON)
+
 generate_export_header(novelist_core
         EXPORT_MACRO_NAME NOVELIST_CORE_EXPORT
         EXPORT_FILE_NAME novelist_core_export.h

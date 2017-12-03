@@ -26,4 +26,6 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
             )
 endif ()
 
+set_property(TARGET novelist_export_odt PROPERTY POSITION_INDEPENDENT_CODE ON)
+
 enable_cxx17(novelist_export_odt)

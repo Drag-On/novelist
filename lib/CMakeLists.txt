@@ -17,3 +17,4 @@ set_target_properties(byte_tests PROPERTIES EXCLUDE_FROM_ALL TRUE)
 set_target_properties(algorithm_tests PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 add_subdirectory(libzip)
+set_property(TARGET zip PROPERTY POSITION_INDEPENDENT_CODE ON)
