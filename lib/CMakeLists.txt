@@ -18,3 +18,8 @@ set_target_properties(algorithm_tests PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 add_subdirectory(libzip)
 set_property(TARGET zip PROPERTY POSITION_INDEPENDENT_CODE ON)
+target_include_directories(zip
+        PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/libzip/lib/
+        ${CMAKE_CURRENT_BINARY_DIR}/libzip/
+        )
