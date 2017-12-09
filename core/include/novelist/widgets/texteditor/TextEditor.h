@@ -200,6 +200,8 @@ namespace novelist {
 
         void mouseMoveEvent(QMouseEvent* e) override;
 
+        void insertFromMimeData(const QMimeData* source) override;
+
     private slots:
 
         void onTextChanged();
@@ -209,6 +211,8 @@ namespace novelist {
         void onSelectionChanged();
 
         void highlightCurrentLine();
+
+        void highlightMatchingChars();
 
         void onBoldActionToggled(bool checked);
 
@@ -233,6 +237,9 @@ namespace novelist {
 
         void setDefaultBlockFormat();
 
+        std::pair<int, int> lookForMatchingChar(std::pair<QChar, QChar> const& matchingChars, int pos,
+                int maxSearchLength = 1000);
+
         bool m_showParagraphNumberArea = true;
         std::unique_ptr<internal::ParagraphNumberArea> m_paragraphNumberArea;
         int m_lastVerticalSliderPos = 0;
@@ -256,9 +263,23 @@ namespace novelist {
         QAction m_strikethroughAction{QIcon(":/icons/format-text-strikethrough"), tr("Strikethrough")};
         QAction m_smallCapsAction{QIcon(":/icons/format-text-smallcaps"), tr("Small Caps")};
         QAction m_addNoteAction{tr("Add Note")};
+        int m_highlightingMatchingChars = 0;
+        std::vector<std::pair<QChar, QChar>> const m_matchingChars = {
+                {QChar{40}, QChar{41}}, // ()
+                {QChar{91}, QChar{93}}, // []
+                {QChar{123}, QChar{125}}, // {}
+                {QChar{8220}, QChar{8221}}, // “”
+                {QChar{8216}, QChar{8217}}, // ‘’
+                {QChar{8222}, QChar{8220}}, // „“
+                {QChar{8218}, QChar{8216}}, // ‚‘
+                {QChar{187}, QChar{171}}, // »«
+                {QChar{8250}, QChar{8249}}, // ›‹
+        };
         QColor const m_parNumberAreaColor = QColor(250, 250, 250);
         QColor const m_parNumberColor = QColor(130, 130, 130);
         QColor const m_curLineColor = QColor(255, 248, 217);
+        QColor const m_matchingCharColor = QColor(153, 204, 249);
+        QColor const m_noMatchingCharColor = QColor(255, 220, 220);
 
         constexpr static bool show_debug_info = false;
 
