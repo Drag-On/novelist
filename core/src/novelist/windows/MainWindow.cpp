@@ -50,6 +50,7 @@ namespace novelist {
                 m_ui->sceneTabWidget->addNoteAction());
 
         connect(m_ui->projectView, &ProjectView::modelAboutToChange, [this](ProjectModel* m) {emit projectAboutToChange(m);});
+        connect(m_ui->projectView, &ProjectView::modelAboutToChange, this, &MainWindow::onProjectAboutToChange);
         connect(m_ui->projectView, &ProjectView::modelChanged, [this](ProjectModel* m) {emit projectChanged(m);});
         connect(m_ui->projectView, &ProjectView::modelChanged, this, &MainWindow::onProjectChanged);
         connect(m_ui->projectView, &ProjectView::openSceneRequested, [&](QModelIndex idx) {
@@ -144,15 +145,6 @@ namespace novelist {
         if (continueCheckUnsavedChanges()) {
             m_ui->sceneTabWidget->closeAll();
             m_ui->projectView->setModel(nullptr);
-            if (auto ptr = dynamic_cast<DelegateAction*>(m_ui->action_Undo); ptr != nullptr) ptr->setDelegate(nullptr);
-            if (auto ptr = dynamic_cast<DelegateAction*>(m_ui->action_Redo); ptr != nullptr) ptr->setDelegate(nullptr);
-            if (auto ptr = dynamic_cast<DelegateAction*>(m_ui->action_Bold); ptr != nullptr) ptr->setDelegate(nullptr);
-            if (auto ptr = dynamic_cast<DelegateAction*>(m_ui->action_Italic); ptr != nullptr) ptr->setDelegate(nullptr);
-            if (auto ptr = dynamic_cast<DelegateAction*>(m_ui->action_Underline); ptr != nullptr) ptr->setDelegate(nullptr);
-            if (auto ptr = dynamic_cast<DelegateAction*>(m_ui->action_Overline); ptr != nullptr) ptr->setDelegate(nullptr);
-            if (auto ptr = dynamic_cast<DelegateAction*>(m_ui->action_Strikethrough); ptr != nullptr) ptr->setDelegate(nullptr);
-            if (auto ptr = dynamic_cast<DelegateAction*>(m_ui->actionSmall_Caps); ptr != nullptr) ptr->setDelegate(nullptr);
-            if (auto ptr = dynamic_cast<DelegateAction*>(m_ui->actionAdd_Note); ptr != nullptr) ptr->setDelegate(nullptr);
             m_model.reset();
         }
     }
@@ -263,6 +255,21 @@ namespace novelist {
         static std::mt19937 gen(rd());
         std::uniform_int_distribution<size_t> dis(0, messages.size() - 1);
         return messages[dis(gen)];
+    }
+
+    void MainWindow::onProjectAboutToChange(ProjectModel* m)
+    {
+        if (m == nullptr) {
+            if (auto ptr = dynamic_cast<DelegateAction*>(m_ui->action_Undo); ptr != nullptr) ptr->setDelegate(nullptr);
+            if (auto ptr = dynamic_cast<DelegateAction*>(m_ui->action_Redo); ptr != nullptr) ptr->setDelegate(nullptr);
+            if (auto ptr = dynamic_cast<DelegateAction*>(m_ui->action_Bold); ptr != nullptr) ptr->setDelegate(nullptr);
+            if (auto ptr = dynamic_cast<DelegateAction*>(m_ui->action_Italic); ptr != nullptr) ptr->setDelegate(nullptr);
+            if (auto ptr = dynamic_cast<DelegateAction*>(m_ui->action_Underline); ptr != nullptr) ptr->setDelegate(nullptr);
+            if (auto ptr = dynamic_cast<DelegateAction*>(m_ui->action_Overline); ptr != nullptr) ptr->setDelegate(nullptr);
+            if (auto ptr = dynamic_cast<DelegateAction*>(m_ui->action_Strikethrough); ptr != nullptr) ptr->setDelegate(nullptr);
+            if (auto ptr = dynamic_cast<DelegateAction*>(m_ui->actionSmall_Caps); ptr != nullptr) ptr->setDelegate(nullptr);
+            if (auto ptr = dynamic_cast<DelegateAction*>(m_ui->actionAdd_Note); ptr != nullptr) ptr->setDelegate(nullptr);
+        }
     }
 
     void MainWindow::onProjectChanged(ProjectModel* m)

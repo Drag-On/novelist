@@ -80,6 +80,8 @@ namespace novelist {
 
     private slots:
 
+        void onProjectAboutToChange(ProjectModel* m);
+
         void onProjectChanged(ProjectModel* m);
 
         void onItemAboutToRemoved(QModelIndex const& idx, ProjectModel::NodeType type);
