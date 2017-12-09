@@ -14,6 +14,9 @@
 namespace novelist {
     bool StatsPlugin::load(gsl::not_null<Settings*> settings)
     {
+        if (!BasePlugin::load(settings))
+            return false;
+
         m_statCollector = std::make_unique<ProjectStatCollector>();
         m_openStatsAction = std::make_unique<QAction>(tr("Statistics"));
         m_openStatsAction->setEnabled(false);
@@ -23,10 +26,8 @@ namespace novelist {
         return true;
     }
 
-    void StatsPlugin::setup(QVector<PluginInfo> const& pluginInfo)
+    void StatsPlugin::setup(QVector<PluginInfo> const& /*pluginInfo*/)
     {
-        BasePlugin::setup(pluginInfo);
-
         auto inspectionMenu = mainWindow()->findChild<QMenu*>("menu_Inspection");
         if (inspectionMenu) {
             inspectionMenu->addSeparator();

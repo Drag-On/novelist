@@ -34,6 +34,16 @@ namespace novelist {
          */
         void retranslateUi();
 
+        /**
+         * @return Pointer to the currently active project. May be nullptr.
+         */
+        ProjectModel* project() noexcept;
+
+        /**
+         * @return Pointer to the currently active project May be nullptr.
+         */
+        ProjectModel const* project() const noexcept;
+
     public slots:
 
         void onNewProject();

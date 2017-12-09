@@ -23,7 +23,7 @@ namespace novelist {
         Q_INTERFACES(novelist::Plugin)
 
     public:
-        void setup(QVector<PluginInfo> const& pluginInfo) override;
+        bool load(gsl::not_null<Settings*> settings) override;
 
         /**
          * @return Pointer to the main window.

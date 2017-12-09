@@ -11,17 +11,19 @@
 #include <QDebug>
 
 namespace novelist {
-    void BasePlugin::setup(QVector<PluginInfo> const& /*pluginInfo*/)
+
+    bool BasePlugin::load(gsl::not_null<Settings*> )
     {
         for(QWidget* w : qApp->topLevelWidgets()) {
             auto* window = dynamic_cast<MainWindow*>(w);
             if (window) {
                 m_mainWnd = window;
-                return;
+                return true;
             }
 
         }
         qWarning() << "Unable to find MainWindow.";
+        return false;
     }
 
     MainWindow* BasePlugin::mainWindow() noexcept
