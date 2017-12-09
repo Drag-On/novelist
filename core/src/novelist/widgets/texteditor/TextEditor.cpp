@@ -13,6 +13,7 @@
 #include <QTextBlock>
 #include <QAbstractTextDocumentLayout>
 #include <QtWidgets/QToolTip>
+#include <QMimeData>
 #include "document/NoteInsight.h"
 #include "widgets/texteditor/TextEditor.h"
 #include "windows/NoteEditWindow.h"
@@ -590,6 +591,16 @@ namespace novelist {
     {
         m_insightMgr.onMousePosChanged(e->pos());
         QTextEdit::mouseMoveEvent(e);
+    }
+
+    void TextEditor::insertFromMimeData(const QMimeData* source)
+    {
+        // Note: this is here so rich text is always reduced to plain text on copy from clipboard
+        if (source->hasText()) {
+            insertPlainText(source->text());
+            return;
+        }
+        QTextEdit::insertFromMimeData(source);
     }
 
     namespace internal {

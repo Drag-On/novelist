@@ -200,6 +200,8 @@ namespace novelist {
 
         void mouseMoveEvent(QMouseEvent* e) override;
 
+        void insertFromMimeData(const QMimeData* source) override;
+
     private slots:
 
         void onTextChanged();
