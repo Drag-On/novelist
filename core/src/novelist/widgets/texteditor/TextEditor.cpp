@@ -26,6 +26,7 @@ namespace novelist {
         connect(this, &TextEditor::textChanged, this, &TextEditor::onTextChanged);
         connect(this, &TextEditor::blockCountChanged, this, &TextEditor::updateParagraphNumberAreaWidth);
         connect(this, &TextEditor::cursorPositionChanged, this, &TextEditor::highlightCurrentLine);
+        connect(this, &TextEditor::cursorPositionChanged, this, &TextEditor::highlightMatchingChars);
         connect(this, &TextEditor::cursorPositionChanged, this, &TextEditor::onCursorPositionChanged);
         connect(this, &TextEditor::selectionChanged, this, &TextEditor::onSelectionChanged);
 
@@ -317,7 +318,7 @@ namespace novelist {
 
     void TextEditor::onCursorPositionChanged()
     {
-        auto cursor = textCursor();
+        auto const cursor = textCursor();
         ConnectionBlocker blockBoldAction(m_onBoldActionConnection);
         ConnectionBlocker blockItalicAction(m_onItalicActionConnection);
         ConnectionBlocker blockUnderlineAction(m_onUnderlineActionConnection);
@@ -339,7 +340,9 @@ namespace novelist {
 
     void TextEditor::highlightCurrentLine()
     {
-        QList<QTextEdit::ExtraSelection> extraSelections;
+        QList<QTextEdit::ExtraSelection> extraSelects = extraSelections();
+        if (!extraSelects.empty() && extraSelects.first().format.hasProperty(QTextFormat::FullWidthSelection))
+            extraSelects.pop_front();
 
         if (!isReadOnly()) {
             QTextEdit::ExtraSelection selection{};
@@ -348,10 +351,52 @@ namespace novelist {
             selection.format.setProperty(QTextFormat::FullWidthSelection, true);
             selection.cursor = textCursor();
             selection.cursor.clearSelection();
-            extraSelections.append(selection);
+            extraSelects.prepend(selection);
         }
 
-        setExtraSelections(extraSelections);
+        setExtraSelections(extraSelects);
+    }
+
+    void TextEditor::highlightMatchingChars()
+    {
+        auto const cursor = textCursor();
+        QList<QTextEdit::ExtraSelection> extraSelects = extraSelections();
+        if (!isReadOnly()) {
+            for (int i = 0; i < m_highlightingMatchingChars; ++i)
+                extraSelects.pop_back();
+            m_highlightingMatchingChars = 0;
+
+            for (auto const& m : m_matchingChars) {
+                auto matches = lookForMatchingChar(m, cursor.position());
+                if (matches.first >= 0) {
+                    QTextEdit::ExtraSelection selection{};
+                    if (matches.second >= 0)
+                        selection.format.setBackground(m_matchingCharColor);
+                    else
+                        selection.format.setBackground(m_noMatchingCharColor);
+                    selection.cursor = QTextCursor(document());
+                    selection.cursor.setPosition(matches.first);
+                    selection.cursor.setPosition(matches.first + 1, QTextCursor::MoveMode::KeepAnchor);
+                    extraSelects.append(selection);
+                    m_highlightingMatchingChars++;
+                }
+                if (matches.second >= 0) {
+                    QTextEdit::ExtraSelection selection{};
+                    if (matches.first >= 0)
+                        selection.format.setBackground(m_matchingCharColor);
+                    else
+                        selection.format.setBackground(m_noMatchingCharColor);
+                    selection.cursor = QTextCursor(document());
+                    selection.cursor.setPosition(matches.second);
+                    selection.cursor.setPosition(matches.second + 1, QTextCursor::MoveMode::KeepAnchor);
+                    extraSelects.append(selection);
+                    m_highlightingMatchingChars++;
+                }
+                if (m_highlightingMatchingChars > 0)
+                    break;
+            }
+            setExtraSelections(extraSelects);
+        }
     }
 
     void TextEditor::paintParagraphNumberArea(QPaintEvent* event)
@@ -411,6 +456,49 @@ namespace novelist {
         setTextCursor(cursor);
         setUndoRedoEnabled(true);
         document()->setModified(false);
+    }
+
+    std::pair<int, int> TextEditor::lookForMatchingChar(std::pair<QChar, QChar> const& matchingChars, int pos,
+            int maxSearchLength)
+    {
+        std::pair<int, int> result{-1, -1};
+        auto const cursor = [this, pos] { QTextCursor cursor(document()); cursor.setPosition(pos); return cursor; }();
+        if (!cursor.atBlockEnd() && document()->characterAt(pos) == matchingChars.first) {
+            result.first = pos;
+            int nestDepth = 1;
+            int searchEnd = maxSearchLength;
+            for (int i = 1; i < searchEnd; ++i) {
+                if (document()->characterAt(pos + i) == matchingChars.first) {
+                    ++nestDepth;
+                    searchEnd = maxSearchLength;
+                }
+                else if (document()->characterAt(pos + i) == matchingChars.second)
+                        --nestDepth;
+                if (nestDepth == 0) {
+                    result.second = pos + i;
+                    break;
+                }
+            }
+        }
+        else if (!cursor.atBlockStart() && document()->characterAt(pos - 1) == matchingChars.second) {
+            result.second = pos - 1;
+            int nestDepth = 1;
+            int searchEnd = maxSearchLength;
+            for (int i = 1; i < searchEnd; ++i) {
+                if (document()->characterAt(pos - 1 - i) == matchingChars.second) {
+                    ++nestDepth;
+                    searchEnd = maxSearchLength;
+                }
+                else if (document()->characterAt(pos - 1 - i) == matchingChars.first)
+                    --nestDepth;
+                if (nestDepth == 0) {
+                    result.first = pos - 1 - i;
+                    break;
+                }
+            }
+        }
+
+        return result;
     }
 
     void TextEditor::onBoldActionToggled(bool checked)
