@@ -15,6 +15,7 @@
 #include <QtWidgets/QToolTip>
 #include <QMimeData>
 #include <QRegularExpression>
+#include <QApplication>
 #include "document/NoteInsight.h"
 #include "widgets/texteditor/TextEditor.h"
 #include "windows/NoteEditWindow.h"
@@ -293,8 +294,10 @@ namespace novelist {
 
     void TextEditor::keyPressEvent(QKeyEvent* e)
     {
-        if (m_charReplacementRules != nullptr && !e->modifiers().testFlag(Qt::AltModifier)) {
+        if (m_charReplacementRules != nullptr) {
             for (auto r : *m_charReplacementRules) {
+                if (r.m_enableKey != Qt::NoModifier && !QApplication::keyboardModifiers().testFlag(r.m_enableKey))
+                    continue;
                 if (e->text() == r.m_endChar && document()->characterAt(textCursor().position()) == r.m_replaceEndChar) {
                     auto cursor = textCursor();
                     for (int i = 0; i < r.m_replaceEndChar.size(); ++i)
@@ -304,18 +307,18 @@ namespace novelist {
                 }
                 else if (e->text() == r.m_startChar) {
                     auto cursor = textCursor();
-                    QString prevText = "";
-                    if (!cursor.atBlockStart()) {
-                        auto block = document()->findBlock(cursor.position());
-                        prevText = block.text().left(cursor.position() - block.position());
-                    }
-                    auto match = QRegularExpression(r.m_previousCharRegExp).match(prevText);
+                    auto block = document()->findBlock(cursor.position());
+                    QString text = block.text();
+                    text.insert(cursor.position() - block.position(), "‸"); // Caret char used to identify insert pos
+                    auto match = QRegularExpression(r.m_requirementsRegExp).match(text);
                     if (!match.hasMatch())
                         continue;
-                    if (r.replacePreviousCaptureGroup && !prevText.isEmpty()) {
+                    if (match.capturedLength(r.m_replaceCaptureGroupNo) > 0 && !text.isEmpty()) {
                         cursor.removeSelectedText();
-                        for (int i = 0; i < match.capturedLength(match.lastCapturedIndex()); ++i)
-                            cursor.movePosition(QTextCursor::MoveOperation::PreviousCharacter, QTextCursor::KeepAnchor);
+                        int replaceStart = match.capturedStart(r.m_replaceCaptureGroupNo);
+                        int replaceEnd = match.capturedEnd(r.m_replaceCaptureGroupNo);
+                        cursor.setPosition(block.position() + replaceStart);
+                        cursor.setPosition(block.position() + replaceEnd, QTextCursor::KeepAnchor);
                         cursor.removeSelectedText();
                     }
 

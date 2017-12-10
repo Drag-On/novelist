@@ -21,8 +21,9 @@ namespace novelist {
         QString m_endChar; // Keyboard character that signifies the end, e.g. ")"
         QString m_replaceStartChar; // Replacement character for the keyboard start character
         QString m_replaceEndChar; // Replacement character for the keyboard end character
-        QString m_previousCharRegExp = R"(^(.*\s+|\s*)$)"; // Requires a space or the beginning of the line to preceed the start char
-        bool replacePreviousCaptureGroup = false;
+        QString m_requirementsRegExp = ""; // Must match the current paragraph to enable rule
+        int m_replaceCaptureGroupNo = -1; // Replace the contents of a capture group
+        Qt::KeyboardModifier m_enableKey = Qt::NoModifier; // Modifier key to enable this rule on the fly
     };
 }
 

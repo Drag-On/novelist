@@ -278,43 +278,33 @@ namespace novelist {
         m_charReplacementRules.clear();
         int auto_quotes = settings.value("editor/auto_quotes", "-1").toInt();
         if (auto_quotes >= 0) {
-            CharacterReplacementRule primaryQuotes;
-            CharacterReplacementRule secondaryQuotes;
-            primaryQuotes.m_startChar = primaryQuotes.m_endChar = "\"";
-            secondaryQuotes.m_startChar = secondaryQuotes.m_endChar = "'";
             switch (auto_quotes) {
                 case 0: {
-                    primaryQuotes.m_replaceStartChar = "“";
-                    primaryQuotes.m_replaceEndChar = "”";
-                    secondaryQuotes.m_replaceStartChar = "‘";
-                    secondaryQuotes.m_replaceEndChar = "’";
+                    CharacterReplacementRule primaryQuotes {"\"", "\"", "“", "”"};
+                    CharacterReplacementRule secondaryQuotes {"'", "'", "‘", "’", R"(^.*“(.*?‸.*?)”.*$)", -1, Qt::AltModifier};
+                    m_charReplacementRules.push_back(primaryQuotes);
+                    m_charReplacementRules.push_back(secondaryQuotes);
                     break;
                 }
                 case 1: {
-                    primaryQuotes.m_replaceStartChar = "„";
-                    primaryQuotes.m_replaceEndChar = "“";
-                    secondaryQuotes.m_replaceStartChar = "‚";
-                    secondaryQuotes.m_replaceEndChar = "‘";
+                    CharacterReplacementRule primaryQuotes {"\"", "\"", "„", "“"};
+                    CharacterReplacementRule secondaryQuotes {"'", "‚", "‘", "’", R"(^.*„(.*?‸.*?)“.*$)", -1, Qt::AltModifier};
+                    m_charReplacementRules.push_back(primaryQuotes);
+                    m_charReplacementRules.push_back(secondaryQuotes);
                     break;
                 }
                 case 2: {
-                    primaryQuotes.m_replaceStartChar = "»";
-                    primaryQuotes.m_replaceEndChar = "«";
-                    secondaryQuotes.m_replaceStartChar = "›";
-                    secondaryQuotes.m_replaceEndChar = "‹";
+                    CharacterReplacementRule primaryQuotes {"\"", "\"", "»", "«"};
+                    CharacterReplacementRule secondaryQuotes {"'", "'", "›", "‹", R"(^.*»(.*?‸.*?)«.*$)", -1, Qt::AltModifier};
+                    m_charReplacementRules.push_back(primaryQuotes);
+                    m_charReplacementRules.push_back(secondaryQuotes);
                     break;
                 }
                 default: {
                     qWarning() << "Invalid AutoQuote index:" << auto_quotes;
-                    primaryQuotes.m_replaceStartChar = "\"";
-                    primaryQuotes.m_replaceEndChar = "";
-                    secondaryQuotes.m_replaceStartChar = "'";
-                    secondaryQuotes.m_replaceEndChar = "";
                     break;
                 }
             }
-            m_charReplacementRules.push_back(primaryQuotes);
-            m_charReplacementRules.push_back(secondaryQuotes);
         }
         bool auto_brackets = settings.value("editor/auto_brackets", "false").toBool();
         if (auto_brackets) {
@@ -327,21 +317,23 @@ namespace novelist {
         }
         bool auto_apostrophe = settings.value("editor/auto_apostrophe", "false").toBool();
         if (auto_apostrophe) {
-            CharacterReplacementRule rule {"'", "", "’", "", R"(^.*\w+$)"}; // Needs a character before
+            CharacterReplacementRule rule {"'", "", "’", ""};
             m_charReplacementRules.push_back(rule);
         }
         bool auto_dash = settings.value("editor/auto_dash", "false").toBool();
         if (auto_dash) {
-            CharacterReplacementRule hyphen {"-", "", "‐", "", R"(^.*\w+$)"}; // Needs a character before
-            CharacterReplacementRule endash {"-", "", "–", "", R"(^.*(-)$)", true}; // Needs a hyphen before
-            CharacterReplacementRule emdash {"-", "", "—", "", R"(^.*(–)$)", true}; // Needs an en-dash before
-            m_charReplacementRules.push_back(hyphen);
+            CharacterReplacementRule endash {"-", "", "–", "", R"(^.*(-)‸.*$)", 1}; // Needs a hyphen before
+            CharacterReplacementRule emdash {"-", "", "—", "", R"(^.*(–)‸.*$)", 1}; // Needs an en-dash before
+            CharacterReplacementRule twoemdash {"-", "", "⸺", "", R"(^.*(—)‸.*$)", 1}; // Needs an em-dash before
+            CharacterReplacementRule threeemdash {"-", "", "⸻", "", R"(^.*(⸺)‸.*$)", 1}; // Needs a two-em-dash before
             m_charReplacementRules.push_back(endash);
             m_charReplacementRules.push_back(emdash);
+            m_charReplacementRules.push_back(twoemdash);
+            m_charReplacementRules.push_back(threeemdash);
         }
         bool auto_elipsis = settings.value("editor/auto_elipsis", "false").toBool();
         if (auto_elipsis) {
-            CharacterReplacementRule rule {".", "", "…", "", R"(^.*(\.\.)$)", true}; // Needs .. before
+            CharacterReplacementRule rule {".", "", "…", "", R"(^.*(\.\.)‸.*$)", 1}; // Needs .. before
             m_charReplacementRules.push_back(rule);
         }
 
