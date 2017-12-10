@@ -210,6 +210,7 @@ namespace novelist {
         QAbstractItemView* m_insightView = nullptr;
         std::vector<std::unique_ptr<internal::InternalTextEditor>> m_editors;
         std::vector<std::unique_ptr<Inspector>> m_inspectors;
+        std::vector<CharacterReplacementRule> m_charReplacementRules;
         std::map<ProjectModel*, ConnectionWrapper> m_modelDataChangedConnections;
 
         void applySettingsToEditor(QSettings const& settings, TextEditor* editor) const;

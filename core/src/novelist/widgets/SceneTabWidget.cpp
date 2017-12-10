@@ -68,7 +68,8 @@ namespace novelist {
             SceneDocument* document = qvariant_cast<SceneDocument*>(model->data(index, ProjectModel::DocumentRole));
             bool prevModified = document->isModified();
 
-            auto& editor = m_editors.emplace_back(std::make_unique<internal::InternalTextEditor>(model->properties().m_lang));
+            auto& editor = m_editors.emplace_back(
+                    std::make_unique<internal::InternalTextEditor>(model->properties().m_lang));
             editor->setFocusPolicy(focusPolicy());
             editor->m_model = model;
             editor->m_modelIndex = index;
@@ -79,7 +80,8 @@ namespace novelist {
             applySettingsToEditor(settings, editor.get());
 
             // Make sure the tab title and color change appropriately
-            m_modelDataChangedConnections[editor->m_model] = connect(editor->m_model, &ProjectModel::dataChanged, this, &SceneTabWidget::onModelDataChanged);
+            m_modelDataChangedConnections[editor->m_model] = connect(editor->m_model, &ProjectModel::dataChanged, this,
+                    &SceneTabWidget::onModelDataChanged);
             connect(editor.get(), &TextEditor::focusReceived, [this](bool focus) { emit focusReceived(focus); });
 
             QString name = model->data(index, Qt::DisplayRole).toString();
@@ -213,13 +215,13 @@ namespace novelist {
             QString title = editor->m_model->data(editor->m_modelIndex, Qt::DisplayRole).toString();
             m_undoAction.setDelegate(editor->undoAction());
             { // Use a different text in menu than in context menu
-                auto cleanup = gsl::finally([this] {m_undoAction.setKeepDelegateUpdated(true);});
+                auto cleanup = gsl::finally([this] { m_undoAction.setKeepDelegateUpdated(true); });
                 m_undoAction.setKeepDelegateUpdated(false);
                 m_undoAction.setText(tr("Undo modification of \"%1\"").arg(title));
             }
             m_redoAction.setDelegate(editor->redoAction());
             { // Use a different text in menu than in context menu
-                auto cleanup = gsl::finally([this] {m_redoAction.setKeepDelegateUpdated(true);});
+                auto cleanup = gsl::finally([this] { m_redoAction.setKeepDelegateUpdated(true); });
                 m_redoAction.setKeepDelegateUpdated(false);
                 m_redoAction.setText(tr("Redo modification of \"%1\"").arg(title));
             }
@@ -272,6 +274,77 @@ namespace novelist {
     void SceneTabWidget::onSettingsUpdate()
     {
         QSettings settings;
+
+        m_charReplacementRules.clear();
+        int auto_quotes = settings.value("editor/auto_quotes", "-1").toInt();
+        if (auto_quotes >= 0) {
+            CharacterReplacementRule primaryQuotes;
+            CharacterReplacementRule secondaryQuotes;
+            primaryQuotes.m_startChar = primaryQuotes.m_endChar = "\"";
+            secondaryQuotes.m_startChar = secondaryQuotes.m_endChar = "'";
+            switch (auto_quotes) {
+                case 0: {
+                    primaryQuotes.m_replaceStartChar = "“";
+                    primaryQuotes.m_replaceEndChar = "”";
+                    secondaryQuotes.m_replaceStartChar = "‘";
+                    secondaryQuotes.m_replaceEndChar = "’";
+                    break;
+                }
+                case 1: {
+                    primaryQuotes.m_replaceStartChar = "„";
+                    primaryQuotes.m_replaceEndChar = "“";
+                    secondaryQuotes.m_replaceStartChar = "‚";
+                    secondaryQuotes.m_replaceEndChar = "‘";
+                    break;
+                }
+                case 2: {
+                    primaryQuotes.m_replaceStartChar = "»";
+                    primaryQuotes.m_replaceEndChar = "«";
+                    secondaryQuotes.m_replaceStartChar = "›";
+                    secondaryQuotes.m_replaceEndChar = "‹";
+                    break;
+                }
+                default: {
+                    qWarning() << "Invalid AutoQuote index:" << auto_quotes;
+                    primaryQuotes.m_replaceStartChar = "\"";
+                    primaryQuotes.m_replaceEndChar = "";
+                    secondaryQuotes.m_replaceStartChar = "'";
+                    secondaryQuotes.m_replaceEndChar = "";
+                    break;
+                }
+            }
+            m_charReplacementRules.push_back(primaryQuotes);
+            m_charReplacementRules.push_back(secondaryQuotes);
+        }
+        bool auto_brackets = settings.value("editor/auto_brackets", "false").toBool();
+        if (auto_brackets) {
+            CharacterReplacementRule parentheses {"(", ")", "(", ")"};
+            CharacterReplacementRule brackets {"[", "]", "[", "]"};
+            CharacterReplacementRule braces {"{", "}", "{", "}"};
+            m_charReplacementRules.push_back(parentheses);
+            m_charReplacementRules.push_back(brackets);
+            m_charReplacementRules.push_back(braces);
+        }
+        bool auto_apostrophe = settings.value("editor/auto_apostrophe", "false").toBool();
+        if (auto_apostrophe) {
+            CharacterReplacementRule rule {"'", "", "’", "", R"(^.*\w+$)"}; // Needs a character before
+            m_charReplacementRules.push_back(rule);
+        }
+        bool auto_dash = settings.value("editor/auto_dash", "false").toBool();
+        if (auto_dash) {
+            CharacterReplacementRule hyphen {"-", "", "‐", "", R"(^.*\w+$)"}; // Needs a character before
+            CharacterReplacementRule endash {"-", "", "–", "", R"(^.*(-)$)", true}; // Needs a hyphen before
+            CharacterReplacementRule emdash {"-", "", "—", "", R"(^.*(–)$)", true}; // Needs an en-dash before
+            m_charReplacementRules.push_back(hyphen);
+            m_charReplacementRules.push_back(endash);
+            m_charReplacementRules.push_back(emdash);
+        }
+        bool auto_elipsis = settings.value("editor/auto_elipsis", "false").toBool();
+        if (auto_elipsis) {
+            CharacterReplacementRule rule {".", "", "…", "", R"(^.*(\.\.)$)", true}; // Needs .. before
+            m_charReplacementRules.push_back(rule);
+        }
+
         for (int i = 0; i < count(); ++i) {
             auto* w = dynamic_cast<TextEditor*>(widget(i));
             if (w != nullptr) {
@@ -291,5 +364,6 @@ namespace novelist {
         else {
             editor->setLineWrapMode(TextEditor::LineWrapMode::WidgetWidth);
         }
+        editor->useCharReplacement(&m_charReplacementRules);
     }
 }

@@ -21,6 +21,7 @@
 #include "document/SceneDocument.h"
 #include "TextEditorInsightManager.h"
 #include "Inspector.h"
+#include "CharacterReplacementRule.h"
 #include <novelist_core_export.h>
 
 namespace novelist {
@@ -101,9 +102,16 @@ namespace novelist {
         /**
          * Makes the editor use the passed inspectors
          * @param inspectors Non-owning pointer to a vector of inspectors. The pointer must stay valid during object
-         *                   lifetime or until this is called with another (possibly null) pointer
+         *                   lifetime or until this is called with another (possibly null) pointer.
          */
-        void useInspectors(std::vector<std::unique_ptr<Inspector>> const* inspectors);
+        void useInspectors(std::vector<std::unique_ptr<Inspector>> const* inspectors) noexcept;
+
+        /**
+         * Makes the editor use the passed character replacement rules
+         * @param rules Non-owning pointer to a vector to rules. The pointer must stay valid during object lifetime or
+         *              until this is valled with another (possibly null) pointer.
+         */
+        void useCharReplacement(std::vector<CharacterReplacementRule> const* rules) noexcept;
 
         /**
          * @return Undo action
@@ -193,6 +201,8 @@ namespace novelist {
 
         void contextMenuEvent(QContextMenuEvent* e) override;
 
+        void keyPressEvent(QKeyEvent* e) override;
+
         /**
          * @return The first block that is currently visible on the screen
          */
@@ -246,8 +256,9 @@ namespace novelist {
         int m_lastBlockCount = 0;
         InsightModel m_insights;
         QReadWriteLock m_inspectorsLock;
-        std::vector<std::unique_ptr<Inspector>> const* m_inspectors;
+        std::vector<std::unique_ptr<Inspector>> const* m_inspectors = nullptr;
         TextEditorInsightManager m_insightMgr{this};
+        std::vector<CharacterReplacementRule> const* m_charReplacementRules = nullptr;
         Connection m_onBoldActionConnection;
         Connection m_onItalicActionConnection;
         Connection m_onUnderlineActionConnection;
