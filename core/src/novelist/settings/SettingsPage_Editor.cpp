@@ -109,6 +109,8 @@ namespace novelist {
         page->m_ui->checkBoxShowParNo->setChecked(true);
         page->m_ui->checkBoxAutoQuotes->setChecked(true);
         page->m_ui->comboBoxAutoQuotes->setCurrentIndex(0);
+        if (QLocale().language() == QLocale::Language::German)
+            page->m_ui->comboBoxAutoQuotes->setCurrentIndex(2);
         page->m_ui->checkBoxAutoBrackets->setChecked(true);
         page->m_ui->checkBoxAutoApostrophe->setChecked(true);
         page->m_ui->checkBoxAutoDash->setChecked(true);
