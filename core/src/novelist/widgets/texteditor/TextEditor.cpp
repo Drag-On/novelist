@@ -293,7 +293,7 @@ namespace novelist {
 
     void TextEditor::keyPressEvent(QKeyEvent* e)
     {
-        if (m_charReplacementRules != nullptr) {
+        if (m_charReplacementRules != nullptr && !e->modifiers().testFlag(Qt::AltModifier)) {
             for (auto r : *m_charReplacementRules) {
                 if (e->text() == r.m_endChar && document()->characterAt(textCursor().position()) == r.m_replaceEndChar) {
                     auto cursor = textCursor();
