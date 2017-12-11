@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>300</height>
+    <height>316</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -63,7 +63,7 @@
    <item>
     <widget class="QGroupBox" name="groupBoxCharReplacement">
      <property name="toolTip">
-      <string>Automatically replaces characters on input with other characters, e.g. the quote substitute character &quot; can be replaced with “”</string>
+      <string>Automatically replaces characters on input with other characters, e.g. the quote substitute character &quot; can be replaced with “”.</string>
      </property>
      <property name="title">
       <string>Character Replacement</string>
@@ -88,12 +88,12 @@
         </item>
         <item>
          <property name="text">
-          <string>„…“ / ‚…‘</string>
+          <string notr="true">„…“ / ‚…‘</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>»…« / ›…‹</string>
+          <string notr="true">»…« / ›…‹</string>
          </property>
         </item>
        </widget>
