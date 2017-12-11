@@ -11,10 +11,10 @@
 #include <settings/SettingsPage_Editor.h>
 #include <util/TranslationManager.h>
 #include <QtCore/QLibraryInfo>
+#include <QtWidgets/QMenuBar>
 #include "MainPlugin.h"
 
-namespace novelist
-{
+namespace novelist {
     bool MainPlugin::load(gsl::not_null<Settings*> settings)
     {
         auto langDir = QDir(QApplication::applicationDirPath() + "/core");
@@ -32,6 +32,16 @@ namespace novelist
 
     void MainPlugin::setup(QVector<PluginInfo> const& /* pluginInfo */)
     {
+        auto helpMenu = m_mainWindow->findChild<QMenu*>("menu_Help");
+        if (helpMenu != nullptr) {
+            auto viewMenu = m_mainWindow->createPopupMenu();
+            connect(m_mainWindow.get(), &MainWindow::languageChanged, [viewMenu] { viewMenu->setTitle(tr("View")); });
+            viewMenu->setTitle(tr("View"));
+            m_mainWindow->menuBar()->insertMenu(helpMenu->menuAction(), viewMenu);
+        }
+        else
+            qWarning() << "Unable to create view menu";
+
         m_mainWindow->show();
     }
 

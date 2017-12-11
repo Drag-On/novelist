@@ -193,6 +193,7 @@ namespace novelist {
         switch (event->type()) {
             case QEvent::LanguageChange:
                 retranslateUi();
+                emit languageChanged();
                 break;
             default:
                 break;
