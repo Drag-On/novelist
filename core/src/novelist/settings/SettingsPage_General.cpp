@@ -7,6 +7,7 @@
  * @details
  **********************************************************/
 #include <QtCore/QEvent>
+#include <QDebug>
 #include "util/TranslationManager.h"
 #include "settings/SettingsPage_General.h"
 #include "ui_SettingsPage_General.h"
@@ -24,6 +25,10 @@ namespace novelist {
     void SettingsPage_General::retranslateUi()
     {
         m_ui->retranslateUi(this);
+        for (int i = 0; i < m_ui->langComboBox->count(); ++i) {
+            QLocale locale = m_ui->langComboBox->itemData(i).toLocale();
+            m_ui->langComboBox->setItemText(i, QLocale(locale).nativeLanguageName());
+        }
     }
 
     void SettingsPage_General::changeEvent(QEvent* event)
@@ -63,7 +68,7 @@ namespace novelist {
 
         if (settings.contains("lang")) {
             QLocale locale(settings.value("lang").toString());
-            page->m_ui->langComboBox->setCurrentText(QLocale::languageToString(QLocale(locale).language()));
+            page->m_ui->langComboBox->setCurrentText(QLocale(locale).nativeLanguageName());
         }
     }
 
@@ -111,7 +116,7 @@ namespace novelist {
             for (auto& locale : knownLocales) {
                 if (locale.language() == defaultLocale.language())
                     defaultIdx = curIdx;
-                page->m_ui->langComboBox->addItem(QLocale::languageToString(QLocale(locale).language()), locale);
+                page->m_ui->langComboBox->addItem(QLocale(locale).nativeLanguageName(), locale);
                 ++curIdx;
             }
             if (defaultIdx >= 0)
