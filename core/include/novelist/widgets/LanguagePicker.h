@@ -33,12 +33,20 @@ namespace novelist {
          */
         void setCurrentLanguage(Language lang);
 
+        /**
+         * Retranslate strings to current application language
+         */
+        void retranslateUi();
+
     signals:
         /**
          * Called when the current language has changed
          * @param lang New language
          */
         void currentLanguageChanged(Language lang);
+
+    protected:
+        void changeEvent(QEvent* e) override;
 
     private:
         void setup();

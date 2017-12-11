@@ -7,6 +7,8 @@
  * @details
  **********************************************************/
 
+#include <QDebug>
+#include <QtCore/QEvent>
 #include "widgets/LanguagePicker.h"
 
 namespace novelist {
@@ -24,6 +26,24 @@ namespace novelist {
     void LanguagePicker::setCurrentLanguage(Language lang)
     {
         setCurrentIndex(findData(QVariant::fromValue(lang)));
+    }
+
+    void LanguagePicker::retranslateUi()
+    {
+        for (int i = 0; i < count(); ++i)
+            setItemText(i, lang::description(itemData(i).value<Language>()));
+    }
+
+    void LanguagePicker::changeEvent(QEvent* e)
+    {
+        QComboBox::changeEvent(e);
+        switch (e->type()) {
+            case QEvent::LanguageChange:
+                retranslateUi();
+                break;
+            default:
+                break;
+        }
     }
 
     void LanguagePicker::setup()
