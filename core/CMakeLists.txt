@@ -19,13 +19,14 @@ add_library(novelist_core
         src/novelist/view/ProjectView.cpp include/novelist/view/ProjectView.h
         src/novelist/view/InsightView.cpp include/novelist/view/InsightView.h
         src/novelist/widgets/LanguagePicker.cpp include/novelist/widgets/LanguagePicker.h
+        src/novelist/widgets/SceneTabWidget.cpp include/novelist/widgets/SceneTabWidget.h
+        src/novelist/widgets/FilePicker.cpp include/novelist/widgets/FilePicker.h
         src/novelist/widgets/texteditor/TextEditor.cpp include/novelist/widgets/texteditor/TextEditor.h
         src/novelist/widgets/texteditor/TextEditorInsightManager.cpp include/novelist/widgets/texteditor/TextEditorInsightManager.h
         src/novelist/widgets/texteditor/InsightModel.cpp include/novelist/widgets/texteditor/InsightModel.h
-        src/novelist/widgets/SceneTabWidget.cpp include/novelist/widgets/SceneTabWidget.h
+        src/novelist/widgets/texteditor/ExtraSelectionsManager.cpp include/novelist/widgets/texteditor/ExtraSelectionsManager.h
         include/novelist/widgets/texteditor/Inspector.h
         include/novelist/widgets/texteditor/CharacterReplacementRule.h
-        src/novelist/widgets/FilePicker.cpp include/novelist/widgets/FilePicker.h
         src/novelist/document/SceneDocument.cpp include/novelist/document/SceneDocument.h
         src/novelist/document/SceneDocumentInsightManager.cpp include/novelist/document/SceneDocumentInsightManager.h
         src/novelist/document/Insight.cpp include/novelist/document/Insight.h
