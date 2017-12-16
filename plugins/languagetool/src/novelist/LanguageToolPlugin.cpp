@@ -7,6 +7,7 @@
  * @details
  **********************************************************/
 
+#include <util/TranslationManager.h>
 #include "SettingsPage_LanguageTool.h"
 #include "LanguageToolInspector.h"
 #include "LanguageToolPlugin.h"
@@ -17,6 +18,9 @@ namespace novelist
     {
         if (!BasePlugin::load(settings))
             return false;
+
+        auto langDir = QDir(QApplication::applicationDirPath() + "/plugins/languagetool");
+        TranslationManager::instance().registerInDirectory(langDir, "novelist_languagetool");
 
         settings->registerPage(std::make_unique<SettingsPage_LanguageTool_Creator>());
 

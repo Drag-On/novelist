@@ -12,6 +12,7 @@
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMessageBox>
 #include <util/Overloaded.h>
+#include <util/TranslationManager.h>
 
 extern "C"
 {
@@ -171,6 +172,9 @@ namespace novelist {
 
     bool ExportOdtPlugin::load(gsl::not_null<Settings*> settings)
     {
+        auto langDir = QDir(QApplication::applicationDirPath() + "/plugins/export_odt");
+        TranslationManager::instance().registerInDirectory(langDir, "novelist_export_odt");
+
         m_action = std::make_unique<QAction>(tr("OpenDocument (*.odt)"));
         connect(m_action.get(), &QAction::triggered, this, &ExportOdtPlugin::onExport);
 

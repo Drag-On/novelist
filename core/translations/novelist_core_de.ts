@@ -268,7 +268,7 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/settings/SettingsPage_General.cpp" line="43"/>
+        <location filename="../src/novelist/settings/SettingsPage_General.cpp" line="48"/>
         <source>General</source>
         <comment>SettingsPage_General</comment>
         <translation>Allgemein</translation>

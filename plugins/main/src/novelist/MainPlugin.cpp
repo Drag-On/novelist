@@ -19,6 +19,8 @@ namespace novelist {
     {
         auto langDir = QDir(QApplication::applicationDirPath() + "/core");
         TranslationManager::instance().registerInDirectory(langDir, "novelist_core");
+        auto mainLangDir = QDir(QApplication::applicationDirPath() + "/plugins/main");
+        TranslationManager::instance().registerInDirectory(mainLangDir, "novelist_main");
         auto qtLangDir = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
         TranslationManager::instance().registerInDirectory(qtLangDir, "qt", true);
 

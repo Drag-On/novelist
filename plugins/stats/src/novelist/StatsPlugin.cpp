@@ -10,12 +10,16 @@
 #include "StatsPlugin.h"
 #include "StatsDialog.h"
 #include <SettingsPage_Stats.h>
+#include <util/TranslationManager.h>
 
 namespace novelist {
     bool StatsPlugin::load(gsl::not_null<Settings*> settings)
     {
         if (!BasePlugin::load(settings))
             return false;
+
+        auto langDir = QDir(QApplication::applicationDirPath() + "/plugins/stats");
+        TranslationManager::instance().registerInDirectory(langDir, "novelist_stats");
 
         m_statCollector = std::make_unique<ProjectStatCollector>();
         m_openStatsAction = std::make_unique<QAction>(tr("Statistics"));
@@ -40,6 +44,9 @@ namespace novelist {
                 &ProjectStatCollector::onProjectChanged);
         connect(mainWindow(), &MainWindow::projectChanged, [this] (ProjectModel* m) {
             m_openStatsAction->setEnabled(m != nullptr);
+        });
+        connect(mainWindow(), &MainWindow::languageChanged, [this] {
+            m_openStatsAction->setText(tr("Statistics"));
         });
         connect(m_openStatsAction.get(), &QAction::triggered, [this](bool) {
             if (m_statCollector->m_model) {
