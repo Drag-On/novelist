@@ -61,6 +61,8 @@ namespace novelist {
 
         void projectChanged(ProjectModel* model);
 
+        void languageChanged();
+
     protected:
         void changeEvent(QEvent* event) override;
 

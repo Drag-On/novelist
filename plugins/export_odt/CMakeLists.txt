@@ -29,3 +29,4 @@ endif ()
 set_property(TARGET novelist_export_odt PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 enable_cxx17(novelist_export_odt)
+enable_i18n(novelist_export_odt)

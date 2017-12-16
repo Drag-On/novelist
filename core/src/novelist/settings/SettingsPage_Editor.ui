@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>300</height>
+    <height>316</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -61,6 +61,87 @@
     </widget>
    </item>
    <item>
+    <widget class="QGroupBox" name="groupBoxCharReplacement">
+     <property name="toolTip">
+      <string>Automatically replaces characters on input with other characters, e.g. the quote substitute character &quot; can be replaced with “”.</string>
+     </property>
+     <property name="title">
+      <string>Character Replacement</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout">
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="checkBoxAutoQuotes">
+        <property name="text">
+         <string>AutoQuotes</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="comboBoxAutoQuotes">
+        <item>
+         <property name="text">
+          <string notr="true">“…” / ‘…’</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">„…“ / ‚…‘</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string notr="true">»…« / ›…‹</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QCheckBox" name="checkBoxAutoBrackets">
+        <property name="text">
+         <string>AutoBrackets</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QCheckBox" name="checkBoxAutoApostrophe">
+        <property name="text">
+         <string>AutoApostrophe</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QCheckBox" name="checkBoxAutoDash">
+        <property name="text">
+         <string>AutoDash</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QCheckBox" name="checkBoxAutoElipsis">
+        <property name="text">
+         <string>AutoElipsis</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -75,6 +156,14 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>checkBoxLimitWidth</tabstop>
+  <tabstop>spinBoxTextWidth</tabstop>
+  <tabstop>checkBoxShowParNo</tabstop>
+  <tabstop>checkBoxAutoQuotes</tabstop>
+  <tabstop>comboBoxAutoQuotes</tabstop>
+  <tabstop>checkBoxAutoBrackets</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

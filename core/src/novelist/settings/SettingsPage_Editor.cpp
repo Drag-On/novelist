@@ -51,10 +51,28 @@ namespace novelist {
     {
         auto* page = dynamic_cast<SettingsPage_Editor*>(widget);
 
-        int widthLimit = settings.value("width_limit", 0).toInt();
-        page->m_ui->checkBoxLimitWidth->setChecked(widthLimit > 0);
-        page->m_ui->spinBoxTextWidth->setValue(widthLimit);
-        page->m_ui->checkBoxShowParNo->setChecked(settings.value("show_par_no", true).toBool());
+        restoreDefaults(widget);
+
+        if (settings.contains("width_limit")) {
+            int widthLimit = settings.value("width_limit").toInt();
+            page->m_ui->checkBoxLimitWidth->setChecked(widthLimit > 0);
+            page->m_ui->spinBoxTextWidth->setValue(widthLimit);
+        }
+        if (settings.contains("show_par_no"))
+            page->m_ui->checkBoxShowParNo->setChecked(settings.value("show_par_no").toBool());
+
+        if (settings.contains("auto_quotes")) {
+            page->m_ui->checkBoxAutoQuotes->setChecked(settings.value("auto_quotes").toInt() >= 0);
+            page->m_ui->comboBoxAutoQuotes->setCurrentIndex(settings.value("auto_quotes").toInt());
+        }
+        if (settings.contains("auto_brackets"))
+            page->m_ui->checkBoxAutoBrackets->setChecked(settings.value("auto_brackets").toBool());
+        if (settings.contains("auto_apostrophe"))
+            page->m_ui->checkBoxAutoApostrophe->setChecked(settings.value("auto_apostrophe").toBool());
+        if (settings.contains("auto_dash"))
+            page->m_ui->checkBoxAutoDash->setChecked(settings.value("auto_dash").toBool());
+        if (settings.contains("auto_elipsis"))
+            page->m_ui->checkBoxAutoElipsis->setChecked(settings.value("auto_elipsis").toBool());
     }
 
     void SettingsPage_Editor_Creator::apply(QWidget const* widget, QSettings& settings) noexcept
@@ -66,6 +84,15 @@ namespace novelist {
             widthLimit = 0;
         settings.setValue("width_limit", widthLimit);
         settings.setValue("show_par_no", page->m_ui->checkBoxShowParNo->isChecked());
+
+        int autoQuotes = -1;
+        if (page->m_ui->checkBoxAutoQuotes->isChecked())
+            autoQuotes = page->m_ui->comboBoxAutoQuotes->currentIndex();
+        settings.setValue("auto_quotes", autoQuotes);
+        settings.setValue("auto_brackets", page->m_ui->checkBoxAutoBrackets->isChecked());
+        settings.setValue("auto_apostrophe", page->m_ui->checkBoxAutoApostrophe->isChecked());
+        settings.setValue("auto_dash", page->m_ui->checkBoxAutoDash->isChecked());
+        settings.setValue("auto_elipsis", page->m_ui->checkBoxAutoElipsis->isChecked());
     }
 
     void SettingsPage_Editor_Creator::initiateUpdate(QSettings const& /*settings*/) noexcept
@@ -80,6 +107,14 @@ namespace novelist {
         page->m_ui->checkBoxLimitWidth->setChecked(false);
         page->m_ui->spinBoxTextWidth->setValue(350);
         page->m_ui->checkBoxShowParNo->setChecked(true);
+        page->m_ui->checkBoxAutoQuotes->setChecked(true);
+        page->m_ui->comboBoxAutoQuotes->setCurrentIndex(0);
+        if (QLocale().language() == QLocale::Language::German)
+            page->m_ui->comboBoxAutoQuotes->setCurrentIndex(2);
+        page->m_ui->checkBoxAutoBrackets->setChecked(true);
+        page->m_ui->checkBoxAutoApostrophe->setChecked(true);
+        page->m_ui->checkBoxAutoDash->setChecked(true);
+        page->m_ui->checkBoxAutoElipsis->setChecked(true);
     }
 
     QWidget* SettingsPage_Editor_Creator::createWidget() noexcept

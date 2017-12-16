@@ -448,6 +448,18 @@ namespace novelist {
         }
     }
 
+    void ProjectView::changeEvent(QEvent* event)
+    {
+        QWidget::changeEvent(event);
+        switch (event->type()) {
+            case QEvent::LanguageChange:
+                retranslateUi();
+                break;
+            default:
+                break;
+        }
+    }
+
     internal::ProjectTreeView::ProjectTreeView(ProjectView* parent) noexcept
         : QTreeView(parent)
     {

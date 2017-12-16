@@ -28,3 +28,4 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 endif()
 
 enable_cxx17(novelist_languagetool)
+enable_i18n(novelist_languagetool)

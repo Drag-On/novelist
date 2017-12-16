@@ -14,6 +14,8 @@
 #include <QAbstractTextDocumentLayout>
 #include <QtWidgets/QToolTip>
 #include <QMimeData>
+#include <QRegularExpression>
+#include <QApplication>
 #include "document/NoteInsight.h"
 #include "widgets/texteditor/TextEditor.h"
 #include "windows/NoteEditWindow.h"
@@ -144,10 +146,15 @@ namespace novelist {
         return false;
     }
 
-    void TextEditor::useInspectors(std::vector<std::unique_ptr<Inspector>> const* inspectors)
+    void TextEditor::useInspectors(std::vector<std::unique_ptr<Inspector>> const* inspectors) noexcept
     {
         QWriteLocker lock(&m_inspectorsLock);
         m_inspectors = inspectors;
+    }
+
+    void TextEditor::useCharReplacement(std::vector<CharacterReplacementRule> const* rules) noexcept
+    {
+        m_charReplacementRules = rules;
     }
 
     QAction* TextEditor::undoAction()
@@ -283,6 +290,54 @@ namespace novelist {
             menu->insertSeparator(topAction);
             menu->exec(e->globalPos());
         }
+    }
+
+    void TextEditor::keyPressEvent(QKeyEvent* e)
+    {
+        if (m_charReplacementRules != nullptr) {
+            for (auto r : *m_charReplacementRules) {
+                if (r.m_enableKey != Qt::NoModifier && !QApplication::keyboardModifiers().testFlag(r.m_enableKey))
+                    continue;
+                if (e->text() == r.m_endChar && document()->characterAt(textCursor().position()) == r.m_replaceEndChar) {
+                    auto cursor = textCursor();
+                    for (int i = 0; i < r.m_replaceEndChar.size(); ++i)
+                        cursor.movePosition(QTextCursor::MoveOperation::NextCharacter);
+                    setTextCursor(cursor);
+                    return;
+                }
+                else if (e->text() == r.m_startChar) {
+                    auto cursor = textCursor();
+                    auto block = document()->findBlock(cursor.position());
+                    QString text = block.text();
+                    text.insert(cursor.position() - block.position(), "‸"); // Caret char used to identify insert pos
+                    auto match = QRegularExpression(r.m_requirementsRegExp).match(text);
+                    if (!match.hasMatch())
+                        continue;
+                    if (match.capturedLength(r.m_replaceCaptureGroupNo) > 0 && !text.isEmpty()) {
+                        cursor.removeSelectedText();
+                        int replaceStart = match.capturedStart(r.m_replaceCaptureGroupNo);
+                        int replaceEnd = match.capturedEnd(r.m_replaceCaptureGroupNo);
+                        cursor.setPosition(block.position() + replaceStart);
+                        cursor.setPosition(block.position() + replaceEnd, QTextCursor::KeepAnchor);
+                        cursor.removeSelectedText();
+                    }
+
+                    insertPlainText(r.m_replaceStartChar + r.m_replaceEndChar);
+                    for (int i = 0; i < r.m_replaceEndChar.size(); ++i)
+                        cursor.movePosition(QTextCursor::MoveOperation::PreviousCharacter);
+                    setTextCursor(cursor);
+                    return;
+                }
+            }
+        }
+
+        QTextEdit::keyPressEvent(e);
+    }
+
+    void TextEditor::mouseMoveEvent(QMouseEvent* e)
+    {
+        m_insightMgr.onMousePosChanged(e->pos());
+        QTextEdit::mouseMoveEvent(e);
     }
 
     QTextBlock TextEditor::firstVisibleBlock() const
@@ -585,12 +640,6 @@ namespace novelist {
             auto note = BaseInsightFactory<NoteInsight>(wnd.text());
             m_insights.insert(note.create(document(), cursor.selectionStart(), cursor.selectionEnd()));
         }
-    }
-
-    void TextEditor::mouseMoveEvent(QMouseEvent* e)
-    {
-        m_insightMgr.onMousePosChanged(e->pos());
-        QTextEdit::mouseMoveEvent(e);
     }
 
     void TextEditor::insertFromMimeData(const QMimeData* source)

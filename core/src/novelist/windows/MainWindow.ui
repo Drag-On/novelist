@@ -429,11 +429,6 @@
     <string>Settings</string>
    </property>
   </action>
-  <action name="actionasd">
-   <property name="text">
-    <string>asd</string>
-   </property>
-  </action>
  </widget>
  <customwidgets>
   <customwidget>

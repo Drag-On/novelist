@@ -140,6 +140,8 @@ namespace novelist {
 
         void paintEvent(QPaintEvent* event) override;
 
+        void changeEvent(QEvent* event) override;
+
     private:
         QIcon m_iconNewScene;
         QIcon m_iconNewChapter;

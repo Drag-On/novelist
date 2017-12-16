@@ -31,5 +31,6 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 endif ()
 
 enable_cxx17(novelist_stats)
+enable_i18n(novelist_stats)
 
 add_subdirectory(test)

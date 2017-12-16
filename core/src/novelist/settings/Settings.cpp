@@ -30,6 +30,13 @@ namespace novelist {
         QSettings settings;
         for (auto& s_page : Settings::s_pages) {
             settings.beginGroup(s_page->uid());
+            // Create fake widget and initialize through it because this will set everything that is currently not set
+            // to default values.
+            auto w = std::unique_ptr<QWidget>(s_page->createWidget());
+            if (w != nullptr) {
+                s_page->initialize(w.get(), settings);
+                s_page->apply(w.get(), settings);
+            }
             s_page->initiateUpdate(settings);
             settings.endGroup();
         }
