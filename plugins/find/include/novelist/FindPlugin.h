@@ -11,6 +11,7 @@
 #define NOVELIST_FINDPLUGIN_H
 
 #include <memory>
+#include <QAction>
 #include <plugin/BasePlugin.h>
 
 namespace novelist
@@ -29,9 +30,13 @@ namespace novelist
 
         void unload() override;
 
+    private slots:
+        void onFindAction();
+
     private:
         QDockWidget* m_dockWidget = nullptr;
         FindWidget* m_findWidget = nullptr;
+        std::unique_ptr<QAction> m_findAction;
     };
 }
 

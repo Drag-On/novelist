@@ -9,6 +9,7 @@
 
 #include "FindPlugin.h"
 #include <QDockWidget>
+#include <QtWidgets/QLineEdit>
 #include <util/TranslationManager.h>
 #include "FindWidget.h"
 
@@ -32,6 +33,19 @@ namespace novelist {
         mainWin->addDockWidget(Qt::BottomDockWidgetArea, m_dockWidget);
         mainWin->tabifyDockWidget(m_dockWidget, mainWin->findChild<QDockWidget*>("dockInsights"));
 
+        m_findAction = std::make_unique<QAction>(tr("Find / Replace"));
+        m_findAction->setShortcut(QKeySequence::Find);
+
+        auto editMenu = mainWin->findChild<QMenu*>("menu_Edit");
+        auto settingsAction = mainWin->findChild<QAction*>("actionSettings");
+
+        if (editMenu == nullptr || settingsAction == nullptr)
+            qWarning() << "Unable to insert find action into menu";
+        else {
+            editMenu->insertAction(settingsAction, m_findAction.get());
+            editMenu->insertSeparator(settingsAction);
+        }
+
         return true;
     }
 
@@ -39,10 +53,19 @@ namespace novelist {
     {
         connect(mainWindow(), &MainWindow::languageChanged, [this] {
             m_dockWidget->setWindowTitle(tr("Find / Replace"));
+            m_findAction->setText(tr("Find / Replace"));
         });
+        connect(m_findAction.get(), &QAction::triggered, this, &FindPlugin::onFindAction);
     }
 
     void FindPlugin::unload()
     {
+    }
+
+    void FindPlugin::onFindAction()
+    {
+        m_dockWidget->show();
+        m_dockWidget->raise();
+        m_findWidget->findChild<QLineEdit*>("lineEditFind")->setFocus();
     }
 }
