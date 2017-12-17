@@ -87,7 +87,8 @@
 <context>
     <name>novelist::StatsPlugin</name>
     <message>
-        <location filename="../src/novelist/StatsPlugin.cpp" line="21"/>
+        <location filename="../src/novelist/StatsPlugin.cpp" line="25"/>
+        <location filename="../src/novelist/StatsPlugin.cpp" line="49"/>
         <source>Statistics</source>
         <translation></translation>
     </message>

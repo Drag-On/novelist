@@ -679,37 +679,37 @@
 <context>
     <name>novelist::TextEditor</name>
     <message>
-        <location filename="../include/novelist/widgets/texteditor/TextEditor.h" line="270"/>
+        <location filename="../include/novelist/widgets/texteditor/TextEditor.h" line="272"/>
         <source>Bold</source>
         <translation>Fett</translation>
     </message>
     <message>
-        <location filename="../include/novelist/widgets/texteditor/TextEditor.h" line="271"/>
+        <location filename="../include/novelist/widgets/texteditor/TextEditor.h" line="273"/>
         <source>Italic</source>
         <translation>Kursiv</translation>
     </message>
     <message>
-        <location filename="../include/novelist/widgets/texteditor/TextEditor.h" line="272"/>
+        <location filename="../include/novelist/widgets/texteditor/TextEditor.h" line="274"/>
         <source>Underline</source>
         <translation>Unterstrichen</translation>
     </message>
     <message>
-        <location filename="../include/novelist/widgets/texteditor/TextEditor.h" line="273"/>
+        <location filename="../include/novelist/widgets/texteditor/TextEditor.h" line="275"/>
         <source>Overline</source>
         <translation>Überstrichen</translation>
     </message>
     <message>
-        <location filename="../include/novelist/widgets/texteditor/TextEditor.h" line="274"/>
+        <location filename="../include/novelist/widgets/texteditor/TextEditor.h" line="276"/>
         <source>Strikethrough</source>
         <translation>Durchgestrichen</translation>
     </message>
     <message>
-        <location filename="../include/novelist/widgets/texteditor/TextEditor.h" line="275"/>
+        <location filename="../include/novelist/widgets/texteditor/TextEditor.h" line="277"/>
         <source>Small Caps</source>
         <translation>Kapitälchen</translation>
     </message>
     <message>
-        <location filename="../include/novelist/widgets/texteditor/TextEditor.h" line="276"/>
+        <location filename="../include/novelist/widgets/texteditor/TextEditor.h" line="278"/>
         <source>Add Note</source>
         <translation>Anmerkung hinzufügen</translation>
     </message>

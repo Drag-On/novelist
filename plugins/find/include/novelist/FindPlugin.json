@@ -1,0 +1,12 @@
+{
+  "uid": "novelist.find",
+  "version": "0.0.1",
+  "dependencies": [
+    {
+      "uid": "novelist.main",
+      "version": "0.0.1"
+    }
+  ],
+  "name": "Find",
+  "description": "Provides functionality to find and replace text."
+}
