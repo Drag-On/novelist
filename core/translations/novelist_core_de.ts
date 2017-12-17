@@ -84,7 +84,7 @@
     <message>
         <location filename="../src/novelist/windows/MainWindow.ui" line="157"/>
         <source>Toolbar (File)</source>
-        <translation>Wekzeugleiste (Datei)</translation>
+        <translation>Werkzeugleiste (Datei)</translation>
     </message>
     <message>
         <location filename="../src/novelist/windows/MainWindow.ui" line="171"/>
