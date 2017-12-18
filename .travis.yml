@@ -4,12 +4,6 @@ dist: trusty
 sudo: false
 
 before_install:
-  # Remove pre-installed cmake since it clashes with the newer version from custom repository
-  - sudo apt-get remove cmake cmake-data
-  - sudo add-apt-repository ppa:zink-chimaera/cmake -y
-  - sudo apt-get update -q
-  - sudo apt-get install cmake -y
-  - sudo apt-get install xvfb
   # Get a recent catch release
   - mkdir -p ~/catch/single_include/
   - wget -P ~/catch/single_include/ https://github.com/philsquared/Catch/releases/download/v2.0.0-develop.4/catch.hpp
@@ -18,12 +12,13 @@ addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
-      - sourceline: 'ppa:beineri/opt-qt591-trusty'
+      - sourceline: 'ppa:beineri/opt-qt593-trusty'
     packages:
       - g++-7
       - qt59-meta-minimal
       - qt59creator
       - qt59charts-no-lgpl
+      - xvfb
 
 script:
   # Set up Qt
