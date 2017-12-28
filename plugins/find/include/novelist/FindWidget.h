@@ -11,6 +11,7 @@
 
 #include <QtWidgets/QWidget>
 #include <memory>
+#include <model/ProjectModel.h>
 
 namespace Ui {
     class FindWidget;
@@ -25,6 +26,15 @@ namespace novelist {
         void changeEvent(QEvent* event) override;
 
     private:
+        void setupConnections() noexcept;
+
+        std::pair<ProjectModel*, QModelIndex> getSearchModelRoot() noexcept;
+
+        void search(ProjectModel* model, QModelIndex root, QAbstractItemModel& resultsModel) noexcept;
+
+    private slots:
+        void onSearchStarted();
+
         std::unique_ptr<Ui::FindWidget> m_ui;
     };
 }

@@ -25,7 +25,7 @@
     </message>
     <message>
         <source>Current file</source>
-        <translation>Aktuelle Datei</translation>
+        <translation type="vanished">Aktuelle Datei</translation>
     </message>
     <message>
         <source>Find:</source>
@@ -78,6 +78,14 @@
     <message>
         <source>Replace all results that have not been excluded</source>
         <translation>Alle Ergebisse ersetzen, die nicht zuvor ausgeschlossen wurden</translation>
+    </message>
+    <message>
+        <source>Scene</source>
+        <translation>Szene</translation>
+    </message>
+    <message>
+        <source>Chapter</source>
+        <translation>Kapitel</translation>
     </message>
 </context>
 <context>

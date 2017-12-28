@@ -41,12 +41,17 @@
       <widget class="QComboBox" name="comboBoxScope">
        <item>
         <property name="text">
-         <string>Project</string>
+         <string>Scene</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>Current file</string>
+         <string>Chapter</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Project</string>
         </property>
        </item>
       </widget>
@@ -218,5 +223,22 @@
   <tabstop>treeView</tabstop>
  </tabstops>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>lineEditFind</sender>
+   <signal>returnPressed()</signal>
+   <receiver>pushButtonSearch</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>239</x>
+     <y>56</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>424</x>
+     <y>56</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

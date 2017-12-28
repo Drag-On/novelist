@@ -24,10 +24,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Current file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Find:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -77,6 +73,14 @@
     </message>
     <message>
         <source>Replace all results that have not been excluded</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Scene</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Chapter</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
