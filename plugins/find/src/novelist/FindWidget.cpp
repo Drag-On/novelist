@@ -126,7 +126,7 @@ namespace novelist {
                     int const childCount = model->rowCount(root);
                     dialog.setMaximum(dialog.maximum() + childCount);
                     if (searchTitles) {
-                        QStandardItem* titleItem = new QStandardItem(tr("Title"));
+                        QStandardItem* titleItem = new QStandardItem("<i>" + tr("Title") + "</i>");
                         item->appendRow(titleItem);
                         auto titleResults = find(arg.m_name, searchPhrase, matchCase, regex);
                         addTitleResults(root, resultsModel, titleItem, titleResults, arg.m_name);
@@ -144,7 +144,7 @@ namespace novelist {
                     QStandardItem* item = new QStandardItem(QIcon(":/icons/node-scene"), arg.m_name);
                     resultModelRoot->appendRow(item);
                     if (searchTitles) {
-                        QStandardItem* titleItem = new QStandardItem(tr("Title"));
+                        QStandardItem* titleItem = new QStandardItem("<i>" + tr("Title") + "</i>");
                         item->appendRow(titleItem);
                         auto titleResults = find(arg.m_name, searchPhrase, matchCase, regex);
                         addTitleResults(root, resultsModel, titleItem, titleResults, arg.m_name);
@@ -190,8 +190,27 @@ namespace novelist {
                     + "<b>" + title.mid(r.first, r.second - r.first) + "</b>"
                     + title.mid(r.second);
             auto* item = new QStandardItem(searchResult);
+            item->setData(QPersistentModelIndex(idx), ModelIndex);
             resultModelParent->appendRow(item);
         }
+    }
+
+    bool FindWidget::removeEmptyResults(QStandardItem* root) noexcept
+    {
+        if (root->data(ModelIndex).isValid())
+            return true;
+        if (root->hasChildren()) {
+            bool hasResult = false;
+            for (int i = 0; i < root->rowCount(); ++i) {
+                if (removeEmptyResults(root->child(i)))
+                    hasResult = true;
+                else
+                    root->removeRow(i--);
+            }
+            if (hasResult)
+                return true;
+        }
+        return false;
     }
 
     void FindWidget::onSearchStarted()
@@ -214,6 +233,7 @@ namespace novelist {
         progress.setMinimumDuration(1000); // Don't show dialog if finished in less than 1 second
 
         search(model, idx, *m_findModel, m_findModel->invisibleRootItem(), progress);
+        removeEmptyResults(m_findModel->invisibleRootItem());
 
         progress.setValue(progress.maximum());
 

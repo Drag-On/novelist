@@ -29,6 +29,10 @@ namespace novelist {
         void changeEvent(QEvent* event) override;
 
     private:
+        enum Role {
+            ModelIndex = Qt::UserRole + 1,
+        };
+
         void setupConnections() noexcept;
 
         std::pair<ProjectModel*, QModelIndex> getSearchModelRoot() noexcept;
@@ -42,6 +46,8 @@ namespace novelist {
 
         void addTitleResults(QModelIndex idx, QStandardItemModel& resultsModel, QStandardItem* resultModelParent,
                 std::vector<std::pair<int, int>> const& results, QString const& title) noexcept;
+
+        bool removeEmptyResults(QStandardItem* root) noexcept;
 
     private slots:
 
