@@ -11,6 +11,8 @@
 #include <QtCore/QTime>
 #include <QtGui/QStandardItemModel>
 #include <windows/MainWindow.h>
+#include <util/Overloaded.h>
+#include <QtGui/QtGui>
 #include "FindWidget.h"
 #include "ui_FindWidget.h"
 
@@ -61,7 +63,7 @@ namespace novelist {
         switch (m_ui->comboBoxScope->currentIndex()) {
             case 0: // Scene
             {
-                auto [m, idx] = mainWin->sceneTabWidget()->current();
+                auto[m, idx] = mainWin->sceneTabWidget()->current();
                 if (m == result.first) {
                     result.second = idx;
                     return result;
@@ -70,7 +72,7 @@ namespace novelist {
             }
             case 1: // Chapter
             {
-                auto [m, idx] = mainWin->sceneTabWidget()->current();
+                auto[m, idx] = mainWin->sceneTabWidget()->current();
                 if (m == result.first) {
                     result.second = idx.parent();
                     return result;
@@ -89,40 +91,173 @@ namespace novelist {
         return result;
     }
 
-    void FindWidget::search(ProjectModel* model, QModelIndex root, QAbstractItemModel& resultsModel) noexcept
+    void FindWidget::search(ProjectModel* model, QModelIndex root, QStandardItemModel& resultsModel,
+            QStandardItem* resultModelRoot, QProgressDialog& dialog) noexcept
     {
-        // TODO: This is a placeholder
-        QTime dieTime= QTime::currentTime().addSecs(1);
-        while (QTime::currentTime() < dieTime)
-            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+        Expects(model != nullptr);
+        Expects(root.isValid());
+
+        if (dialog.wasCanceled())
+            return;
+
+        bool matchCase = m_ui->checkBoxMatchCase->isChecked();
+        bool regex = m_ui->checkBoxRegEx->isChecked();
+        bool searchTitles = m_ui->checkBoxSearchTitles->isChecked();
+        QString searchPhrase = m_ui->lineEditFind->text();
+
+        using ProjectHeadData = ProjectModel::ProjectHeadData;
+        using SceneData = ProjectModel::SceneData;
+        using ChapterData = ProjectModel::ChapterData;
+
+        std::visit(Overloaded {
+                [](auto&) { qWarning() << "Can't search invalid node type."; },
+                [&](ProjectHeadData& arg) {
+                    QStandardItem* item = new QStandardItem(QIcon(":/icons/node-project"), arg.m_properties.m_name);
+                    resultModelRoot->appendRow(item);
+                    int const childCount = model->rowCount(root);
+                    dialog.setMaximum(dialog.maximum() + childCount);
+                    dialog.setValue(dialog.value() + 1);
+                    for (int i = 0; i < childCount; ++i)
+                        search(model, root.child(i, 0), resultsModel, item, dialog);
+                },
+                [&](ChapterData& arg) {
+                    QStandardItem* item = new QStandardItem(QIcon(":/icons/node-chapter"), arg.m_name);
+                    resultModelRoot->appendRow(item);
+                    int const childCount = model->rowCount(root);
+                    dialog.setMaximum(dialog.maximum() + childCount);
+                    if (searchTitles) {
+                        QStandardItem* titleItem = new QStandardItem(tr("Title"));
+                        item->appendRow(titleItem);
+                        auto titleResults = find(arg.m_name, searchPhrase, matchCase, regex);
+                        addTitleResults(root, resultsModel, titleItem, titleResults, arg.m_name);
+                    }
+                    dialog.setValue(dialog.value() + 1);
+                    for (int i = 0; i < childCount; ++i)
+                        search(model, root.child(i, 0), resultsModel, item, dialog);
+                },
+                [&](SceneData& arg) {
+                    // TODO: This is a placeholder
+                    QTime dieTime = QTime::currentTime().addMSecs(300);
+                    while (QTime::currentTime() < dieTime)
+                        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+
+                    QStandardItem* item = new QStandardItem(QIcon(":/icons/node-scene"), arg.m_name);
+                    resultModelRoot->appendRow(item);
+                    if (searchTitles) {
+                        QStandardItem* titleItem = new QStandardItem(tr("Title"));
+                        item->appendRow(titleItem);
+                        auto titleResults = find(arg.m_name, searchPhrase, matchCase, regex);
+                        addTitleResults(root, resultsModel, titleItem, titleResults, arg.m_name);
+                    }
+                    // TODO: Find actual results
+                    dialog.setValue(dialog.value() + 1);
+                },
+        }, *model->nodeData(root));
+    }
+
+    std::vector<std::pair<int, int>>
+    FindWidget::find(QString const& target, QString const& searchPhrase, bool matchCase, bool regex) noexcept
+    {
+        std::vector<std::pair<int, int>> results;
+
+        if (regex) {
+            QRegularExpression re(searchPhrase);
+            if (!matchCase)
+                re.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
+
+            QRegularExpressionMatchIterator iter = re.globalMatch(target);
+            while (iter.hasNext()) {
+                QRegularExpressionMatch match = iter.next();
+                results.emplace_back(match.capturedStart(), match.capturedEnd());
+            }
+        }
+        else {
+            for (int from = 0;
+                 (from = target.indexOf(searchPhrase, from, matchCase ? Qt::CaseSensitive : Qt::CaseInsensitive)) != -1;
+                 from += searchPhrase.length())
+                results.emplace_back(from, from + searchPhrase.length());
+        }
+
+        return results;
+    }
+
+    void
+    FindWidget::addTitleResults(QModelIndex idx, QStandardItemModel& resultsModel, QStandardItem* resultModelParent,
+            std::vector<std::pair<int, int>> const& results, QString const& title) noexcept
+    {
+        for (auto const& r : results) {
+            QString searchResult = title.left(r.first)
+                    + "<b>" + title.mid(r.first, r.second - r.first) + "</b>"
+                    + title.mid(r.second);
+            auto* item = new QStandardItem(searchResult);
+            resultModelParent->appendRow(item);
+        }
     }
 
     void FindWidget::onSearchStarted()
     {
         QString searchTerm = m_ui->lineEditFind->text();
-        auto [model, idx] = getSearchModelRoot();
+        auto[model, idx] = getSearchModelRoot();
 
-        if (model == nullptr || !idx.isValid())
+        if (model == nullptr || !idx.isValid() || m_ui->lineEditFind->text().isEmpty())
             return;
 
-        int maxNum = 1;
-        if (m_ui->comboBoxScope->currentIndex() > 0)
-            maxNum = model->rowCount(idx);
+        QItemSelectionModel* m = m_ui->treeView->selectionModel();
+        m_ui->treeView->setModel(nullptr);
+        m_ui->treeView->setItemDelegate(nullptr);
+        delete m;
+        m_findModel = std::make_unique<QStandardItemModel>();
+        m_findModel->setColumnCount(1);
 
-        QStandardItemModel resultModel;
-
-        QProgressDialog progress(tr("Looking for matches..."), tr("Abort"), 0, maxNum, this);
+        QProgressDialog progress(tr("Looking for matches..."), tr("Abort"), 0, 1, this);
         progress.setWindowModality(Qt::WindowModal);
         progress.setMinimumDuration(1000); // Don't show dialog if finished in less than 1 second
 
-        for (int i = 0; i < maxNum; i++) {
-            progress.setValue(i);
+        search(model, idx, *m_findModel, m_findModel->invisibleRootItem(), progress);
 
-            if (progress.wasCanceled())
-                break;
+        progress.setValue(progress.maximum());
 
-            search(model, idx, resultModel);
+        m_ui->treeView->setModel(m_findModel.get());
+        m_ui->treeView->setItemDelegate(new internal::HtmlItemDelegate);
+        m_ui->treeView->expandAll();
+    }
+
+    namespace internal {
+        void
+        HtmlItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
+        {
+            auto options = option;
+            initStyleOption(&options, index);
+
+            painter->save();
+
+            QTextDocument doc;
+            doc.setHtml(options.text);
+
+            options.text = "";
+            options.widget->style()->drawControl(QStyle::CE_ItemViewItem, &options, painter);
+
+            QSize iconSize = options.icon.actualSize(options.rect.size());
+            painter->translate(options.rect.left() + iconSize.width(), options.rect.top());
+            QRect clip(0, 0, options.rect.width() + iconSize.width(), options.rect.height());
+
+            painter->setClipRect(clip);
+            QAbstractTextDocumentLayout::PaintContext ctx;
+            ctx.clip = clip;
+            doc.documentLayout()->draw(painter, ctx);
+
+            painter->restore();
         }
-        progress.setValue(maxNum);
+
+        QSize HtmlItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const
+        {
+            auto options = option;
+            initStyleOption(&options, index);
+
+            QTextDocument doc;
+            doc.setHtml(options.text);
+            doc.setTextWidth(options.rect.width());
+            return QSize(doc.idealWidth(), doc.size().height());
+        }
     }
 }
