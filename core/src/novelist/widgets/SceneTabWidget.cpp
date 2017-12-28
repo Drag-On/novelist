@@ -133,6 +133,17 @@ namespace novelist {
         return -1;
     }
 
+    std::pair<ProjectModel*, QModelIndex> SceneTabWidget::current() const noexcept
+    {
+        std::pair<ProjectModel*, QModelIndex> result;
+        auto* w = dynamic_cast<internal::InternalTextEditor*>(widget(currentIndex()));
+        if (w != nullptr) {
+            result.first = w->m_model;
+            result.second = w->m_modelIndex;
+        }
+        return result;
+    }
+
     void SceneTabWidget::useInsightView(QAbstractItemView* insightView)
     {
         m_insightView = insightView;
