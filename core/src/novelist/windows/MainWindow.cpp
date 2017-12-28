@@ -98,6 +98,16 @@ namespace novelist {
         return m_model.get();
     }
 
+    SceneTabWidget* MainWindow::sceneTabWidget() noexcept
+    {
+        return m_ui->sceneTabWidget;
+    }
+
+    SceneTabWidget const* MainWindow::sceneTabWidget() const noexcept
+    {
+        return m_ui->sceneTabWidget;
+    }
+
     void MainWindow::onNewProject()
     {
         if (continueCheckUnsavedChanges()) {
