@@ -112,7 +112,7 @@ namespace novelist {
         std::visit(Overloaded {
                 [](auto&) { qWarning() << "Can't search invalid node type."; },
                 [&](ProjectHeadData& arg) {
-                    QStandardItem* item = new QStandardItem(QIcon(":/icons/node-project"), arg.m_properties.m_name);
+                    QStandardItem* item = new QStandardItem(QIcon(":/icons/node-project"), arg.m_properties.m_name.toHtmlEscaped());
                     resultModelRoot->appendRow(item);
                     int const childCount = model->rowCount(root);
                     dialog.setMaximum(dialog.maximum() + childCount);
@@ -121,7 +121,7 @@ namespace novelist {
                         search(model, root.child(i, 0), resultsModel, item, dialog);
                 },
                 [&](ChapterData& arg) {
-                    QStandardItem* item = new QStandardItem(QIcon(":/icons/node-chapter"), arg.m_name);
+                    QStandardItem* item = new QStandardItem(QIcon(":/icons/node-chapter"), arg.m_name.toHtmlEscaped());
                     resultModelRoot->appendRow(item);
                     int const childCount = model->rowCount(root);
                     dialog.setMaximum(dialog.maximum() + childCount);
@@ -141,7 +141,7 @@ namespace novelist {
                     while (QTime::currentTime() < dieTime)
                         QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 
-                    QStandardItem* item = new QStandardItem(QIcon(":/icons/node-scene"), arg.m_name);
+                    QStandardItem* item = new QStandardItem(QIcon(":/icons/node-scene"), arg.m_name.toHtmlEscaped());
                     resultModelRoot->appendRow(item);
                     if (searchTitles) {
                         QStandardItem* titleItem = new QStandardItem("<i>" + tr("Title") + "</i>");
@@ -186,9 +186,9 @@ namespace novelist {
             std::vector<std::pair<int, int>> const& results, QString const& title) noexcept
     {
         for (auto const& r : results) {
-            QString searchResult = title.left(r.first)
-                    + "<b>" + title.mid(r.first, r.second - r.first) + "</b>"
-                    + title.mid(r.second);
+            QString searchResult = title.left(r.first).toHtmlEscaped()
+                    + "<b>" + title.mid(r.first, r.second - r.first).toHtmlEscaped() + "</b>"
+                    + title.mid(r.second).toHtmlEscaped();
             auto* item = new QStandardItem(searchResult);
             item->setData(QPersistentModelIndex(idx), ModelIndex);
             resultModelParent->appendRow(item);
