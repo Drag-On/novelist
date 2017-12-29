@@ -41,6 +41,7 @@ namespace novelist {
     {
         connect(m_ui->lineEditFind, &QLineEdit::textChanged, this, &FindWidget::onFindTextChanged);
         connect(m_ui->pushButtonSearch, &QPushButton::pressed, this, &FindWidget::onSearchStarted);
+        connect(m_ui->pushButtonExclude, &QPushButton::pressed, this, &FindWidget::onExcludeItem);
     }
 
     std::pair<ProjectModel*, QModelIndex> FindWidget::getSearchModelRoot() noexcept
@@ -231,6 +232,37 @@ namespace novelist {
         return false;
     }
 
+    void FindWidget::excludeItem(QStandardItem* item, bool exclude, bool checkParent, bool recursive) noexcept
+    {
+        bool isExcluded = item->data(ExcludedRole).toBool();
+        item->setData(exclude, ExcludedRole);
+        QString text = item->text();
+        if (exclude && !isExcluded)
+            text = "<s>" + text + "</s>";
+        else if (!exclude && isExcluded)
+            text = text.mid(3, text.length() - 7);
+        item->setText(text);
+
+        if (recursive) {
+            for (int i = 0; i < item->rowCount(); ++i)
+                excludeItem(item->child(i, 0), exclude, false);
+        }
+
+        if (checkParent && item->parent() != nullptr) {
+            auto parent = item->parent();
+            bool allExcluded = true;
+            for (int i = 0; i < parent->rowCount(); ++i)
+                if (!parent->child(i, 0)->data(ExcludedRole).toBool()) {
+                    allExcluded = false;
+                    break;
+                }
+            if (allExcluded && !parent->data(ExcludedRole).toBool())
+                excludeItem(parent, true, true, false);
+            else if (!allExcluded && parent->data(ExcludedRole).toBool())
+                excludeItem(parent, false, true, false);
+        }
+    }
+
     void FindWidget::onFindTextChanged(QString const& text)
     {
         m_ui->pushButtonSearch->setEnabled(!text.isEmpty());
@@ -264,6 +296,16 @@ namespace novelist {
         m_ui->treeView->setItemDelegate(new internal::HtmlItemDelegate);
         m_ui->treeView->expandAll();
         connect(m_ui->treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &FindWidget::onSelectionChanged);
+    }
+
+    void FindWidget::onExcludeItem()
+    {
+        Expects(!m_ui->treeView->selectionModel()->selectedIndexes().isEmpty());
+
+        auto idx = m_ui->treeView->selectionModel()->selectedIndexes().front();
+        auto item = m_findModel->itemFromIndex(idx);
+        bool isExcluded = !item->data(ExcludedRole).toBool();
+        excludeItem(item, isExcluded);
     }
 
     void FindWidget::onSelectionChanged(QItemSelection const& selected, QItemSelection const& deselected)

@@ -31,6 +31,7 @@ namespace novelist {
     private:
         enum Role {
             ModelIndexRole = Qt::UserRole + 1,
+            ExcludedRole,
         };
 
         void setupConnections() noexcept;
@@ -51,11 +52,15 @@ namespace novelist {
 
         bool removeEmptyResults(QStandardItem* root) noexcept;
 
+        void excludeItem(QStandardItem* item, bool exclude, bool checkParent = true, bool recursive = true) noexcept;
+
     private slots:
 
         void onFindTextChanged(QString const& text);
 
         void onSearchStarted();
+
+        void onExcludeItem();
 
         void onSelectionChanged(QItemSelection const& selected, QItemSelection const& deselected);
 
