@@ -32,6 +32,12 @@ namespace novelist {
         enum Role {
             ModelIndexRole = Qt::UserRole + 1,
             ExcludedRole,
+            TypeRole,
+            FindResultRole,
+        };
+        enum ResultType {
+            Title,
+            Content,
         };
 
         void setupConnections() noexcept;
@@ -46,7 +52,7 @@ namespace novelist {
         find(QString const& target, QString const& searchPhrase, bool matchCase, bool regex) noexcept;
 
         void addResults(QModelIndex idx, QStandardItemModel& resultsModel, QStandardItem* resultModelParent,
-                std::vector<std::pair<int, int>> const& results, QString const& title) noexcept;
+                std::vector<std::pair<int, int>> const& results, QString const& title, ResultType type) noexcept;
 
         QString formatResult(std::pair<int, int> const& result, QString const& str) noexcept;
 
@@ -65,6 +71,10 @@ namespace novelist {
         void onNext();
 
         void onExcludeItem();
+
+        void onReplaceItem();
+
+        void onReplaceAll();
 
         void onSelectionChanged(QItemSelection const& selected, QItemSelection const& deselected);
 

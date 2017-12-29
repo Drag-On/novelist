@@ -44,6 +44,8 @@ namespace novelist {
         connect(m_ui->pushButtonPrev, &QPushButton::pressed, this, &FindWidget::onPrevious);
         connect(m_ui->pushButtonNext, &QPushButton::pressed, this, &FindWidget::onNext);
         connect(m_ui->pushButtonExclude, &QPushButton::pressed, this, &FindWidget::onExcludeItem);
+        connect(m_ui->pushButtonReplace, &QPushButton::pressed, this, &FindWidget::onReplaceItem);
+        connect(m_ui->pushButtonReplaceAll, &QPushButton::pressed, this, &FindWidget::onReplaceAll);
     }
 
     std::pair<ProjectModel*, QModelIndex> FindWidget::getSearchModelRoot() noexcept
@@ -63,6 +65,8 @@ namespace novelist {
             return result;
 
         result.first = mainWin->project();
+        if (result.first == nullptr)
+            return result;
 
         switch (m_ui->comboBoxScope->currentIndex()) {
             case 0: // Scene
@@ -135,7 +139,7 @@ namespace novelist {
                         QStandardItem* titleItem = new QStandardItem(titleHtml);
                         item->appendRow(titleItem);
                         auto titleResults = find(arg.m_name, searchPhrase, matchCase, regex);
-                        addResults(root, resultsModel, titleItem, titleResults, arg.m_name);
+                        addResults(root, resultsModel, titleItem, titleResults, arg.m_name, ResultType::Title);
                     }
                     dialog.setValue(dialog.value() + 1);
                     for (int i = 0; i < childCount; ++i)
@@ -148,13 +152,13 @@ namespace novelist {
                         QStandardItem* titleItem = new QStandardItem(titleHtml);
                         item->appendRow(titleItem);
                         auto titleResults = find(arg.m_name, searchPhrase, matchCase, regex);
-                        addResults(root, resultsModel, titleItem, titleResults, arg.m_name);
+                        addResults(root, resultsModel, titleItem, titleResults, arg.m_name, ResultType::Title);
                     }
                     QStandardItem* contentItem = new QStandardItem(contentHtml);
                     item->appendRow(contentItem);
                     QString text = arg.m_doc->toRawText();
                     auto contentResults = find(text, searchPhrase, matchCase, regex);
-                    addResults(root, resultsModel, contentItem, contentResults, text);
+                    addResults(root, resultsModel, contentItem, contentResults, text, ResultType::Content);
                     dialog.setValue(dialog.value() + 1);
                 },
         }, *model->nodeData(root));
@@ -188,12 +192,14 @@ namespace novelist {
 
     void
     FindWidget::addResults(QModelIndex idx, QStandardItemModel& resultsModel, QStandardItem* resultModelParent,
-            std::vector<std::pair<int, int>> const& results, QString const& title) noexcept
+            std::vector<std::pair<int, int>> const& results, QString const& title, ResultType type) noexcept
     {
         for (auto const& r : results) {
             QString searchResult = formatResult(r, title);
             auto* item = new QStandardItem(searchResult);
             item->setData(QPersistentModelIndex(idx), ModelIndexRole);
+            item->setData(type, TypeRole);
+            item->setData(QVariant::fromValue(r), FindResultRole);
             resultModelParent->appendRow(item);
         }
     }
@@ -275,8 +281,8 @@ namespace novelist {
         QString searchTerm = m_ui->lineEditFind->text();
         auto[model, idx] = getSearchModelRoot();
 
-        if (model == nullptr || !idx.isValid() || m_ui->lineEditFind->text().isEmpty())
-            return;
+        m_ui->pushButtonExclude->setEnabled(false);
+        m_ui->pushButtonReplace->setEnabled(false);
 
         QItemSelectionModel* m = m_ui->treeView->selectionModel();
         m_ui->treeView->setModel(nullptr);
@@ -284,6 +290,9 @@ namespace novelist {
         delete m;
         m_findModel = std::make_unique<QStandardItemModel>();
         m_findModel->setColumnCount(1);
+
+        if (model == nullptr || !idx.isValid() || m_ui->lineEditFind->text().isEmpty())
+            return;
 
         QProgressDialog progress(tr("Looking for matches..."), tr("Abort"), 0, 1, this);
         progress.setWindowModality(Qt::WindowModal);
@@ -335,6 +344,50 @@ namespace novelist {
         auto item = m_findModel->itemFromIndex(idx);
         bool isExcluded = !item->data(ExcludedRole).toBool();
         excludeItem(item, isExcluded);
+    }
+
+    void FindWidget::onReplaceItem()
+    {
+        Expects(!m_ui->treeView->selectionModel()->selectedIndexes().isEmpty());
+        Expects(m_ui->treeView->selectionModel()->selectedIndexes().front().data(ModelIndexRole).isValid());
+
+        using ProjectHeadData = ProjectModel::ProjectHeadData;
+        using SceneData = ProjectModel::SceneData;
+        using ChapterData = ProjectModel::ChapterData;
+
+        auto[model, idx] = getSearchModelRoot();
+        idx = m_ui->treeView->selectionModel()->selectedIndexes().front();
+        auto const modelIdx = qvariant_cast<QModelIndex>(idx.data(ModelIndexRole));
+        auto const type = static_cast<ResultType>(qvariant_cast<int>(idx.data(TypeRole)));
+        auto const findResult = qvariant_cast<std::pair<int, int>>(idx.data(FindResultRole));
+        QString const replace = m_ui->lineEditReplace->text();
+
+        std::visit(Overloaded {
+                [](auto&) { qWarning() << "Can't replace in invalid node type."; },
+                [&](ChapterData& arg) {
+                    QString name = arg.m_name;
+                    name.replace(findResult.first, findResult.second - findResult.first, replace);
+                    model->setData(modelIdx, name, Qt::EditRole);
+                },
+                [&](SceneData& arg) {
+                    if (type == ResultType::Title) {
+                        QString name = arg.m_name;
+                        name.replace(findResult.first, findResult.second - findResult.first, replace);
+                        model->setData(modelIdx, name, Qt::EditRole);
+                    }
+                    else {
+                        QTextCursor cursor(arg.m_doc.get());
+                        cursor.setPosition(findResult.first);
+                        cursor.setPosition(findResult.second, QTextCursor::MoveMode::KeepAnchor);
+                        cursor.insertText(replace);
+                    }
+                },
+        }, *model->nodeData(modelIdx));
+    }
+
+    void FindWidget::onReplaceAll()
+    {
+
     }
 
     void FindWidget::onSelectionChanged(QItemSelection const& selected, QItemSelection const& deselected)
