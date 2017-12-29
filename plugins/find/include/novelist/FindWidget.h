@@ -30,7 +30,7 @@ namespace novelist {
 
     private:
         enum Role {
-            ModelIndex = Qt::UserRole + 1,
+            ModelIndexRole = Qt::UserRole + 1,
         };
 
         void setupConnections() noexcept;
@@ -53,7 +53,11 @@ namespace novelist {
 
     private slots:
 
+        void onFindTextChanged(QString const& text);
+
         void onSearchStarted();
+
+        void onSelectionChanged(QItemSelection const& selected, QItemSelection const& deselected);
 
         std::unique_ptr<Ui::FindWidget> m_ui;
         std::unique_ptr<QStandardItemModel> m_findModel;

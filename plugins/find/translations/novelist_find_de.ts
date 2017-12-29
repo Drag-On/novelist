@@ -87,12 +87,75 @@
         <source>Chapter</source>
         <translation>Kapitel</translation>
     </message>
+    <message>
+        <source>Determines whether the search should be case sensitive or not.</source>
+        <translation>Bestimmt ob die Suche Groß- und Kleinschreibung beachten soll.</translation>
+    </message>
+    <message>
+        <source>If this is checked, then the search term is interpreted as regular expression.</source>
+        <translation>Falls dies angehakt ist, so wird der Suchbegriff als Regulärer Ausdruck interpretiert.</translation>
+    </message>
+    <message>
+        <source>Include chapter and scene titles in the search.</source>
+        <translation>Kapitel- und Szenentitel in die Suche einbeziehen.</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+&lt;p&gt;Determines search scope.&lt;/p&gt;
+&lt;dl&gt;
+  &lt;dt&gt;Scene&lt;/dt&gt;
+  &lt;dd&gt;Searches currently open scene only.&lt;/dd&gt;
+  &lt;dt&gt;Chapter&lt;/dt&gt;
+  &lt;dd&gt;Searches the chapter that includes the currently open scene.&lt;/dd&gt;
+  &lt;dt&gt;Project&lt;/dt&gt;
+  &lt;dd&gt;Searches the entire project.&lt;/dd&gt;
+&lt;/dl&gt;
+&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+&lt;p&gt;Bestimmt den Suchbereich.&lt;/p&gt;
+&lt;dl&gt;
+  &lt;dt&gt;Szene&lt;/dt&gt;
+  &lt;dd&gt;Durchsucht ausschließlich die aktuell geöffnete Szene.&lt;/dd&gt;
+  &lt;dt&gt;Kapitel&lt;/dt&gt;
+  &lt;dd&gt;Durchsucht das Kapitel welches die aktuell geöffnete Szene enthält.&lt;/dd&gt;
+  &lt;dt&gt;Projekt&lt;/dt&gt;
+  &lt;dd&gt;Durchsucht das gesamte Projekt.&lt;/dd&gt;
+&lt;/dl&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation>Titel</translation>
+    </message>
+    <message>
+        <source>Content</source>
+        <translation>Inhalt</translation>
+    </message>
 </context>
 <context>
     <name>novelist::FindPlugin</name>
     <message>
         <source>Find / Replace</source>
         <translation>Suchen / Ersetzen</translation>
+    </message>
+</context>
+<context>
+    <name>novelist::FindWidget</name>
+    <message>
+        <source>Title</source>
+        <translation type="vanished">Titel</translation>
+    </message>
+    <message>
+        <source>Content</source>
+        <translation type="vanished">Inhalt</translation>
+    </message>
+    <message>
+        <source>Looking for matches...</source>
+        <translation>Suche nach Übereinstimmungen...</translation>
+    </message>
+    <message>
+        <source>Abort</source>
+        <translation>Abbrechen</translation>
     </message>
 </context>
 </TS>

@@ -39,6 +39,7 @@ namespace novelist {
 
     void FindWidget::setupConnections() noexcept
     {
+        connect(m_ui->lineEditFind, &QLineEdit::textChanged, this, &FindWidget::onFindTextChanged);
         connect(m_ui->pushButtonSearch, &QPushButton::pressed, this, &FindWidget::onSearchStarted);
     }
 
@@ -100,10 +101,12 @@ namespace novelist {
         if (dialog.wasCanceled())
             return;
 
-        bool matchCase = m_ui->checkBoxMatchCase->isChecked();
-        bool regex = m_ui->checkBoxRegEx->isChecked();
-        bool searchTitles = m_ui->checkBoxSearchTitles->isChecked();
-        QString searchPhrase = m_ui->lineEditFind->text();
+        bool const matchCase = m_ui->checkBoxMatchCase->isChecked();
+        bool const regex = m_ui->checkBoxRegEx->isChecked();
+        bool const searchTitles = m_ui->checkBoxSearchTitles->isChecked();
+        QString const searchPhrase = m_ui->lineEditFind->text();
+        QString const titleHtml = "<i>" + QCoreApplication::translate("FindWidget", "Title") + "</i>";
+        QString const contentHtml = "<i>" + QCoreApplication::translate("FindWidget", "Content") + "</i>";
 
         using ProjectHeadData = ProjectModel::ProjectHeadData;
         using SceneData = ProjectModel::SceneData;
@@ -126,7 +129,7 @@ namespace novelist {
                     int const childCount = model->rowCount(root);
                     dialog.setMaximum(dialog.maximum() + childCount);
                     if (searchTitles) {
-                        QStandardItem* titleItem = new QStandardItem("<i>" + tr("Title") + "</i>");
+                        QStandardItem* titleItem = new QStandardItem(titleHtml);
                         item->appendRow(titleItem);
                         auto titleResults = find(arg.m_name, searchPhrase, matchCase, regex);
                         addResults(root, resultsModel, titleItem, titleResults, arg.m_name);
@@ -139,12 +142,12 @@ namespace novelist {
                     QStandardItem* item = new QStandardItem(QIcon(":/icons/node-scene"), arg.m_name.toHtmlEscaped());
                     resultModelRoot->appendRow(item);
                     if (searchTitles) {
-                        QStandardItem* titleItem = new QStandardItem("<i>" + tr("Title") + "</i>");
+                        QStandardItem* titleItem = new QStandardItem(titleHtml);
                         item->appendRow(titleItem);
                         auto titleResults = find(arg.m_name, searchPhrase, matchCase, regex);
                         addResults(root, resultsModel, titleItem, titleResults, arg.m_name);
                     }
-                    QStandardItem* contentItem = new QStandardItem("<i>" + tr("Content") + "</i>");
+                    QStandardItem* contentItem = new QStandardItem(contentHtml);
                     item->appendRow(contentItem);
                     QString text = arg.m_doc->toRawText();
                     auto contentResults = find(text, searchPhrase, matchCase, regex);
@@ -187,7 +190,7 @@ namespace novelist {
         for (auto const& r : results) {
             QString searchResult = formatResult(r, title);
             auto* item = new QStandardItem(searchResult);
-            item->setData(QPersistentModelIndex(idx), ModelIndex);
+            item->setData(QPersistentModelIndex(idx), ModelIndexRole);
             resultModelParent->appendRow(item);
         }
     }
@@ -212,7 +215,7 @@ namespace novelist {
 
     bool FindWidget::removeEmptyResults(QStandardItem* root) noexcept
     {
-        if (root->data(ModelIndex).isValid())
+        if (root->data(ModelIndexRole).isValid())
             return true;
         if (root->hasChildren()) {
             bool hasResult = false;
@@ -226,6 +229,11 @@ namespace novelist {
                 return true;
         }
         return false;
+    }
+
+    void FindWidget::onFindTextChanged(QString const& text)
+    {
+        m_ui->pushButtonSearch->setEnabled(!text.isEmpty());
     }
 
     void FindWidget::onSearchStarted()
@@ -255,6 +263,13 @@ namespace novelist {
         m_ui->treeView->setModel(m_findModel.get());
         m_ui->treeView->setItemDelegate(new internal::HtmlItemDelegate);
         m_ui->treeView->expandAll();
+        connect(m_ui->treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &FindWidget::onSelectionChanged);
+    }
+
+    void FindWidget::onSelectionChanged(QItemSelection const& selected, QItemSelection const& deselected)
+    {
+        m_ui->pushButtonExclude->setEnabled(!selected.isEmpty());
+        m_ui->pushButtonReplace->setEnabled(!selected.isEmpty() && selected.front().indexes().front().data(ModelIndexRole).isValid());
     }
 
     namespace internal {

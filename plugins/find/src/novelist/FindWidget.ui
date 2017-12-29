@@ -18,6 +18,9 @@
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QCheckBox" name="checkBoxMatchCase">
+       <property name="toolTip">
+        <string>Determines whether the search should be case sensitive or not.</string>
+       </property>
        <property name="text">
         <string>Match case</string>
        </property>
@@ -25,6 +28,9 @@
      </item>
      <item>
       <widget class="QCheckBox" name="checkBoxRegEx">
+       <property name="toolTip">
+        <string>If this is checked, then the search term is interpreted as regular expression.</string>
+       </property>
        <property name="text">
         <string>RegEx</string>
        </property>
@@ -32,13 +38,32 @@
      </item>
      <item>
       <widget class="QCheckBox" name="checkBoxSearchTitles">
+       <property name="toolTip">
+        <string>Include chapter and scene titles in the search.</string>
+       </property>
        <property name="text">
         <string>Search titles</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QComboBox" name="comboBoxScope">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+&lt;p&gt;Determines search scope.&lt;/p&gt;
+&lt;dl&gt;
+  &lt;dt&gt;Scene&lt;/dt&gt;
+  &lt;dd&gt;Searches currently open scene only.&lt;/dd&gt;
+  &lt;dt&gt;Chapter&lt;/dt&gt;
+  &lt;dd&gt;Searches the chapter that includes the currently open scene.&lt;/dd&gt;
+  &lt;dt&gt;Project&lt;/dt&gt;
+  &lt;dd&gt;Searches the entire project.&lt;/dd&gt;
+&lt;/dl&gt;
+&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
        <item>
         <property name="text">
          <string>Scene</string>
@@ -84,6 +109,9 @@
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
         <widget class="QPushButton" name="pushButtonSearch">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -152,6 +180,9 @@
      </item>
      <item row="0" column="3">
       <widget class="QPushButton" name="pushButtonExclude">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="toolTip">
         <string>Exclude current result from replacement candidates</string>
        </property>
@@ -182,6 +213,9 @@
      </item>
      <item row="1" column="2">
       <widget class="QPushButton" name="pushButtonReplace">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="toolTip">
         <string>Replace the current result</string>
        </property>
