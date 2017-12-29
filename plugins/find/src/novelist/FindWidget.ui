@@ -189,6 +189,9 @@
        <property name="text">
         <string>Exclude</string>
        </property>
+       <property name="shortcut">
+        <string>Del</string>
+       </property>
       </widget>
      </item>
      <item row="1" column="0">
