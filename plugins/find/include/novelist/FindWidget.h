@@ -47,6 +47,8 @@ namespace novelist {
         void addTitleResults(QModelIndex idx, QStandardItemModel& resultsModel, QStandardItem* resultModelParent,
                 std::vector<std::pair<int, int>> const& results, QString const& title) noexcept;
 
+        QString formatResult(std::pair<int, int> const& result, QString const& str) noexcept;
+
         bool removeEmptyResults(QStandardItem* root) noexcept;
 
     private slots:

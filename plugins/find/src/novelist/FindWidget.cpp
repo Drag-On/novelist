@@ -186,13 +186,29 @@ namespace novelist {
             std::vector<std::pair<int, int>> const& results, QString const& title) noexcept
     {
         for (auto const& r : results) {
-            QString searchResult = title.left(r.first).toHtmlEscaped()
-                    + "<b>" + title.mid(r.first, r.second - r.first).toHtmlEscaped() + "</b>"
-                    + title.mid(r.second).toHtmlEscaped();
+            QString searchResult = formatResult(r, title);
             auto* item = new QStandardItem(searchResult);
             item->setData(QPersistentModelIndex(idx), ModelIndex);
             resultModelParent->appendRow(item);
         }
+    }
+
+    QString FindWidget::formatResult(std::pair<int, int> const& result, QString const& str) noexcept
+    {
+        constexpr int maxChar = 10;
+        const int start = std::max(0, result.first - maxChar);
+        const int end = std::min(str.length(), result.second + maxChar);
+        QString formatted;
+        if (start > 0)
+            formatted += "…";
+        formatted += str.mid(start, result.first - start).toHtmlEscaped();
+        formatted += "<b>";
+        formatted += str.mid(result.first, result.second - result.first).toHtmlEscaped();
+        formatted += "</b>";
+        formatted += str.mid(result.second, end - result.second).toHtmlEscaped();
+        if (end < str.length())
+            formatted += "…";
+        return formatted;
     }
 
     bool FindWidget::removeEmptyResults(QStandardItem* root) noexcept
