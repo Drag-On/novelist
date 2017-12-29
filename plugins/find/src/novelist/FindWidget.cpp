@@ -271,6 +271,41 @@ namespace novelist {
         }
     }
 
+    bool FindWidget::replaceItem(QModelIndex idx) noexcept
+    {
+        ProjectModel* model = getSearchModelRoot().first;
+        auto const modelIdx = qvariant_cast<QModelIndex>(idx.data(ModelIndexRole));
+        auto const type = static_cast<ResultType>(qvariant_cast<int>(idx.data(TypeRole)));
+        auto const findResult = qvariant_cast<std::pair<int, int>>(idx.data(FindResultRole));
+        QString const replace = m_ui->lineEditReplace->text();
+
+        using ProjectHeadData = ProjectModel::ProjectHeadData;
+        using SceneData = ProjectModel::SceneData;
+        using ChapterData = ProjectModel::ChapterData;
+
+        std::visit(Overloaded {
+                [](auto&) { qWarning() << "Can't replace in invalid node type."; },
+                [&](ChapterData& arg) {
+                    QString name = arg.m_name;
+                    name.replace(findResult.first, findResult.second - findResult.first, replace);
+                    model->setData(modelIdx, name, Qt::EditRole);
+                },
+                [&](SceneData& arg) {
+                    if (type == ResultType::Title) {
+                        QString name = arg.m_name;
+                        name.replace(findResult.first, findResult.second - findResult.first, replace);
+                        model->setData(modelIdx, name, Qt::EditRole);
+                    }
+                    else {
+                        QTextCursor cursor(arg.m_doc.get());
+                        cursor.setPosition(findResult.first);
+                        cursor.setPosition(findResult.second, QTextCursor::MoveMode::KeepAnchor);
+                        cursor.insertText(replace);
+                    }
+                },
+        }, *model->nodeData(modelIdx));
+    }
+
     void FindWidget::onFindTextChanged(QString const& text)
     {
         m_ui->pushButtonSearch->setEnabled(!text.isEmpty());
@@ -351,43 +386,25 @@ namespace novelist {
         Expects(!m_ui->treeView->selectionModel()->selectedIndexes().isEmpty());
         Expects(m_ui->treeView->selectionModel()->selectedIndexes().front().data(ModelIndexRole).isValid());
 
-        using ProjectHeadData = ProjectModel::ProjectHeadData;
-        using SceneData = ProjectModel::SceneData;
-        using ChapterData = ProjectModel::ChapterData;
-
-        auto[model, idx] = getSearchModelRoot();
-        idx = m_ui->treeView->selectionModel()->selectedIndexes().front();
-        auto const modelIdx = qvariant_cast<QModelIndex>(idx.data(ModelIndexRole));
-        auto const type = static_cast<ResultType>(qvariant_cast<int>(idx.data(TypeRole)));
-        auto const findResult = qvariant_cast<std::pair<int, int>>(idx.data(FindResultRole));
-        QString const replace = m_ui->lineEditReplace->text();
-
-        std::visit(Overloaded {
-                [](auto&) { qWarning() << "Can't replace in invalid node type."; },
-                [&](ChapterData& arg) {
-                    QString name = arg.m_name;
-                    name.replace(findResult.first, findResult.second - findResult.first, replace);
-                    model->setData(modelIdx, name, Qt::EditRole);
-                },
-                [&](SceneData& arg) {
-                    if (type == ResultType::Title) {
-                        QString name = arg.m_name;
-                        name.replace(findResult.first, findResult.second - findResult.first, replace);
-                        model->setData(modelIdx, name, Qt::EditRole);
-                    }
-                    else {
-                        QTextCursor cursor(arg.m_doc.get());
-                        cursor.setPosition(findResult.first);
-                        cursor.setPosition(findResult.second, QTextCursor::MoveMode::KeepAnchor);
-                        cursor.insertText(replace);
-                    }
-                },
-        }, *model->nodeData(modelIdx));
+        replaceItem(m_ui->treeView->selectionModel()->selectedIndexes().front());
     }
 
     void FindWidget::onReplaceAll()
     {
+        m_ui->treeView->setCurrentIndex(QModelIndex());
 
+        QModelIndex idx, lastIdx;
+        while (true) {
+            lastIdx = idx;
+            onNext();
+            idx = m_ui->treeView->currentIndex();
+            if (idx != lastIdx) {
+                if (!idx.data(ExcludedRole).toBool())
+                    replaceItem(idx);
+            }
+            else
+                break;
+        }
     }
 
     void FindWidget::onSelectionChanged(QItemSelection const& selected, QItemSelection const& deselected)

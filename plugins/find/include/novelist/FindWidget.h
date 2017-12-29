@@ -60,6 +60,8 @@ namespace novelist {
 
         void excludeItem(QStandardItem* item, bool exclude, bool checkParent = true, bool recursive = true) noexcept;
 
+        bool replaceItem(QModelIndex idx) noexcept;
+
     private slots:
 
         void onFindTextChanged(QString const& text);
