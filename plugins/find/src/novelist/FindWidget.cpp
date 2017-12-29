@@ -41,6 +41,8 @@ namespace novelist {
     {
         connect(m_ui->lineEditFind, &QLineEdit::textChanged, this, &FindWidget::onFindTextChanged);
         connect(m_ui->pushButtonSearch, &QPushButton::pressed, this, &FindWidget::onSearchStarted);
+        connect(m_ui->pushButtonPrev, &QPushButton::pressed, this, &FindWidget::onPrevious);
+        connect(m_ui->pushButtonNext, &QPushButton::pressed, this, &FindWidget::onNext);
         connect(m_ui->pushButtonExclude, &QPushButton::pressed, this, &FindWidget::onExcludeItem);
     }
 
@@ -296,6 +298,33 @@ namespace novelist {
         m_ui->treeView->setItemDelegate(new internal::HtmlItemDelegate);
         m_ui->treeView->expandAll();
         connect(m_ui->treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &FindWidget::onSelectionChanged);
+    }
+
+    void FindWidget::onPrevious()
+    {
+        QModelIndex origIdx = m_ui->treeView->currentIndex();
+        QModelIndex idx, lastIdx;
+        do {
+            lastIdx = idx;
+            idx = m_ui->treeView->moveCursor(internal::InternalTreeView::CursorAction::MovePrevious, Qt::NoModifier);
+            m_ui->treeView->expand(idx);
+            idx = m_ui->treeView->moveCursor(internal::InternalTreeView::CursorAction::MovePrevious, Qt::NoModifier);
+            m_ui->treeView->setCurrentIndex(idx);
+        } while (idx != lastIdx && !idx.data(ModelIndexRole).isValid());
+        if (idx == lastIdx) // If we hit the top retain topmost selected result instead of jumping to tree root
+            m_ui->treeView->setCurrentIndex(origIdx);
+    }
+
+    void FindWidget::onNext()
+    {
+        QModelIndex idx, lastIdx;
+        do {
+            lastIdx = idx;
+            m_ui->treeView->expand(m_ui->treeView->currentIndex());
+            idx = m_ui->treeView->moveCursor(internal::InternalTreeView::CursorAction::MoveNext, Qt::NoModifier);
+            m_ui->treeView->setCurrentIndex(idx);
+        } while (idx != lastIdx && !idx.data(ModelIndexRole).isValid());
+
     }
 
     void FindWidget::onExcludeItem()

@@ -6,7 +6,9 @@ add_definitions(-DQT_PLUGIN)
 add_library(novelist_find
         SHARED
         include/novelist/FindPlugin.h src/novelist/FindPlugin.cpp
-        src/novelist/FindWidget.cpp include/novelist/FindWidget.h)
+        src/novelist/FindWidget.cpp include/novelist/FindWidget.h
+        include/novelist/InternalTreeView.h
+        )
 
 target_include_directories(novelist_find
         PUBLIC

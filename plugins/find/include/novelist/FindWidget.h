@@ -60,6 +60,10 @@ namespace novelist {
 
         void onSearchStarted();
 
+        void onPrevious();
+
+        void onNext();
+
         void onExcludeItem();
 
         void onSelectionChanged(QItemSelection const& selected, QItemSelection const& deselected);
