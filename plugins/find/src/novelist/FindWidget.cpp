@@ -129,27 +129,26 @@ namespace novelist {
                         QStandardItem* titleItem = new QStandardItem("<i>" + tr("Title") + "</i>");
                         item->appendRow(titleItem);
                         auto titleResults = find(arg.m_name, searchPhrase, matchCase, regex);
-                        addTitleResults(root, resultsModel, titleItem, titleResults, arg.m_name);
+                        addResults(root, resultsModel, titleItem, titleResults, arg.m_name);
                     }
                     dialog.setValue(dialog.value() + 1);
                     for (int i = 0; i < childCount; ++i)
                         search(model, root.child(i, 0), resultsModel, item, dialog);
                 },
                 [&](SceneData& arg) {
-                    // TODO: This is a placeholder
-                    QTime dieTime = QTime::currentTime().addMSecs(300);
-                    while (QTime::currentTime() < dieTime)
-                        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-
                     QStandardItem* item = new QStandardItem(QIcon(":/icons/node-scene"), arg.m_name.toHtmlEscaped());
                     resultModelRoot->appendRow(item);
                     if (searchTitles) {
                         QStandardItem* titleItem = new QStandardItem("<i>" + tr("Title") + "</i>");
                         item->appendRow(titleItem);
                         auto titleResults = find(arg.m_name, searchPhrase, matchCase, regex);
-                        addTitleResults(root, resultsModel, titleItem, titleResults, arg.m_name);
+                        addResults(root, resultsModel, titleItem, titleResults, arg.m_name);
                     }
-                    // TODO: Find actual results
+                    QStandardItem* contentItem = new QStandardItem("<i>" + tr("Content") + "</i>");
+                    item->appendRow(contentItem);
+                    QString text = arg.m_doc->toRawText();
+                    auto contentResults = find(text, searchPhrase, matchCase, regex);
+                    addResults(root, resultsModel, contentItem, contentResults, text);
                     dialog.setValue(dialog.value() + 1);
                 },
         }, *model->nodeData(root));
@@ -182,7 +181,7 @@ namespace novelist {
     }
 
     void
-    FindWidget::addTitleResults(QModelIndex idx, QStandardItemModel& resultsModel, QStandardItem* resultModelParent,
+    FindWidget::addResults(QModelIndex idx, QStandardItemModel& resultsModel, QStandardItem* resultModelParent,
             std::vector<std::pair<int, int>> const& results, QString const& title) noexcept
     {
         for (auto const& r : results) {
@@ -195,7 +194,7 @@ namespace novelist {
 
     QString FindWidget::formatResult(std::pair<int, int> const& result, QString const& str) noexcept
     {
-        constexpr int maxChar = 10;
+        constexpr int maxChar = 15;
         const int start = std::max(0, result.first - maxChar);
         const int end = std::min(str.length(), result.second + maxChar);
         QString formatted;

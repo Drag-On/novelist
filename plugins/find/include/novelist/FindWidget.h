@@ -44,7 +44,7 @@ namespace novelist {
         std::vector<std::pair<int, int>>
         find(QString const& target, QString const& searchPhrase, bool matchCase, bool regex) noexcept;
 
-        void addTitleResults(QModelIndex idx, QStandardItemModel& resultsModel, QStandardItem* resultModelParent,
+        void addResults(QModelIndex idx, QStandardItemModel& resultsModel, QStandardItem* resultModelParent,
                 std::vector<std::pair<int, int>> const& results, QString const& title) noexcept;
 
         QString formatResult(std::pair<int, int> const& result, QString const& str) noexcept;
