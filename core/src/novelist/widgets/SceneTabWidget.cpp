@@ -144,6 +144,11 @@ namespace novelist {
         return result;
     }
 
+    TextEditor* SceneTabWidget::currentEditor() const noexcept
+    {
+        return dynamic_cast<internal::InternalTextEditor*>(widget(currentIndex()));
+    }
+
     void SceneTabWidget::useInsightView(QAbstractItemView* insightView)
     {
         m_insightView = insightView;

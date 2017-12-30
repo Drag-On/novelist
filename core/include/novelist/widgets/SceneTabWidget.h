@@ -102,6 +102,12 @@ namespace novelist {
         std::pair<ProjectModel*, QModelIndex> current() const noexcept;
 
         /**
+         * @return Pointer to the currently open editor or nullptr if current tab is not an editor or there is no
+         *         current tab.
+         */
+        TextEditor* currentEditor() const noexcept;
+
+        /**
          * @param insightView Pointer to the view that is supposed to show the insights of the currently open document.
          *                    May be nullptr, but if it isn't the pointer must stay valid during the lifetime of this
          *                    tab widget.

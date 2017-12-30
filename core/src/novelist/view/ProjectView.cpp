@@ -81,6 +81,16 @@ namespace novelist {
         return dynamic_cast<ProjectModel*>(m_treeView->model());
     }
 
+    QItemSelectionModel* ProjectView::selectionModel()
+    {
+        return m_treeView->selectionModel();
+    }
+
+    QItemSelectionModel const* ProjectView::selectionModel() const
+    {
+        return m_treeView->selectionModel();
+    }
+
     QDialog::DialogCode ProjectView::showProjectPropertiesDialog()
     {
         auto* m = model();
@@ -103,6 +113,11 @@ namespace novelist {
     QAction* ProjectView::redoAction() const
     {
         return m_actionRedo;
+    }
+
+    void ProjectView::scrollTo(QModelIndex const& index, QAbstractItemView::ScrollHint hint)
+    {
+        m_treeView->scrollTo(index, hint);
     }
 
     void ProjectView::onNewChapter()

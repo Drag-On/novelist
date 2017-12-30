@@ -108,6 +108,16 @@ namespace novelist {
         return m_ui->sceneTabWidget;
     }
 
+    ProjectView* MainWindow::projectView() noexcept
+    {
+        return m_ui->projectView;
+    }
+
+    ProjectView const* MainWindow::projectView() const noexcept
+    {
+        return m_ui->projectView;
+    }
+
     void MainWindow::onNewProject()
     {
         if (continueCheckUnsavedChanges()) {

@@ -15,6 +15,7 @@
 #include "util/ConnectionWrapper.h"
 #include "model/ProjectModel.h"
 #include "widgets/SceneTabWidget.h"
+#include "view/ProjectView.h"
 #include "novelist_core_export.h"
 
 namespace Ui {
@@ -54,6 +55,16 @@ namespace novelist {
          * @return Pointer to the scene tab widget
          */
         SceneTabWidget const* sceneTabWidget() const noexcept;
+
+        /**
+         * @return Pointer to the project view
+         */
+        ProjectView* projectView() noexcept;
+
+        /**
+         * @return Pointer to the project view
+         */
+        ProjectView const* projectView() const noexcept;
 
     public slots:
 

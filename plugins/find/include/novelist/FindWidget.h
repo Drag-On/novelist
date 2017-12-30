@@ -85,6 +85,8 @@ namespace novelist {
 
         void onSelectionChanged(QItemSelection const& selected, QItemSelection const& deselected);
 
+        void onItemActivated(QModelIndex const& index);
+
         std::unique_ptr<Ui::FindWidget> m_ui;
         std::unique_ptr<QStandardItemModel> m_findModel;
         MainWindow* m_mainWin = nullptr;

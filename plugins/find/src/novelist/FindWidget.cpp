@@ -59,6 +59,7 @@ namespace novelist {
         connect(m_ui->pushButtonExclude, &QPushButton::pressed, this, &FindWidget::onExcludeItem);
         connect(m_ui->pushButtonReplace, &QPushButton::pressed, this, &FindWidget::onReplaceItem);
         connect(m_ui->pushButtonReplaceAll, &QPushButton::pressed, this, &FindWidget::onReplaceAll);
+        connect(m_ui->treeView, &QTreeView::activated, this, &FindWidget::onItemActivated);
     }
 
     std::pair<ProjectModel*, QModelIndex> FindWidget::getSearchModelRoot() noexcept
@@ -527,6 +528,43 @@ namespace novelist {
     {
         m_ui->pushButtonExclude->setEnabled(!selected.isEmpty());
         m_ui->pushButtonReplace->setEnabled(!selected.isEmpty() && selected.front().indexes().front().data(ModelIndexRole).isValid());
+    }
+
+    void FindWidget::onItemActivated(QModelIndex const& index)
+    {
+        if (!index.data(ModelIndexRole).isValid())
+            return;
+
+        if (m_mainWin == nullptr)
+            return;
+
+        SceneTabWidget* tabWidget = m_mainWin->sceneTabWidget();
+        if (tabWidget == nullptr)
+            return;
+
+        ProjectModel* model = m_mainWin->project();
+        if (model == nullptr)
+            return;
+
+        // Select correct node in project view
+        auto idx = index.data(ModelIndexRole).toModelIndex();
+        if (!idx.isValid())
+            return;
+        m_mainWin->projectView()->selectionModel()->select(idx, QItemSelectionModel::SelectCurrent);
+        m_mainWin->projectView()->scrollTo(idx);
+
+        // If this is from a scene, select the occurence with cursor
+        if (index.data(TypeRole).toInt() == ResultType::Content) {
+            auto r = qvariant_cast<std::pair<int, int>>(index.data(FindResultRole));
+            tabWidget->openScene(model, idx);
+            TextEditor* edit = tabWidget->currentEditor();
+            if (edit == nullptr)
+                return;
+            auto cursor = edit->textCursor();
+            cursor.setPosition(r.first, QTextCursor::MoveMode::MoveAnchor);
+            cursor.setPosition(r.second, QTextCursor::MoveMode::KeepAnchor);
+            edit->setTextCursor(cursor);
+        }
     }
 
     namespace internal {
