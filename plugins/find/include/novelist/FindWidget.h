@@ -30,10 +30,11 @@ namespace novelist {
 
     private:
         enum Role {
-            ModelIndexRole = Qt::UserRole + 1,
-            ExcludedRole,
-            TypeRole,
-            FindResultRole,
+            ModelIndexRole = Qt::UserRole + 1, // Model index of result in project model
+            ExcludedRole, // Flag indicating whether the item has been marked as excluded
+            TypeRole, // Result type, title or content
+            FindResultRole, // Result span
+            MatchRole, // Matching string
         };
         enum ResultType {
             Title,
@@ -57,6 +58,8 @@ namespace novelist {
         QString formatResult(std::pair<int, int> const& result, QString const& str) noexcept;
 
         bool removeEmptyResults(QStandardItem* root) noexcept;
+
+        bool removeEmptyResultsUp(QStandardItem* leaf) noexcept;
 
         void excludeItem(QStandardItem* item, bool exclude, bool checkParent = true, bool recursive = true) noexcept;
 

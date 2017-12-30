@@ -13,6 +13,7 @@
 #include <windows/MainWindow.h>
 #include <util/Overloaded.h>
 #include <QtGui/QtGui>
+#include <QtWidgets/QMessageBox>
 #include "FindWidget.h"
 #include "ui_FindWidget.h"
 
@@ -200,6 +201,7 @@ namespace novelist {
             item->setData(QPersistentModelIndex(idx), ModelIndexRole);
             item->setData(type, TypeRole);
             item->setData(QVariant::fromValue(r), FindResultRole);
+            item->setData(title.mid(r.first, r.second - r.first), MatchRole);
             resultModelParent->appendRow(item);
         }
     }
@@ -236,6 +238,19 @@ namespace novelist {
             }
             if (hasResult)
                 return true;
+        }
+        return false;
+    }
+
+    bool FindWidget::removeEmptyResultsUp(QStandardItem* leaf) noexcept
+    {
+        if (leaf->rowCount() == 0) {
+            auto parent = leaf->parent();
+            if (parent) {
+                parent->removeRow(leaf->row());
+                removeEmptyResultsUp(parent);
+                return true;
+            }
         }
         return false;
     }
@@ -277,22 +292,35 @@ namespace novelist {
         auto const modelIdx = qvariant_cast<QModelIndex>(idx.data(ModelIndexRole));
         auto const type = static_cast<ResultType>(qvariant_cast<int>(idx.data(TypeRole)));
         auto const findResult = qvariant_cast<std::pair<int, int>>(idx.data(FindResultRole));
+        auto const match = idx.data(MatchRole).toString();
         QString const replace = m_ui->lineEditReplace->text();
+
+        if (!modelIdx.isValid())
+            return false;
 
         using ProjectHeadData = ProjectModel::ProjectHeadData;
         using SceneData = ProjectModel::SceneData;
         using ChapterData = ProjectModel::ChapterData;
 
+        bool success = true;
         std::visit(Overloaded {
                 [](auto&) { qWarning() << "Can't replace in invalid node type."; },
                 [&](ChapterData& arg) {
                     QString name = arg.m_name;
+                    if (name.mid(findResult.first, findResult.second - findResult.first) != match) {
+                        success = false;
+                        return;
+                    }
                     name.replace(findResult.first, findResult.second - findResult.first, replace);
                     model->setData(modelIdx, name, Qt::EditRole);
                 },
                 [&](SceneData& arg) {
                     if (type == ResultType::Title) {
                         QString name = arg.m_name;
+                        if (name.mid(findResult.first, findResult.second - findResult.first) != match) {
+                            success = false;
+                            return;
+                        }
                         name.replace(findResult.first, findResult.second - findResult.first, replace);
                         model->setData(modelIdx, name, Qt::EditRole);
                     }
@@ -300,10 +328,31 @@ namespace novelist {
                         QTextCursor cursor(arg.m_doc.get());
                         cursor.setPosition(findResult.first);
                         cursor.setPosition(findResult.second, QTextCursor::MoveMode::KeepAnchor);
+                        if (cursor.selectedText() != match) {
+                            success = false;
+                            return;
+                        }
                         cursor.insertText(replace);
                     }
                 },
         }, *model->nodeData(modelIdx));
+
+        if (int diff = replace.length() - match.length(); success && diff != 0) {
+            auto parent = idx.parent();
+            if (parent.isValid()) {
+                for (int i = 0; i < m_findModel->rowCount(parent); ++i) {
+                    auto childIdx = m_findModel->index(i, 0, parent);
+                    auto r = qvariant_cast<std::pair<int, int>>(childIdx.data(FindResultRole));
+                    if (r.first > findResult.first) {
+                        r.first += diff;
+                        r.second += diff;
+                        m_findModel->setData(childIdx, QVariant::fromValue(r), FindResultRole);
+                    }
+                }
+            }
+        }
+
+        return success;
     }
 
     void FindWidget::onFindTextChanged(QString const& text)
@@ -386,24 +435,66 @@ namespace novelist {
         Expects(!m_ui->treeView->selectionModel()->selectedIndexes().isEmpty());
         Expects(m_ui->treeView->selectionModel()->selectedIndexes().front().data(ModelIndexRole).isValid());
 
-        replaceItem(m_ui->treeView->selectionModel()->selectedIndexes().front());
+        auto idx = m_ui->treeView->selectionModel()->selectedIndexes().front();
+        if (!replaceItem(idx)) {
+            QMessageBox msgBox;
+            msgBox.setText(tr("Unable to replace the selected occurence."));
+            msgBox.setInformativeText(tr("The project might have changed since this result was found."));
+            msgBox.setStandardButtons(QMessageBox::Ok);
+            msgBox.setDefaultButton(QMessageBox::Ok);
+            msgBox.setIcon(QMessageBox::Information);
+            msgBox.exec();
+        }
+        else {
+            onNext();
+            auto parentItem = m_findModel->itemFromIndex(idx.parent());
+            m_findModel->removeRow(idx.row(), parentItem->index());
+            removeEmptyResultsUp(parentItem);
+        }
     }
 
     void FindWidget::onReplaceAll()
     {
         m_ui->treeView->setCurrentIndex(QModelIndex());
+        onNext();
 
+        if (!m_ui->treeView->currentIndex().isValid())
+            return;
+
+        int numFailed = 0;
         QModelIndex idx, lastIdx;
         while (true) {
             lastIdx = idx;
-            onNext();
             idx = m_ui->treeView->currentIndex();
-            if (idx != lastIdx) {
-                if (!idx.data(ExcludedRole).toBool())
-                    replaceItem(idx);
+            if (idx != lastIdx && idx.isValid() && idx.data(ModelIndexRole).isValid()) {
+                if (!idx.data(ExcludedRole).toBool()) {
+                    if (!replaceItem(idx)) {
+                        ++numFailed;
+                        onNext();
+                    }
+                    else {
+                        onNext();
+                        m_findModel->removeRow(idx.row(), idx.parent());
+                        idx = QModelIndex();
+                    }
+                }
+                else
+                    onNext();
             }
             else
                 break;
+        }
+
+        removeEmptyResults(m_findModel->invisibleRootItem());
+
+        if (numFailed > 0) {
+            QMessageBox msgBox;
+            msgBox.setText(tr("%1 occurences could not be replaced.").arg(numFailed));
+            msgBox.setInformativeText(tr("The project might have changed since the results were found."));
+            msgBox.setStandardButtons(QMessageBox::Ok);
+            msgBox.setDefaultButton(QMessageBox::Ok);
+            msgBox.setIcon(QMessageBox::Information);
+            msgBox.exec();
         }
     }
 
