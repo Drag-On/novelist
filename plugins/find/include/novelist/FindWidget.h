@@ -65,6 +65,8 @@ namespace novelist {
 
         bool replaceItem(QModelIndex idx) noexcept;
 
+        void reset() noexcept;
+
     private slots:
 
         void onFindTextChanged(QString const& text);
@@ -85,6 +87,7 @@ namespace novelist {
 
         std::unique_ptr<Ui::FindWidget> m_ui;
         std::unique_ptr<QStandardItemModel> m_findModel;
+        MainWindow* m_mainWin = nullptr;
     };
 
     namespace internal {

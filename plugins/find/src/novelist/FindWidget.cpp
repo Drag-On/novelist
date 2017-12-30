@@ -24,6 +24,18 @@ namespace novelist {
     {
         m_ui->setupUi(this);
         setupConnections();
+
+        m_mainWin = nullptr;
+        for (QWidget* w : qApp->topLevelWidgets()) {
+            auto* window = dynamic_cast<MainWindow*>(w);
+            if (window) {
+                m_mainWin = window;
+                break;
+            }
+        }
+
+        if (m_mainWin != nullptr)
+            connect(m_mainWin, &MainWindow::projectChanged, [this](ProjectModel*) { reset(); });
     }
 
     void FindWidget::changeEvent(QEvent* event)
@@ -53,26 +65,17 @@ namespace novelist {
     {
         std::pair<ProjectModel*, QModelIndex> result;
 
-        MainWindow* mainWin = nullptr;
-        for (QWidget* w : qApp->topLevelWidgets()) {
-            auto* window = dynamic_cast<MainWindow*>(w);
-            if (window) {
-                mainWin = window;
-                break;
-            }
-        }
-
-        if (mainWin == nullptr)
+        if (m_mainWin == nullptr)
             return result;
 
-        result.first = mainWin->project();
+        result.first = m_mainWin->project();
         if (result.first == nullptr)
             return result;
 
         switch (m_ui->comboBoxScope->currentIndex()) {
             case 0: // Scene
             {
-                auto[m, idx] = mainWin->sceneTabWidget()->current();
+                auto[m, idx] = m_mainWin->sceneTabWidget()->current();
                 if (m == result.first) {
                     result.second = idx;
                     return result;
@@ -81,7 +84,7 @@ namespace novelist {
             }
             case 1: // Chapter
             {
-                auto[m, idx] = mainWin->sceneTabWidget()->current();
+                auto[m, idx] = m_mainWin->sceneTabWidget()->current();
                 if (m == result.first) {
                     result.second = idx.parent();
                     return result;
@@ -365,6 +368,19 @@ namespace novelist {
         return success;
     }
 
+    void FindWidget::reset() noexcept
+    {
+        this->m_ui->pushButtonExclude->setEnabled(false);
+        this->m_ui->pushButtonReplace->setEnabled(false);
+
+        QItemSelectionModel* m = this->m_ui->treeView->selectionModel();
+        this->m_ui->treeView->setModel(nullptr);
+        this->m_ui->treeView->setItemDelegate(nullptr);
+        delete m;
+
+        m_findModel.reset();
+    }
+
     void FindWidget::onFindTextChanged(QString const& text)
     {
         m_ui->pushButtonSearch->setEnabled(!text.isEmpty());
@@ -375,13 +391,7 @@ namespace novelist {
         QString searchTerm = m_ui->lineEditFind->text();
         auto[model, idx] = getSearchModelRoot();
 
-        m_ui->pushButtonExclude->setEnabled(false);
-        m_ui->pushButtonReplace->setEnabled(false);
-
-        QItemSelectionModel* m = m_ui->treeView->selectionModel();
-        m_ui->treeView->setModel(nullptr);
-        m_ui->treeView->setItemDelegate(nullptr);
-        delete m;
+        reset();
         m_findModel = std::make_unique<QStandardItemModel>();
         m_findModel->setColumnCount(1);
 
