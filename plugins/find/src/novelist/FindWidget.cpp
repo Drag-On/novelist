@@ -90,7 +90,7 @@ namespace novelist {
             }
             case 2: // Project
             {
-                result.second = result.first->projectRootIndex();
+                result.second = QModelIndex();
                 break;
             }
             default:
@@ -117,6 +117,7 @@ namespace novelist {
         QString const contentHtml = "<i>" + QCoreApplication::translate("FindWidget", "Content") + "</i>";
 
         using ProjectHeadData = ProjectModel::ProjectHeadData;
+        using NotebookHeadData = ProjectModel::NotebookHeadData;
         using SceneData = ProjectModel::SceneData;
         using ChapterData = ProjectModel::ChapterData;
 
@@ -124,6 +125,15 @@ namespace novelist {
                 [](auto&) { qWarning() << "Can't search invalid node type."; },
                 [&](ProjectHeadData& arg) {
                     QStandardItem* item = new QStandardItem(QIcon(":/icons/node-project"), arg.m_properties.m_name.toHtmlEscaped());
+                    resultModelRoot->appendRow(item);
+                    int const childCount = model->rowCount(root);
+                    dialog.setMaximum(dialog.maximum() + childCount);
+                    dialog.setValue(dialog.value() + 1);
+                    for (int i = 0; i < childCount; ++i)
+                        search(model, root.child(i, 0), resultsModel, item, dialog);
+                },
+                [&](NotebookHeadData& arg) {
+                    QStandardItem* item = new QStandardItem(QIcon(":/icons/node-notebook"), QCoreApplication::translate("novelist::ProjectModel", "Notebook"));
                     resultModelRoot->appendRow(item);
                     int const childCount = model->rowCount(root);
                     dialog.setMaximum(dialog.maximum() + childCount);
@@ -375,14 +385,19 @@ namespace novelist {
         m_findModel = std::make_unique<QStandardItemModel>();
         m_findModel->setColumnCount(1);
 
-        if (model == nullptr || !idx.isValid() || m_ui->lineEditFind->text().isEmpty())
+        if (model == nullptr || m_ui->lineEditFind->text().isEmpty())
             return;
 
         QProgressDialog progress(tr("Looking for matches..."), tr("Abort"), 0, 1, this);
         progress.setWindowModality(Qt::WindowModal);
         progress.setMinimumDuration(1000); // Don't show dialog if finished in less than 1 second
 
-        search(model, idx, *m_findModel, m_findModel->invisibleRootItem(), progress);
+        if (!idx.isValid()) { // Invisible root, consider all its children
+            for (int i = 0; i < model->rowCount(QModelIndex()); ++i)
+                search(model, model->index(i, 0, QModelIndex()), *m_findModel, m_findModel->invisibleRootItem(), progress);
+        }
+        else
+            search(model, idx, *m_findModel, m_findModel->invisibleRootItem(), progress);
         removeEmptyResults(m_findModel->invisibleRootItem());
 
         progress.setValue(progress.maximum());
