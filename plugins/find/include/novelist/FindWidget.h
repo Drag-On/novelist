@@ -33,7 +33,7 @@ namespace novelist {
             ModelIndexRole = Qt::UserRole + 1, // Model index of result in project model
             ExcludedRole, // Flag indicating whether the item has been marked as excluded
             TypeRole, // Result type, title or content
-            FindResultRole, // Result span
+            ResultSpanRole, // Result span
             MatchRole, // Matching string
         };
         enum ResultType {
@@ -52,7 +52,7 @@ namespace novelist {
         std::vector<std::pair<int, int>>
         find(QString const& target, QString const& searchPhrase, bool matchCase, bool regex) noexcept;
 
-        void addResults(QModelIndex idx, QStandardItemModel& resultsModel, QStandardItem* resultModelParent,
+        void addResults(QModelIndex idx, QStandardItem* resultModelParent,
                 std::vector<std::pair<int, int>> const& results, QString const& title, ResultType type) noexcept;
 
         QString formatResult(std::pair<int, int> const& result, QString const& str) noexcept;

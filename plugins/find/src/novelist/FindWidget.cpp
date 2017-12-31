@@ -136,7 +136,7 @@ namespace novelist {
                     for (int i = 0; i < childCount; ++i)
                         search(model, root.child(i, 0), resultsModel, item, dialog);
                 },
-                [&](NotebookHeadData& arg) {
+                [&](NotebookHeadData& /*arg*/) {
                     QStandardItem* item = new QStandardItem(QIcon(":/icons/node-notebook"), QCoreApplication::translate("novelist::ProjectModel", "Notebook"));
                     resultModelRoot->appendRow(item);
                     int const childCount = model->rowCount(root);
@@ -154,7 +154,7 @@ namespace novelist {
                         QStandardItem* titleItem = new QStandardItem(titleHtml);
                         item->appendRow(titleItem);
                         auto titleResults = find(arg.m_name, searchPhrase, matchCase, regex);
-                        addResults(root, resultsModel, titleItem, titleResults, arg.m_name, ResultType::Title);
+                        addResults(root, titleItem, titleResults, arg.m_name, ResultType::Title);
                     }
                     dialog.setValue(dialog.value() + 1);
                     for (int i = 0; i < childCount; ++i)
@@ -167,13 +167,13 @@ namespace novelist {
                         QStandardItem* titleItem = new QStandardItem(titleHtml);
                         item->appendRow(titleItem);
                         auto titleResults = find(arg.m_name, searchPhrase, matchCase, regex);
-                        addResults(root, resultsModel, titleItem, titleResults, arg.m_name, ResultType::Title);
+                        addResults(root, titleItem, titleResults, arg.m_name, ResultType::Title);
                     }
                     QStandardItem* contentItem = new QStandardItem(contentHtml);
                     item->appendRow(contentItem);
                     QString text = arg.m_doc->toRawText();
                     auto contentResults = find(text, searchPhrase, matchCase, regex);
-                    addResults(root, resultsModel, contentItem, contentResults, text, ResultType::Content);
+                    addResults(root, contentItem, contentResults, text, ResultType::Content);
                     dialog.setValue(dialog.value() + 1);
                 },
         }, *model->nodeData(root));
@@ -206,7 +206,7 @@ namespace novelist {
     }
 
     void
-    FindWidget::addResults(QModelIndex idx, QStandardItemModel& resultsModel, QStandardItem* resultModelParent,
+    FindWidget::addResults(QModelIndex idx, QStandardItem* resultModelParent,
             std::vector<std::pair<int, int>> const& results, QString const& title, ResultType type) noexcept
     {
         for (auto const& r : results) {
@@ -214,7 +214,7 @@ namespace novelist {
             auto* item = new QStandardItem(searchResult);
             item->setData(QPersistentModelIndex(idx), ModelIndexRole);
             item->setData(type, TypeRole);
-            item->setData(QVariant::fromValue(r), FindResultRole);
+            item->setData(QVariant::fromValue(r), ResultSpanRole);
             item->setData(title.mid(r.first, r.second - r.first), MatchRole);
             resultModelParent->appendRow(item);
         }
@@ -305,14 +305,13 @@ namespace novelist {
         ProjectModel* model = getSearchModelRoot().first;
         auto const modelIdx = qvariant_cast<QModelIndex>(idx.data(ModelIndexRole));
         auto const type = static_cast<ResultType>(qvariant_cast<int>(idx.data(TypeRole)));
-        auto const findResult = qvariant_cast<std::pair<int, int>>(idx.data(FindResultRole));
+        auto const findResult = qvariant_cast<std::pair<int, int>>(idx.data(ResultSpanRole));
         auto const match = idx.data(MatchRole).toString();
         QString const replace = m_ui->lineEditReplace->text();
 
         if (!modelIdx.isValid())
             return false;
 
-        using ProjectHeadData = ProjectModel::ProjectHeadData;
         using SceneData = ProjectModel::SceneData;
         using ChapterData = ProjectModel::ChapterData;
 
@@ -356,11 +355,11 @@ namespace novelist {
             if (parent.isValid()) {
                 for (int i = 0; i < m_findModel->rowCount(parent); ++i) {
                     auto childIdx = m_findModel->index(i, 0, parent);
-                    auto r = qvariant_cast<std::pair<int, int>>(childIdx.data(FindResultRole));
+                    auto r = qvariant_cast<std::pair<int, int>>(childIdx.data(ResultSpanRole));
                     if (r.first > findResult.first) {
                         r.first += diff;
                         r.second += diff;
-                        m_findModel->setData(childIdx, QVariant::fromValue(r), FindResultRole);
+                        m_findModel->setData(childIdx, QVariant::fromValue(r), ResultSpanRole);
                     }
                 }
             }
@@ -524,7 +523,7 @@ namespace novelist {
         }
     }
 
-    void FindWidget::onSelectionChanged(QItemSelection const& selected, QItemSelection const& deselected)
+    void FindWidget::onSelectionChanged(QItemSelection const& selected, QItemSelection const& /*deselected*/)
     {
         m_ui->pushButtonExclude->setEnabled(!selected.isEmpty());
         m_ui->pushButtonReplace->setEnabled(!selected.isEmpty() && selected.front().indexes().front().data(ModelIndexRole).isValid());
@@ -555,7 +554,7 @@ namespace novelist {
 
         // If this is from a scene, select the occurence with cursor
         if (index.data(TypeRole).toInt() == ResultType::Content) {
-            auto r = qvariant_cast<std::pair<int, int>>(index.data(FindResultRole));
+            auto r = qvariant_cast<std::pair<int, int>>(index.data(ResultSpanRole));
             tabWidget->openScene(model, idx);
             TextEditor* edit = tabWidget->currentEditor();
             if (edit == nullptr)
@@ -578,6 +577,7 @@ namespace novelist {
 
             QTextDocument doc;
             doc.setHtml(options.text);
+            doc.setTextWidth(options.rect.width());
 
             options.text = "";
             options.widget->style()->drawControl(QStyle::CE_ItemViewItem, &options, painter);
@@ -602,7 +602,7 @@ namespace novelist {
             QTextDocument doc;
             doc.setHtml(options.text);
             doc.setTextWidth(options.rect.width());
-            return QSize(doc.idealWidth(), doc.size().height());
+            return QSize(doc.size().width(), doc.size().height());
         }
     }
 }
