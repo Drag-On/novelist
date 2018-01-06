@@ -53,6 +53,16 @@ namespace novelist {
         ProjectModel* model() const;
 
         /**
+         * @return Current selection model or nullptr if none
+         */
+        QItemSelectionModel* selectionModel();
+
+        /**
+         * @return Current selection model or nullptr if none
+         */
+        QItemSelectionModel const* selectionModel() const;
+
+        /**
          * Shows the project properties dialog. If the current model is nullptr, does nothing.
          * @return Dialog code
          */
@@ -67,6 +77,13 @@ namespace novelist {
          * @return true if the project can be redone, otherwise false
          */
         QAction* redoAction() const;
+
+        /**
+         * Scroll to the node given by a model index
+         * @param index Mode index of the node to scroll to
+         * @param hint Hint
+         */
+        void scrollTo(QModelIndex const& index, QTreeView::ScrollHint hint = QTreeView::EnsureVisible);
 
     signals:
         /**

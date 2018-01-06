@@ -14,6 +14,8 @@
 #include "util/DelegateAction.h"
 #include "util/ConnectionWrapper.h"
 #include "model/ProjectModel.h"
+#include "widgets/SceneTabWidget.h"
+#include "view/ProjectView.h"
 #include "novelist_core_export.h"
 
 namespace Ui {
@@ -40,9 +42,29 @@ namespace novelist {
         ProjectModel* project() noexcept;
 
         /**
-         * @return Pointer to the currently active project May be nullptr.
+         * @return Pointer to the currently active project. May be nullptr.
          */
         ProjectModel const* project() const noexcept;
+
+        /**
+         * @return Pointer to the scene tab widget
+         */
+        SceneTabWidget* sceneTabWidget() noexcept;
+
+        /**
+         * @return Pointer to the scene tab widget
+         */
+        SceneTabWidget const* sceneTabWidget() const noexcept;
+
+        /**
+         * @return Pointer to the project view
+         */
+        ProjectView* projectView() noexcept;
+
+        /**
+         * @return Pointer to the project view
+         */
+        ProjectView const* projectView() const noexcept;
 
     public slots:
 

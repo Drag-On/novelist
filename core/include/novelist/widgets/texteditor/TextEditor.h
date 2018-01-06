@@ -22,6 +22,7 @@
 #include "TextEditorInsightManager.h"
 #include "Inspector.h"
 #include "CharacterReplacementRule.h"
+#include "ExtraSelectionsManager.h"
 #include <novelist_core_export.h>
 
 namespace novelist {
@@ -259,6 +260,7 @@ namespace novelist {
         std::vector<std::unique_ptr<Inspector>> const* m_inspectors = nullptr;
         TextEditorInsightManager m_insightMgr{this};
         std::vector<CharacterReplacementRule> const* m_charReplacementRules = nullptr;
+        ExtraSelectionsManager m_extraSelectionsManager{this};
         Connection m_onBoldActionConnection;
         Connection m_onItalicActionConnection;
         Connection m_onUnderlineActionConnection;

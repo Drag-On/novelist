@@ -396,32 +396,24 @@ namespace novelist {
 
     void TextEditor::highlightCurrentLine()
     {
-        QList<QTextEdit::ExtraSelection> extraSelects = extraSelections();
-        if (!extraSelects.empty() && extraSelects.first().format.hasProperty(QTextFormat::FullWidthSelection))
-            extraSelects.pop_front();
-
+        m_extraSelectionsManager.erase(ExtraSelectionType::CurrentLine);
         if (!isReadOnly()) {
             QTextEdit::ExtraSelection selection{};
-
             selection.format.setBackground(m_curLineColor);
             selection.format.setProperty(QTextFormat::FullWidthSelection, true);
             selection.cursor = textCursor();
             selection.cursor.clearSelection();
-            extraSelects.prepend(selection);
+            m_extraSelectionsManager.insert(selection, ExtraSelectionType::CurrentLine);
         }
-
-        setExtraSelections(extraSelects);
+        m_extraSelectionsManager.commit();
     }
 
     void TextEditor::highlightMatchingChars()
     {
+        m_extraSelectionsManager.erase(ExtraSelectionType::MatchingChars);
+        m_highlightingMatchingChars = 0;
         auto const cursor = textCursor();
-        QList<QTextEdit::ExtraSelection> extraSelects = extraSelections();
         if (!isReadOnly()) {
-            for (int i = 0; i < m_highlightingMatchingChars; ++i)
-                extraSelects.pop_back();
-            m_highlightingMatchingChars = 0;
-
             for (auto const& m : m_matchingChars) {
                 auto matches = lookForMatchingChar(m, cursor.position());
                 if (matches.first >= 0) {
@@ -433,7 +425,7 @@ namespace novelist {
                     selection.cursor = QTextCursor(document());
                     selection.cursor.setPosition(matches.first);
                     selection.cursor.setPosition(matches.first + 1, QTextCursor::MoveMode::KeepAnchor);
-                    extraSelects.append(selection);
+                    m_extraSelectionsManager.insert(selection, ExtraSelectionType::MatchingChars);
                     m_highlightingMatchingChars++;
                 }
                 if (matches.second >= 0) {
@@ -445,14 +437,14 @@ namespace novelist {
                     selection.cursor = QTextCursor(document());
                     selection.cursor.setPosition(matches.second);
                     selection.cursor.setPosition(matches.second + 1, QTextCursor::MoveMode::KeepAnchor);
-                    extraSelects.append(selection);
+                    m_extraSelectionsManager.insert(selection, ExtraSelectionType::MatchingChars);
                     m_highlightingMatchingChars++;
                 }
                 if (m_highlightingMatchingChars > 0)
                     break;
             }
-            setExtraSelections(extraSelects);
         }
+        m_extraSelectionsManager.commit();
     }
 
     void TextEditor::paintParagraphNumberArea(QPaintEvent* event)

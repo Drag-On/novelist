@@ -95,6 +95,19 @@ namespace novelist {
         int indexOf(ProjectModel const* model, QModelIndex index) const;
 
         /**
+         * @return Pointer to the model and model index of the currently open scene
+         * @note If there is no current tab or the current tab is not a valid scene, then the returned project model
+         *       will be nullptr and the model index invalid.
+         */
+        std::pair<ProjectModel*, QModelIndex> current() const noexcept;
+
+        /**
+         * @return Pointer to the currently open editor or nullptr if current tab is not an editor or there is no
+         *         current tab.
+         */
+        TextEditor* currentEditor() const noexcept;
+
+        /**
          * @param insightView Pointer to the view that is supposed to show the insights of the currently open document.
          *                    May be nullptr, but if it isn't the pointer must stay valid during the lifetime of this
          *                    tab widget.

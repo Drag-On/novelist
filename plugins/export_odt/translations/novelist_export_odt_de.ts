@@ -4,12 +4,12 @@
 <context>
     <name>ExportOdtPlugin</name>
     <message>
-        <location filename="../src/novelist/ExportOdtPlugin.cpp" line="28"/>
+        <location filename="../src/novelist/ExportOdtPlugin.cpp" line="29"/>
         <source>Novelist</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/ExportOdtPlugin.cpp" line="29"/>
+        <location filename="../src/novelist/ExportOdtPlugin.cpp" line="30"/>
         <source>Export failed.</source>
         <translation>Export fehlgeschlagen.</translation>
     </message>
@@ -17,7 +17,7 @@
 <context>
     <name>novelist::ExportOdtPlugin</name>
     <message>
-        <location filename="../src/novelist/ExportOdtPlugin.cpp" line="174"/>
+        <location filename="../src/novelist/ExportOdtPlugin.cpp" line="178"/>
         <source>OpenDocument (*.odt)</source>
         <translation></translation>
     </message>

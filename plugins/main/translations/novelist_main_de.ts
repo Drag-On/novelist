@@ -4,8 +4,8 @@
 <context>
     <name>novelist::MainPlugin</name>
     <message>
-        <location filename="../src/novelist/MainPlugin.cpp" line="38"/>
-        <location filename="../src/novelist/MainPlugin.cpp" line="39"/>
+        <location filename="../src/novelist/MainPlugin.cpp" line="40"/>
+        <location filename="../src/novelist/MainPlugin.cpp" line="41"/>
         <source>View</source>
         <translation>Ansicht</translation>
     </message>

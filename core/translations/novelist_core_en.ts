@@ -433,84 +433,84 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="131"/>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="174"/>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="224"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="141"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="184"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="234"/>
         <source>Novelist</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="132"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="142"/>
         <source>Open project failed.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="133"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="143"/>
         <source>The selected directory does not contain a valid project.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="171"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="181"/>
         <source>Project successfully saved.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="175"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="185"/>
         <source>Saving the project failed.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="176"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="186"/>
         <source>Check if you have write privileges.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="225"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="235"/>
         <source>There are unsaved changes.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="227"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="237"/>
         <source>If you continue, all changes will be lost. Are you sure you want to continue?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="246"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="256"/>
         <source>Welcome!</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="247"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="257"/>
         <source>Hello there, sweetheart. Let&apos;s write a book together.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="248"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="258"/>
         <source>Aww, you came back for me!</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="249"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="259"/>
         <source>Isn&apos;t it just the perfect day to write a novel?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="250"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="260"/>
         <source>Hey, you! Yeah, you with the pretty face! Wanna write a novel?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="251"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="261"/>
         <source>Hi!</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="252"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="262"/>
         <source>Have I ever told you how it tickles when you type?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="253"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="263"/>
         <source>Welcome back! We&apos;re such a great team. You&apos;re my best friend!</source>
         <translation></translation>
     </message>
@@ -630,12 +630,12 @@
 <context>
     <name>novelist::SceneTabWidget</name>
     <message>
-        <location filename="../src/novelist/widgets/SceneTabWidget.cpp" line="220"/>
+        <location filename="../src/novelist/widgets/SceneTabWidget.cpp" line="231"/>
         <source>Undo modification of &quot;%1&quot;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/widgets/SceneTabWidget.cpp" line="226"/>
+        <location filename="../src/novelist/widgets/SceneTabWidget.cpp" line="237"/>
         <source>Redo modification of &quot;%1&quot;</source>
         <translation></translation>
     </message>
@@ -651,37 +651,37 @@
 <context>
     <name>novelist::TextEditor</name>
     <message>
-        <location filename="../include/novelist/widgets/texteditor/TextEditor.h" line="270"/>
+        <location filename="../include/novelist/widgets/texteditor/TextEditor.h" line="272"/>
         <source>Bold</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../include/novelist/widgets/texteditor/TextEditor.h" line="271"/>
+        <location filename="../include/novelist/widgets/texteditor/TextEditor.h" line="273"/>
         <source>Italic</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../include/novelist/widgets/texteditor/TextEditor.h" line="272"/>
+        <location filename="../include/novelist/widgets/texteditor/TextEditor.h" line="274"/>
         <source>Underline</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../include/novelist/widgets/texteditor/TextEditor.h" line="273"/>
+        <location filename="../include/novelist/widgets/texteditor/TextEditor.h" line="275"/>
         <source>Overline</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../include/novelist/widgets/texteditor/TextEditor.h" line="274"/>
+        <location filename="../include/novelist/widgets/texteditor/TextEditor.h" line="276"/>
         <source>Strikethrough</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../include/novelist/widgets/texteditor/TextEditor.h" line="275"/>
+        <location filename="../include/novelist/widgets/texteditor/TextEditor.h" line="277"/>
         <source>Small Caps</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../include/novelist/widgets/texteditor/TextEditor.h" line="276"/>
+        <location filename="../include/novelist/widgets/texteditor/TextEditor.h" line="278"/>
         <source>Add Note</source>
         <translation></translation>
     </message>
