@@ -131,6 +131,14 @@
         <source>Content</source>
         <translation>Inhalt</translation>
     </message>
+    <message>
+        <source>Del</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Include</source>
+        <translation>Einschließen</translation>
+    </message>
 </context>
 <context>
     <name>novelist::FindPlugin</name>
@@ -156,6 +164,38 @@
     <message>
         <source>Abort</source>
         <translation>Abbrechen</translation>
+    </message>
+    <message>
+        <source>Exclude</source>
+        <translation type="obsolete">Ausschließen</translation>
+    </message>
+    <message>
+        <source>(%1 of %2 matches)</source>
+        <translation>(%1 von %2 Übereinstimmungen)</translation>
+    </message>
+    <message>
+        <source>Unable to replace the selected occurrence.</source>
+        <translation>Das ausgewählte Ergebnis kann nicht ersetzt werden.</translation>
+    </message>
+    <message>
+        <source>The project might have changed since this result was found.</source>
+        <translation>Möglicherweise hat sich das Projekt verändert seit das Ergebnis gefunden wurde.</translation>
+    </message>
+    <message>
+        <source>%1 occurrences could not be replaced.</source>
+        <translation>%1 Ergebnisse konnten nicht ersetzt werden.</translation>
+    </message>
+    <message>
+        <source>The project might have changed since the results were found.</source>
+        <translation>Möglicherweise hat sich das Projekt verändert seit die Ergebnisse gefunden wurden.</translation>
+    </message>
+</context>
+<context>
+    <name>novelist::ProjectModel</name>
+    <message>
+        <source>Notebook</source>
+        <comment>Don&apos;t translate!</comment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

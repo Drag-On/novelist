@@ -39,12 +39,18 @@ namespace novelist {
             connect(m_mainWin, &MainWindow::projectChanged, [this](ProjectModel*) { reset(); });
     }
 
+    void FindWidget::retranslateUi() noexcept
+    {
+        m_ui->retranslateUi(this);
+        updateExcludeButtonText();
+    }
+
     void FindWidget::changeEvent(QEvent* event)
     {
         QWidget::changeEvent(event);
         switch (event->type()) {
             case QEvent::LanguageChange:
-                m_ui->retranslateUi(this);
+                retranslateUi();
                 break;
             default:
                 break;
@@ -109,7 +115,7 @@ namespace novelist {
                 break;
             }
             case NodeType::NotebookRoot: {
-                QString const text = QCoreApplication::translate("novelist::ProjectModel", "Notebook");
+                QString const text = QCoreApplication::translate("novelist::ProjectModel", "Notebook", "Don't translate!");
                 node->setIcon(QIcon(":/icons/node-notebook"));
                 node->setData(text, StaticTextRole);
                 node->setData(text, Qt::DisplayRole);
@@ -298,7 +304,7 @@ namespace novelist {
         if (includedCount == 0)
             displayText += "</s>";
         displayText += "   <i style=\"color:gray\">";
-        displayText += tr("(%1 of %2 matches)")
+        displayText += QCoreApplication::translate("novelist::FindWidget", "(%1 of %2 matches)")
                 .arg(includedCount)
                 .arg(count);
         displayText += "</i>";
@@ -359,7 +365,6 @@ namespace novelist {
                 return true;
             }
         }
-        qWarning() << "Tried to remove parent of non-empty node of find result.";
         return false;
     }
 
@@ -416,6 +421,20 @@ namespace novelist {
     bool FindWidget::isExcluded(QStandardItem* item) const noexcept
     {
         return item->data(IncludedCountRole).toInt() <= 0;
+    }
+
+    void FindWidget::updateExcludeButtonText() noexcept
+    {
+        if (m_ui->treeView->selectionModel() == nullptr || m_ui->treeView->selectionModel()->selection().empty()) {
+            m_ui->pushButtonExclude->setText(QCoreApplication::translate("FindWidget", "Exclude"));
+            m_ui->pushButtonExclude->setShortcut(QCoreApplication::translate("FindWidget", "Del"));
+            return;
+        }
+        if (isExcluded(m_findModel->itemFromIndex(m_ui->treeView->selectionModel()->selection().indexes().first())))
+            m_ui->pushButtonExclude->setText(QCoreApplication::translate("FindWidget", "Include"));
+        else
+            m_ui->pushButtonExclude->setText(QCoreApplication::translate("FindWidget", "Exclude"));
+        m_ui->pushButtonExclude->setShortcut(QCoreApplication::translate("FindWidget", "Del"));
     }
 
     bool FindWidget::replaceItem(QModelIndex idx) noexcept
@@ -594,6 +613,8 @@ namespace novelist {
         auto idx = m_ui->treeView->selectionModel()->selectedIndexes().front();
         auto item = m_findModel->itemFromIndex(idx);
         excludeItem(item, !isExcluded(item));
+
+        updateExcludeButtonText();
     }
 
     void FindWidget::onReplaceItem()
@@ -667,6 +688,7 @@ namespace novelist {
     void FindWidget::onSelectionChanged(QItemSelection const& selected, QItemSelection const& /*deselected*/)
     {
         m_ui->pushButtonExclude->setEnabled(!selected.isEmpty());
+        updateExcludeButtonText();
         m_ui->pushButtonReplace->setEnabled(!selected.isEmpty() && isResultNode(m_findModel->itemFromIndex(selected.front().indexes().front())));
     }
 

@@ -25,6 +25,8 @@ namespace novelist {
     public:
         explicit FindWidget(QWidget* parent = nullptr) noexcept;
 
+        void retranslateUi() noexcept;
+
     protected:
         void changeEvent(QEvent* event) override;
 
@@ -88,6 +90,8 @@ namespace novelist {
         void excludeItem(QStandardItem* item, bool exclude) noexcept;
 
         bool isExcluded(QStandardItem* item) const noexcept;
+
+        void updateExcludeButtonText() noexcept;
 
         bool replaceItem(QModelIndex idx) noexcept;
 
