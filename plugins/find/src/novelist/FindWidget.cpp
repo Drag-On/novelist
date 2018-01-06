@@ -14,6 +14,7 @@
 #include <util/Overloaded.h>
 #include <QtGui/QtGui>
 #include <QtWidgets/QMessageBox>
+#include <stack>
 #include "FindWidget.h"
 #include "ui_FindWidget.h"
 
@@ -62,46 +63,85 @@ namespace novelist {
         connect(m_ui->treeView, &QTreeView::activated, this, &FindWidget::onItemActivated);
     }
 
-    std::pair<ProjectModel*, QModelIndex> FindWidget::getSearchModelRoot() noexcept
+    QModelIndex FindWidget::getSearchModelRoot() noexcept
     {
-        std::pair<ProjectModel*, QModelIndex> result;
-
-        if (m_mainWin == nullptr)
-            return result;
-
-        result.first = m_mainWin->project();
-        if (result.first == nullptr)
-            return result;
+        if (m_mainWin == nullptr || m_mainWin->project() == nullptr)
+            return QModelIndex();
 
         switch (m_ui->comboBoxScope->currentIndex()) {
             case 0: // Scene
             {
                 auto[m, idx] = m_mainWin->sceneTabWidget()->current();
-                if (m == result.first) {
-                    result.second = idx;
-                    return result;
-                }
+                if (m == m_mainWin->project())
+                    return idx;
                 break;
             }
             case 1: // Chapter
             {
                 auto[m, idx] = m_mainWin->sceneTabWidget()->current();
-                if (m == result.first) {
-                    result.second = idx.parent();
-                    return result;
-                }
+                if (m == m_mainWin->project())
+                    return idx.parent();
                 break;
             }
             case 2: // Project
             {
-                result.second = QModelIndex();
-                break;
+                return m_mainWin->project()->projectRootIndex().parent();
             }
             default:
+                return QModelIndex();
+        }
+        return QModelIndex();
+    }
+
+    std::unique_ptr<QStandardItem>
+    FindWidget::makeNode(NodeType type, QModelIndex idx, QString const& staticText) const noexcept
+    {
+        auto node = std::make_unique<QStandardItem>();
+        node->setData(type, NodeTypeRole);
+        node->setData(QPersistentModelIndex(idx), ModelIndexRole);
+        node->setData(0, CountRole);
+        node->setData(0, IncludedCountRole);
+        node->setData(staticText, StaticTextRole);
+        node->setData(staticText, Qt::DisplayRole);
+        switch (type) {
+            case NodeType::ProjectRoot: {
+                node->setIcon(QIcon(":/icons/node-project"));
+                break;
+            }
+            case NodeType::NotebookRoot: {
+                QString const text = QCoreApplication::translate("novelist::ProjectModel", "Notebook");
+                node->setIcon(QIcon(":/icons/node-notebook"));
+                node->setData(text, StaticTextRole);
+                node->setData(text, Qt::DisplayRole);
+                break;
+            }
+            case NodeType::Chapter: {
+                node->setIcon(QIcon(":/icons/node-chapter"));
+                break;
+            }
+            case NodeType::Scene: {
+                node->setIcon(QIcon(":/icons/node-scene"));
+                break;
+            }
+            case NodeType::TitleResultTopic: {
+                QString const text = "<i>" + QCoreApplication::translate("FindWidget", "Title") + "</i>";
+                node->setData(text, StaticTextRole);
+                node->setData(text, Qt::DisplayRole);
+                break;
+            }
+            case NodeType::ContentResultTopic: {
+                QString const text = "<i>" + QCoreApplication::translate("FindWidget", "Content") + "</i>";
+                node->setData(text, StaticTextRole);
+                node->setData(text, Qt::DisplayRole);
+                break;
+            }
+            case NodeType::Result:
+                node->setData(1, CountRole);
+                node->setData(1, IncludedCountRole);
                 break;
         }
 
-        return result;
+        return node;
     }
 
     void FindWidget::search(ProjectModel* model, QModelIndex root, QStandardItemModel& resultsModel,
@@ -117,8 +157,6 @@ namespace novelist {
         bool const regex = m_ui->checkBoxRegEx->isChecked();
         bool const searchTitles = m_ui->checkBoxSearchTitles->isChecked();
         QString const searchPhrase = m_ui->lineEditFind->text();
-        QString const titleHtml = "<i>" + QCoreApplication::translate("FindWidget", "Title") + "</i>";
-        QString const contentHtml = "<i>" + QCoreApplication::translate("FindWidget", "Content") + "</i>";
 
         using ProjectHeadData = ProjectModel::ProjectHeadData;
         using NotebookHeadData = ProjectModel::NotebookHeadData;
@@ -128,7 +166,7 @@ namespace novelist {
         std::visit(Overloaded {
                 [](auto&) { qWarning() << "Can't search invalid node type."; },
                 [&](ProjectHeadData& arg) {
-                    QStandardItem* item = new QStandardItem(QIcon(":/icons/node-project"), arg.m_properties.m_name.toHtmlEscaped());
+                    QStandardItem* item = makeNode(NodeType::ProjectRoot, root, arg.m_properties.m_name.toHtmlEscaped()).release();
                     resultModelRoot->appendRow(item);
                     int const childCount = model->rowCount(root);
                     dialog.setMaximum(dialog.maximum() + childCount);
@@ -137,7 +175,7 @@ namespace novelist {
                         search(model, root.child(i, 0), resultsModel, item, dialog);
                 },
                 [&](NotebookHeadData& /*arg*/) {
-                    QStandardItem* item = new QStandardItem(QIcon(":/icons/node-notebook"), QCoreApplication::translate("novelist::ProjectModel", "Notebook"));
+                    QStandardItem* item = makeNode(NodeType::NotebookRoot, root).release();
                     resultModelRoot->appendRow(item);
                     int const childCount = model->rowCount(root);
                     dialog.setMaximum(dialog.maximum() + childCount);
@@ -146,34 +184,34 @@ namespace novelist {
                         search(model, root.child(i, 0), resultsModel, item, dialog);
                 },
                 [&](ChapterData& arg) {
-                    QStandardItem* item = new QStandardItem(QIcon(":/icons/node-chapter"), arg.m_name.toHtmlEscaped());
+                    QStandardItem* item = makeNode(NodeType::Chapter, root, arg.m_name.toHtmlEscaped()).release();
                     resultModelRoot->appendRow(item);
                     int const childCount = model->rowCount(root);
                     dialog.setMaximum(dialog.maximum() + childCount);
                     if (searchTitles) {
-                        QStandardItem* titleItem = new QStandardItem(titleHtml);
+                        QStandardItem* titleItem = makeNode(NodeType::TitleResultTopic, root).release();
                         item->appendRow(titleItem);
                         auto titleResults = find(arg.m_name, searchPhrase, matchCase, regex);
-                        addResults(root, titleItem, titleResults, arg.m_name, ResultType::Title);
+                        addResults(root, titleItem, titleResults, arg.m_name);
                     }
                     dialog.setValue(dialog.value() + 1);
                     for (int i = 0; i < childCount; ++i)
                         search(model, root.child(i, 0), resultsModel, item, dialog);
                 },
                 [&](SceneData& arg) {
-                    QStandardItem* item = new QStandardItem(QIcon(":/icons/node-scene"), arg.m_name.toHtmlEscaped());
+                    QStandardItem* item = makeNode(NodeType::Scene, root, arg.m_name.toHtmlEscaped()).release();
                     resultModelRoot->appendRow(item);
                     if (searchTitles) {
-                        QStandardItem* titleItem = new QStandardItem(titleHtml);
+                        QStandardItem* titleItem = makeNode(NodeType::TitleResultTopic, root).release();
                         item->appendRow(titleItem);
                         auto titleResults = find(arg.m_name, searchPhrase, matchCase, regex);
-                        addResults(root, titleItem, titleResults, arg.m_name, ResultType::Title);
+                        addResults(root, titleItem, titleResults, arg.m_name);
                     }
-                    QStandardItem* contentItem = new QStandardItem(contentHtml);
+                    QStandardItem* contentItem = makeNode(NodeType::ContentResultTopic, root).release();
                     item->appendRow(contentItem);
                     QString text = arg.m_doc->toRawText();
                     auto contentResults = find(text, searchPhrase, matchCase, regex);
-                    addResults(root, contentItem, contentResults, text, ResultType::Content);
+                    addResults(root, contentItem, contentResults, text);
                     dialog.setValue(dialog.value() + 1);
                 },
         }, *model->nodeData(root));
@@ -207,20 +245,18 @@ namespace novelist {
 
     void
     FindWidget::addResults(QModelIndex idx, QStandardItem* resultModelParent,
-            std::vector<std::pair<int, int>> const& results, QString const& title, ResultType type) noexcept
+            std::vector<std::pair<int, int>> const& results, QString const& title) noexcept
     {
         for (auto const& r : results) {
-            QString searchResult = formatResult(r, title);
-            auto* item = new QStandardItem(searchResult);
-            item->setData(QPersistentModelIndex(idx), ModelIndexRole);
-            item->setData(type, TypeRole);
+            QString searchResult = composeResultString(r, title);
+            auto item = makeNode(NodeType::Result, idx, searchResult);
             item->setData(QVariant::fromValue(r), ResultSpanRole);
             item->setData(title.mid(r.first, r.second - r.first), MatchRole);
-            resultModelParent->appendRow(item);
+            resultModelParent->appendRow(item.release());
         }
     }
 
-    QString FindWidget::formatResult(std::pair<int, int> const& result, QString const& str) noexcept
+    QString FindWidget::composeResultString(std::pair<int, int> const& result, QString const& str) noexcept
     {
         constexpr int maxChar = 15;
         const int start = std::max(0, result.first - maxChar);
@@ -235,12 +271,65 @@ namespace novelist {
         formatted += str.mid(result.second, end - result.second).toHtmlEscaped();
         if (end < str.length())
             formatted += "…";
+
         return formatted;
+    }
+
+    QString FindWidget::formatResult(QStandardItem* item) noexcept
+    {
+        int const includedCount = item->data(IncludedCountRole).toInt();
+
+        QString displayText = item->data(StaticTextRole).toString();
+        if (includedCount == 0)
+            displayText = "<s>" + displayText + "</s>";
+
+        return displayText;
+    }
+
+    QString FindWidget::formatNonResult(QStandardItem* item) noexcept
+    {
+        int const includedCount = item->data(IncludedCountRole).toInt();
+        int const count = item->data(CountRole).toInt();
+
+        QString displayText;
+        if (includedCount == 0)
+            displayText += "<s>";
+        displayText += item->data(StaticTextRole).toString();
+        if (includedCount == 0)
+            displayText += "</s>";
+        displayText += "   <i style=\"color:gray\">";
+        displayText += tr("(%1 of %2 matches)")
+                .arg(includedCount)
+                .arg(count);
+        displayText += "</i>";
+
+        return displayText;
+    }
+
+    void FindWidget::reformatNode(QStandardItem* item) noexcept
+    {
+        if (isResultNode(item))
+            item->setData(formatResult(item), Qt::DisplayRole);
+        else
+            item->setData(formatNonResult(item), Qt::DisplayRole);
+    }
+
+    void FindWidget::removeRow(QStandardItem* parent, int row) noexcept
+    {
+        auto child = parent->child(row, 0);
+        int const countChange = -child->data(CountRole).toInt();
+        int const includedCountChange = -child->data(IncludedCountRole).toInt();
+        parent->removeRow(row);
+        do {
+            parent->setData(parent->data(CountRole).toInt() + countChange, CountRole);
+            parent->setData(parent->data(IncludedCountRole).toInt() + includedCountChange, IncludedCountRole);
+            parent = parent->parent();
+        } while (parent != nullptr);
     }
 
     bool FindWidget::removeEmptyResults(QStandardItem* root) noexcept
     {
-        if (root->data(ModelIndexRole).isValid())
+        if (isResultNode(root))
             return true;
         if (root->hasChildren()) {
             bool hasResult = false;
@@ -248,7 +337,7 @@ namespace novelist {
                 if (removeEmptyResults(root->child(i)))
                     hasResult = true;
                 else
-                    root->removeRow(i--);
+                    removeRow(root, i--);
             }
             if (hasResult)
                 return true;
@@ -261,50 +350,82 @@ namespace novelist {
         if (leaf->rowCount() == 0) {
             auto parent = leaf->parent();
             if (parent) {
-                parent->removeRow(leaf->row());
+                removeRow(parent, leaf->row());
                 removeEmptyResultsUp(parent);
                 return true;
             }
+            else {
+                m_findModel->removeRow(leaf->row(), QModelIndex());
+                return true;
+            }
         }
+        qWarning() << "Tried to remove parent of non-empty node of find result.";
         return false;
     }
 
-    void FindWidget::excludeItem(QStandardItem* item, bool exclude, bool checkParent, bool recursive) noexcept
+    void FindWidget::updateCountsAndTitles(QStandardItem* root) noexcept
     {
-        bool isExcluded = item->data(ExcludedRole).toBool();
-        item->setData(exclude, ExcludedRole);
-        QString text = item->text();
-        if (exclude && !isExcluded)
-            text = "<s>" + text + "</s>";
-        else if (!exclude && isExcluded)
-            text = text.mid(3, text.length() - 7);
-        item->setText(text);
+        int count = 0;
+        int includedCount = 0;
+        int const childCount = root->rowCount();
+        for (int i = 0; i < childCount; ++i) {
+            auto c = root->child(i, 0);
+            if (!isResultNode(c))
+                updateCountsAndTitles(c);
+            count += c->data(CountRole).toInt();
+            includedCount += c->data(IncludedCountRole).toInt();
+        }
+        root->setData(count, CountRole);
+        root->setData(includedCount, IncludedCountRole);
+        reformatNode(root);
+    }
 
-        if (recursive) {
-            for (int i = 0; i < item->rowCount(); ++i)
-                excludeItem(item->child(i, 0), exclude, false);
+    void FindWidget::excludeItem(QStandardItem* item, bool exclude) noexcept
+    {
+        auto updateNode = [this](QStandardItem* item, bool exclude) {
+            bool const excluded = isExcluded(item);
+            if (excluded && !exclude) // include
+                item->setData(item->data(CountRole), IncludedCountRole);
+            else if (!excluded && exclude) // exclude
+                item->setData(0, IncludedCountRole);
+        };
+        int const previousIncludedCount = item->data(IncludedCountRole).toInt();
+
+        // Update self and children
+        std::stack<QStandardItem*> queue;
+        queue.push(item);
+        while(!queue.empty()) {
+            auto node = queue.top();
+            queue.pop();
+            updateNode(node, exclude);
+            for (int i = 0; i < node->rowCount(); ++i)
+                queue.push(node->child(i, 0));
         }
 
-        if (checkParent && item->parent() != nullptr) {
-            auto parent = item->parent();
-            bool allExcluded = true;
-            for (int i = 0; i < parent->rowCount(); ++i)
-                if (!parent->child(i, 0)->data(ExcludedRole).toBool()) {
-                    allExcluded = false;
-                    break;
-                }
-            if (allExcluded && !parent->data(ExcludedRole).toBool())
-                excludeItem(parent, true, true, false);
-            else if (!allExcluded && parent->data(ExcludedRole).toBool())
-                excludeItem(parent, false, true, false);
+        int const includedCountDiff = item->data(IncludedCountRole).toInt() - previousIncludedCount;
+
+        // Update parents
+        auto parent = item->parent();
+        while (parent != nullptr) {
+            int const newParentIncludedCount = parent->data(IncludedCountRole).toInt() + includedCountDiff;
+            parent->setData(newParentIncludedCount, IncludedCountRole);
+            parent = parent->parent();
         }
+    }
+
+    bool FindWidget::isExcluded(QStandardItem* item) const noexcept
+    {
+        return item->data(IncludedCountRole).toInt() <= 0;
     }
 
     bool FindWidget::replaceItem(QModelIndex idx) noexcept
     {
-        ProjectModel* model = getSearchModelRoot().first;
+        Expects(m_mainWin != nullptr);
+        Expects(m_mainWin->project() != nullptr);
+
+        ProjectModel* model = m_mainWin->project();
         auto const modelIdx = qvariant_cast<QModelIndex>(idx.data(ModelIndexRole));
-        auto const type = static_cast<ResultType>(qvariant_cast<int>(idx.data(TypeRole)));
+        auto const resultType = getResultType(m_findModel->itemFromIndex(idx));
         auto const findResult = qvariant_cast<std::pair<int, int>>(idx.data(ResultSpanRole));
         auto const match = idx.data(MatchRole).toString();
         QString const replace = m_ui->lineEditReplace->text();
@@ -328,7 +449,7 @@ namespace novelist {
                     model->setData(modelIdx, name, Qt::EditRole);
                 },
                 [&](SceneData& arg) {
-                    if (type == ResultType::Title) {
+                    if (resultType == ResultType::Title) {
                         QString name = arg.m_name;
                         if (name.mid(findResult.first, findResult.second - findResult.first) != match) {
                             success = false;
@@ -381,6 +502,22 @@ namespace novelist {
         m_findModel.reset();
     }
 
+    FindWidget::ResultType FindWidget::getResultType(QStandardItem* item) const noexcept
+    {
+        if (item->parent() != nullptr) {
+            if (item->parent()->data(NodeTypeRole).toInt() == TitleResultTopic)
+                return ResultType::Title;
+            else if (item->parent()->data(NodeTypeRole).toInt() == ContentResultTopic)
+                return ResultType::Content;
+        }
+        return ResultType::None;
+    }
+
+    bool FindWidget::isResultNode(QStandardItem* item) const noexcept
+    {
+        return getResultType(item) != ResultType::None;
+    }
+
     void FindWidget::onFindTextChanged(QString const& text)
     {
         m_ui->pushButtonSearch->setEnabled(!text.isEmpty());
@@ -388,8 +525,11 @@ namespace novelist {
 
     void FindWidget::onSearchStarted()
     {
+        Expects(m_mainWin != nullptr);
+
         QString searchTerm = m_ui->lineEditFind->text();
-        auto[model, idx] = getSearchModelRoot();
+        auto model = m_mainWin->project();
+        auto idx = getSearchModelRoot();
 
         reset();
         m_findModel = std::make_unique<QStandardItemModel>();
@@ -409,6 +549,7 @@ namespace novelist {
         else
             search(model, idx, *m_findModel, m_findModel->invisibleRootItem(), progress);
         removeEmptyResults(m_findModel->invisibleRootItem());
+        updateCountsAndTitles(m_findModel->invisibleRootItem());
 
         progress.setValue(progress.maximum());
 
@@ -416,6 +557,7 @@ namespace novelist {
         m_ui->treeView->setItemDelegate(new internal::HtmlItemDelegate);
         m_ui->treeView->expandAll();
         connect(m_ui->treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &FindWidget::onSelectionChanged);
+        connect(m_findModel.get(), &QStandardItemModel::dataChanged, this, &FindWidget::onDataChanged);
     }
 
     void FindWidget::onPrevious()
@@ -428,7 +570,7 @@ namespace novelist {
             m_ui->treeView->expand(idx);
             idx = m_ui->treeView->moveCursor(internal::InternalTreeView::CursorAction::MovePrevious, Qt::NoModifier);
             m_ui->treeView->setCurrentIndex(idx);
-        } while (idx != lastIdx && !idx.data(ModelIndexRole).isValid());
+        } while (idx != lastIdx && !isResultNode(m_findModel->itemFromIndex(idx)));
         if (idx == lastIdx) // If we hit the top retain topmost selected result instead of jumping to tree root
             m_ui->treeView->setCurrentIndex(origIdx);
     }
@@ -441,7 +583,7 @@ namespace novelist {
             m_ui->treeView->expand(m_ui->treeView->currentIndex());
             idx = m_ui->treeView->moveCursor(internal::InternalTreeView::CursorAction::MoveNext, Qt::NoModifier);
             m_ui->treeView->setCurrentIndex(idx);
-        } while (idx != lastIdx && !idx.data(ModelIndexRole).isValid());
+        } while (idx != lastIdx && !isResultNode(m_findModel->itemFromIndex(idx)));
 
     }
 
@@ -451,19 +593,18 @@ namespace novelist {
 
         auto idx = m_ui->treeView->selectionModel()->selectedIndexes().front();
         auto item = m_findModel->itemFromIndex(idx);
-        bool isExcluded = !item->data(ExcludedRole).toBool();
-        excludeItem(item, isExcluded);
+        excludeItem(item, !isExcluded(item));
     }
 
     void FindWidget::onReplaceItem()
     {
         Expects(!m_ui->treeView->selectionModel()->selectedIndexes().isEmpty());
-        Expects(m_ui->treeView->selectionModel()->selectedIndexes().front().data(ModelIndexRole).isValid());
+        Expects(isResultNode(m_findModel->itemFromIndex(m_ui->treeView->selectionModel()->selectedIndexes().front())));
 
         auto idx = m_ui->treeView->selectionModel()->selectedIndexes().front();
         if (!replaceItem(idx)) {
             QMessageBox msgBox;
-            msgBox.setText(tr("Unable to replace the selected occurence."));
+            msgBox.setText(tr("Unable to replace the selected occurrence."));
             msgBox.setInformativeText(tr("The project might have changed since this result was found."));
             msgBox.setStandardButtons(QMessageBox::Ok);
             msgBox.setDefaultButton(QMessageBox::Ok);
@@ -473,7 +614,7 @@ namespace novelist {
         else {
             onNext();
             auto parentItem = m_findModel->itemFromIndex(idx.parent());
-            m_findModel->removeRow(idx.row(), parentItem->index());
+            removeRow(parentItem, idx.row());
             removeEmptyResultsUp(parentItem);
         }
     }
@@ -491,15 +632,15 @@ namespace novelist {
         while (true) {
             lastIdx = idx;
             idx = m_ui->treeView->currentIndex();
-            if (idx != lastIdx && idx.isValid() && idx.data(ModelIndexRole).isValid()) {
-                if (!idx.data(ExcludedRole).toBool()) {
+            if (idx != lastIdx && idx.isValid() && isResultNode(m_findModel->itemFromIndex(idx))) {
+                if (!isExcluded(m_findModel->itemFromIndex(idx))) {
                     if (!replaceItem(idx)) {
                         ++numFailed;
                         onNext();
                     }
                     else {
                         onNext();
-                        m_findModel->removeRow(idx.row(), idx.parent());
+                        removeRow(m_findModel->itemFromIndex(idx.parent()), idx.row());
                         idx = QModelIndex();
                     }
                 }
@@ -514,7 +655,7 @@ namespace novelist {
 
         if (numFailed > 0) {
             QMessageBox msgBox;
-            msgBox.setText(tr("%1 occurences could not be replaced.").arg(numFailed));
+            msgBox.setText(tr("%1 occurrences could not be replaced.").arg(numFailed));
             msgBox.setInformativeText(tr("The project might have changed since the results were found."));
             msgBox.setStandardButtons(QMessageBox::Ok);
             msgBox.setDefaultButton(QMessageBox::Ok);
@@ -526,12 +667,12 @@ namespace novelist {
     void FindWidget::onSelectionChanged(QItemSelection const& selected, QItemSelection const& /*deselected*/)
     {
         m_ui->pushButtonExclude->setEnabled(!selected.isEmpty());
-        m_ui->pushButtonReplace->setEnabled(!selected.isEmpty() && selected.front().indexes().front().data(ModelIndexRole).isValid());
+        m_ui->pushButtonReplace->setEnabled(!selected.isEmpty() && isResultNode(m_findModel->itemFromIndex(selected.front().indexes().front())));
     }
 
     void FindWidget::onItemActivated(QModelIndex const& index)
     {
-        if (!index.data(ModelIndexRole).isValid())
+        if (!isResultNode(m_findModel->itemFromIndex(index)))
             return;
 
         if (m_mainWin == nullptr)
@@ -552,8 +693,8 @@ namespace novelist {
         m_mainWin->projectView()->selectionModel()->select(idx, QItemSelectionModel::SelectCurrent);
         m_mainWin->projectView()->scrollTo(idx);
 
-        // If this is from a scene, select the occurence with cursor
-        if (index.data(TypeRole).toInt() == ResultType::Content) {
+        // If this is from a scene, select the occurrence with cursor
+        if (getResultType(m_findModel->itemFromIndex(index)) == ResultType::Content) {
             auto r = qvariant_cast<std::pair<int, int>>(index.data(ResultSpanRole));
             tabWidget->openScene(model, idx);
             TextEditor* edit = tabWidget->currentEditor();
@@ -563,6 +704,20 @@ namespace novelist {
             cursor.setPosition(r.first, QTextCursor::MoveMode::MoveAnchor);
             cursor.setPosition(r.second, QTextCursor::MoveMode::KeepAnchor);
             edit->setTextCursor(cursor);
+        }
+    }
+
+    void FindWidget::onDataChanged(QModelIndex const& topLeft, QModelIndex const& bottomRight, QVector<int> const& roles)
+    {
+        // Reformat display text if significant data changed
+        if (roles.empty() || roles.contains(StaticTextRole) || roles.contains(CountRole) || roles.contains(IncludedCountRole)) {
+            auto const parent = topLeft.parent();
+            for (int i = topLeft.row(); i <= bottomRight.row(); ++i) {
+                auto const idx = m_findModel->index(i, 0, parent);
+                auto const item = m_findModel->itemFromIndex(idx);
+                if (item->data(StaticTextRole).isValid())
+                    reformatNode(item);
+            }
         }
     }
 

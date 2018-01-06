@@ -31,19 +31,33 @@ namespace novelist {
     private:
         enum Role {
             ModelIndexRole = Qt::UserRole + 1, // Model index of result in project model
-            ExcludedRole, // Flag indicating whether the item has been marked as excluded
-            TypeRole, // Result type, title or content
+            NodeTypeRole, // NodeType
             ResultSpanRole, // Result span
             MatchRole, // Matching string
+            CountRole, // Amount of occurrences in subtree
+            IncludedCountRole, // Amount of included occurrences in subtree
+            StaticTextRole, // Static display text
+        };
+        enum NodeType {
+            ProjectRoot,
+            NotebookRoot,
+            Chapter,
+            Scene,
+            TitleResultTopic,
+            ContentResultTopic,
+            Result,
         };
         enum ResultType {
+            None,
             Title,
             Content,
         };
 
         void setupConnections() noexcept;
 
-        std::pair<ProjectModel*, QModelIndex> getSearchModelRoot() noexcept;
+        QModelIndex getSearchModelRoot() noexcept;
+
+        std::unique_ptr<QStandardItem> makeNode(NodeType type, QModelIndex idx = QModelIndex(), QString const& staticText = "") const noexcept;
 
         void
         search(ProjectModel* model, QModelIndex root, QStandardItemModel& resultsModel, QStandardItem* resultModelRoot,
@@ -53,19 +67,35 @@ namespace novelist {
         find(QString const& target, QString const& searchPhrase, bool matchCase, bool regex) noexcept;
 
         void addResults(QModelIndex idx, QStandardItem* resultModelParent,
-                std::vector<std::pair<int, int>> const& results, QString const& title, ResultType type) noexcept;
+                std::vector<std::pair<int, int>> const& results, QString const& title) noexcept;
 
-        QString formatResult(std::pair<int, int> const& result, QString const& str) noexcept;
+        QString composeResultString(std::pair<int, int> const& result, QString const& str) noexcept;
+
+        QString formatResult(QStandardItem* item) noexcept;
+
+        QString formatNonResult(QStandardItem* item) noexcept;
+
+        void reformatNode(QStandardItem* item) noexcept;
+
+        void removeRow(QStandardItem* parent, int row) noexcept;
 
         bool removeEmptyResults(QStandardItem* root) noexcept;
 
         bool removeEmptyResultsUp(QStandardItem* leaf) noexcept;
 
-        void excludeItem(QStandardItem* item, bool exclude, bool checkParent = true, bool recursive = true) noexcept;
+        void updateCountsAndTitles(QStandardItem* root) noexcept;
+
+        void excludeItem(QStandardItem* item, bool exclude) noexcept;
+
+        bool isExcluded(QStandardItem* item) const noexcept;
 
         bool replaceItem(QModelIndex idx) noexcept;
 
         void reset() noexcept;
+
+        ResultType getResultType(QStandardItem* item) const noexcept;
+
+        bool isResultNode(QStandardItem* item) const noexcept;
 
     private slots:
 
@@ -86,6 +116,8 @@ namespace novelist {
         void onSelectionChanged(QItemSelection const& selected, QItemSelection const& deselected);
 
         void onItemActivated(QModelIndex const& index);
+
+        void onDataChanged(QModelIndex const& topLeft, QModelIndex const& bottomRight, QVector<int> const& roles);
 
         std::unique_ptr<Ui::FindWidget> m_ui;
         std::unique_ptr<QStandardItemModel> m_findModel;
