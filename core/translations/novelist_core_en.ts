@@ -316,26 +316,63 @@
     </message>
     <message>
         <location filename="../src/novelist/settings/SettingsPage_Editor.ui" line="75"/>
+        <source>Replaces the quote substitute character &quot;. To get a second-level quote, hold the Alt key and press the single-quote substitute character &apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/novelist/settings/SettingsPage_Editor.ui" line="78"/>
         <source>AutoQuotes</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/settings/SettingsPage_Editor.ui" line="104"/>
+        <location filename="../src/novelist/settings/SettingsPage_Editor.ui" line="107"/>
+        <source>Automatically inserts closing brackets for (, { and [ characters.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/novelist/settings/SettingsPage_Editor.ui" line="110"/>
         <source>AutoBrackets</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/settings/SettingsPage_Editor.ui" line="114"/>
+        <location filename="../src/novelist/settings/SettingsPage_Editor.ui" line="120"/>
+        <source>Replaces the apostrophe substitute character &apos; with the appropriate unicode character ’.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/novelist/settings/SettingsPage_Editor.ui" line="123"/>
         <source>AutoApostrophe</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/settings/SettingsPage_Editor.ui" line="124"/>
+        <location filename="../src/novelist/settings/SettingsPage_Editor.ui" line="133"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+&lt;p&gt;Replaces multiple consecutive dashes:&lt;/p&gt;
+&lt;dl&gt;
+  &lt;dt&gt;2 dashes&lt;/dt&gt;
+  &lt;dd&gt;en-dash (–)&lt;/dd&gt;
+  &lt;dt&gt;3 dashes&lt;/dt&gt;
+  &lt;dd&gt;em-dash (—)&lt;/dd&gt;
+  &lt;dt&gt;4 dashes&lt;/dt&gt;
+  &lt;dd&gt;two-em-dash (⸺)&lt;/dd&gt;
+  &lt;dt&gt;5 dashes&lt;/dt&gt;
+  &lt;dd&gt;three-em-dash (⸻)&lt;/dd&gt;
+&lt;/dl&gt;
+&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/novelist/settings/SettingsPage_Editor.ui" line="148"/>
         <source>AutoDash</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/settings/SettingsPage_Editor.ui" line="134"/>
+        <location filename="../src/novelist/settings/SettingsPage_Editor.ui" line="158"/>
+        <source>Replaces three consecutive fullstops with the unicode elipsis character …</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/novelist/settings/SettingsPage_Editor.ui" line="161"/>
         <source>AutoElipsis</source>
         <translation></translation>
     </message>
@@ -433,84 +470,84 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="141"/>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="184"/>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="234"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="151"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="194"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="244"/>
         <source>Novelist</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="142"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="152"/>
         <source>Open project failed.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="143"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="153"/>
         <source>The selected directory does not contain a valid project.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="181"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="191"/>
         <source>Project successfully saved.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="185"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="195"/>
         <source>Saving the project failed.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="186"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="196"/>
         <source>Check if you have write privileges.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="235"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="245"/>
         <source>There are unsaved changes.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="237"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="247"/>
         <source>If you continue, all changes will be lost. Are you sure you want to continue?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="256"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="266"/>
         <source>Welcome!</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="257"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="267"/>
         <source>Hello there, sweetheart. Let&apos;s write a book together.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="258"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="268"/>
         <source>Aww, you came back for me!</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="259"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="269"/>
         <source>Isn&apos;t it just the perfect day to write a novel?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="260"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="270"/>
         <source>Hey, you! Yeah, you with the pretty face! Wanna write a novel?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="261"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="271"/>
         <source>Hi!</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="262"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="272"/>
         <source>Have I ever told you how it tickles when you type?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/windows/MainWindow.cpp" line="263"/>
+        <location filename="../src/novelist/windows/MainWindow.cpp" line="273"/>
         <source>Welcome back! We&apos;re such a great team. You&apos;re my best friend!</source>
         <translation></translation>
     </message>
@@ -615,14 +652,14 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/view/ProjectView.cpp" line="126"/>
-        <location filename="../src/novelist/view/ProjectView.cpp" line="131"/>
+        <location filename="../src/novelist/view/ProjectView.cpp" line="141"/>
+        <location filename="../src/novelist/view/ProjectView.cpp" line="146"/>
         <source>Chapter %1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/view/ProjectView.cpp" line="155"/>
-        <location filename="../src/novelist/view/ProjectView.cpp" line="160"/>
+        <location filename="../src/novelist/view/ProjectView.cpp" line="170"/>
+        <location filename="../src/novelist/view/ProjectView.cpp" line="175"/>
         <source>Scene %1</source>
         <translation></translation>
     </message>
@@ -630,12 +667,12 @@
 <context>
     <name>novelist::SceneTabWidget</name>
     <message>
-        <location filename="../src/novelist/widgets/SceneTabWidget.cpp" line="231"/>
+        <location filename="../src/novelist/widgets/SceneTabWidget.cpp" line="236"/>
         <source>Undo modification of &quot;%1&quot;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/novelist/widgets/SceneTabWidget.cpp" line="237"/>
+        <location filename="../src/novelist/widgets/SceneTabWidget.cpp" line="242"/>
         <source>Redo modification of &quot;%1&quot;</source>
         <translation></translation>
     </message>
