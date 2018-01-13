@@ -577,22 +577,22 @@
     <message>
         <location filename="../src/novelist/model/ProjectModel.cpp" line="1022"/>
         <source>inserting &quot;%1&quot;</source>
-        <translation>\&quot;%1\&quot; einfügen</translation>
+        <translation>&quot;%1&quot; einfügen</translation>
     </message>
     <message>
         <location filename="../src/novelist/model/ProjectModel.cpp" line="1042"/>
         <source>removing &quot;%1&quot;</source>
-        <translation>\&quot;%1&quot; entfernen</translation>
+        <translation>&quot;%1&quot; entfernen</translation>
     </message>
     <message>
         <location filename="../src/novelist/model/ProjectModel.cpp" line="1065"/>
         <source>moving &quot;%1&quot;</source>
-        <translation>\&quot;%1\&quot; bewegen</translation>
+        <translation>&quot;%1&quot; bewegen</translation>
     </message>
     <message>
         <location filename="../src/novelist/model/ProjectModel.cpp" line="1099"/>
         <source>changing name from &quot;%1&quot; to &quot;%2&quot;</source>
-        <translation>Änderung des Namens von \&quot;%1\&quot; nach \&quot;%2\&quot;</translation>
+        <translation>Änderung des Namens von &quot;%1&quot; nach &quot;%2&quot;</translation>
     </message>
     <message>
         <location filename="../src/novelist/model/ProjectModel.cpp" line="1125"/>
