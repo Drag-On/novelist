@@ -101,6 +101,8 @@ namespace novelist {
 
         bool isResultNode(QStandardItem* item) const noexcept;
 
+        void selectInMatches(QModelIndex const& idx) noexcept;
+
     private slots:
 
         void onFindTextChanged(QString const& text);
