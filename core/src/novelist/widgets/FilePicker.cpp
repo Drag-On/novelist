@@ -14,7 +14,13 @@ namespace novelist {
             :QWidget(parent, f)
     {
         m_lineEdit = new QLineEdit(this);
+        auto const minLineWidth = m_lineEdit->fontMetrics().width("/home/user/Documents/novelist/");
+        m_lineEdit->setMinimumWidth(minLineWidth);
+
         m_button = new QPushButton("...", this);
+        auto const buttonWidth = m_button->fontMetrics().width(m_button->text()) + 20;
+        m_button->setMinimumWidth(buttonWidth);
+        m_button->setMaximumWidth(buttonWidth);
         connect(m_button, &QPushButton::pressed, this, &FilePicker::onFilePick);
 
         auto layout = new QHBoxLayout(this);
@@ -32,6 +38,36 @@ namespace novelist {
     void FilePicker::setSelectedFile(QString const& filename) noexcept
     {
         m_lineEdit->setText(filename);
+    }
+
+    QFileDialog::FileMode FilePicker::fileMode() const noexcept
+    {
+        return m_fileMode;
+    }
+
+    void FilePicker::setFileMode(QFileDialog::FileMode fileMode) noexcept
+    {
+        m_fileMode = fileMode;
+    }
+
+    QFileDialog::AcceptMode FilePicker::acceptMode() const noexcept
+    {
+        return m_acceptMode;
+    }
+
+    void FilePicker::setAcceptMode(QFileDialog::AcceptMode acceptMode) noexcept
+    {
+        m_acceptMode = acceptMode;
+    }
+
+    QFileDialog::ViewMode FilePicker::viewMode() const noexcept
+    {
+        return m_viewMode;
+    }
+
+    void FilePicker::setViewMode(QFileDialog::ViewMode viewMode) noexcept
+    {
+        m_viewMode = viewMode;
     }
 
     void FilePicker::onFilePick()
