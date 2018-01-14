@@ -71,6 +71,9 @@
      <layout class="QFormLayout" name="formLayout">
       <item row="0" column="0">
        <widget class="QCheckBox" name="checkBoxAutoQuotes">
+        <property name="toolTip">
+         <string>Replaces the quote substitute character &quot;. To get a second-level quote, hold the Alt key and press the single-quote substitute character '.</string>
+        </property>
         <property name="text">
          <string>AutoQuotes</string>
         </property>
@@ -100,6 +103,9 @@
       </item>
       <item row="1" column="0">
        <widget class="QCheckBox" name="checkBoxAutoBrackets">
+        <property name="toolTip">
+         <string>Automatically inserts closing brackets for (, { and [ characters.</string>
+        </property>
         <property name="text">
          <string>AutoBrackets</string>
         </property>
@@ -110,6 +116,9 @@
       </item>
       <item row="2" column="0">
        <widget class="QCheckBox" name="checkBoxAutoApostrophe">
+        <property name="toolTip">
+         <string>Replaces the apostrophe substitute character ' with the appropriate unicode character ’.</string>
+        </property>
         <property name="text">
          <string>AutoApostrophe</string>
         </property>
@@ -120,6 +129,21 @@
       </item>
       <item row="3" column="0">
        <widget class="QCheckBox" name="checkBoxAutoDash">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+&lt;p&gt;Replaces multiple consecutive dashes:&lt;/p&gt;
+&lt;dl&gt;
+  &lt;dt&gt;2 dashes&lt;/dt&gt;
+  &lt;dd&gt;en-dash (–)&lt;/dd&gt;
+  &lt;dt&gt;3 dashes&lt;/dt&gt;
+  &lt;dd&gt;em-dash (—)&lt;/dd&gt;
+  &lt;dt&gt;4 dashes&lt;/dt&gt;
+  &lt;dd&gt;two-em-dash (⸺)&lt;/dd&gt;
+  &lt;dt&gt;5 dashes&lt;/dt&gt;
+  &lt;dd&gt;three-em-dash (⸻)&lt;/dd&gt;
+&lt;/dl&gt;
+&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="text">
          <string>AutoDash</string>
         </property>
@@ -130,6 +154,9 @@
       </item>
       <item row="4" column="0">
        <widget class="QCheckBox" name="checkBoxAutoElipsis">
+        <property name="toolTip">
+         <string>Replaces three consecutive fullstops with the unicode elipsis character …</string>
+        </property>
         <property name="text">
          <string>AutoElipsis</string>
         </property>

@@ -21,6 +21,10 @@ namespace novelist {
      */
     class NOVELIST_CORE_EXPORT FilePicker : public QWidget {
     Q_OBJECT
+    Q_PROPERTY(QString selectedFile MEMBER m_selectedFile READ selectedFile WRITE setSelectedFile)
+    Q_PROPERTY(QFileDialog::FileMode fileMode MEMBER m_fileMode READ fileMode WRITE setFileMode)
+    Q_PROPERTY(QFileDialog::AcceptMode acceptMode MEMBER m_acceptMode READ acceptMode WRITE setAcceptMode)
+    Q_PROPERTY(QFileDialog::ViewMode viewMode MEMBER m_viewMode READ viewMode WRITE setViewMode)
 
     public:
         /**
@@ -41,6 +45,36 @@ namespace novelist {
          */
         void setSelectedFile(QString const& filename) noexcept;
 
+        /**
+         * @return Current file mode
+         */
+        QFileDialog::FileMode fileMode() const noexcept;
+
+        /**
+         * @param fileMode New file mode
+         */
+        void setFileMode(QFileDialog::FileMode fileMode) noexcept;
+
+        /**
+         * @return Current accept mode
+         */
+        QFileDialog::AcceptMode acceptMode() const noexcept;
+
+        /**
+         * @param acceptMode New accept mode
+         */
+        void setAcceptMode(QFileDialog::AcceptMode acceptMode) noexcept;
+
+        /**
+         * @return Current view mode
+         */
+        QFileDialog::ViewMode viewMode() const noexcept;
+
+        /**
+         * @param viewMode New view mode
+         */
+        void setViewMode(QFileDialog::ViewMode viewMode) noexcept;
+
     private:
         QLineEdit* m_lineEdit;
         QPushButton* m_button;
@@ -48,7 +82,6 @@ namespace novelist {
         QFileDialog::AcceptMode m_acceptMode = QFileDialog::AcceptMode::AcceptOpen;
         QFileDialog::ViewMode m_viewMode = QFileDialog::ViewMode::Detail;
         QFileDialog::Options m_options = 0;
-
 
         void onFilePick();
     };

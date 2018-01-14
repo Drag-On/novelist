@@ -537,6 +537,12 @@ namespace novelist {
         return getResultType(item) != ResultType::None;
     }
 
+    void FindWidget::selectInMatches(QModelIndex const& idx) noexcept
+    {
+        m_ui->treeView->selectionModel()->setCurrentIndex(idx, QItemSelectionModel::SelectionFlag::ClearAndSelect);
+        m_ui->treeView->selectionModel()->select(idx, QItemSelectionModel::SelectionFlag::ClearAndSelect);
+    }
+
     void FindWidget::onFindTextChanged(QString const& text)
     {
         m_ui->pushButtonSearch->setEnabled(!text.isEmpty());
@@ -588,10 +594,10 @@ namespace novelist {
             idx = m_ui->treeView->moveCursor(internal::InternalTreeView::CursorAction::MovePrevious, Qt::NoModifier);
             m_ui->treeView->expand(idx);
             idx = m_ui->treeView->moveCursor(internal::InternalTreeView::CursorAction::MovePrevious, Qt::NoModifier);
-            m_ui->treeView->setCurrentIndex(idx);
+            selectInMatches(idx);
         } while (idx != lastIdx && !isResultNode(m_findModel->itemFromIndex(idx)));
         if (idx == lastIdx) // If we hit the top retain topmost selected result instead of jumping to tree root
-            m_ui->treeView->setCurrentIndex(origIdx);
+            selectInMatches(origIdx);
     }
 
     void FindWidget::onNext()
@@ -601,9 +607,8 @@ namespace novelist {
             lastIdx = idx;
             m_ui->treeView->expand(m_ui->treeView->currentIndex());
             idx = m_ui->treeView->moveCursor(internal::InternalTreeView::CursorAction::MoveNext, Qt::NoModifier);
-            m_ui->treeView->setCurrentIndex(idx);
+            selectInMatches(idx);
         } while (idx != lastIdx && !isResultNode(m_findModel->itemFromIndex(idx)));
-
     }
 
     void FindWidget::onExcludeItem()
@@ -642,7 +647,7 @@ namespace novelist {
 
     void FindWidget::onReplaceAll()
     {
-        m_ui->treeView->setCurrentIndex(QModelIndex());
+        selectInMatches(QModelIndex());
         onNext();
 
         if (!m_ui->treeView->currentIndex().isValid())
