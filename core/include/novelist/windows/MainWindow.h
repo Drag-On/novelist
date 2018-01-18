@@ -78,6 +78,8 @@ namespace novelist {
 
         void onOpenSettings();
 
+        void onOpenFormats();
+
     signals:
         void projectAboutToChange(ProjectModel* model);
 

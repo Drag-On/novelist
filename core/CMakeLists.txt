@@ -41,6 +41,7 @@ add_library(novelist_core
         src/novelist/windows/NoteEditWindow.cpp include/novelist/windows/NoteEditWindow.h
         src/novelist/windows/MainWindow.cpp include/novelist/windows/MainWindow.h
         src/novelist/windows/SettingsWindow.cpp include/novelist/windows/SettingsWindow.h
+        src/novelist/windows/TextFormatDialog.cpp include/novelist/windows/TextFormatDialog.h
         include/novelist/util/Overloaded.h
         include/novelist/util/Identity.h
         src/novelist/util/ConnectionWrapper.cpp include/novelist/util/ConnectionWrapper.h

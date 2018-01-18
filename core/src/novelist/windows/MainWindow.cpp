@@ -11,6 +11,7 @@
 #include <QtWidgets/QMessageBox>
 #include <QtWidgets/QFileDialog>
 #include <random>
+#include "windows/TextFormatDialog.h"
 #include "windows/SettingsWindow.h"
 #include "windows/MainWindow.h"
 #include "util/MenuHelper.h"
@@ -65,6 +66,7 @@ namespace novelist {
         connect(m_ui->action_Close_Project, &QAction::triggered, this, &MainWindow::onCloseProject);
         connect(m_ui->action_Save, &QAction::triggered, this, &MainWindow::onSaveProject);
         connect(m_ui->actionSettings, &QAction::triggered, this, &MainWindow::onOpenSettings);
+        connect(m_ui->action_Formats, &QAction::triggered, this, &MainWindow::onOpenFormats);
         connect(m_ui->actionAbout_Qt, &QAction::triggered, [&]() { QMessageBox::aboutQt(this); });
         connect(m_ui->actionAbout_Novelist, &QAction::triggered, [&]() {
             QMessageBox::about(this, tr("About Novelist"),
@@ -204,6 +206,12 @@ namespace novelist {
     void MainWindow::onOpenSettings()
     {
         SettingsWindow wnd;
+        wnd.exec();
+    }
+
+    void MainWindow::onOpenFormats()
+    {
+        TextFormatDialog wnd;
         wnd.exec();
     }
 

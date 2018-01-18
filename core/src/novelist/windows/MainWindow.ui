@@ -98,6 +98,8 @@
     <addaction name="action_Overline"/>
     <addaction name="action_Strikethrough"/>
     <addaction name="actionSmall_Caps"/>
+    <addaction name="separator"/>
+    <addaction name="action_Formats"/>
    </widget>
    <widget class="QMenu" name="menu_Inspection">
     <property name="title">
@@ -427,6 +429,11 @@
   <action name="actionSettings">
    <property name="text">
     <string>Settings</string>
+   </property>
+  </action>
+  <action name="action_Formats">
+   <property name="text">
+    <string>&amp;Formats</string>
    </property>
   </action>
  </widget>
