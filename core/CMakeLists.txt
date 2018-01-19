@@ -49,6 +49,7 @@ add_library(novelist_core
         src/novelist/util/DelegateAction.cpp include/novelist/util/DelegateAction.h
         src/novelist/util/MenuHelper.cpp include/novelist/util/MenuHelper.h
         src/novelist/util/TranslationManager.cpp include/novelist/util/TranslationManager.h
+        include/novelist/util/StrongTypedef.h
         include/novelist/util/CrcHash.h
         include/novelist/settings/SettingsPage.h
         src/novelist/settings/Settings.cpp include/novelist/settings/Settings.h

@@ -93,7 +93,7 @@ namespace novelist {
      * @return The hash
      */
     template<typename Crc = CRC32>
-    constexpr typename Crc::Hash_t crcHash(char const* message, size_t nBytes) noexcept
+    constexpr typename Crc::Hash_t crcHash(char const* const message, size_t nBytes) noexcept
     {
         using namespace internal;
 
@@ -102,7 +102,7 @@ namespace novelist {
         typename Crc::Hash_t remainder = Crc::initialRemainder;
 
         for (size_t byte = 0; byte < nBytes; ++byte) {
-            data = reinterpret_cast<uint8_t const*>(message)[byte];
+            data = static_cast<uint8_t>(message[byte]);
             if constexpr (Crc::reflectData)
                 data = reverseBits<uint8_t>(data);
             data ^= (remainder >> (width - 8));
@@ -123,10 +123,12 @@ namespace novelist {
      * @return The hash
      */
     template<typename Crc = CRC32>
-    constexpr typename Crc::Hash_t crcHash(std::string const& message) noexcept
+    constexpr typename Crc::Hash_t crcHash(std::string_view message) noexcept
     {
-        return crcHash<Crc>(message.c_str(), message.size());
+        char const* const dat = message.data();
+        return crcHash<Crc>(dat, message.size());
     }
+
 }
 
 #endif //NOVELIST_STRINGHASH_H

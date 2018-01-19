@@ -12,6 +12,7 @@ if (catch_FOUND)
             document/SceneDocumentTest.cpp
             util/IdentityTest.cpp
             util/CrcHashTest.cpp
+            util/StrongTypedefTest.cpp
             model/ProjectModelTest.cpp
             )
 
