@@ -11,6 +11,7 @@ if (catch_FOUND)
             datastructures/SortedVectorTest.cpp
             document/SceneDocumentTest.cpp
             util/IdentityTest.cpp
+            util/CrcHashTest.cpp
             model/ProjectModelTest.cpp
             )
 
