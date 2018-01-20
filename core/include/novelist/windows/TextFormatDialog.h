@@ -11,7 +11,9 @@
 
 #include <memory>
 #include <QtWidgets/QDialog>
+#include <gsl/gsl>
 #include <novelist_core_export.h>
+#include "document/TextFormatManager.h"
 
 namespace Ui {
     class TextFormatDialog;
@@ -23,10 +25,11 @@ namespace novelist {
 
     public:
         /**
+         * @param mgr Text format manager
          * @param parent Parent window
          * @param f Window flags
          */
-        explicit TextFormatDialog(QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags{});
+        explicit TextFormatDialog(gsl::not_null<TextFormatManager*> mgr, QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags{});
 
         ~TextFormatDialog() noexcept override;
 
@@ -41,13 +44,41 @@ namespace novelist {
 
         void apply();
 
-        void restoreDefaults();
-
     protected:
         void changeEvent(QEvent* event) override;
 
+    private slots:
+        void onAddTextFormat();
+        void onRemoveTextFormat();
+        void onItemSelectionChanged();
+        void onAlignLeft();
+        void onAlignRight();
+        void onAlignCenter();
+        void onAlignFill();
+        void onLeftMarginChanged(int val);
+        void onRightMarginChanged(int val);
+        void onTopMarginChanged(int val);
+        void onBottomMarginChanged(int val);
+        void onIndentChanged(int val);
+        void onTextIndentChanged(int val);
+        void onAutoTextIndentClicked();
+        void onBold();
+        void onItalic();
+        void onUnderline();
+        void onOverline();
+        void onStrikethrough();
+        void onSmallCaps();
+
     private:
+        enum Roles {
+            TextFormatIdRole = Qt::UserRole,
+            TextFormatRole,
+        };
+
+        TextFormatManager::TextFormat* getActiveFormat();
+
         std::unique_ptr<Ui::TextFormatDialog> m_ui;
+        TextFormatManager* m_mgr;
     };
 }
 

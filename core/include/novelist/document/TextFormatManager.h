@@ -12,11 +12,12 @@
 #include <vector>
 #include <QtCore/QString>
 #include <QtGui/QTextBlockFormat>
+#include <novelist_core_export.h>
 #include "util/StrongTypedef.h"
 #include "util/Identity.h"
 
 namespace novelist {
-    class TextFormatManager {
+    class NOVELIST_CORE_EXPORT TextFormatManager {
     public:
         //!< Type of all format ids
         STRONG_TYPEDEF(FormatId, uint32_t);
@@ -47,7 +48,7 @@ namespace novelist {
         struct Indentation {
             uint32_t m_indent = 0;
             uint32_t m_textIndent = 0;
-            bool autoTextIndent = false;
+            bool m_autoTextIndent = false;
         };
 
         /**
@@ -93,6 +94,27 @@ namespace novelist {
          * @param destIdx Destination index
          */
         void move(size_t srcIdx, size_t destIdx) noexcept;
+
+        /**
+         * Gets the format ID of the element a certain index
+         * @param idx Index
+         * @return Format ID of index. Invalid if index was out of range.
+         */
+        FormatId idFromIndex(size_t idx) const noexcept;
+
+        /**
+         * Gets the index of the element with a certain id
+         * @param id ID
+         * @return Index of element with requested id. Out of bounds if id was invalid.
+         */
+        size_t indexFromId(FormatId id) const noexcept;
+
+        /**
+         * Retrieve a pointer to the text format at a certain index
+         * @param id ID of the format
+         * @return Pointer to the format if found, or nullptr if index is out of bounds
+         */
+        TextFormat const* getTextFormat(size_t idx) const noexcept;
 
         /**
          * Retrieve a pointer to the text format associated with a given ID
@@ -147,4 +169,15 @@ namespace novelist {
         static int const s_typePropertyId = QTextFormat::UserProperty + 1;
     };
 }
+
+Q_DECLARE_METATYPE(novelist::TextFormatManager::Alignment*)
+
+Q_DECLARE_METATYPE(novelist::TextFormatManager::Margin*)
+
+Q_DECLARE_METATYPE(novelist::TextFormatManager::Indentation*)
+
+Q_DECLARE_METATYPE(novelist::TextFormatManager::CharacterFormat*)
+
+Q_DECLARE_METATYPE(novelist::TextFormatManager::TextFormat*)
+
 #endif //NOVELIST_TEXTFORMATMANAGER_H

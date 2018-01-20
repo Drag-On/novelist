@@ -35,6 +35,33 @@ namespace novelist {
         move_range(m_formats.begin() + srcIdx, 1, m_formats.begin() + destIdx);
     }
 
+    TextFormatManager::FormatId TextFormatManager::idFromIndex(size_t idx) const noexcept
+    {
+        if (idx < m_formats.size())
+            return FormatId{m_formats[idx].m_id.id()};
+        qWarning() << "Converted out-of-bounds index" << idx << "to format id";
+        return FormatId(std::numeric_limits<uint32_t>::max());
+    }
+
+    size_t TextFormatManager::indexFromId(TextFormatManager::FormatId id) const noexcept
+    {
+        auto iter = std::find_if(m_formats.begin(), m_formats.end(),
+                [&id](auto const& f) {
+                    return f.m_id.id() == static_cast<uint32_t>(id);
+                });
+        if (iter != m_formats.end())
+            return static_cast<size_t>(std::distance(m_formats.begin(), iter));
+        qWarning() << "Converted invalid format id" << static_cast<uint32_t>(id) << "to index";
+        return std::numeric_limits<size_t>::max();
+    }
+
+    TextFormatManager::TextFormat const* TextFormatManager::getTextFormat(size_t idx) const noexcept
+    {
+        if (idx < m_formats.size())
+            return &m_formats[idx].m_textFormat;
+        return nullptr;
+    }
+
     TextFormatManager::TextFormat const* TextFormatManager::getTextFormat(FormatId id) const noexcept
     {
         auto iter = std::find_if(m_formats.begin(), m_formats.end(),

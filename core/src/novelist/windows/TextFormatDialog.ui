@@ -25,7 +25,7 @@
      <widget class="QWidget" name="layoutWidget">
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <widget class="QListView" name="listViewFormats">
+        <widget class="QListWidget" name="listWidgetFormats">
          <property name="dragEnabled">
           <bool>true</bool>
          </property>
@@ -51,7 +51,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_2">
+          <widget class="QPushButton" name="pushButtonRemoveFormat">
            <property name="text">
             <string/>
            </property>
@@ -260,7 +260,7 @@
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QCheckBox" name="checkBox_3">
+           <widget class="QCheckBox" name="checkBoxUnderline">
             <property name="text">
              <string>Underline</string>
             </property>
@@ -327,7 +327,7 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::RestoreDefaults</set>
+      <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>
@@ -371,7 +371,7 @@
   </connection>
   <connection>
    <sender>checkBoxAutoTextIndent</sender>
-   <signal>clicked(bool)</signal>
+   <signal>toggled(bool)</signal>
    <receiver>spinBoxTextIndent</receiver>
    <slot>setDisabled(bool)</slot>
    <hints>
