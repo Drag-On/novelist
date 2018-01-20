@@ -42,55 +42,55 @@ namespace novelist {
             constexpr BasicStrongTypedef(BasicStrongTypedef<T, I>&& other) noexcept
                     :m_data(other.m_data) { }
 
-            explicit constexpr operator T() noexcept
+            explicit inline constexpr operator T() const noexcept
             {
                 return m_data;
             };
 
-            constexpr BasicStrongTypedef<T, I>& operator=(T val) noexcept
+            constexpr inline BasicStrongTypedef<T, I>& operator=(T val) noexcept
             {
                 m_data = val;
                 return *this;
             };
 
-            constexpr BasicStrongTypedef<T, I>& operator=(BasicStrongTypedef<T, I> other) noexcept
+            constexpr inline BasicStrongTypedef<T, I>& operator=(BasicStrongTypedef<T, I> other) noexcept
             {
                 m_data = other.m_data;
                 return *this;
             };
 
-            constexpr BasicStrongTypedef<T, I>& operator=(BasicStrongTypedef<T, I>&& other) noexcept
+            constexpr inline BasicStrongTypedef<T, I>& operator=(BasicStrongTypedef<T, I>&& other) noexcept
             {
                 m_data = other.m_data;
                 return *this;
             };
 
-            constexpr bool operator==(BasicStrongTypedef<T, I> other) noexcept
+            constexpr inline bool operator==(BasicStrongTypedef<T, I> other) const noexcept
             {
                 return m_data == other.m_data;
             }
 
-            constexpr bool operator!=(BasicStrongTypedef<T, I> other) noexcept
+            constexpr inline bool operator!=(BasicStrongTypedef<T, I> other) const noexcept
             {
                 return m_data != other.m_data;
             }
 
-            constexpr bool operator<(BasicStrongTypedef<T, I> other) noexcept
+            constexpr inline bool operator<(BasicStrongTypedef<T, I> other) const noexcept
             {
                 return m_data < other.m_data;
             }
 
-            constexpr bool operator<=(BasicStrongTypedef<T, I> other) noexcept
+            constexpr inline bool operator<=(BasicStrongTypedef<T, I> other) const noexcept
             {
                 return m_data <= other.m_data;
             }
 
-            constexpr bool operator>(BasicStrongTypedef<T, I> other) noexcept
+            constexpr inline bool operator>(BasicStrongTypedef<T, I> other) const noexcept
             {
                 return m_data > other.m_data;
             }
 
-            constexpr bool operator>=(BasicStrongTypedef<T, I> other) noexcept
+            constexpr inline bool operator>=(BasicStrongTypedef<T, I> other) const noexcept
             {
                 return m_data >= other.m_data;
             }
