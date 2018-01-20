@@ -36,6 +36,7 @@ add_library(novelist_core
         src/novelist/document/GrammarInsight.cpp include/novelist/document/GrammarInsight.h
         src/novelist/document/SpellingInsight.cpp include/novelist/document/SpellingInsight.h
         src/novelist/document/TypographyInsight.cpp include/novelist/document/TypographyInsight.h
+        src/novelist/document/TextFormatManager.cpp include/novelist/document/TextFormatManager.h
         include/novelist/document/InsightFactory.h
         src/novelist/windows/ProjectPropertiesWindow.cpp include/novelist/windows/ProjectPropertiesWindow.h
         src/novelist/windows/NoteEditWindow.cpp include/novelist/windows/NoteEditWindow.h
