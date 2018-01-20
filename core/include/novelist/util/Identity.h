@@ -225,7 +225,7 @@ namespace novelist {
             for (T i = m_next; i < id; ++i)
                 m_freeList.push_back(i);
             Id<Tag_Type, T> genId(this, id);
-            m_next = id + 1;
+            m_next = id + static_cast<T>(1);
             checkFreeList();
             return genId;
         }
@@ -252,7 +252,7 @@ namespace novelist {
     void IdManager<Tag_Type, T>::checkFreeList()
     {
         std::sort(m_freeList.begin(), m_freeList.end());
-        while (!m_freeList.empty() && m_freeList.back() == m_next - 1) {
+        while (!m_freeList.empty() && m_freeList.back() == m_next - static_cast<T>(1)) {
             --m_next;
             m_freeList.pop_back();
         }

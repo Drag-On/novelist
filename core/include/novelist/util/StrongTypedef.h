@@ -23,78 +23,6 @@ namespace novelist {
         {
             return N - 1;
         }
-
-        template<typename T, size_t I>
-        class BasicStrongTypedef {
-        private:
-            T m_data{};
-        public:
-            constexpr BasicStrongTypedef() = default;
-
-            ~BasicStrongTypedef() = default;
-
-            explicit constexpr BasicStrongTypedef(T val) noexcept
-                    :m_data(val) { }
-
-            constexpr BasicStrongTypedef(BasicStrongTypedef<T, I> const& other) noexcept
-                    :m_data(other.m_data) { }
-
-            constexpr BasicStrongTypedef(BasicStrongTypedef<T, I>&& other) noexcept
-                    :m_data(other.m_data) { }
-
-            explicit inline constexpr operator T() const noexcept
-            {
-                return m_data;
-            };
-
-            constexpr inline BasicStrongTypedef<T, I>& operator=(T val) noexcept
-            {
-                m_data = val;
-                return *this;
-            };
-
-            constexpr inline BasicStrongTypedef<T, I>& operator=(BasicStrongTypedef<T, I> other) noexcept
-            {
-                m_data = other.m_data;
-                return *this;
-            };
-
-            constexpr inline BasicStrongTypedef<T, I>& operator=(BasicStrongTypedef<T, I>&& other) noexcept
-            {
-                m_data = other.m_data;
-                return *this;
-            };
-
-            constexpr inline bool operator==(BasicStrongTypedef<T, I> other) const noexcept
-            {
-                return m_data == other.m_data;
-            }
-
-            constexpr inline bool operator!=(BasicStrongTypedef<T, I> other) const noexcept
-            {
-                return m_data != other.m_data;
-            }
-
-            constexpr inline bool operator<(BasicStrongTypedef<T, I> other) const noexcept
-            {
-                return m_data < other.m_data;
-            }
-
-            constexpr inline bool operator<=(BasicStrongTypedef<T, I> other) const noexcept
-            {
-                return m_data <= other.m_data;
-            }
-
-            constexpr inline bool operator>(BasicStrongTypedef<T, I> other) const noexcept
-            {
-                return m_data > other.m_data;
-            }
-
-            constexpr inline bool operator>=(BasicStrongTypedef<T, I> other) const noexcept
-            {
-                return m_data >= other.m_data;
-            }
-        };
     }
 
     template<typename T, size_t I>
@@ -103,14 +31,133 @@ namespace novelist {
 
 #define STRONG_TYPEDEF_GEN_BASIC_TYPE(T) \
     template<size_t I> \
-    class StrongTypedef<T, I> : public internal::BasicStrongTypedef<T, I> { \
-        using internal::BasicStrongTypedef<T, I>::BasicStrongTypedef; \
-        using internal::BasicStrongTypedef<T, I>::operator=; \
+    class StrongTypedef<T, I> { \
+    private: \
+        T m_data{}; \
+    public: \
+        constexpr StrongTypedef() = default; \
+        ~StrongTypedef() = default; \
+        explicit constexpr StrongTypedef(T val) noexcept \
+                :m_data(val) { } \
+        constexpr StrongTypedef(StrongTypedef<T, I> const& other) noexcept \
+                :m_data(other.m_data) { } \
+        constexpr StrongTypedef(StrongTypedef<T, I>&& other) noexcept \
+                :m_data(other.m_data) { } \
+        explicit inline constexpr operator T() const noexcept \
+        { \
+            return m_data; \
+        }; \
+        constexpr inline StrongTypedef<T, I>& operator=(T val) noexcept \
+        { \
+            m_data = val; \
+            return *this; \
+        }; \
+        constexpr inline StrongTypedef<T, I>& operator=(StrongTypedef<T, I> const& other) noexcept \
+        { \
+            m_data = other.m_data; \
+            return *this; \
+        }; \
+        constexpr inline StrongTypedef<T, I>& operator=(StrongTypedef<T, I>&& other) noexcept \
+        { \
+            m_data = other.m_data; \
+            return *this; \
+        }; \
+        constexpr inline StrongTypedef<T, I>& operator+=(StrongTypedef<T, I> const& other) noexcept \
+        { \
+            m_data += other.m_data; \
+            return *this; \
+        }; \
+        constexpr inline StrongTypedef<T, I> operator+(StrongTypedef<T, I> const& other) const noexcept \
+        { \
+            auto temp = *this; \
+            temp += other; \
+            return temp; \
+        }; \
+        constexpr inline StrongTypedef<T, I>& operator-=(StrongTypedef<T, I> const& other) noexcept \
+        { \
+            m_data -= other.m_data; \
+            return *this; \
+        }; \
+        constexpr inline StrongTypedef<T, I> operator-(StrongTypedef<T, I> const& other) const noexcept \
+        { \
+            auto temp = *this; \
+            temp -= other; \
+            return temp; \
+        }; \
+        constexpr inline StrongTypedef<T, I>& operator*=(StrongTypedef<T, I> const& other) noexcept \
+        { \
+            m_data *= other.m_data; \
+            return *this; \
+        }; \
+        constexpr inline StrongTypedef<T, I> operator*(StrongTypedef<T, I> const& other) const noexcept \
+        { \
+            auto temp = *this; \
+            temp *= other; \
+            return temp; \
+        }; \
+        constexpr inline StrongTypedef<T, I>& operator/=(StrongTypedef<T, I> const& other) noexcept \
+        { \
+            m_data /= other.m_data; \
+            return *this; \
+        }; \
+        constexpr inline StrongTypedef<T, I> operator/(StrongTypedef<T, I> const& other) const noexcept \
+        { \
+            auto temp = *this; \
+            temp /= other; \
+            return temp; \
+        }; \
+        constexpr inline StrongTypedef<T, I> operator-() const noexcept \
+        { \
+            auto temp = *this; \
+            temp.m_data = - temp.m_data; \
+            return temp; \
+        }; \
+        constexpr inline StrongTypedef<T, I>& operator++() noexcept \
+        { \
+            ++m_data; \
+            return *this; \
+        }; \
+        constexpr inline StrongTypedef<T, I> operator++(int) noexcept \
+        { \
+            m_data++; \
+            return *this; \
+        }; \
+        constexpr inline StrongTypedef<T, I>& operator--() noexcept \
+        { \
+            --m_data; \
+            return *this; \
+        }; \
+        constexpr inline StrongTypedef<T, I> operator--(int) noexcept \
+        { \
+            m_data--; \
+            return *this; \
+        }; \
+        constexpr inline bool operator==(StrongTypedef<T, I> const& other) const noexcept \
+        { \
+            return m_data == other.m_data; \
+        } \
+        constexpr inline bool operator!=(StrongTypedef<T, I> const& other) const noexcept \
+        { \
+            return m_data != other.m_data; \
+        } \
+        constexpr inline bool operator<(StrongTypedef<T, I> const& other) const noexcept \
+        { \
+            return m_data < other.m_data; \
+        } \
+        constexpr inline bool operator<=(StrongTypedef<T, I> const& other) const noexcept \
+        { \
+            return m_data <= other.m_data; \
+        } \
+        constexpr inline bool operator>(StrongTypedef<T, I> const& other) const noexcept \
+        { \
+            return m_data > other.m_data; \
+        } \
+        constexpr inline bool operator>=(StrongTypedef<T, I> const& other) const noexcept \
+        { \
+            return m_data >= other.m_data; \
+        } \
     }
 
-    STRONG_TYPEDEF_GEN_BASIC_TYPE(void);
-    STRONG_TYPEDEF_GEN_BASIC_TYPE(std::nullptr_t);
-    STRONG_TYPEDEF_GEN_BASIC_TYPE(bool);
     STRONG_TYPEDEF_GEN_BASIC_TYPE(signed char);
     STRONG_TYPEDEF_GEN_BASIC_TYPE(unsigned char);
     STRONG_TYPEDEF_GEN_BASIC_TYPE(char);
