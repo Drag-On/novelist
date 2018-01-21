@@ -79,7 +79,15 @@ namespace novelist {
          * @param textFormat New text format
          * @return ID of the new format
          */
-        FormatId add(TextFormat textFormat) noexcept;
+        FormatId push_back(TextFormat textFormat) noexcept;
+
+        /**
+         * Insert a new text format at a specific position into the manager.
+         * @param idx Index to add new format at
+         * @param textFormat New text format
+         * @return ID of the new format
+         */
+        FormatId insert(size_t idx, TextFormat textFormat) noexcept;
 
         /**
          * Remove text format with a given ID

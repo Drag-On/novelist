@@ -211,8 +211,7 @@ namespace novelist {
 
     void MainWindow::onOpenFormats()
     {
-        TextFormatManager tmpMgr; // TODO: Replace with actual manager object
-        TextFormatDialog wnd(&tmpMgr);
+        TextFormatDialog wnd(&m_textFormatMgr);
         wnd.exec();
     }
 

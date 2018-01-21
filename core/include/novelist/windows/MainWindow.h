@@ -16,6 +16,7 @@
 #include "model/ProjectModel.h"
 #include "widgets/SceneTabWidget.h"
 #include "view/ProjectView.h"
+#include "document/TextFormatManager.h"
 #include "novelist_core_export.h"
 
 namespace Ui {
@@ -97,6 +98,7 @@ namespace novelist {
     private:
         std::unique_ptr<Ui::MainWindow> m_ui;
         std::unique_ptr<ProjectModel> m_model;
+        TextFormatManager m_textFormatMgr;
         DelegateAction m_undoAction{"Undo"};
         DelegateAction m_redoAction{"Redo"};
 

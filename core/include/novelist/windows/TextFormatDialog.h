@@ -11,6 +11,7 @@
 
 #include <memory>
 #include <QtWidgets/QDialog>
+#include <QtWidgets/QListWidgetItem>
 #include <gsl/gsl>
 #include <novelist_core_export.h>
 #include "document/TextFormatManager.h"
@@ -50,6 +51,7 @@ namespace novelist {
     private slots:
         void onAddTextFormat();
         void onRemoveTextFormat();
+        void onItemChanged(QListWidgetItem* item);
         void onItemSelectionChanged();
         void onAlignLeft();
         void onAlignRight();

@@ -19,19 +19,9 @@ namespace novelist {
     {
         m_ui->setupUi(this);
 
-        for (size_t i = 0; i < mgr->size(); ++i) {
-            auto format = mgr->getTextFormat(i);
-            auto item = std::make_unique<QListWidgetItem>(format->m_name);
-            item->setFlags(item->flags() | Qt::ItemIsEditable);
-            item->setData(TextFormatIdRole, static_cast<uint32_t>(m_mgr->idFromIndex(i)));
-            auto formatCpy = std::make_unique<TextFormatManager::TextFormat>();
-            *formatCpy = *format;
-            item->setData(TextFormatRole, QVariant::fromValue(formatCpy.release()));
-            m_ui->listWidgetFormats->addItem(item.release());
-        }
-
         connect(m_ui->pushButtonAddFormat, &QPushButton::pressed, this, &TextFormatDialog::onAddTextFormat);
         connect(m_ui->pushButtonRemoveFormat, &QPushButton::pressed, this, &TextFormatDialog::onRemoveTextFormat);
+        connect(m_ui->listWidgetFormats, &QListWidget::itemChanged, this, &TextFormatDialog::onItemChanged);
         connect(m_ui->listWidgetFormats, &QListWidget::itemSelectionChanged, this, &TextFormatDialog::onItemSelectionChanged);
         connect(m_ui->radioButtonAlignLeft, &QRadioButton::toggled, this, &TextFormatDialog::onAlignLeft);
         connect(m_ui->radioButtonAlignRight, &QRadioButton::toggled, this, &TextFormatDialog::onAlignRight);
@@ -50,6 +40,20 @@ namespace novelist {
         connect(m_ui->checkBoxOverline, &QCheckBox::toggled, this, &TextFormatDialog::onOverline);
         connect(m_ui->checkBoxStrikethrough, &QCheckBox::toggled, this, &TextFormatDialog::onStrikethrough);
         connect(m_ui->checkBoxSmallCaps, &QCheckBox::toggled, this, &TextFormatDialog::onSmallCaps);
+
+        for (size_t i = 0; i < mgr->size(); ++i) {
+            auto format = mgr->getTextFormat(i);
+            auto item = std::make_unique<QListWidgetItem>(format->m_name);
+            item->setFlags(item->flags() | Qt::ItemIsEditable);
+            item->setData(TextFormatIdRole, static_cast<uint32_t>(m_mgr->idFromIndex(i)));
+            auto formatCpy = std::make_unique<TextFormatManager::TextFormat>();
+            *formatCpy = *format;
+            item->setData(TextFormatRole, QVariant::fromValue(formatCpy.release()));
+            m_ui->listWidgetFormats->addItem(item.release());
+        }
+
+        if (m_ui->listWidgetFormats->count() > 0)
+            m_ui->listWidgetFormats->setItemSelected(m_ui->listWidgetFormats->item(0), true);
     }
 
     TextFormatDialog::~TextFormatDialog() noexcept
@@ -79,7 +83,22 @@ namespace novelist {
 
     void TextFormatDialog::apply()
     {
-        // TODO: Transfer data to manager
+        for (int i = 0; i < m_ui->listWidgetFormats->count(); ++i) {
+            auto item = m_ui->listWidgetFormats->item(i);
+            auto format = qvariant_cast<TextFormatManager::TextFormat*>(item->data(TextFormatRole));
+            auto idVariant = item->data(TextFormatIdRole);
+            if (idVariant.isValid()) {
+                // Move item to correct position
+                auto id = qvariant_cast<uint32_t>(idVariant);
+                m_mgr->setTextFormat(TextFormatManager::FormatId(id), *format);
+                auto curIdx = m_mgr->indexFromId(TextFormatManager::FormatId(id));
+                m_mgr->move(curIdx, i);
+            }
+            else {
+                // Insert new item
+                m_mgr->insert(i, *format);
+            }
+        }
     }
 
     void TextFormatDialog::changeEvent(QEvent* event)
@@ -112,6 +131,12 @@ namespace novelist {
             m_ui->listWidgetFormats->removeItemWidget(item);
             delete item; // Yup, this is how Qt rolls
         }
+    }
+
+    void TextFormatDialog::onItemChanged(QListWidgetItem* item)
+    {
+        auto const format = qvariant_cast<TextFormatManager::TextFormat*>(item->data(TextFormatRole));
+        format->m_name = item->text();
     }
 
     void TextFormatDialog::onItemSelectionChanged()

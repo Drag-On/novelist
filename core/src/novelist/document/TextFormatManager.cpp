@@ -12,14 +12,29 @@
 
 namespace novelist {
     TextFormatManager::FormatId
-    TextFormatManager::add(TextFormat textFormat) noexcept
+    TextFormatManager::push_back(TextFormat textFormat) noexcept
     {
         auto id = m_idMgr.generate();
         InternalTextFormat format{std::move(id)};
         format.m_textFormat = std::move(textFormat);
         format.m_blockFormat = extractBlockFormat(format.m_textFormat, format.m_id.id());
         format.m_charFormat = extractCharFormat(format.m_textFormat, format.m_id.id());
-        return FormatId{format.m_id.id()};
+        m_formats.push_back(std::move(format));
+        return FormatId{m_formats.back().m_id.id()};
+    }
+
+    TextFormatManager::FormatId TextFormatManager::insert(size_t idx, TextFormatManager::TextFormat textFormat) noexcept
+    {
+        if (idx > m_formats.size())
+            return TextFormatManager::FormatId(std::numeric_limits<uint32_t>::max());
+
+        auto id = m_idMgr.generate();
+        InternalTextFormat format{std::move(id)};
+        format.m_textFormat = std::move(textFormat);
+        format.m_blockFormat = extractBlockFormat(format.m_textFormat, format.m_id.id());
+        format.m_charFormat = extractCharFormat(format.m_textFormat, format.m_id.id());
+        m_formats.insert(m_formats.begin() + idx, std::move(format));
+        return FormatId{(m_formats.begin() + idx)->m_id.id()};
     }
 
     bool TextFormatManager::remove(TextFormatManager::FormatId id) noexcept
