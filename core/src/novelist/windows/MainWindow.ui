@@ -168,9 +168,9 @@
    <addaction name="action_Open_Project"/>
    <addaction name="action_Save"/>
   </widget>
-  <widget class="QToolBar" name="toolBarFormat">
+  <widget class="QToolBar" name="toolBarFont">
    <property name="windowTitle">
-    <string>Toolbar (Format)</string>
+    <string>Toolbar (Font)</string>
    </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
@@ -218,6 +218,18 @@
      </item>
     </layout>
    </widget>
+  </widget>
+  <widget class="QToolBar" name="toolBarFormat">
+   <property name="windowTitle">
+    <string>Toolbar (Format)</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="action_Formats"/>
   </widget>
   <action name="action_New_Project">
    <property name="icon">
@@ -432,6 +444,9 @@
    </property>
   </action>
   <action name="action_Formats">
+   <property name="icon">
+    <iconset theme="document-page-setup"/>
+   </property>
    <property name="text">
     <string>&amp;Formats</string>
    </property>

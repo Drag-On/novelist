@@ -35,17 +35,17 @@ namespace novelist {
         // Replace some actions with appropriate delegate actions
         m_ui->action_Undo = replaceMenuAction(m_ui->menu_Edit, m_ui->action_Undo, &m_undoAction);
         m_ui->action_Redo = replaceMenuAction(m_ui->menu_Edit, m_ui->action_Redo, &m_redoAction);
-        m_ui->action_Bold = replaceMenuAndToolbarAction(m_ui->menu_Format, m_ui->toolBarFormat, m_ui->action_Bold,
+        m_ui->action_Bold = replaceMenuAndToolbarAction(m_ui->menu_Format, m_ui->toolBarFont, m_ui->action_Bold,
                 m_ui->sceneTabWidget->boldAction());
-        m_ui->action_Italic = replaceMenuAndToolbarAction(m_ui->menu_Format, m_ui->toolBarFormat, m_ui->action_Italic,
+        m_ui->action_Italic = replaceMenuAndToolbarAction(m_ui->menu_Format, m_ui->toolBarFont, m_ui->action_Italic,
                 m_ui->sceneTabWidget->italicAction());
-        m_ui->action_Underline = replaceMenuAndToolbarAction(m_ui->menu_Format, m_ui->toolBarFormat,
+        m_ui->action_Underline = replaceMenuAndToolbarAction(m_ui->menu_Format, m_ui->toolBarFont,
                 m_ui->action_Underline, m_ui->sceneTabWidget->underlineAction());
-        m_ui->action_Overline = replaceMenuAndToolbarAction(m_ui->menu_Format, m_ui->toolBarFormat,
+        m_ui->action_Overline = replaceMenuAndToolbarAction(m_ui->menu_Format, m_ui->toolBarFont,
                 m_ui->action_Overline, m_ui->sceneTabWidget->overlineAction());
-        m_ui->action_Strikethrough = replaceMenuAndToolbarAction(m_ui->menu_Format, m_ui->toolBarFormat,
+        m_ui->action_Strikethrough = replaceMenuAndToolbarAction(m_ui->menu_Format, m_ui->toolBarFont,
                 m_ui->action_Strikethrough, m_ui->sceneTabWidget->strikethroughAction());
-        m_ui->actionSmall_Caps = replaceMenuAndToolbarAction(m_ui->menu_Format, m_ui->toolBarFormat,
+        m_ui->actionSmall_Caps = replaceMenuAndToolbarAction(m_ui->menu_Format, m_ui->toolBarFont,
                 m_ui->actionSmall_Caps, m_ui->sceneTabWidget->smallCapsAction());
         m_ui->actionAdd_Note = replaceMenuAction(m_ui->menu_Inspection, m_ui->actionAdd_Note,
                 m_ui->sceneTabWidget->addNoteAction());
