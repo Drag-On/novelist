@@ -87,6 +87,10 @@ namespace novelist::editor {
 
     bool Document::needAutoTextIndent(TextFormat::WeakId thisParFormat, TextFormat::WeakId prevParFormat) const noexcept
     {
-        return thisParFormat == prevParFormat;
+        auto const& thisFormat = m_formatMgr->getTextFormat(m_formatMgr->indexFromId(thisParFormat));
+        auto const& prevFormat = m_formatMgr->getTextFormat(m_formatMgr->indexFromId(prevParFormat));
+        return thisFormat->m_data.m_margin.m_left == prevFormat->m_data.m_margin.m_left
+                && thisFormat->m_data.m_indentation.m_indent == prevFormat->m_data.m_indentation.m_indent
+                && thisFormat->m_data.m_alignment == prevFormat->m_data.m_alignment;
     }
 }
