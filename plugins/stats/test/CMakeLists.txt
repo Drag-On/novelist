@@ -29,4 +29,4 @@ if (TESTS)
 
     enable_cxx17(novelist_stats_test)
 
-endif(catch_FOUND)
+endif(TESTS)

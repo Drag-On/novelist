@@ -36,4 +36,4 @@ if (TESTS)
 
     enable_cxx17(novelist_core_test)
 
-endif(catch_FOUND)
+endif(TESTS)
