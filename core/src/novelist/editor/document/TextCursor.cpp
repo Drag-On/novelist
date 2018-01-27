@@ -54,6 +54,11 @@ namespace novelist::editor {
         return m_cursor.hasSelection();
     }
 
+    QString TextCursor::selectedText() const noexcept
+    {
+        return m_cursor.selectedText();
+    }
+
     bool TextCursor::atParagraphStart() const noexcept
     {
         return m_cursor.atBlockStart();
@@ -112,6 +117,8 @@ namespace novelist::editor {
 
     void TextCursor::setCharacterFormat(TextFormat::WeakId id) noexcept
     {
-        m_cursor.setCharFormat(*m_doc->m_formatMgr->getTextCharFormat(id));
+        auto format = *m_doc->m_formatMgr->getTextCharFormat(id);
+        m_cursor.setCharFormat(format);
+        m_cursor.setBlockCharFormat(format);
     }
 }

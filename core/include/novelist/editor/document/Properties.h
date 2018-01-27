@@ -30,8 +30,6 @@ namespace novelist::editor {
 
         size_t countParagraphs() const noexcept;
 
-        size_t countLines() const noexcept;
-
         size_t countWords() const noexcept;
 
         size_t countCharacters() const noexcept;
@@ -41,11 +39,11 @@ namespace novelist::editor {
         void changed();
 
     private:
-        Properties(Document* doc, QString title, gsl::not_null<ProjectLanguage*> lang);
+        Properties(Document* doc, QString title, gsl::not_null<ProjectLanguage const*> lang);
 
         Document* m_doc;
         QString m_title;
-        gsl::not_null<ProjectLanguage*> m_lang;
+        gsl::not_null<ProjectLanguage const*> m_lang;
 
         friend Document;
     };

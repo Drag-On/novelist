@@ -57,6 +57,7 @@ add_library(novelist_core
         src/novelist/settings/SettingsPage_General.cpp include/novelist/settings/SettingsPage_General.h
         src/novelist/settings/SettingsPage_Editor.cpp include/novelist/settings/SettingsPage_Editor.h
         src/novelist/test/TestApplication.cpp include/novelist/test/TestApplication.h
+        include/novelist/test/catch_string_conversions.h
         src/novelist/editor/document/Document.cpp include/novelist/editor/document/Document.h
         src/novelist/editor/document/TextFormatManager.cpp include/novelist/editor/document/TextFormatManager.h
         include/novelist/editor/document/TextFormat.h

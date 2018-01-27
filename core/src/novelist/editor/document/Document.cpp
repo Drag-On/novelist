@@ -8,14 +8,22 @@
  **********************************************************/
 #include <QtGui/QTextBlock>
 #include "editor/document/Document.h"
+#include "editor/document/TextCursor.h"
 
 namespace novelist::editor {
     Document::Document(gsl::not_null<TextFormatManager*> formatMgr, QString title,
-            gsl::not_null<ProjectLanguage*> lang) noexcept
+            gsl::not_null<ProjectLanguage const*> lang)
             :m_properties(this, std::move(title), lang),
              m_formatMgr(formatMgr),
              m_doc(std::make_unique<QTextDocument>())
     {
+        if (m_formatMgr->size() == 0)
+            throw std::invalid_argument("TextFormatManager may not be empty.");
+
+        // Per default, use the first format
+        TextCursor cursor(this);
+        cursor.setParagraphFormat(formatMgr->idFromIndex(0));
+        cursor.setCharacterFormat(formatMgr->idFromIndex(0));
     }
 
     QUndoStack& Document::undoStack() noexcept

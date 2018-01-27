@@ -32,8 +32,9 @@ namespace novelist::editor {
          * @param formatMgr Format manager object
          * @param title Document title
          * @param lang Document language
+         * @throw std::invalid_argument if the passed format manager is empty
          */
-        explicit Document(gsl::not_null<TextFormatManager*> formatMgr, QString title, gsl::not_null<ProjectLanguage*> lang) noexcept;
+        explicit Document(gsl::not_null<TextFormatManager*> formatMgr, QString title, gsl::not_null<ProjectLanguage const*> lang);
 
         /**
          * @return Undo stack of this document

@@ -36,11 +36,6 @@ namespace novelist::editor {
         return 0; // TODO: implement
     }
 
-    size_t Properties::countLines() const noexcept
-    {
-        return 0; // TODO: implement
-    }
-
     size_t Properties::countWords() const noexcept
     {
         return 0; // TODO: implement
@@ -51,7 +46,7 @@ namespace novelist::editor {
         return 0; // TODO: implement
     }
 
-    Properties::Properties(Document* doc, QString title, gsl::not_null<ProjectLanguage*> lang)
+    Properties::Properties(Document* doc, QString title, gsl::not_null<ProjectLanguage const*> lang)
             :m_doc(doc),
              m_title(std::move(title)),
              m_lang(lang)

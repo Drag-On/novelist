@@ -38,7 +38,7 @@ namespace novelist::editor {
     struct Indentation {
         uint32_t m_indent = 0;
         uint32_t m_textIndent = 0;
-        bool m_autoTextIndent = false;
+        bool m_autoTextIndent = true;
     };
 
     /**

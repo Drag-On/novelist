@@ -73,6 +73,11 @@ namespace novelist::editor {
         bool hasSelection() const noexcept;
 
         /**
+         * @return The currently selected text
+         */
+        QString selectedText() const noexcept;
+
+        /**
          * @return true if at paragraph start, otherwise false
          */
         bool atParagraphStart() const noexcept;
@@ -114,7 +119,7 @@ namespace novelist::editor {
         void insertText(QString text) noexcept;
 
         /**
-         * @return Current paragraph format
+         * @return Paragraph format of the paragraph the cursor is located in
          */
         TextFormat::WeakId paragraphFormat() const noexcept;
 
@@ -125,7 +130,7 @@ namespace novelist::editor {
         void setParagraphFormat(TextFormat::WeakId id) noexcept;
 
         /**
-         * @return Current character format
+         * @return Character format of the character right before the cursor.
          */
         TextFormat::WeakId characterFormat() const noexcept;
 

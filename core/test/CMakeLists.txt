@@ -14,6 +14,7 @@ if (TESTS)
             util/CrcHashTest.cpp
             util/StrongTypedefTest.cpp
             model/ProjectModelTest.cpp
+            editor/document/DocumentTest.cpp
             )
 
     target_include_directories(novelist_core_test
