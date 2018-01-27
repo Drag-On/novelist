@@ -15,3 +15,5 @@ option(USAN "Enable gcc undefined sanitizer" OFF)
 if (USAN)
     set (CMAKE_CXX_FLAGS "-fsanitize=undefined")
 endif()
+
+option(TESTS "Build unit tests" ON)

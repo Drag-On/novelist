@@ -1,3 +1,4 @@
+include(ExternalProject)
 
 # ============================================================== #
 # Qt5
@@ -15,4 +16,18 @@ endif ()
 # ============================================================== #
 # Catch
 # ============================================================== #
-find_package(Catch)
+if (TESTS)
+    set(CATCH_VERSION "2.1.1")
+    ExternalProject_Add(
+        BuildCatch
+        PREFIX ${CMAKE_BINARY_DIR}/catch2
+        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+        GIT_TAG v${CATCH_VERSION}
+        CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/contrib
+        LOG_DOWNLOAD 1
+        UPDATE_DISCONNECTED 1
+    )
+    add_library(Catch INTERFACE)
+    add_dependencies(Catch BuildCatch)
+    target_include_directories(Catch INTERFACE ${CMAKE_BINARY_DIR}/contrib/include/catch/)
+endif()

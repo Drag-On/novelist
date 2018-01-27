@@ -1,5 +1,5 @@
 
-if (catch_FOUND)
+if (TESTS)
 
     project(novelist_core_test)
 

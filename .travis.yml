@@ -3,10 +3,7 @@ compiler: gcc
 dist: trusty
 sudo: false
 
-before_install:
-  # Get a recent catch release
-  - mkdir -p ~/catch/single_include/
-  - wget -P ~/catch/single_include/ https://github.com/philsquared/Catch/releases/download/v2.0.0-develop.4/catch.hpp
+#before_install:
 
 addons:
   apt:
@@ -24,7 +21,7 @@ script:
   # Set up Qt
   - source /opt/qt59/bin/qt59-env.sh
   # Compile debug build
-  - CXX=/usr/bin/g++-7 CC=/usr/bin/gcc-7 cmake -D CATCH_DIR="~/catch" -D CMAKE_BUILD_TYPE=Debug .
+  - CXX=/usr/bin/g++-7 CC=/usr/bin/gcc-7 cmake -D CMAKE_BUILD_TYPE=Debug .
   - cmake --build . -- -j2
   # Run tests
   - xvfb-run -a -e xvfb.log core/test/novelist_core_test
