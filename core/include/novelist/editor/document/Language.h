@@ -56,10 +56,19 @@ namespace novelist::editor {
     NOVELIST_CORE_EXPORT std::ostream& operator<<(std::ostream& os, Country country) noexcept;
 
     /**
+     * Quotation marks characters used by a language
+     */
+    struct NOVELIST_CORE_EXPORT QuotationMarks {
+        std::pair<char const* const, char const* const> const primary; //!< Primary (outer) quotes
+        std::pair<char const* const, char const* const> const secondary; //!< Secondary (inner) quotes
+    };
+
+    /**
      * Provides features associated with a language, such as its language code
      */
     struct NOVELIST_CORE_EXPORT LanguageFeatures {
         char const* const code; //!< Language code, e.g. "en" for english
+        std::initializer_list<QuotationMarks> const quotes; //!< Used primary and secondary quotation marks
     };
     /**
      * Provides features associated with a country, such as its country code
@@ -75,9 +84,15 @@ namespace novelist::editor {
     template<Language lang>
     constexpr LanguageFeatures const languageFeatures;
     template<>
-    constexpr LanguageFeatures const languageFeatures<Language::English>{"en"};
+    constexpr LanguageFeatures const languageFeatures<Language::English>{
+            "en", // language code
+            {{{"“", "”"}, {"‘", "’"}}, {{"‘", "’"}, {"“", "”"}}}, // quotes
+    };
     template<>
-    constexpr LanguageFeatures const languageFeatures<Language::German>{"de"};
+    constexpr LanguageFeatures const languageFeatures<Language::German>{
+            "de", // language code
+            {{{"„", "“"}, {"‚", "‘"}}, {{"»", "«"}, {"›", "‹"}}}, // quotes
+    };
 
     /**
      * Global instance of country features
