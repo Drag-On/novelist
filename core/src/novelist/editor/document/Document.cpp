@@ -228,7 +228,9 @@ namespace novelist::editor {
         {
             QTextCursor cursor(m_doc->m_doc.get());
             cursor.setPosition(m_pos);
+            auto prevCharFormat = cursor.charFormat();
             cursor.insertBlock();
+            cursor.setBlockCharFormat(prevCharFormat);
         }
 
         int BlockInsertCommand::undoPosition() const noexcept
