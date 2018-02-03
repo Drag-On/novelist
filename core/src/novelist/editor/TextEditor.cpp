@@ -86,10 +86,18 @@ namespace novelist::editor {
             if (event->type() == QEvent::KeyPress) {
                 auto* keyEvent = static_cast<QKeyEvent*>(event);
 
-                if (keyEvent->matches(QKeySequence::StandardKey::Undo))
+                if (keyEvent->matches(QKeySequence::StandardKey::Undo)) {
+                    if (!m_doc->undoStack().canUndo())
+                        return true;
                     m_doc->undoStack().undo();
-                else if (keyEvent->matches(QKeySequence::StandardKey::Redo))
+                    tryMoveCursorToUndoPos();
+                }
+                else if (keyEvent->matches(QKeySequence::StandardKey::Redo)) {
+                    if (!m_doc->undoStack().canRedo())
+                        return true;
                     m_doc->undoStack().redo();
+                    tryMoveCursorToRedoPos();
+                }
                 else if (keyEvent->matches(QKeySequence::StandardKey::Backspace) ||
                         keyEvent->key() == Qt::Key_Backspace)
                     getCursor().deletePrevious();
@@ -185,5 +193,39 @@ namespace novelist::editor {
             }
         }
         return false;
+    }
+
+    void TextEditor::tryMoveCursorToUndoPos() noexcept
+    {
+        int pos = -1;
+        auto cmd = m_doc->undoStack().command(m_doc->undoStack().index());
+        if (auto ptr = dynamic_cast<internal::TextInsertCommand const*>(cmd); ptr != nullptr)
+            pos = ptr->undoPosition();
+        else if (auto ptr = dynamic_cast<internal::TextRemoveCommand const*>(cmd); ptr != nullptr)
+            pos = ptr->undoPosition();
+        else if (auto ptr = dynamic_cast<internal::BlockInsertCommand const*>(cmd); ptr != nullptr)
+            pos = ptr->undoPosition();
+        if (pos >= 0) {
+            auto cursor = getCursor();
+            cursor.setPosition(pos);
+            setCursor(cursor);
+        }
+    }
+
+    void TextEditor::tryMoveCursorToRedoPos() noexcept
+    {
+        int pos = -1;
+        auto cmd = m_doc->undoStack().command(m_doc->undoStack().index() - 1);
+        if (auto ptr = dynamic_cast<internal::TextInsertCommand const*>(cmd); ptr != nullptr)
+            pos = ptr->redoPosition();
+        else if (auto ptr = dynamic_cast<internal::TextRemoveCommand const*>(cmd); ptr != nullptr)
+            pos = ptr->redoPosition();
+        else if (auto ptr = dynamic_cast<internal::BlockInsertCommand const*>(cmd); ptr != nullptr)
+            pos = ptr->redoPosition();
+        if (pos >= 0) {
+            auto cursor = getCursor();
+            cursor.setPosition(pos);
+            setCursor(cursor);
+        }
     }
 }

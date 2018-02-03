@@ -46,6 +46,10 @@ namespace novelist::editor {
         bool eventFilter(QObject* obj, QEvent* event) override;
 
     private:
+        void tryMoveCursorToUndoPos() noexcept;
+
+        void tryMoveCursorToRedoPos() noexcept;
+
         std::unique_ptr<Document> m_doc;
         QVBoxLayout* m_vBoxLayout;
         QHBoxLayout* m_hBoxLayout;

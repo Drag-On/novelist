@@ -145,6 +145,16 @@ namespace novelist::editor {
             return false;
         }
 
+        int TextInsertCommand::undoPosition() const noexcept
+        {
+            return m_pos;
+        }
+
+        int TextInsertCommand::redoPosition() const noexcept
+        {
+            return m_pos + m_added.size();
+        }
+
         TextRemoveCommand::TextRemoveCommand(Document* doc, int pos, QString removed) noexcept
         : m_doc(doc),
           m_pos(pos),
@@ -190,6 +200,16 @@ namespace novelist::editor {
             return false;
         }
 
+        int TextRemoveCommand::undoPosition() const noexcept
+        {
+            return m_pos + m_removed.size();
+        }
+
+        int TextRemoveCommand::redoPosition() const noexcept
+        {
+            return m_pos;
+        }
+
         BlockInsertCommand::BlockInsertCommand(Document* doc, int pos) noexcept
                 :m_doc(doc),
                  m_pos(pos)
@@ -209,6 +229,16 @@ namespace novelist::editor {
             QTextCursor cursor(m_doc->m_doc.get());
             cursor.setPosition(m_pos);
             cursor.insertBlock();
+        }
+
+        int BlockInsertCommand::undoPosition() const noexcept
+        {
+            return m_pos;
+        }
+
+        int BlockInsertCommand::redoPosition() const noexcept
+        {
+            return m_pos + 1;
         }
     }
 }

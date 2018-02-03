@@ -103,6 +103,10 @@ namespace novelist::editor {
 
             bool mergeWith(QUndoCommand const* other) override;
 
+            int undoPosition() const noexcept;
+
+            int redoPosition() const noexcept;
+
         private:
             Document* m_doc;
             int m_pos;
@@ -121,6 +125,10 @@ namespace novelist::editor {
 
             bool mergeWith(QUndoCommand const* other) override;
 
+            int undoPosition() const noexcept;
+
+            int redoPosition() const noexcept;
+
         private:
             Document* m_doc;
             int m_pos;
@@ -134,6 +142,10 @@ namespace novelist::editor {
             void undo() override;
 
             void redo() override;
+
+            int undoPosition() const noexcept;
+
+            int redoPosition() const noexcept;
 
         private:
             Document* m_doc;
