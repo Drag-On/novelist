@@ -98,6 +98,12 @@ namespace novelist::editor {
         void select(int pos, int anchor) noexcept;
 
         /**
+         * Select text relative from current position / selection
+         * @param op
+         */
+        void select(MoveOperation op) noexcept;
+
+        /**
          * @return Current selection
          */
         std::pair<int, int> getSelection() const noexcept;

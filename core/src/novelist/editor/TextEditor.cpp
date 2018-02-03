@@ -98,18 +98,37 @@ namespace novelist::editor {
                     m_doc->undoStack().redo();
                     tryMoveCursorToRedoPos();
                 }
-                else if (keyEvent->matches(QKeySequence::StandardKey::Backspace) ||
-                        keyEvent->key() == Qt::Key_Backspace)
+                else if (keyEvent->matches(QKeySequence::StandardKey::Backspace) || keyEvent->key() == Qt::Key_Backspace)
                     getCursor().deletePrevious();
                 else if (keyEvent->matches(QKeySequence::StandardKey::Copy)) { } // TODO
                 else if (keyEvent->matches(QKeySequence::StandardKey::Cut)) { } // TODO
-                else if (keyEvent->matches(QKeySequence::StandardKey::Delete) ||
-                        keyEvent->key() == Qt::Key_Delete)
+                else if (keyEvent->matches(QKeySequence::StandardKey::Delete) || keyEvent->key() == Qt::Key_Delete)
                     getCursor().deleteNext();
-                else if (keyEvent->matches(QKeySequence::StandardKey::DeleteEndOfLine)) { } // TODO
-                else if (keyEvent->matches(QKeySequence::StandardKey::DeleteEndOfWord)) { } // TODO
-                else if (keyEvent->matches(QKeySequence::StandardKey::DeleteStartOfWord)) { } // TODO
-                else if (keyEvent->matches(QKeySequence::StandardKey::DeleteCompleteLine)) { } // TODO
+                else if (keyEvent->matches(QKeySequence::StandardKey::DeleteEndOfLine)) {
+                    auto cursor = getCursor();
+                    cursor.select(TextCursor::MoveOperation::EndOfLine);
+                    cursor.deleteSelected();
+                    setCursor(cursor);
+                }
+                else if (keyEvent->matches(QKeySequence::StandardKey::DeleteEndOfWord)) {
+                    auto cursor = getCursor();
+                    cursor.select(TextCursor::MoveOperation::EndOfWord);
+                    cursor.deleteSelected();
+                    setCursor(cursor);
+                }
+                else if (keyEvent->matches(QKeySequence::StandardKey::DeleteStartOfWord)) {
+                    auto cursor = getCursor();
+                    cursor.select(TextCursor::MoveOperation::StartOfWord);
+                    cursor.deleteSelected();
+                    setCursor(cursor);
+                }
+                else if (keyEvent->matches(QKeySequence::StandardKey::DeleteCompleteLine)) {
+                    auto cursor = getCursor();
+                    cursor.move(TextCursor::MoveOperation::StartOfLine);
+                    cursor.select(TextCursor::MoveOperation::EndOfLine);
+                    cursor.deleteSelected();
+                    setCursor(cursor);
+                }
                 else if (keyEvent->matches(QKeySequence::StandardKey::InsertLineSeparator)) { } // TODO
                 else if (keyEvent->matches(QKeySequence::StandardKey::InsertParagraphSeparator))
                     getCursor().insertParagraph();
@@ -188,28 +207,68 @@ namespace novelist::editor {
                     cursor.setPosition(cursor.position());
                     setCursor(cursor);
                 }
-                else if (keyEvent->matches(QKeySequence::StandardKey::SelectEndOfBlock)) { } // TODO
-                else if (keyEvent->matches(QKeySequence::StandardKey::SelectEndOfDocument)) { } // TODO
-                else if (keyEvent->matches(QKeySequence::StandardKey::SelectEndOfLine)) { } // TODO
+                else if (keyEvent->matches(QKeySequence::StandardKey::SelectEndOfBlock)) {
+                    auto cursor = getCursor();
+                    cursor.select(TextCursor::MoveOperation::EndOfParagraph);
+                    setCursor(cursor);
+                }
+                else if (keyEvent->matches(QKeySequence::StandardKey::SelectEndOfDocument)) {
+                    auto cursor = getCursor();
+                    cursor.select(TextCursor::MoveOperation::End);
+                    setCursor(cursor);
+                }
+                else if (keyEvent->matches(QKeySequence::StandardKey::SelectEndOfLine)) {
+                    auto cursor = getCursor();
+                    cursor.select(TextCursor::MoveOperation::EndOfLine);
+                    setCursor(cursor);
+                }
                 else if (keyEvent->matches(QKeySequence::StandardKey::SelectNextChar)) {
                     auto cursor = getCursor();
-                    cursor.select(cursor.position() + 1, cursor.anchor());
+                    cursor.select(TextCursor::MoveOperation::Right);
                     setCursor(cursor);
                 }
-                else if (keyEvent->matches(QKeySequence::StandardKey::SelectNextLine)) { } // TODO
+                else if (keyEvent->matches(QKeySequence::StandardKey::SelectNextLine)) {
+                    auto cursor = getCursor();
+                    cursor.select(TextCursor::MoveOperation::Down);
+                    setCursor(cursor);
+                }
                 else if (keyEvent->matches(QKeySequence::StandardKey::SelectNextPage)) { } // TODO
-                else if (keyEvent->matches(QKeySequence::StandardKey::SelectNextWord)) { } // TODO
+                else if (keyEvent->matches(QKeySequence::StandardKey::SelectNextWord)) {
+                    auto cursor = getCursor();
+                    cursor.select(TextCursor::MoveOperation::StartOfNextWord);
+                    setCursor(cursor);
+                }
                 else if (keyEvent->matches(QKeySequence::StandardKey::SelectPreviousChar)) {
                     auto cursor = getCursor();
-                    cursor.select(cursor.position() - 1, cursor.anchor());
+                    cursor.select(TextCursor::MoveOperation::Left);
                     setCursor(cursor);
                 }
-                else if (keyEvent->matches(QKeySequence::StandardKey::SelectPreviousLine)) { } // TODO
+                else if (keyEvent->matches(QKeySequence::StandardKey::SelectPreviousLine)) {
+                    auto cursor = getCursor();
+                    cursor.select(TextCursor::MoveOperation::Up);
+                    setCursor(cursor);
+                }
                 else if (keyEvent->matches(QKeySequence::StandardKey::SelectPreviousPage)) { } // TODO
-                else if (keyEvent->matches(QKeySequence::StandardKey::SelectPreviousWord)) { } // TODO
-                else if (keyEvent->matches(QKeySequence::StandardKey::SelectStartOfBlock)) { } // TODO
-                else if (keyEvent->matches(QKeySequence::StandardKey::SelectStartOfDocument)) { } // TODO
-                else if (keyEvent->matches(QKeySequence::StandardKey::SelectStartOfLine)) { } // TODO
+                else if (keyEvent->matches(QKeySequence::StandardKey::SelectPreviousWord)) {
+                    auto cursor = getCursor();
+                    cursor.select(TextCursor::MoveOperation::StartOfPreviousWord);
+                    setCursor(cursor);
+                }
+                else if (keyEvent->matches(QKeySequence::StandardKey::SelectStartOfBlock)) {
+                    auto cursor = getCursor();
+                    cursor.select(TextCursor::MoveOperation::StartOfParagraph);
+                    setCursor(cursor);
+                }
+                else if (keyEvent->matches(QKeySequence::StandardKey::SelectStartOfDocument)) {
+                    auto cursor = getCursor();
+                    cursor.select(TextCursor::MoveOperation::Start);
+                    setCursor(cursor);
+                }
+                else if (keyEvent->matches(QKeySequence::StandardKey::SelectStartOfLine)) {
+                    auto cursor = getCursor();
+                    cursor.select(TextCursor::MoveOperation::StartOfLine);
+                    setCursor(cursor);
+                }
                 else if (keyEvent->matches(QKeySequence::StandardKey::ZoomIn)) {
                     auto font = m_textEdit->font();
                     font.setPointSize(font.pointSize() + 1);
