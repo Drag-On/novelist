@@ -7,6 +7,7 @@
  * @details
  **********************************************************/
 
+#include <QtCore/QRegularExpression>
 #include "editor/document/Language.h"
 
 namespace novelist::editor {
@@ -54,6 +55,16 @@ namespace novelist::editor {
             static std::unordered_map<Language, std::vector<std::unique_ptr<ProjectLanguage>>> map;
             return map;
         }
+    }
+
+    bool isCompleteSentence(QString const& str, ProjectLanguage const* lang) noexcept
+    {
+        QString regex(".*[.?!…");
+        for (auto quotes : lang->languageFeatures().quotes)
+            regex += quotes.primary.second;
+        regex += "]$";
+        QRegularExpression re(regex);
+        return re.match(str).hasMatch();
     }
 
     ProjectLanguage const* getProjectLanguage(Language lang, Country country) noexcept

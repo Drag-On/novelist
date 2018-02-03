@@ -222,6 +222,14 @@ namespace novelist::editor {
     }
 
     /**
+     * Checks whether a string syntactically looks like a complete sentence in a given language
+     * @param str String to check
+     * @param lang Language to consider
+     * @return true if looks like a complete sentence, otherwise false
+     */
+    bool isCompleteSentence(QString const& str, ProjectLanguage const* lang) noexcept;
+
+    /**
      * Get a project language based on the enumerators for language and country
      * @param lang Language enumerator
      * @param country Country enumerator

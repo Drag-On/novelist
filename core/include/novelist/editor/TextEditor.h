@@ -15,6 +15,7 @@
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QTextEdit>
+#include "editor/document/TextCursor.h"
 #include "editor/document/Document.h"
 #include "EditorActions.h"
 
@@ -31,14 +32,20 @@ namespace novelist::editor {
 
         Document const* getDocument() const noexcept;
 
+        TextCursor getCursor() const;
+
+        void setCursor(TextCursor cursor);
+
         EditorActions const& editorActions() const noexcept;
 
-    private:
     protected:
         void keyPressEvent(QKeyEvent* event) override;
 
-    private:
+        void keyReleaseEvent(QKeyEvent* event) override;
 
+        bool eventFilter(QObject* obj, QEvent* event) override;
+
+    private:
         std::unique_ptr<Document> m_doc;
         QVBoxLayout* m_vBoxLayout;
         QHBoxLayout* m_hBoxLayout;

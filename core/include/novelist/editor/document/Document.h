@@ -23,7 +23,11 @@ namespace novelist::editor {
 
     class TextEditor;
 
-    namespace internal { class UndoCommand; }
+    namespace internal {
+        class TextInsertCommand;
+        class TextRemoveCommand;
+        class BlockInsertCommand;
+    }
 
     /**
      * Text document which can be modified through TextCursor objects
@@ -72,8 +76,6 @@ namespace novelist::editor {
 
         void onBlockCountChanged(int newBlockCount) noexcept;
 
-        void onUndoCommandAdded() noexcept;
-
         void updateParagraphLayout(QTextBlock block) noexcept;
 
         Properties m_properties;
@@ -83,13 +85,51 @@ namespace novelist::editor {
 
         friend TextCursor;
         friend TextEditor;
-        friend internal::UndoCommand;
+        friend internal::TextInsertCommand;
+        friend internal::TextRemoveCommand;
+        friend internal::BlockInsertCommand;
     };
 
     namespace internal {
-        class UndoCommand : public QUndoCommand {
+        class TextInsertCommand : public QUndoCommand {
         public:
-            explicit UndoCommand(Document* doc) noexcept;
+            TextInsertCommand(Document* doc, int pos, QString added) noexcept;
+
+            void undo() override;
+
+            void redo() override;
+
+            int id() const override;
+
+            bool mergeWith(QUndoCommand const* other) override;
+
+        private:
+            Document* m_doc;
+            int m_pos;
+            QString m_added;
+        };
+
+        class TextRemoveCommand : public QUndoCommand {
+        public:
+            TextRemoveCommand(Document* doc, int pos, QString removed) noexcept;
+
+            void undo() override;
+
+            void redo() override;
+
+            int id() const override;
+
+            bool mergeWith(QUndoCommand const* other) override;
+
+        private:
+            Document* m_doc;
+            int m_pos;
+            QString m_removed;
+        };
+
+        class BlockInsertCommand : public QUndoCommand {
+        public:
+            BlockInsertCommand(Document* doc, int pos) noexcept;
 
             void undo() override;
 
@@ -97,6 +137,7 @@ namespace novelist::editor {
 
         private:
             Document* m_doc;
+            int m_pos;
         };
     }
 }

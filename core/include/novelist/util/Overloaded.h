@@ -9,6 +9,9 @@
 #ifndef NOVELIST_OVERLOADED_H
 #define NOVELIST_OVERLOADED_H
 
+#include <type_traits>
+#include <utility>
+
 namespace novelist {
 
     /**
@@ -22,6 +25,8 @@ namespace novelist {
 
         using Ts::operator()...;
     };
+
+    template<class... Ts> Overloaded(Ts...) -> Overloaded<Ts...>;
 
 }
 

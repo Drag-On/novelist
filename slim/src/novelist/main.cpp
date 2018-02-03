@@ -8,6 +8,7 @@
  **********************************************************/
 
 #include <QtWidgets/QApplication>
+#include <QtWidgets/QUndoView>
 #include <editor/TextEditor.h>
 
 int main(int argc, char* argv[])
@@ -31,6 +32,9 @@ int main(int argc, char* argv[])
     textEditor.addAction(textEditor.editorActions().m_undoAction);
     textEditor.addAction(textEditor.editorActions().m_redoAction);
     textEditor.show();
+
+    QUndoView undoView(&textEditor.getDocument()->undoStack());
+    undoView.show();
 
     app.exec();
 

@@ -22,8 +22,8 @@ namespace novelist::editor {
             throw std::invalid_argument("TextFormatManager may not be empty.");
 
         m_doc->setIndentWidth(8);
+        m_doc->setUndoRedoEnabled(false); // Disable internal undo, we do it ourselves.
 
-        connect(m_doc.get(), &QTextDocument::undoCommandAdded, this, &Document::onUndoCommandAdded);
         connect(m_doc.get(), &QTextDocument::blockCountChanged, this, &Document::onBlockCountChanged);
 
         // Per default, use the first format
@@ -73,11 +73,6 @@ namespace novelist::editor {
             updateParagraphLayout(b);
     }
 
-    void Document::onUndoCommandAdded() noexcept
-    {
-        m_undoStack.push(new internal::UndoCommand(this));
-    }
-
     void Document::updateParagraphLayout(QTextBlock block) noexcept
     {
         QTextBlock thisBlock = block;
@@ -110,20 +105,110 @@ namespace novelist::editor {
     }
 
     namespace internal {
-        UndoCommand::UndoCommand(Document* doc) noexcept
-        : m_doc(doc)
+        TextInsertCommand::TextInsertCommand(Document* doc, int pos, QString added) noexcept
+                :m_doc(doc),
+                 m_pos(pos),
+                 m_added(std::move(added))
         {
-            setText(Document::tr("modification of %1").arg(doc->properties().title()));
+            setText(Document::tr("text insertion in %1").arg(doc->properties().title()));
         }
 
-        void UndoCommand::undo()
+        void TextInsertCommand::undo()
         {
-            m_doc->m_doc->undo();
+            QTextCursor cursor(m_doc->m_doc.get());
+            cursor.setPosition(m_pos + m_added.size());
+            cursor.setPosition(m_pos, QTextCursor::KeepAnchor);
+            cursor.removeSelectedText();
         }
 
-        void UndoCommand::redo()
+        void TextInsertCommand::redo()
         {
-            m_doc->m_doc->redo();
+            QTextCursor cursor(m_doc->m_doc.get());
+            cursor.setPosition(m_pos);
+            cursor.insertText(m_added);
+        }
+
+        int TextInsertCommand::id() const
+        {
+            return 0;
+        }
+
+        bool TextInsertCommand::mergeWith(const QUndoCommand* other)
+        {
+            auto cmd = dynamic_cast<TextInsertCommand const*>(other);
+            if (!cmd)
+                return false;
+            if (m_pos + m_added.size() == cmd->m_pos && !isCompleteSentence(m_added, &m_doc->m_properties.language())) {
+                m_added += cmd->m_added;
+                return true;
+            }
+            return false;
+        }
+
+        TextRemoveCommand::TextRemoveCommand(Document* doc, int pos, QString removed) noexcept
+        : m_doc(doc),
+          m_pos(pos),
+          m_removed(std::move(removed))
+        {
+            setText(Document::tr("text removal in %1").arg(doc->properties().title()));
+        }
+
+        void TextRemoveCommand::undo()
+        {
+            QTextCursor cursor(m_doc->m_doc.get());
+            cursor.setPosition(m_pos);
+            cursor.insertText(m_removed);
+        }
+
+        void TextRemoveCommand::redo()
+        {
+            QTextCursor cursor(m_doc->m_doc.get());
+            cursor.setPosition(m_pos + m_removed.size());
+            cursor.setPosition(m_pos, QTextCursor::KeepAnchor);
+            cursor.removeSelectedText();
+        }
+
+        int TextRemoveCommand::id() const
+        {
+            return 1;
+        }
+
+        bool TextRemoveCommand::mergeWith(QUndoCommand const* other)
+        {
+            auto cmd = dynamic_cast<TextRemoveCommand const*>(other);
+            if (!cmd)
+                return false;
+            if (cmd->m_pos == m_pos && !isCompleteSentence(m_removed, &m_doc->m_properties.language())) {
+                m_removed += cmd->m_removed;
+                return true;
+            }
+            if (cmd->m_pos + cmd->m_removed.size() == m_pos && !isCompleteSentence(cmd->m_removed, &m_doc->m_properties.language())) {
+                m_pos = cmd->m_pos;
+                m_removed = cmd->m_removed + m_removed;
+                return true;
+            }
+            return false;
+        }
+
+        BlockInsertCommand::BlockInsertCommand(Document* doc, int pos) noexcept
+                :m_doc(doc),
+                 m_pos(pos)
+        {
+            setText(Document::tr("new paragraph in %1").arg(doc->properties().title()));
+        }
+
+        void BlockInsertCommand::undo()
+        {
+            QTextCursor cursor(m_doc->m_doc.get());
+            cursor.setPosition(m_pos);
+            cursor.deleteChar();
+        }
+
+        void BlockInsertCommand::redo()
+        {
+            QTextCursor cursor(m_doc->m_doc.get());
+            cursor.setPosition(m_pos);
+            cursor.insertBlock();
         }
     }
 }

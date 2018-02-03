@@ -16,13 +16,12 @@
 
 namespace novelist::editor {
     class Document;
+    class TextEditor;
 
     /**
      * Allows to modify contents of a document
      */
-    class TextCursor : public QObject {
-    Q_OBJECT
-
+    class TextCursor {
     public:
         /**
          * Constructor
@@ -49,6 +48,11 @@ namespace novelist::editor {
          * @return Current cursor position
          */
         int position() const noexcept;
+
+        /**
+         * @return Current anchor position
+         */
+        int anchor() const noexcept;
 
         /**
          * @param pos New cursor position
@@ -108,6 +112,11 @@ namespace novelist::editor {
         void deleteNext() noexcept;
 
         /**
+         * Delete selected text
+         */
+        void deleteSelected() noexcept;
+
+        /**
          * Insert a new paragraph at the current position using the current paragraph & character format
          */
         void insertParagraph() noexcept;
@@ -144,6 +153,8 @@ namespace novelist::editor {
     private:
         Document* m_doc;
         QTextCursor m_cursor;
+
+        friend TextEditor;
     };
 }
 
