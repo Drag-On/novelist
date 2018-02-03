@@ -49,6 +49,70 @@ namespace novelist::editor {
             m_cursor.setPosition(pos);
     }
 
+    void TextCursor::move(TextCursor::MoveOperation op) noexcept
+    {
+        switch (op) {
+            case MoveOperation::Up:
+                m_cursor.movePosition(QTextCursor::MoveOperation::Up);
+                break;
+            case MoveOperation::Down:
+                m_cursor.movePosition(QTextCursor::MoveOperation::Down);
+                break;
+            case MoveOperation::Left:
+                m_cursor.movePosition(QTextCursor::MoveOperation::PreviousCharacter);
+                break;
+            case MoveOperation::Right:
+                m_cursor.movePosition(QTextCursor::MoveOperation::NextCharacter);
+                break;
+            case MoveOperation::Start:
+                m_cursor.movePosition(QTextCursor::MoveOperation::Start);
+                break;
+            case MoveOperation::End:
+                m_cursor.movePosition(QTextCursor::MoveOperation::End);
+                break;
+            case MoveOperation::StartOfLine:
+                m_cursor.movePosition(QTextCursor::MoveOperation::StartOfLine);
+                break;
+            case MoveOperation::EndOfLine:
+                m_cursor.movePosition(QTextCursor::MoveOperation::EndOfLine);
+                break;
+            case MoveOperation::StartOfWord:
+                m_cursor.movePosition(QTextCursor::MoveOperation::StartOfWord);
+                break;
+            case MoveOperation::EndOfWord:
+                m_cursor.movePosition(QTextCursor::MoveOperation::EndOfWord);
+                break;
+            case MoveOperation::StartOfParagraph:
+                m_cursor.movePosition(QTextCursor::MoveOperation::StartOfBlock);
+                break;
+            case MoveOperation::EndOfParagraph:
+                m_cursor.movePosition(QTextCursor::MoveOperation::EndOfBlock);
+                break;
+            case MoveOperation::StartOfNextLine:
+                m_cursor.movePosition(QTextCursor::MoveOperation::StartOfLine);
+                m_cursor.movePosition(QTextCursor::MoveOperation::Down);
+                break;
+            case MoveOperation::StartOfPreviousLine:
+                m_cursor.movePosition(QTextCursor::MoveOperation::StartOfLine);
+                m_cursor.movePosition(QTextCursor::MoveOperation::Up);
+                break;
+            case MoveOperation::StartOfNextWord:
+                m_cursor.movePosition(QTextCursor::MoveOperation::NextWord);
+                break;
+            case MoveOperation::StartOfPreviousWord:
+                m_cursor.movePosition(QTextCursor::MoveOperation::PreviousWord);
+                break;
+            case MoveOperation::StartOfNextParagraph:
+                m_cursor.movePosition(QTextCursor::MoveOperation::NextBlock);
+                break;
+            case MoveOperation::StartOfPreviousParagraph:
+                m_cursor.movePosition(QTextCursor::MoveOperation::PreviousBlock);
+                break;
+            default:
+                break;
+        }
+    }
+
     void TextCursor::select(int pos, int anchor) noexcept
     {
         if (anchor <= 0)

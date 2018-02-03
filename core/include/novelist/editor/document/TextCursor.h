@@ -24,6 +24,31 @@ namespace novelist::editor {
     class TextCursor {
     public:
         /**
+         * Predefined move operations
+         */
+        enum class MoveOperation {
+            None = 0,
+            Up,
+            Down,
+            Left,
+            Right,
+            Start,
+            End,
+            StartOfLine,
+            EndOfLine,
+            StartOfWord,
+            EndOfWord,
+            StartOfParagraph,
+            EndOfParagraph,
+            StartOfNextLine,
+            StartOfPreviousLine,
+            StartOfNextWord,
+            StartOfPreviousWord,
+            StartOfNextParagraph,
+            StartOfPreviousParagraph,
+        };
+
+        /**
          * Constructor
          * @param doc Document to modify
          */
@@ -58,6 +83,12 @@ namespace novelist::editor {
          * @param pos New cursor position
          */
         void setPosition(int pos) noexcept;
+
+        /**
+         * Move cursor relative from current position
+         * @param op Move operation
+         */
+        void move(MoveOperation op) noexcept;
 
         /**
          * Select a stretch of text
