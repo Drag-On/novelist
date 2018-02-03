@@ -113,6 +113,14 @@ namespace novelist {
             QTextCharFormat const* getTextCharFormat(WeakId id) const noexcept;
 
             /**
+             * Checks whether a paragraph should be auto-indented when preceeded by a paragraph with another format
+             * @param prev Previous paragraph format
+             * @param par The paragraph format to check
+             * @return true if the paragraph par needs to be auto-indented, otherwise false
+             */
+            bool checkNeedAutoTextIndent(TextFormat const* prev, TextFormat const* par) const noexcept;
+
+            /**
              * Extracts the format ID from a QTextBlockFormat
              * @param format Format
              * @return The extracted ID

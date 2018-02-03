@@ -14,6 +14,7 @@ add_subdirectory(lib)
 add_subdirectory(core)
 add_subdirectory(plugins)
 add_subdirectory(launcher)
+add_subdirectory(slim)
 
 # Copy default settings to binary dir
 #file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/settings DESTINATION ${CMAKE_BINARY_DIR}/) # TODO: Enable this once there are any

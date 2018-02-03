@@ -14,11 +14,16 @@
 #include <QtWidgets/QUndoStack>
 #include <gsl/gsl>
 #include <novelist_core_export.h>
+#include <QtGui/QTextBlock>
 #include "TextFormatManager.h"
 #include "Properties.h"
 
 namespace novelist::editor {
     class TextCursor;
+
+    class TextEditor;
+
+    namespace internal { class UndoCommand; }
 
     /**
      * Text document which can be modified through TextCursor objects
@@ -34,7 +39,8 @@ namespace novelist::editor {
          * @param lang Document language
          * @throw std::invalid_argument if the passed format manager is empty
          */
-        explicit Document(gsl::not_null<TextFormatManager*> formatMgr, QString title, gsl::not_null<ProjectLanguage const*> lang);
+        explicit Document(gsl::not_null<TextFormatManager*> formatMgr, QString title,
+                gsl::not_null<ProjectLanguage const*> lang);
 
         /**
          * @return Undo stack of this document
@@ -64,7 +70,11 @@ namespace novelist::editor {
     private:
         void onParagraphFormatChanged(int blockIdx) noexcept;
 
-        bool needAutoTextIndent(TextFormat::WeakId thisParFormat, TextFormat::WeakId prevParFormat) const noexcept;
+        void onBlockCountChanged(int newBlockCount) noexcept;
+
+        void onUndoCommandAdded() noexcept;
+
+        void updateParagraphLayout(QTextBlock block) noexcept;
 
         Properties m_properties;
         gsl::not_null<TextFormatManager*> m_formatMgr;
@@ -72,7 +82,23 @@ namespace novelist::editor {
         QUndoStack m_undoStack;
 
         friend TextCursor;
+        friend TextEditor;
+        friend internal::UndoCommand;
     };
+
+    namespace internal {
+        class UndoCommand : public QUndoCommand {
+        public:
+            explicit UndoCommand(Document* doc) noexcept;
+
+            void undo() override;
+
+            void redo() override;
+
+        private:
+            Document* m_doc;
+        };
+    }
 }
 
 #endif //NOVELIST_DOCUMENT_H

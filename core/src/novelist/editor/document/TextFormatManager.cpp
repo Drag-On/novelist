@@ -43,8 +43,7 @@ namespace novelist::editor {
 
     bool TextFormatManager::remove(size_t idx) noexcept
     {
-        if (m_formats.size() < idx)
-        {
+        if (m_formats.size() < idx) {
             m_formats.erase(m_formats.begin() + idx);
             return true;
         }
@@ -121,6 +120,14 @@ namespace novelist::editor {
         if (iter != m_formats.end())
             return &iter->m_charFormat;
         return nullptr;
+    }
+
+    bool TextFormatManager::checkNeedAutoTextIndent(TextFormat const* prev, TextFormat const* par) const noexcept
+    {
+        return par->m_data.m_indentation.m_autoTextIndent
+                && prev->m_data.m_margin.m_left == par->m_data.m_margin.m_left
+                && prev->m_data.m_indentation.m_indent == par->m_data.m_indentation.m_indent
+                && prev->m_data.m_alignment == par->m_data.m_alignment;
     }
 
     TextFormatManager::WeakId TextFormatManager::getIdOfBlockFormat(QTextBlockFormat const& format) const
