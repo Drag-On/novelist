@@ -76,6 +76,10 @@ namespace novelist::editor {
 
         void onBlockCountChanged(int newBlockCount) noexcept;
 
+        void onFormatModified(TextFormatManager::WeakId id) noexcept;
+
+        void onFormatReplaced(TextFormatManager::WeakId id, TextFormatManager::WeakId replacementId) noexcept;
+
         void updateParagraphLayout(QTextBlock block) noexcept;
 
         Properties m_properties;

@@ -43,9 +43,11 @@ namespace novelist {
             /**
              * Remove text format at a certain index
              * @param idx Index of the format
-             * @return true in case the format was removed, false with idx is out of range
+             * @param replaceIdx Index of the format that replaces the removed one (index before removal)
+             * @return true in case the format was removed. false if idx or replaceIdx is out of range, or if
+             *         there is only one format left.
              */
-            bool remove(size_t idx) noexcept;
+            bool remove(size_t idx, size_t replaceIdx) noexcept;
 
             /**
              * Change order of formats, moving the format at \p srcIdx to \p destIdx
@@ -85,9 +87,33 @@ namespace novelist {
             void setTextFormat(size_t idx, TextFormatData format) noexcept;
 
             /**
+             * @return The font used for all formats
+             */
+            QFont const& getFont() const noexcept;
+
+            /**
+             * @param font New font to use for all formats
+             */
+            void setFont(QFont const& font) noexcept;
+
+            /**
              * @return Amount of formats currently managed
              */
             size_t size() const noexcept;
+
+        signals:
+            /**
+             * The format with the specified ID has been modified
+             * @param id Format ID
+             */
+            void formatModified(WeakId id);
+
+            /**
+             * The format with the specified ID has been replaced with a different format
+             * @param id Format ID that was replaced
+             * @param replacement Replacement format ID
+             */
+            void formatReplaced(WeakId id, WeakId replacement);
 
         private:
             using IdType = IdManager<TextFormatManager>::IdType;
@@ -142,8 +168,9 @@ namespace novelist {
 
             Qt::Alignment convertAlignment(Alignment align) const noexcept;
 
-            IdManager<TextFormatManager, WeakId> m_idMgr;
-            std::vector<InternalTextFormat> m_formats;
+            IdManager<TextFormatManager, WeakId> m_idMgr{};
+            std::vector<InternalTextFormat> m_formats{};
+            QFont m_font;
             static int const s_typePropertyId = QTextFormat::UserProperty + 1;
 
             friend Document;

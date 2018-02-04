@@ -41,10 +41,15 @@ namespace novelist::editor {
         return weakId;
     }
 
-    bool TextFormatManager::remove(size_t idx) noexcept
+    bool TextFormatManager::remove(size_t idx, size_t replaceIdx) noexcept
     {
-        if (m_formats.size() < idx) {
-            m_formats.erase(m_formats.begin() + idx);
+        if (idx < m_formats.size() && replaceIdx < m_formats.size() && idx != replaceIdx) {
+            auto iter = m_formats.begin() + idx;
+            WeakId id = iter->m_id.id();
+            auto replaceIter = m_formats.begin() + replaceIdx;
+            WeakId replaceId = replaceIter->m_id.id();
+            m_formats.erase(iter);
+            emit formatReplaced(id, replaceId);
             return true;
         }
         else
@@ -90,9 +95,24 @@ namespace novelist::editor {
             foundFormat.m_textFormat.m_data = std::move(format);
             foundFormat.m_blockFormat = extractBlockFormat(foundFormat.m_textFormat, foundFormat.m_id.id());
             foundFormat.m_charFormat = extractCharFormat(foundFormat.m_textFormat, foundFormat.m_id.id());
+            emit formatModified(foundFormat.m_id.id());
         }
         else
             qWarning() << "Tried to change out-of-bounds text format with idx" << idx;
+    }
+
+    QFont const& TextFormatManager::getFont() const noexcept
+    {
+        return m_font;
+    }
+
+    void TextFormatManager::setFont(QFont const& font) noexcept
+    {
+        m_font = font;
+        for (auto& f : m_formats) {
+            f.m_charFormat.setFont(font);
+            emit formatModified(f.m_id.id());
+        }
     }
 
     size_t TextFormatManager::size() const noexcept

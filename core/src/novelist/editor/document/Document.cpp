@@ -25,6 +25,8 @@ namespace novelist::editor {
         m_doc->setUndoRedoEnabled(false); // Disable internal undo, we do it ourselves.
 
         connect(m_doc.get(), &QTextDocument::blockCountChanged, this, &Document::onBlockCountChanged);
+        connect(m_formatMgr, &TextFormatManager::formatModified, this, &Document::onFormatModified);
+        connect(m_formatMgr, &TextFormatManager::formatReplaced, this, &Document::onFormatReplaced);
 
         // Per default, use the first format
         TextCursor cursor(this);
@@ -71,6 +73,38 @@ namespace novelist::editor {
     {
         for (QTextBlock b = m_doc->firstBlock(); b.isValid(); b = b.next())
             updateParagraphLayout(b);
+    }
+
+    void Document::onFormatModified(TextFormatManager::WeakId id) noexcept
+    {
+        onFormatReplaced(id, id);
+    }
+
+    void Document::onFormatReplaced(TextFormatManager::WeakId id, TextFormatManager::WeakId replacementId) noexcept
+    {
+        for (QTextBlock b = m_doc->firstBlock(); b.isValid(); b = b.next()) {
+            auto formatId = m_formatMgr->getIdOfBlockFormat(b.blockFormat());
+
+            if (formatId == id) {
+                auto blockFormat = *m_formatMgr->getTextBlockFormat(replacementId);
+                auto blockCharFormat = *m_formatMgr->getTextCharFormat(replacementId);
+                QTextCursor cursor (m_doc.get());
+                cursor.setPosition(b.position());
+                cursor.setBlockFormat(blockFormat);
+                cursor.setBlockCharFormat(blockCharFormat);
+            }
+
+            for (auto iter = b.begin(); iter != b.end(); ++iter) {
+                auto charFormatId = m_formatMgr->getIdOfCharFormat(iter.fragment().charFormat());
+                if (charFormatId == id) {
+                    auto charFormat = *m_formatMgr->getTextCharFormat(replacementId);
+                    QTextCursor cursor (m_doc.get());
+                    cursor.setPosition(iter.fragment().position());
+                    cursor.setPosition(iter.fragment().position() + iter.fragment().length(), QTextCursor::KeepAnchor);
+                    cursor.setCharFormat(charFormat);
+                }
+            }
+        }
     }
 
     void Document::updateParagraphLayout(QTextBlock block) noexcept

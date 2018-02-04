@@ -270,14 +270,18 @@ namespace novelist::editor {
                     setCursor(cursor);
                 }
                 else if (keyEvent->matches(QKeySequence::StandardKey::ZoomIn)) {
-                    auto font = m_textEdit->font();
-                    font.setPointSize(font.pointSize() + 1);
-                    m_textEdit->setFont(font);
+                    QFont font = m_doc->m_formatMgr->getFont();
+                    if (font.pointSize() < 48) {
+                        font.setPointSize(font.pointSize() + 1);
+                        m_doc->m_formatMgr->setFont(font);
+                    }
                 }
                 else if (keyEvent->matches(QKeySequence::StandardKey::ZoomOut)) {
-                    auto font = m_textEdit->font();
-                    font.setPointSize(font.pointSize() - 1);
-                    m_textEdit->setFont(font);
+                    QFont font = m_doc->m_formatMgr->getFont();
+                    if (font.pointSize() > 5) {
+                        font.setPointSize(font.pointSize() - 1);
+                        m_doc->m_formatMgr->setFont(font);
+                    }
                 }
                 else if (keyEvent->matches(QKeySequence::StandardKey::FullScreen)) { } // TODO
                 else if (!keyEvent->text().isEmpty())
