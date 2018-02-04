@@ -82,6 +82,8 @@ namespace novelist::editor {
 
         void updateParagraphLayout(QTextBlock block) noexcept;
 
+        void updateIndentWidth() noexcept;
+
         Properties m_properties;
         gsl::not_null<TextFormatManager*> m_formatMgr;
         std::unique_ptr<QTextDocument> m_doc;

@@ -7,7 +7,9 @@
  * @details
  **********************************************************/
 #include <QtGui/QTextBlock>
+#include <QScreen>
 #include <QDebug>
+#include <QtGui/QGuiApplication>
 #include "editor/document/Document.h"
 #include "editor/document/TextCursor.h"
 
@@ -21,7 +23,7 @@ namespace novelist::editor {
         if (m_formatMgr->size() == 0)
             throw std::invalid_argument("TextFormatManager may not be empty.");
 
-        m_doc->setIndentWidth(8);
+        updateIndentWidth();
         m_doc->setUndoRedoEnabled(false); // Disable internal undo, we do it ourselves.
 
         connect(m_doc.get(), &QTextDocument::blockCountChanged, this, &Document::onBlockCountChanged);
@@ -82,6 +84,7 @@ namespace novelist::editor {
 
     void Document::onFormatReplaced(TextFormatManager::WeakId id, TextFormatManager::WeakId replacementId) noexcept
     {
+        updateIndentWidth();
         for (QTextBlock b = m_doc->firstBlock(); b.isValid(); b = b.next()) {
             auto formatId = m_formatMgr->getIdOfBlockFormat(b.blockFormat());
 
@@ -104,13 +107,15 @@ namespace novelist::editor {
                     cursor.setCharFormat(charFormat);
                 }
             }
+
+            updateParagraphLayout(b);
         }
     }
 
     void Document::updateParagraphLayout(QTextBlock block) noexcept
     {
-        QTextBlock thisBlock = block;
-        QTextBlock prevBlock = block.previous();
+        QTextBlock const& thisBlock = block;
+        QTextBlock const& prevBlock = block.previous();
 
         if (!thisBlock.isValid()) {
             qWarning() << "Tried to update invalid paragraph";
@@ -136,6 +141,14 @@ namespace novelist::editor {
         cursor.setBlockFormat(thisBlockFormat);
         cursor.setBlockCharFormat(thisBlockCharFormat);
         cursor.endEditBlock();
+    }
+
+    void Document::updateIndentWidth() noexcept
+    {
+        // The first line indent should be between the font's point size and 4 times that value
+        qreal const pointWidth = m_formatMgr->getFont().pointSize() * 1.5;
+        qreal const dpi = QGuiApplication::primaryScreen()->logicalDotsPerInch();
+        m_doc->setIndentWidth(pointWidth / 72 * dpi);
     }
 
     namespace internal {
