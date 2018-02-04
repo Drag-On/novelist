@@ -20,6 +20,8 @@
 #include "EditorActions.h"
 
 namespace novelist::editor {
+    namespace internal { class TextEdit; }
+
     class TextEditor : public QWidget {
     Q_OBJECT
 
@@ -61,10 +63,30 @@ namespace novelist::editor {
         std::unique_ptr<Document> m_doc;
         QVBoxLayout* m_vBoxLayout;
         QHBoxLayout* m_hBoxLayout;
-        QTextEdit* m_textEdit;
+        internal::TextEdit* m_textEdit;
         EditorActions m_actions;
         QString m_inputModifier;
     };
+
+    namespace internal {
+        class TextEdit : public QTextEdit {
+        Q_OBJECT
+
+        public:
+            using QTextEdit::QTextEdit;
+        protected:
+            bool canInsertFromMimeData(const QMimeData* /*source*/) const override
+            {
+                // Copy & paste is handled within the wrapping TextEditor class
+                return false;
+            }
+
+            void insertFromMimeData(const QMimeData* /*source*/) override
+            {
+                // Copy & paste is handled within the wrapping TextEditor class
+            }
+        };
+    }
 }
 
 #endif //NOVELIST_TEXTEDITOR_H

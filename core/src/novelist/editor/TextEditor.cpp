@@ -21,7 +21,7 @@ namespace novelist::editor {
         m_vBoxLayout->setSpacing(0);
         m_hBoxLayout->setContentsMargins(0, 0, 0, 0);
         m_hBoxLayout->setSpacing(0);
-        m_textEdit = new QTextEdit(this);
+        m_textEdit = new internal::TextEdit(this);
         m_textEdit->setContextMenuPolicy(Qt::ContextMenuPolicy::NoContextMenu);
         m_textEdit->setAttribute(Qt::WA_InputMethodEnabled, false); // Text edit should not bypass our own handling
         m_textEdit->installEventFilter(this);
@@ -294,9 +294,8 @@ namespace novelist::editor {
                     getCursor().insertText(composeInputKey(keyEvent->text()));
                 return true;
             }
-            else if (event->type() == QEvent::KeyRelease) {
+            else if (event->type() == QEvent::KeyRelease)
                 return true;
-            }
         }
         return false;
     }
