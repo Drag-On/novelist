@@ -134,8 +134,10 @@ namespace novelist::editor {
                     setCursor(cursor);
                 }
                 else if (keyEvent->matches(QKeySequence::StandardKey::InsertLineSeparator)) { } // TODO
-                else if (keyEvent->matches(QKeySequence::StandardKey::InsertParagraphSeparator))
+                else if (keyEvent->matches(QKeySequence::StandardKey::InsertParagraphSeparator)) {
                     getCursor().insertParagraph();
+                    m_textEdit->ensureCursorVisible();
+                }
                 else if (keyEvent->matches(QKeySequence::StandardKey::MoveToEndOfBlock)) {
                     auto cursor = getCursor();
                     cursor.move(TextCursor::MoveOperation::EndOfParagraph);
@@ -290,8 +292,10 @@ namespace novelist::editor {
                 else if (keyEvent->matches(QKeySequence::StandardKey::FullScreen)) { } // TODO
                 else if (keyEvent->text().isEmpty())
                     checkDeadKeyInput(static_cast<Qt::Key>(keyEvent->key()));
-                else if (!keyEvent->text().isEmpty())
+                else if (!keyEvent->text().isEmpty()) {
                     getCursor().insertText(composeInputKey(keyEvent->text()));
+                    m_textEdit->ensureCursorVisible();
+                }
                 return true;
             }
             else if (event->type() == QEvent::KeyRelease)
@@ -314,6 +318,7 @@ namespace novelist::editor {
             auto cursor = getCursor();
             cursor.setPosition(pos);
             setCursor(cursor);
+            m_textEdit->ensureCursorVisible();
         }
     }
 
@@ -331,6 +336,7 @@ namespace novelist::editor {
             auto cursor = getCursor();
             cursor.setPosition(pos);
             setCursor(cursor);
+            m_textEdit->ensureCursorVisible();
         }
     }
 
