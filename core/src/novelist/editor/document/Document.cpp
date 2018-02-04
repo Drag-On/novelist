@@ -165,6 +165,13 @@ namespace novelist::editor {
             QTextCursor cursor(m_doc->m_doc.get());
             cursor.setPosition(m_pos + m_added.size());
             cursor.setPosition(m_pos, QTextCursor::KeepAnchor);
+
+//            qDebug() << "Undo inserting" << cursor.selectedText() << "at" << m_pos << "(" << m_added.size() << ")";
+//            QString infoText = cursor.block().text();
+//            infoText.insert(m_pos, "‸");
+//            infoText.insert(m_pos + m_added.size(), "‸");
+//            qDebug() << "    " << infoText;
+
             cursor.removeSelectedText();
         }
 
@@ -172,6 +179,12 @@ namespace novelist::editor {
         {
             QTextCursor cursor(m_doc->m_doc.get());
             cursor.setPosition(m_pos);
+
+//            qDebug() << "Redo inserting" << m_added << "at" << m_pos << "(" << m_added.size() << ")";
+//            QString infoText = cursor.block().text();
+//            infoText.insert(m_pos, "‸");
+//            qDebug() << "    " << infoText;
+
             cursor.insertText(m_added);
         }
 
@@ -214,6 +227,12 @@ namespace novelist::editor {
         {
             QTextCursor cursor(m_doc->m_doc.get());
             cursor.setPosition(m_pos);
+
+//            qDebug() << "Undo removing" << m_removed << "at" << m_pos << "(" << m_removed.size() << ")";
+//            QString infoText = cursor.block().text();
+//            infoText.insert(m_pos, "‸");
+//            qDebug() << "    " << infoText;
+
             cursor.insertText(m_removed);
         }
 
@@ -222,6 +241,13 @@ namespace novelist::editor {
             QTextCursor cursor(m_doc->m_doc.get());
             cursor.setPosition(m_pos + m_removed.size());
             cursor.setPosition(m_pos, QTextCursor::KeepAnchor);
+
+//            qDebug() << "Redo removing" << m_removed << "at" << m_pos << "(" << m_removed.size() << ")";
+//            QString infoText = cursor.block().text();
+//            infoText.insert(m_pos, "‸");
+//            infoText.insert(m_pos + m_removed.size(), "‸");
+//            qDebug() << "    " << infoText;
+
             cursor.removeSelectedText();
         }
 

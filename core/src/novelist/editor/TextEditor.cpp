@@ -13,6 +13,8 @@ namespace novelist::editor {
     TextEditor::TextEditor(QWidget* parent) noexcept
             :QWidget(parent)
     {
+        // Signify that this widget handles composite keys (like ô composed from ^ and o)
+        setAttribute(Qt::WA_InputMethodEnabled, true);
         m_vBoxLayout = new QVBoxLayout();
         m_hBoxLayout = new QHBoxLayout();
         m_vBoxLayout->setContentsMargins(0, 0, 0, 0);
@@ -20,6 +22,7 @@ namespace novelist::editor {
         m_hBoxLayout->setContentsMargins(0, 0, 0, 0);
         m_hBoxLayout->setSpacing(0);
         m_textEdit = new QTextEdit(this);
+        m_textEdit->setAttribute(Qt::WA_InputMethodEnabled, false); // Text edit should not bypass our own handling
         m_textEdit->installEventFilter(this);
         m_textEdit->setEnabled(false);
         m_hBoxLayout->addWidget(m_textEdit);
@@ -67,11 +70,11 @@ namespace novelist::editor {
         return m_actions;
     }
 
-    void TextEditor::keyPressEvent(QKeyEvent* /*event*/)
+    void TextEditor::keyPressEvent(QKeyEvent* event)
     {
     }
 
-    void TextEditor::keyReleaseEvent(QKeyEvent* /*event*/)
+    void TextEditor::keyReleaseEvent(QKeyEvent* event)
     {
     }
 
@@ -284,8 +287,10 @@ namespace novelist::editor {
                     }
                 }
                 else if (keyEvent->matches(QKeySequence::StandardKey::FullScreen)) { } // TODO
+                else if (keyEvent->text().isEmpty())
+                    checkDeadKeyInput(static_cast<Qt::Key>(keyEvent->key()));
                 else if (!keyEvent->text().isEmpty())
-                    getCursor().insertText(keyEvent->text());
+                    getCursor().insertText(composeInputKey(keyEvent->text()));
                 return true;
             }
             else if (event->type() == QEvent::KeyRelease) {
@@ -327,5 +332,91 @@ namespace novelist::editor {
             cursor.setPosition(pos);
             setCursor(cursor);
         }
+    }
+
+    bool TextEditor::checkDeadKeyInput(Qt::Key key) noexcept
+    {
+        // This is a pretty dirty workaround to allow input of combining unicode characters like ^. This should be
+        // removed once qt properly supports it.
+        //    https://bugreports.qt.io/browse/QTBUG-42181
+        //    https://bugreports.qt.io/browse/QTBUG-56452
+        m_inputModifier = "";
+        switch (key) {
+            case Qt::Key::Key_Dead_Abovedot:
+                m_inputModifier = QString::fromUtf8("\u0307");
+                break;
+            case Qt::Key::Key_Dead_Abovering:
+                m_inputModifier = QString::fromUtf8("\u030A");
+                break;
+            case Qt::Key::Key_Dead_Acute:
+                m_inputModifier = QString::fromUtf8("\u0301");
+                break;
+            case Qt::Key::Key_Dead_Belowdot:
+                m_inputModifier = QString::fromUtf8("\u0323");
+                break;
+            case Qt::Key::Key_Dead_Breve:
+                m_inputModifier = QString::fromUtf8("\u0306");
+                break;
+            case Qt::Key::Key_Dead_Caron:
+                m_inputModifier = QString::fromUtf8("\u030C");
+                break;
+            case Qt::Key::Key_Dead_Cedilla:
+                m_inputModifier = QString::fromUtf8("\u0327");
+                break;
+            case Qt::Key::Key_Dead_Circumflex:
+                m_inputModifier = QString::fromUtf8("\u0302");
+                break;
+            case Qt::Key::Key_Dead_Diaeresis:
+                m_inputModifier = QString::fromUtf8("\u0308");
+                break;
+            case Qt::Key::Key_Dead_Doubleacute:
+                m_inputModifier = QString::fromUtf8("\u030B");
+                break;
+            case Qt::Key::Key_Dead_Grave:
+                m_inputModifier = QString::fromUtf8("\u0300");
+                break;
+            case Qt::Key::Key_Dead_Hook:
+                m_inputModifier = QString::fromUtf8("\u0309");
+                break;
+            case Qt::Key::Key_Dead_Horn:
+                m_inputModifier = QString::fromUtf8("\u031B");
+                break;
+            case Qt::Key::Key_Dead_Macron:
+                m_inputModifier = QString::fromUtf8("\u0304");
+                break;
+            case Qt::Key::Key_Dead_Ogonek:
+                m_inputModifier = QString::fromUtf8("\u0328");
+                break;
+            case Qt::Key::Key_Dead_Tilde:
+                m_inputModifier = QString::fromUtf8("\u0303");
+                break;
+            case Qt::Key::Key_Dead_Iota:
+            case Qt::Key::Key_Dead_Semivoiced_Sound:
+            case Qt::Key::Key_Dead_Voiced_Sound:
+            default:
+                break;
+        }
+        return !m_inputModifier.isEmpty();
+    }
+
+    QString TextEditor::composeInputKey(QString input) noexcept
+    {
+        input += m_inputModifier;
+        m_inputModifier = "";
+        return input;
+    }
+
+    QVariant TextEditor::inputMethodQuery(Qt::InputMethodQuery query) const
+    {
+        return m_textEdit->inputMethodQuery(query);
+    }
+
+    void TextEditor::inputMethodEvent(QInputMethodEvent* event)
+    {
+        if (!event->commitString().isEmpty()) {
+            QKeyEvent keyEvent(QEvent::KeyPress, 0, Qt::NoModifier, event->commitString());
+            keyPressEvent(&keyEvent);
+        }
+        event->accept();
     }
 }

@@ -93,4 +93,32 @@ TEST_CASE("Document", "[editor][document]")
         REQUIRE(cursor.characterFormat() == dreamFormatId);
         REQUIRE(cursor.paragraphFormat() == defaultFormatId);
     }
+    SECTION("Undo / Redo") {
+        cursor.insertText("Hello, World!");
+        cursor.insertText(" Another horrific morning.");
+        REQUIRE(doc.toRawText() == "Hello, World! Another horrific morning.");
+        REQUIRE(doc.undoStack().canUndo());
+        REQUIRE(!doc.undoStack().canRedo());
+        doc.undoStack().undo();
+        REQUIRE(doc.toRawText() == "Hello, World!");
+        REQUIRE(doc.undoStack().canUndo());
+        REQUIRE(doc.undoStack().canRedo());
+        doc.undoStack().undo();
+        REQUIRE(doc.toRawText() == "");
+        REQUIRE(!doc.undoStack().canUndo());
+        REQUIRE(doc.undoStack().canRedo());
+        doc.undoStack().redo();
+        REQUIRE(doc.toRawText() == "Hello, World!");
+
+        cursor.insertText(" こんにちは世界！");
+        REQUIRE(doc.toRawText() == "Hello, World! こんにちは世界！");
+        REQUIRE(doc.undoStack().canUndo());
+        REQUIRE(!doc.undoStack().canRedo());
+        doc.undoStack().undo();
+        REQUIRE(doc.toRawText() == "Hello, World!");
+        REQUIRE(doc.undoStack().canUndo());
+        REQUIRE(doc.undoStack().canRedo());
+        doc.undoStack().redo();
+        REQUIRE(doc.toRawText() == "Hello, World! こんにちは世界！");
+    }
 }

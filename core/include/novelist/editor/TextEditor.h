@@ -38,10 +38,14 @@ namespace novelist::editor {
 
         EditorActions const& editorActions() const noexcept;
 
+        QVariant inputMethodQuery(Qt::InputMethodQuery query) const override;
+
     protected:
         void keyPressEvent(QKeyEvent* event) override;
 
         void keyReleaseEvent(QKeyEvent* event) override;
+
+        void inputMethodEvent(QInputMethodEvent* event) override;
 
         bool eventFilter(QObject* obj, QEvent* event) override;
 
@@ -50,11 +54,16 @@ namespace novelist::editor {
 
         void tryMoveCursorToRedoPos() noexcept;
 
+        bool checkDeadKeyInput(Qt::Key key) noexcept;
+
+        QString composeInputKey(QString input) noexcept;
+
         std::unique_ptr<Document> m_doc;
         QVBoxLayout* m_vBoxLayout;
         QHBoxLayout* m_hBoxLayout;
         QTextEdit* m_textEdit;
         EditorActions m_actions;
+        QString m_inputModifier;
     };
 }
 
