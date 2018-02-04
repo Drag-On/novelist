@@ -22,6 +22,7 @@ namespace novelist::editor {
         m_hBoxLayout->setContentsMargins(0, 0, 0, 0);
         m_hBoxLayout->setSpacing(0);
         m_textEdit = new QTextEdit(this);
+        m_textEdit->setContextMenuPolicy(Qt::ContextMenuPolicy::NoContextMenu);
         m_textEdit->setAttribute(Qt::WA_InputMethodEnabled, false); // Text edit should not bypass our own handling
         m_textEdit->installEventFilter(this);
         m_textEdit->setEnabled(false);
