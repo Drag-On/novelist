@@ -51,6 +51,21 @@ namespace novelist::editor {
 
         bool eventFilter(QObject* obj, QEvent* event) override;
 
+    private slots:
+        void onUndo() noexcept;
+
+        void onRedo() noexcept;
+
+        void onCopy() const noexcept;
+
+        void onCut() noexcept;
+
+        void onPaste() noexcept;
+
+        void onDelete() noexcept;
+
+        void onSelectAll() noexcept;
+
     private:
         void tryMoveCursorToUndoPos() noexcept;
 
@@ -59,6 +74,8 @@ namespace novelist::editor {
         bool checkDeadKeyInput(Qt::Key key) noexcept;
 
         QString composeInputKey(QString input) noexcept;
+
+        void updateActionsOnNewDocument() noexcept;
 
         std::unique_ptr<Document> m_doc;
         QVBoxLayout* m_vBoxLayout;
@@ -75,6 +92,16 @@ namespace novelist::editor {
         public:
             using QTextEdit::QTextEdit;
         protected:
+            void keyPressEvent(QKeyEvent* e) override
+            {
+                e->ignore();
+            }
+
+            void keyReleaseEvent(QKeyEvent* e) override
+            {
+                e->ignore();
+            }
+
             bool canInsertFromMimeData(const QMimeData* /*source*/) const override
             {
                 // Copy & paste is handled within the wrapping TextEditor class
