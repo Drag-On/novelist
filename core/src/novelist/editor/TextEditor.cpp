@@ -7,8 +7,10 @@
  * @details
  **********************************************************/
 #include "editor/TextEditor.h"
+#include "util/DelegateAction.h"
 #include <QtGui/QGuiApplication>
 #include <QClipboard>
+#include <QMimeData>
 #include <QDebug>
 
 namespace novelist::editor {
@@ -31,6 +33,11 @@ namespace novelist::editor {
         m_hBoxLayout->addWidget(m_textEdit);
         m_vBoxLayout->addLayout(m_hBoxLayout);
         setLayout(m_vBoxLayout);
+        updateActions();
+
+        connect(m_textEdit, &QTextEdit::cursorPositionChanged, this, &TextEditor::onCursorPositionChanged);
+        connect(m_textEdit, &QTextEdit::selectionChanged, this, &TextEditor::onSelectionChanged);
+        connect(m_textEdit, &QTextEdit::textChanged, this, &TextEditor::onTextChanged);
     }
 
     void TextEditor::setDocument(std::unique_ptr<Document> doc) noexcept
@@ -44,7 +51,7 @@ namespace novelist::editor {
             m_textEdit->setDocument(nullptr);
             m_textEdit->setEnabled(false);
         }
-        updateActionsOnNewDocument();
+        updateActions();
     }
 
     Document* TextEditor::getDocument() noexcept
@@ -97,8 +104,6 @@ namespace novelist::editor {
 
         if (event->key() == Qt::Key_Backspace)
             getCursor().deletePrevious();
-        else if (event->key() == Qt::Key_Delete)
-            getCursor().deleteNext();
         else if (event->matches(QKeySequence::StandardKey::DeleteEndOfLine)) {
             auto cursor = getCursor();
             cursor.select(TextCursor::MoveOperation::EndOfLine);
@@ -415,73 +420,86 @@ namespace novelist::editor {
         return input;
     }
 
-    void TextEditor::updateActionsOnNewDocument() noexcept
+    void TextEditor::updateActions() noexcept
     {
-        delete m_actions.m_undoAction;
-        delete m_actions.m_redoAction;
-        delete m_actions.m_copyAction;
-        delete m_actions.m_cutAction;
-        delete m_actions.m_pasteAction;
-        delete m_actions.m_deleteAction;
-        delete m_actions.m_selectAllAction;
-        if (m_doc) {
-            m_actions.m_undoAction = m_doc->undoStack().createUndoAction(this);
-            m_actions.m_redoAction = m_doc->undoStack().createRedoAction(this);
-            m_actions.m_copyAction = new QAction(QIcon::fromTheme("edit-copy"), tr("Copy"), this);
-            m_actions.m_cutAction = new QAction(QIcon::fromTheme("edit-cut"), tr("Cut"), this);
-            m_actions.m_pasteAction = new QAction(QIcon::fromTheme("edit-paste"), tr("Paste"), this);
-            m_actions.m_deleteAction = new QAction(QIcon::fromTheme("edit-delete"), tr("Delete"), this);
-            m_actions.m_selectAllAction = new QAction(QIcon::fromTheme("edit-select-all"), tr("Select all"), this);
+        if (m_actions.m_undoAction == nullptr) {
+            m_actions.m_undoAction = new DelegateAction(QIcon::fromTheme("edit-undo"), tr("Undo"), this);
             m_actions.m_undoAction->setShortcut(QKeySequence::StandardKey::Undo);
-            m_actions.m_redoAction->setShortcut(QKeySequence::StandardKey::Redo);
-            m_actions.m_copyAction->setShortcut(QKeySequence::StandardKey::Copy);
-            m_actions.m_cutAction->setShortcut(QKeySequence::StandardKey::Cut);
-            m_actions.m_pasteAction->setShortcut(QKeySequence::StandardKey::Paste);
-            m_actions.m_deleteAction->setShortcut(QKeySequence::StandardKey::Delete);
-            m_actions.m_selectAllAction->setShortcut(QKeySequence::StandardKey::SelectAll);
             addAction(m_actions.m_undoAction);
-            addAction(m_actions.m_redoAction);
-            addAction(m_actions.m_copyAction);
-            addAction(m_actions.m_cutAction);
-            addAction(m_actions.m_pasteAction);
-            addAction(m_actions.m_deleteAction);
-            addAction(m_actions.m_selectAllAction);
             connect(m_actions.m_undoAction, &QAction::triggered, this, &TextEditor::onUndo);
+        }
+        if (m_actions.m_redoAction == nullptr) {
+            m_actions.m_redoAction = new DelegateAction(QIcon::fromTheme("edit-redo"), tr("Redo"), this);
+            m_actions.m_redoAction->setShortcut(QKeySequence::StandardKey::Redo);
+            addAction(m_actions.m_redoAction);
             connect(m_actions.m_redoAction, &QAction::triggered, this, &TextEditor::onRedo);
+        }
+        if (m_actions.m_copyAction == nullptr) {
+            m_actions.m_copyAction = new QAction(QIcon::fromTheme("edit-copy"), tr("Copy"), this);
+            m_actions.m_copyAction->setShortcut(QKeySequence::StandardKey::Copy);
+            addAction(m_actions.m_copyAction);
             connect(m_actions.m_copyAction, &QAction::triggered, this, &TextEditor::onCopy);
+        }
+        if (m_actions.m_cutAction == nullptr) {
+            m_actions.m_cutAction = new QAction(QIcon::fromTheme("edit-cut"), tr("Cut"), this);
+            m_actions.m_cutAction->setShortcut(QKeySequence::StandardKey::Cut);
+            addAction(m_actions.m_cutAction);
             connect(m_actions.m_cutAction, &QAction::triggered, this, &TextEditor::onCut);
+        }
+        if (m_actions.m_pasteAction == nullptr) {
+            m_actions.m_pasteAction = new QAction(QIcon::fromTheme("edit-paste"), tr("Paste"), this);
+            m_actions.m_pasteAction->setShortcut(QKeySequence::StandardKey::Paste);
+            addAction(m_actions.m_pasteAction);
             connect(m_actions.m_pasteAction, &QAction::triggered, this, &TextEditor::onPaste);
+        }
+        if (m_actions.m_deleteAction == nullptr) {
+            m_actions.m_deleteAction = new QAction(QIcon::fromTheme("edit-delete"), tr("Delete"), this);
+            m_actions.m_deleteAction->setShortcut(QKeySequence::StandardKey::Delete);
+            addAction(m_actions.m_deleteAction);
             connect(m_actions.m_deleteAction, &QAction::triggered, this, &TextEditor::onDelete);
+        }
+        if (m_actions.m_selectAllAction == nullptr) {
+            m_actions.m_selectAllAction = new QAction(QIcon::fromTheme("edit-select-all"), tr("Select all"), this);
+            m_actions.m_selectAllAction->setShortcut(QKeySequence::StandardKey::SelectAll);
+            addAction(m_actions.m_selectAllAction);
             connect(m_actions.m_selectAllAction, &QAction::triggered, this, &TextEditor::onSelectAll);
         }
+        if (m_doc) {
+            dynamic_cast<DelegateAction*>(m_actions.m_undoAction)->setDelegate(m_doc->undoStack().createUndoAction(this));
+            m_actions.m_undoAction->setShortcut(QKeySequence::StandardKey::Undo);
+            dynamic_cast<DelegateAction*>(m_actions.m_redoAction)->setDelegate(m_doc->undoStack().createRedoAction(this));
+            m_actions.m_redoAction->setShortcut(QKeySequence::StandardKey::Redo);
+            m_actions.m_copyAction->setEnabled(getCursor().hasSelection());
+            m_actions.m_cutAction->setEnabled(getCursor().hasSelection());
+            m_actions.m_pasteAction->setEnabled(QGuiApplication::clipboard()->mimeData()->hasText());
+            m_actions.m_deleteAction->setEnabled(true);
+            m_actions.m_selectAllAction->setEnabled(true);
+        }
         else {
-            m_actions.m_undoAction = nullptr;
-            m_actions.m_redoAction = nullptr;
-            m_actions.m_copyAction = nullptr;
-            m_actions.m_cutAction = nullptr;
-            m_actions.m_pasteAction = nullptr;
-            m_actions.m_deleteAction = nullptr;
-            m_actions.m_selectAllAction = nullptr;
+            dynamic_cast<DelegateAction*>(m_actions.m_undoAction)->setDelegate(nullptr);
+            dynamic_cast<DelegateAction*>(m_actions.m_redoAction)->setDelegate(nullptr);
+            m_actions.m_copyAction->setEnabled(false);
+            m_actions.m_cutAction->setEnabled(false);
+            m_actions.m_pasteAction->setEnabled(false);
+            m_actions.m_deleteAction->setEnabled(false);
+            m_actions.m_selectAllAction->setEnabled(false);
         }
     }
 
     void TextEditor::onUndo() noexcept
     {
         // Note: The actual undo operation is called by the action separately as constructed from undo stack
-        qDebug() << "onUndo()";
         tryMoveCursorToUndoPos();
     }
 
     void TextEditor::onRedo() noexcept
     {
         // Note: The actual redo operation is called by the action separately as constructed from undo stack
-        qDebug() << "onRedo()";
         tryMoveCursorToRedoPos();
     }
 
     void TextEditor::onCopy() const noexcept
     {
-        qDebug() << "onCopy()";
         auto cursor = getCursor();
         if (cursor.hasSelection()) {
             auto clipboard = QGuiApplication::clipboard();
@@ -492,7 +510,6 @@ namespace novelist::editor {
 
     void TextEditor::onCut() noexcept
     {
-        qDebug() << "onCut()";
         auto cursor = getCursor();
         if (cursor.hasSelection()) {
             auto clipboard = QGuiApplication::clipboard();
@@ -504,7 +521,6 @@ namespace novelist::editor {
 
     void TextEditor::onPaste() noexcept
     {
-        qDebug() << "onPaste()";
         auto clipboard = QGuiApplication::clipboard();
         auto cursor = getCursor();
         cursor.insertText(clipboard->text());
@@ -513,19 +529,30 @@ namespace novelist::editor {
 
     void TextEditor::onDelete() noexcept
     {
-        qDebug() << "onDelete()";
-        auto cursor = getCursor();
-        if (cursor.hasSelection())
-            cursor.deleteSelected();
+        getCursor().deleteNext();
     }
 
     void TextEditor::onSelectAll() noexcept
     {
-        qDebug() << "onSelectAll";
         auto cursor = getCursor();
         cursor.move(TextCursor::MoveOperation::Start);
         cursor.select(TextCursor::MoveOperation::End);
         setCursor(cursor);
+    }
+
+    void TextEditor::onCursorPositionChanged() noexcept
+    {
+        updateActions();
+    }
+
+    void TextEditor::onSelectionChanged() noexcept
+    {
+        updateActions();
+    }
+
+    void TextEditor::onTextChanged() noexcept
+    {
+        updateActions();
     }
 
     QVariant TextEditor::inputMethodQuery(Qt::InputMethodQuery query) const

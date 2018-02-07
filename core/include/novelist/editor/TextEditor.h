@@ -66,6 +66,12 @@ namespace novelist::editor {
 
         void onSelectAll() noexcept;
 
+        void onCursorPositionChanged() noexcept;
+
+        void onSelectionChanged() noexcept;
+
+        void onTextChanged() noexcept;
+
     private:
         void tryMoveCursorToUndoPos() noexcept;
 
@@ -75,7 +81,7 @@ namespace novelist::editor {
 
         QString composeInputKey(QString input) noexcept;
 
-        void updateActionsOnNewDocument() noexcept;
+        void updateActions() noexcept;
 
         std::unique_ptr<Document> m_doc;
         QVBoxLayout* m_vBoxLayout;
