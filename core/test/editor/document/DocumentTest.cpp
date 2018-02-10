@@ -73,14 +73,14 @@ TEST_CASE("Document", "[editor][document]")
     }
     SECTION("Paragraph formats") {
         cursor.insertText("Hello, World!");
-        cursor.insertParagraph();
+        cursor.breakParagraph();
         REQUIRE(cursor.characterFormat() == defaultFormatId);
         REQUIRE(cursor.paragraphFormat() == defaultFormatId);
         cursor.insertText("Lorem ipsum dolor sit amet.");
         cursor.select(20, 25);
         cursor.setCharacterFormat(dreamFormatId);
         cursor.setPosition(22);
-        cursor.insertParagraph();
+        cursor.breakParagraph();
         REQUIRE(cursor.atParagraphStart());
         REQUIRE(cursor.characterFormat() == dreamFormatId);
         REQUIRE(cursor.paragraphFormat() == defaultFormatId);
@@ -88,7 +88,7 @@ TEST_CASE("Document", "[editor][document]")
         REQUIRE(cursor.atParagraphEnd());
         REQUIRE(cursor.characterFormat() == dreamFormatId);
         REQUIRE(cursor.paragraphFormat() == defaultFormatId);
-        cursor.insertParagraph();
+        cursor.breakParagraph();
         REQUIRE(cursor.atParagraphStart());
         REQUIRE(cursor.characterFormat() == dreamFormatId);
         REQUIRE(cursor.paragraphFormat() == defaultFormatId);

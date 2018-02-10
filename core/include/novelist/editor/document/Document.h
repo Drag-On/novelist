@@ -11,16 +11,15 @@
 
 #include <QtCore/QObject>
 #include <QtGui/QTextDocument>
+#include <QtGui/QTextBlock>
 #include <QtWidgets/QUndoStack>
 #include <gsl/gsl>
 #include <novelist_core_export.h>
-#include <QtGui/QTextBlock>
 #include "TextFormatManager.h"
 #include "Properties.h"
 
 namespace novelist::editor {
     class TextCursor;
-
     class TextEditor;
 
     namespace internal {

@@ -129,9 +129,12 @@ namespace novelist::editor {
             cursor.deleteSelected();
             setCursor(cursor);
         }
-        else if (event->matches(QKeySequence::StandardKey::InsertLineSeparator)) { } // TODO
+        else if (event->matches(QKeySequence::StandardKey::InsertLineSeparator)) {
+            getCursor().breakLine();
+            m_textEdit->ensureCursorVisible();
+        }
         else if (event->matches(QKeySequence::StandardKey::InsertParagraphSeparator)) {
-            getCursor().insertParagraph();
+            getCursor().breakParagraph();
             m_textEdit->ensureCursorVisible();
         }
         else if (event->matches(QKeySequence::StandardKey::MoveToEndOfBlock)) {

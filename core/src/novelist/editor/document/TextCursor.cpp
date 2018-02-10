@@ -259,11 +259,18 @@ namespace novelist::editor {
         m_doc->undoStack().push(new internal::TextRemoveCommand(m_doc, m_cursor.selectionStart(), m_cursor.selectedText()));
     }
 
-    void TextCursor::insertParagraph() noexcept
+    void TextCursor::breakParagraph() noexcept
     {
         if (hasSelection())
             deleteSelected();
         m_doc->undoStack().push(new internal::BlockInsertCommand(m_doc, position()));
+    }
+
+    void TextCursor::breakLine() noexcept
+    {
+        if (hasSelection())
+            deleteSelected();
+        m_doc->undoStack().push(new internal::TextInsertCommand(m_doc, m_cursor.position(), "\u2028"));
     }
 
     void TextCursor::insertText(QString text) noexcept

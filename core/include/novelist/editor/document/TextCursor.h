@@ -156,7 +156,12 @@ namespace novelist::editor {
         /**
          * Insert a new paragraph at the current position using the current paragraph & character format
          */
-        void insertParagraph() noexcept;
+        void breakParagraph() noexcept;
+
+        /**
+         * End the line without ending the paragraph
+         */
+        void breakLine() noexcept;
 
         /**
          * Insert text at the current position using the current character format
