@@ -184,7 +184,7 @@ namespace novelist {
             bool operator!=(iterator_t const& other) const noexcept { return m_iter != other; }
             bool operator==(iterator_t const& other) const noexcept { return m_iter == other; }
 
-            friend void swap(iterator_t iter1, iterator_t iter2) noexcept { std::swap(iter1.m_iter, iter2.m_iter); }
+            friend void swap(iterator_t& iter1, iterator_t& iter2) noexcept { std::swap(iter1.m_iter, iter2.m_iter); }
 
             friend SortedVector;
         };
