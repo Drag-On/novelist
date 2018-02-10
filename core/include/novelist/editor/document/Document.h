@@ -16,6 +16,7 @@
 #include <gsl/gsl>
 #include <novelist_core_export.h>
 #include "TextFormatManager.h"
+#include "TextParagraph.h"
 #include "Properties.h"
 
 namespace novelist::editor {
@@ -70,6 +71,16 @@ namespace novelist::editor {
          */
         bool empty() const noexcept;
 
+        /**
+         * @return Constant iterator to the first paragraph
+         */
+        ParagraphIterator begin() const noexcept;
+
+        /**
+         * @return Constant iterator past the last paragraph
+         */
+        ParagraphIterator end() const noexcept;
+
     private:
         void onParagraphFormatChanged(int blockIdx) noexcept;
 
@@ -90,6 +101,8 @@ namespace novelist::editor {
 
         friend TextCursor;
         friend TextEditor;
+        friend TextParagraph;
+        friend ParagraphIterator;
         friend internal::TextInsertCommand;
         friend internal::TextRemoveCommand;
         friend internal::BlockInsertCommand;

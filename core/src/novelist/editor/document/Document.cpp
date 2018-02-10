@@ -61,6 +61,16 @@ namespace novelist::editor {
         return m_doc->isEmpty();
     }
 
+    ParagraphIterator Document::begin() const noexcept
+    {
+        return ParagraphIterator(this, 0);
+    }
+
+    ParagraphIterator Document::end() const noexcept
+    {
+        return ParagraphIterator(this, -1);
+    }
+
     void Document::onParagraphFormatChanged(int blockIdx) noexcept
     {
         // Auto text indent logic

@@ -121,4 +121,31 @@ TEST_CASE("Document", "[editor][document]")
         doc.undoStack().redo();
         REQUIRE(doc.toRawText() == "Hello, World! こんにちは世界！");
     }
+    SECTION("Paragraph iteration") {
+        QString texts[] = {
+                "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.",
+                "Short paragraph.",
+                "",
+                "Slightly longer paragraph with 45 characters.",
+        };
+
+        cursor.insertText(texts[0]);
+        cursor.breakParagraph();
+        cursor.insertText(texts[1]);
+        cursor.breakParagraph();
+        cursor.breakParagraph();
+        cursor.insertText(texts[3]);
+
+        int i = 0;
+        int lines = 0;
+        for (auto const& p : doc)
+        {
+            REQUIRE(p.text() == texts[i]);
+            REQUIRE(p.length() == texts[i].length() + 1); // +1 for newline
+            REQUIRE(p.firstLineNo() == lines);
+            ++i;
+            lines += p.lineCount();
+        }
+        REQUIRE(i == sizeof(texts) / sizeof(*texts));
+    }
 }
