@@ -10,6 +10,8 @@
 #define NOVELIST_SORTEDVECTOR_H
 
 #include <functional>
+#include <vector>
+#include <type_traits>
 
 namespace novelist {
 
@@ -86,61 +88,113 @@ namespace novelist {
     private:
         using vector_t = std::vector<T, Alloc>;
 
-        struct iterator_t : public vector_t::iterator {
+        template <typename vector_iter_t>
+        struct iterator_t
+                : public std::iterator<
+                             std::random_access_iterator_tag,
+                             T,
+                             ptrdiff_t,
+                             std::conditional_t<std::is_const_v<typename std::remove_pointer_t<typename vector_iter_t::pointer>>, T const*, T*>,
+                             std::conditional_t<std::is_const_v<typename std::remove_reference_t<typename vector_iter_t::reference>>, T const&, T&>
+                         > {
+        private:
+            using base_iter_t = std::iterator<
+                    std::random_access_iterator_tag,
+                    T,
+                    ptrdiff_t,
+                    std::conditional_t<std::is_const_v<typename std::remove_pointer_t<typename vector_iter_t::pointer>>, T const*, T*>,
+                    std::conditional_t<std::is_const_v<typename std::remove_reference_t<typename vector_iter_t::reference>>, T const&, T&>
+            >;
+            vector_iter_t m_iter;
+
+        public:
             using predicate_type = Pred;
-            using vector_t::iterator::iterator;
+            using iterator_category = typename base_iter_t::iterator_category;
+            using value_type = typename base_iter_t::value_type;
+            using difference_type = typename base_iter_t::difference_type;
+            using pointer = typename base_iter_t::pointer;
+            using reference = typename base_iter_t::reference;
 
         private:
-            iterator_t(typename vector_t::iterator iter)
-                    :vector_t::iterator(iter) { }
+            template<typename Iter>
+            struct is_reverse_iterator : std::false_type { };
 
-            friend SortedVector;
-        };
+            template<typename Iter>
+            struct is_reverse_iterator<std::reverse_iterator<Iter>>
+                    : std::integral_constant<bool, !is_reverse_iterator<Iter>::value> { };
 
-        struct const_iterator_t : public vector_t::const_iterator {
-            using predicate_type = Pred;
-            using vector_t::const_iterator::const_iterator;
+            template <bool b = true, typename = std::enable_if_t<b && !is_reverse_iterator<vector_iter_t>::value>>
+            iterator_t(typename vector_t::iterator iter) noexcept : m_iter(iter) {}
 
-            const_iterator_t(typename vector_t::const_iterator iter)
-                    :vector_t::const_iterator(iter) { }
+            template <bool b = true, typename = std::enable_if_t<
+                    b && !is_reverse_iterator<vector_iter_t>::value
+                      && std::is_const_v<std::remove_pointer_t<typename std::iterator_traits<vector_iter_t>::pointer>>>>
+            iterator_t(typename vector_t::const_iterator iter) noexcept : m_iter(iter) {}
 
-            const_iterator_t(typename vector_t::iterator iter)
-                    :vector_t::const_iterator(iter) { }
+            template <bool b = true, typename = std::enable_if_t<b && is_reverse_iterator<vector_iter_t>::value>>
+            iterator_t(typename vector_t::reverse_iterator iter) noexcept : m_iter(iter) {}
 
-            friend SortedVector;
-        };
+            template <bool b = true, typename = std::enable_if_t<
+                    b && is_reverse_iterator<vector_iter_t>::value
+                      && std::is_const_v<std::remove_pointer_t<typename std::iterator_traits<vector_iter_t>::pointer>>>>
+            iterator_t(typename vector_t::const_reverse_iterator iter) noexcept : m_iter(iter) {}
 
-        struct reverse_iterator_t : public vector_t::reverse_iterator {
-            using predicate_type = Pred;
-            using vector_t::reverse_iterator::reverse_iterator;
+            iterator_t&       operator=(vector_iter_t other) noexcept { m_iter = other; return *this; }
+            iterator_t        operator+ (vector_iter_t const iter) const noexcept { return m_iter + iter; }
+            difference_type   operator- (vector_iter_t const iter) const noexcept { return m_iter - iter; }
 
-        private:
-            reverse_iterator_t(typename vector_t::reverse_iterator iter)
-                    :vector_t::reverse_iterator(iter) { }
+            friend bool operator< (iterator_t const& iter, vector_iter_t const& other) noexcept { return iter.m_iter < other; }
+            friend bool operator< (vector_iter_t const& other, iterator_t const& iter) noexcept { return iter.m_iter > other; }
+            friend bool operator> (iterator_t const& iter, vector_iter_t const& other) noexcept { return iter.m_iter > other; }
+            friend bool operator> (vector_iter_t const& other, iterator_t const& iter) noexcept { return iter.m_iter < other; }
+            friend bool operator<=(iterator_t const& iter, vector_iter_t const& other) noexcept { return iter.m_iter <= other; }
+            friend bool operator<=(vector_iter_t const& other, iterator_t const& iter) noexcept { return iter.m_iter >= other; }
+            friend bool operator>=(iterator_t const& iter, vector_iter_t const& other) noexcept { return iter.m_iter >= other; }
+            friend bool operator>=(vector_iter_t const& other, iterator_t const& iter) noexcept { return iter.m_iter <= other; }
+            friend bool operator!=(iterator_t const& iter, vector_iter_t const& other) noexcept { return iter.m_iter != other; }
+            friend bool operator!=(vector_iter_t const& other, iterator_t const& iter) noexcept { return iter.m_iter != other; }
+            friend bool operator==(iterator_t const& iter, vector_iter_t const& other) noexcept { return iter.m_iter == other; }
+            friend bool operator==(vector_iter_t const& other, iterator_t const& iter) noexcept { return iter.m_iter == other; }
 
-            friend SortedVector;
-        };
+            operator vector_iter_t&() { return m_iter; }
 
-        struct const_reverse_iterator_t : public vector_t::const_reverse_iterator {
-            using predicate_type = Pred;
-            using vector_t::const_reverse_iterator::const_reverse_iterator;
+        public:
+            iterator_t() noexcept = default;
+            iterator_t(iterator_t const& other) noexcept { m_iter = other.m_iter; }
 
-        private:
-            const_reverse_iterator_t(typename vector_t::const_reverse_iterator iter)
-                    :vector_t::const_reverse_iterator(iter) { }
+            iterator_t&       operator=(iterator_t other) noexcept { m_iter = other.m_iter; return *this; }
+            iterator_t&       operator++() noexcept { ++m_iter; return *this; }
+            iterator_t        operator++(int) noexcept { return m_iter++; }
+            iterator_t&       operator--() noexcept { --m_iter; return *this; }
+            iterator_t        operator--(int) noexcept { return m_iter--; }
+            iterator_t&       operator+=(difference_type diff) noexcept { m_iter += diff; return *this; }
+            iterator_t&       operator-=(difference_type diff) noexcept { m_iter -= diff; return *this; }
+            iterator_t        operator+ (difference_type diff) const noexcept { return m_iter + diff; }
+            iterator_t        operator+ (iterator_t const& iter) const noexcept { return std::as_const(m_iter) + iter.m_iter; }
+            iterator_t        operator- (difference_type diff) const noexcept { return m_iter - diff; }
+            difference_type   operator- (iterator_t const& iter) const noexcept { return std::as_const(m_iter) - iter.m_iter; }
+            reference         operator[](difference_type idx) noexcept { return m_iter[idx]; }
+            reference         operator* () { return *m_iter; }
+            pointer           operator->() { return m_iter.operator->(); }
 
-            const_reverse_iterator_t(typename vector_t::reverse_iterator iter)
-                    :vector_t::const_reverse_iterator(iter) { }
+            bool operator< (iterator_t const& other) const noexcept { return m_iter < other; }
+            bool operator> (iterator_t const& other) const noexcept { return m_iter > other; }
+            bool operator<=(iterator_t const& other) const noexcept { return m_iter <= other; }
+            bool operator>=(iterator_t const& other) const noexcept { return m_iter >= other; }
+            bool operator!=(iterator_t const& other) const noexcept { return m_iter != other; }
+            bool operator==(iterator_t const& other) const noexcept { return m_iter == other; }
+
+            friend void swap(iterator_t iter1, iterator_t iter2) noexcept { std::swap(iter1.m_iter, iter2.m_iter); }
 
             friend SortedVector;
         };
 
     public:
 
-        using iterator = iterator_t;
-        using const_iterator = const_iterator_t;
-        using reverse_iterator = reverse_iterator_t;
-        using const_reverse_iterator = const_reverse_iterator_t;
+        using iterator = iterator_t<typename vector_t::iterator>;
+        using const_iterator = iterator_t<typename vector_t::const_iterator>;
+        using reverse_iterator = iterator_t<typename vector_t::reverse_iterator>;
+        using const_reverse_iterator = iterator_t<typename vector_t::const_reverse_iterator>;
         using const_reference = typename vector_t::const_reference;
 
     private:
@@ -175,7 +229,6 @@ namespace novelist {
         using vector_t::capacity;
         using vector_t::shrink_to_fit;
         using vector_t::clear;
-        using vector_t::erase;
         using vector_t::pop_back;
         using vector_t::swap;
 
@@ -293,6 +346,20 @@ namespace novelist {
         }
 
         /**
+         * Find a value within the sorted vector
+         * @param value Value to find
+         * @return Iterator to the found value or end() if value not found
+         */
+        const_iterator find(T const& value) const
+        {
+            auto [lowerBound, upperBound] = std::equal_range(begin(), end(), value, Pred());
+            if (lowerBound != upperBound)
+                return lowerBound;
+            else
+                return end();
+        }
+
+        /**
          * Insert an element into the vector
          * @param value  Value to insert
          * @return Iterator to the inserted element
@@ -372,6 +439,27 @@ namespace novelist {
         void insert(std::initializer_list<T> iList)
         {
             insert(iList.begin(), iList.end());
+        }
+
+        /**
+         * Erase an element from the vector
+         * @param pos Iterator to the element to remove
+         * @return Iterator following the removed element.
+         */
+        const_iterator erase(const_iterator pos)
+        {
+            return vector_t::erase(pos);
+        }
+
+        /**
+         * Erase a range of elements from the vector
+         * @param first Iterator to the first element to remove
+         * @param last Iterator past the last element to remove
+         * @return Iterator following the last removed element.
+         */
+        const_iterator erase(const_iterator first, const_iterator last)
+        {
+            return vector_t::erase(first, last);
         }
 
         /**
