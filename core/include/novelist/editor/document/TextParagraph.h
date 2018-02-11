@@ -16,6 +16,7 @@
 
 namespace novelist::editor {
     class Document;
+    class TextLine;
     class ParagraphIterator;
 
     /**
@@ -42,6 +43,16 @@ namespace novelist::editor {
          * @return Amount of lines of this paragraph
          */
         int lineCount() const noexcept;
+
+        /**
+         * @return Constant reference to the paragraph's lines
+         */
+        std::vector<TextLine> const& lines() const noexcept;
+
+        /**
+         * @return Constant reference to the paragraph's fragments
+         */
+        std::vector<TextFragment> const& fragments() const noexcept;
 
         /**
          * @return Character count (including control characters)
@@ -76,8 +87,89 @@ namespace novelist::editor {
         Document const* m_doc = nullptr;
         QTextBlock m_block;
         int m_lineNo = 0;
+        std::vector<TextLine> m_lines;
+        std::vector<TextFragment> m_fragments;
 
         friend ParagraphIterator;
+    };
+
+    /**
+     * Read-only data about a single line of a paragraph
+     */
+    class NOVELIST_CORE_EXPORT TextLine {
+    public:
+        /**
+         * @return The line's ascent distance relative to baseline
+         */
+        qreal ascent() const noexcept;
+
+        /**
+         * @return The line's descent distance relative to baseline
+         */
+        qreal descent() const noexcept;
+
+        /**
+         * @return The line's leading distance
+         */
+        qreal leading() const noexcept;
+
+        /**
+         * @return The line's bounding rectangle
+         */
+        QRectF boundingRect() const noexcept;
+
+        /**
+         * @return The line's baseline y coordinate
+         */
+        qreal baseline() const noexcept;
+
+    private:
+        explicit TextLine(QTextLine line) noexcept;
+
+        QTextLine m_line;
+
+        friend TextParagraph;
+    };
+
+    /**
+     * Read-only access to formatting of a paragraph
+     */
+    class NOVELIST_CORE_EXPORT TextFragment {
+    public:
+        /**
+         * @return ID of the character format
+         */
+        TextFormatManager::WeakId characterFormat() const noexcept;
+
+        /**
+         * Check if the requested position is within this fragment
+         * @param pos Position to check
+         * @return true if position is withing fragment, otherwise false
+         */
+        bool contains(int pos) const noexcept;
+
+        /**
+         * @return Number of characters
+         */
+        int length() const noexcept;
+
+        /**
+         * @return Position of first fragment character in document
+         */
+        int position() const noexcept;
+
+        /**
+         * @return Text of the fragment
+         */
+        QString text() const noexcept;
+
+    private:
+        TextFragment(Document const* doc, QTextFragment fragment) noexcept;
+
+        Document const* m_doc = nullptr;
+        QTextFragment m_fragment;
+
+        friend TextParagraph;
     };
 
     /**

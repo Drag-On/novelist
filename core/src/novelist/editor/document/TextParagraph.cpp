@@ -30,6 +30,16 @@ namespace novelist::editor {
         return m_block.layout()->lineCount();
     }
 
+    std::vector<TextLine> const& TextParagraph::lines() const noexcept
+    {
+        return m_lines;
+    }
+
+    std::vector<TextFragment> const& TextParagraph::fragments() const noexcept
+    {
+        return m_fragments;
+    }
+
     int TextParagraph::length() const noexcept
     {
         return m_block.length();
@@ -59,6 +69,74 @@ namespace novelist::editor {
         : m_doc(doc),
           m_block(block),
           m_lineNo(lineNo)
+    {
+        if (m_block.isValid())
+        {
+            for (int i = 0; i < m_block.layout()->lineCount(); ++i)
+                m_lines.push_back(TextLine(m_block.layout()->lineAt(i)));
+            for (auto iter = m_block.begin(); iter != m_block.end(); ++iter)
+                m_fragments.push_back(TextFragment(m_doc, iter.fragment()));
+        }
+    }
+
+    qreal TextLine::ascent() const noexcept
+    {
+        return m_line.ascent();
+    }
+
+    qreal TextLine::descent() const noexcept
+    {
+        return m_line.descent();
+    }
+
+    qreal TextLine::leading() const noexcept
+    {
+        return m_line.leading();
+    }
+
+    QRectF TextLine::boundingRect() const noexcept
+    {
+        return m_line.rect();
+    }
+
+    qreal TextLine::baseline() const noexcept
+    {
+        return m_line.rect().y() + m_line.ascent();
+    }
+
+    TextLine::TextLine(QTextLine line) noexcept
+        : m_line(line)
+    {
+    }
+
+    TextFormatManager::WeakId TextFragment::characterFormat() const noexcept
+    {
+        return m_doc->m_formatMgr->getIdOfCharFormat(m_fragment.charFormat());
+    }
+
+    bool TextFragment::contains(int pos) const noexcept
+    {
+        return m_fragment.contains(pos);
+    }
+
+    int TextFragment::length() const noexcept
+    {
+        return m_fragment.length();
+    }
+
+    int TextFragment::position() const noexcept
+    {
+        return m_fragment.position();
+    }
+
+    QString TextFragment::text() const noexcept
+    {
+        return m_fragment.text();
+    }
+
+    TextFragment::TextFragment(Document const* doc, QTextFragment fragment) noexcept
+        : m_doc(doc),
+          m_fragment(fragment)
     {
     }
 

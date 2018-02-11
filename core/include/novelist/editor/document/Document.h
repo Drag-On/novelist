@@ -102,6 +102,7 @@ namespace novelist::editor {
         friend TextCursor;
         friend TextEditor;
         friend TextParagraph;
+        friend TextFragment;
         friend ParagraphIterator;
         friend internal::TextInsertCommand;
         friend internal::TextRemoveCommand;

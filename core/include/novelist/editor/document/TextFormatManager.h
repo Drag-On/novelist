@@ -19,6 +19,7 @@ namespace novelist {
         class Document;
         class TextCursor;
         class TextParagraph;
+        class TextFragment;
 
         class NOVELIST_CORE_EXPORT TextFormatManager : public QObject {
         Q_OBJECT
@@ -177,6 +178,7 @@ namespace novelist {
             friend Document;
             friend TextCursor;
             friend TextParagraph;
+            friend TextFragment;
         };
     }
 }
