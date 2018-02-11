@@ -6,6 +6,7 @@
  * @brief
  * @details
  **********************************************************/
+#include <editor/document/Document.h>
 #include "editor/document/Properties.h"
 
 namespace novelist::editor {
@@ -33,7 +34,7 @@ namespace novelist::editor {
 
     size_t Properties::countParagraphs() const noexcept
     {
-        return 0; // TODO: implement
+        return m_doc->m_doc->blockCount();
     }
 
     size_t Properties::countWords() const noexcept

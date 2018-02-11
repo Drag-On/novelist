@@ -109,6 +109,7 @@ namespace novelist::editor {
         std::unique_ptr<QTextDocument> m_doc;
         QUndoStack m_undoStack;
 
+        friend Properties;
         friend TextCursor;
         friend TextEditor;
         friend TextParagraph;
