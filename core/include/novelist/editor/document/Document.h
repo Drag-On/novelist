@@ -81,6 +81,16 @@ namespace novelist::editor {
          */
         ParagraphIterator end() const noexcept;
 
+        /**
+         * @return The used format manager
+         */
+        TextFormatManager* formatManager() noexcept;
+
+        /**
+         * @return The used format manager
+         */
+        TextFormatManager const* formatManager() const noexcept;
+
     private:
         void onParagraphFormatChanged(int blockIdx) noexcept;
 

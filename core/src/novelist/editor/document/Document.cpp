@@ -71,6 +71,16 @@ namespace novelist::editor {
         return ParagraphIterator(this, -1);
     }
 
+    TextFormatManager* Document::formatManager() noexcept
+    {
+        return m_formatMgr;
+    }
+
+    TextFormatManager const* Document::formatManager() const noexcept
+    {
+        return m_formatMgr;
+    }
+
     void Document::onParagraphFormatChanged(int blockIdx) noexcept
     {
         // Auto text indent logic
