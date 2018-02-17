@@ -15,6 +15,7 @@
 #include <QMimeData>
 #include <QPainter>
 #include "editor/TextEditorParagraphNumbersSideBar.h"
+#include "editor/TextEditorLineNumbersSideBar.h"
 #include "util/Overloaded.h"
 
 namespace novelist::editor {
@@ -50,6 +51,7 @@ namespace novelist::editor {
         m_leftSideBars.emplace_back(new TestSideBar(this, QColor::fromRgb(255, 0, 0)));
         m_leftSideBars.emplace_back(new TextEditorParagraphNumbersSideBar(this));
         m_rightSideBars.emplace_back(new TextEditorParagraphNumbersSideBar(this));
+        m_rightSideBars.emplace_back(new TextEditorLineNumbersSideBar(this));
     }
 
     void TextEditor::setDocument(std::unique_ptr<Document> doc) noexcept
