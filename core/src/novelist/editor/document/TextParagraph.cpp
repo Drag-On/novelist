@@ -8,6 +8,7 @@
  **********************************************************/
 #include "editor/document/TextParagraph.h"
 #include "editor/document/Document.h"
+#include <QAbstractTextDocumentLayout>
 
 namespace novelist::editor {
     TextFormatManager::WeakId TextParagraph::formatId() const noexcept
@@ -62,7 +63,7 @@ namespace novelist::editor {
 
     QRectF TextParagraph::boundingRect() const noexcept
     {
-        return m_block.layout()->boundingRect();
+        return m_doc->m_doc->documentLayout()->blockBoundingRect(m_block);
     }
 
     TextParagraph::TextParagraph(Document const* doc, QTextBlock block, int lineNo) noexcept
@@ -73,7 +74,7 @@ namespace novelist::editor {
         if (m_block.isValid())
         {
             for (int i = 0; i < m_block.layout()->lineCount(); ++i)
-                m_lines.push_back(TextLine(m_block.layout()->lineAt(i)));
+                m_lines.push_back(TextLine(this, m_block.layout()->lineAt(i)));
             for (auto iter = m_block.begin(); iter != m_block.end(); ++iter)
                 m_fragments.push_back(TextFragment(m_doc, iter.fragment()));
         }
@@ -96,16 +97,19 @@ namespace novelist::editor {
 
     QRectF TextLine::boundingRect() const noexcept
     {
-        return m_line.rect();
+        QRectF rect = m_line.rect();
+        rect.translate(m_paragraph->boundingRect().topLeft());
+        return rect;
     }
 
     qreal TextLine::baseline() const noexcept
     {
-        return m_line.rect().y() + m_line.ascent();
+        return boundingRect().y() + m_line.ascent();
     }
 
-    TextLine::TextLine(QTextLine line) noexcept
-        : m_line(line)
+    TextLine::TextLine(TextParagraph* par, QTextLine line) noexcept
+        : m_paragraph(par),
+          m_line(line)
     {
     }
 
@@ -212,5 +216,42 @@ namespace novelist::editor {
           m_blockNo(blockNo),
           m_par(m_doc, m_doc->m_doc->findBlockByNumber(m_blockNo), 0)
     {
+    }
+
+    QDebug operator<<(QDebug debug, TextParagraph const& p) noexcept
+    {
+        QDebugStateSaver saver(debug);
+        debug << "number:" << p.number()
+              << "format:" << p.formatId()
+              << "position:" << p.position()
+              << "first line number:" << p.firstLineNo()
+              << "lines:" << p.lines().size()
+              << "fragments:" << p.fragments().size()
+              << "length:" << p.length()
+              << "bounding:" << p.boundingRect();
+
+        return debug;
+    }
+
+    QDebug operator<<(QDebug debug, TextLine const& l) noexcept
+    {
+        QDebugStateSaver saver(debug);
+        debug << "ascent:" << l.ascent()
+              << "descent:" << l.descent()
+              << "leading:" << l.leading()
+              << "baseline:" << l.baseline()
+              << "bounding:" << l.boundingRect();
+
+        return debug;
+    }
+
+    QDebug operator<<(QDebug debug, TextFragment const& f) noexcept
+    {
+        QDebugStateSaver saver(debug);
+        debug << "format:" << f.characterFormat()
+              << "position:" << f.position()
+              << "length:" << f.length();
+
+        return debug;
     }
 }

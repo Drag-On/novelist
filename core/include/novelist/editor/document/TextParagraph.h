@@ -10,8 +10,9 @@
 #define NOVELIST_TEXTPARAGRAPH_H
 
 #include <iterator>
-#include <novelist_core_export.h>
 #include <QTextBlock>
+#include <QDebug>
+#include <novelist_core_export.h>
 #include "TextFormatManager.h"
 
 namespace novelist::editor {
@@ -77,7 +78,7 @@ namespace novelist::editor {
         QString text() const noexcept;
 
         /**
-         * @return Bounding rectangle of this paragraph
+         * @return Bounding rectangle of this paragraph in the document
          */
         QRectF boundingRect() const noexcept;
 
@@ -114,18 +115,19 @@ namespace novelist::editor {
         qreal leading() const noexcept;
 
         /**
-         * @return The line's bounding rectangle
+         * @return The line's bounding rectangle relative to the document
          */
         QRectF boundingRect() const noexcept;
 
         /**
-         * @return The line's baseline y coordinate
+         * @return The line's baseline y coordinate within the document
          */
         qreal baseline() const noexcept;
 
     private:
-        explicit TextLine(QTextLine line) noexcept;
+        explicit TextLine(TextParagraph* par, QTextLine line) noexcept;
 
+        TextParagraph* m_paragraph;
         QTextLine m_line;
 
         friend TextParagraph;
@@ -206,6 +208,10 @@ namespace novelist::editor {
         friend TextParagraph;
         friend Document;
     };
+
+    QDebug operator<<(QDebug debug, TextParagraph const& p) noexcept;
+    QDebug operator<<(QDebug debug, TextLine const& l) noexcept;
+    QDebug operator<<(QDebug debug, TextFragment const& f) noexcept;
 }
 
 #endif //NOVELIST_TEXTPARAGRAPH_H
