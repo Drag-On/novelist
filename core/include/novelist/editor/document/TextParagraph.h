@@ -83,6 +83,9 @@ namespace novelist::editor {
          */
         QRectF boundingRect() const noexcept;
 
+        TextParagraph(TextParagraph const& other) noexcept;
+        TextParagraph& operator=(TextParagraph const& other) noexcept;
+
     private:
         TextParagraph(Document const* doc, QTextBlock block, int lineNo) noexcept;
 
@@ -93,6 +96,7 @@ namespace novelist::editor {
         std::vector<TextFragment> m_fragments;
 
         friend TextEditor;
+        friend TextLine;
         friend ParagraphIterator;
     };
 

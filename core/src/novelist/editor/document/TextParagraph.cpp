@@ -66,6 +66,32 @@ namespace novelist::editor {
         return m_doc->m_doc->documentLayout()->blockBoundingRect(m_block);
     }
 
+    TextParagraph::TextParagraph(TextParagraph const& other) noexcept
+        : m_doc(other.m_doc),
+          m_block(other.m_block),
+          m_lineNo(other.m_lineNo),
+          m_lines(other.m_lines),
+          m_fragments(other.m_fragments)
+    {
+        for (auto& l : m_lines)
+            l.m_paragraph = this;
+    }
+
+    TextParagraph& TextParagraph::operator=(TextParagraph const& other) noexcept
+    {
+        if (this != &other) {
+            m_doc = other.m_doc;
+            m_block = other.m_block;
+            m_lineNo = other.m_lineNo;
+            m_lines = other.m_lines;
+            m_fragments = other.m_fragments;
+
+            for (auto& l : m_lines)
+                l.m_paragraph = this;
+        }
+        return *this;
+    }
+
     TextParagraph::TextParagraph(Document const* doc, QTextBlock block, int lineNo) noexcept
         : m_doc(doc),
           m_block(block),
@@ -155,6 +181,7 @@ namespace novelist::editor {
     {
         m_doc = other.m_doc;
         m_blockNo = other.m_blockNo;
+        m_par = other.m_par;
         return *this;
     }
 
@@ -171,9 +198,8 @@ namespace novelist::editor {
     ParagraphIterator& ParagraphIterator::operator++() noexcept
     {
         if (valid()) {
-            m_par.m_lineNo += m_par.lineCount();
             ++m_blockNo;
-            m_par.m_block = m_doc->m_doc->findBlockByNumber(m_blockNo);
+            m_par = TextParagraph(m_doc, m_doc->m_doc->findBlockByNumber(m_blockNo), m_par.m_lineNo + m_par.lineCount());
         }
         return *this;
     }
@@ -182,9 +208,8 @@ namespace novelist::editor {
     {
         auto p = *this;
         if (valid()) {
-            m_par.m_lineNo += m_par.lineCount();
             ++m_blockNo;
-            m_par.m_block = m_doc->m_doc->findBlockByNumber(m_blockNo);
+            m_par = TextParagraph(m_doc, m_doc->m_doc->findBlockByNumber(m_blockNo), m_par.m_lineNo + m_par.lineCount());
         }
         return p;
     }
@@ -221,14 +246,16 @@ namespace novelist::editor {
     QDebug operator<<(QDebug debug, TextParagraph const& p) noexcept
     {
         QDebugStateSaver saver(debug);
-        debug << "number:" << p.number()
+        debug << "TextParagraph("
+              << "number:" << p.number()
               << "format:" << p.formatId()
               << "position:" << p.position()
               << "first line number:" << p.firstLineNo()
               << "lines:" << p.lines().size()
               << "fragments:" << p.fragments().size()
               << "length:" << p.length()
-              << "bounding:" << p.boundingRect();
+              << "bounding:" << p.boundingRect()
+              << ")";
 
         return debug;
     }
@@ -236,11 +263,13 @@ namespace novelist::editor {
     QDebug operator<<(QDebug debug, TextLine const& l) noexcept
     {
         QDebugStateSaver saver(debug);
-        debug << "ascent:" << l.ascent()
+        debug << "TextLine("
+              << "ascent:" << l.ascent()
               << "descent:" << l.descent()
               << "leading:" << l.leading()
               << "baseline:" << l.baseline()
-              << "bounding:" << l.boundingRect();
+              << "bounding:" << l.boundingRect()
+              << ")";
 
         return debug;
     }
@@ -248,9 +277,11 @@ namespace novelist::editor {
     QDebug operator<<(QDebug debug, TextFragment const& f) noexcept
     {
         QDebugStateSaver saver(debug);
-        debug << "format:" << f.characterFormat()
+        debug << "TextFragment("
+              << "format:" << f.characterFormat()
               << "position:" << f.position()
-              << "length:" << f.length();
+              << "length:" << f.length()
+              << ")";
 
         return debug;
     }
