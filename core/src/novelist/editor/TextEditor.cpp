@@ -9,9 +9,13 @@
 #include "editor/TextEditor.h"
 #include "util/DelegateAction.h"
 #include <QtGui/QGuiApplication>
+#include <QScrollBar>
+#include <QAbstractTextDocumentLayout>
 #include <QClipboard>
 #include <QMimeData>
-#include <QDebug>
+#include <QPainter>
+#include "editor/TextEditorParagraphNumbersSideBar.h"
+#include "util/Overloaded.h"
 
 namespace novelist::editor {
     TextEditor::TextEditor(QWidget* parent) noexcept
@@ -38,6 +42,14 @@ namespace novelist::editor {
         connect(m_textEdit, &QTextEdit::cursorPositionChanged, this, &TextEditor::onCursorPositionChanged);
         connect(m_textEdit, &QTextEdit::selectionChanged, this, &TextEditor::onSelectionChanged);
         connect(m_textEdit, &QTextEdit::textChanged, this, &TextEditor::onTextChanged);
+        connect(this, &TextEditor::blockCountChanged, this, &TextEditor::onBlockCountChanged);
+        connect(m_textEdit->horizontalScrollBar(), &QAbstractSlider::valueChanged, this, &TextEditor::onHorizontalScroll);
+        connect(m_textEdit->verticalScrollBar(), &QAbstractSlider::valueChanged, this, &TextEditor::onVerticalScroll);
+
+        // TODO: Remove this test
+        m_leftSideBars.emplace_back(new TestSideBar(this, QColor::fromRgb(255, 0, 0)));
+        m_leftSideBars.emplace_back(new TestSideBar(this, QColor::fromRgb(0, 255, 0)));
+        m_leftSideBars.emplace_back(new TextEditorParagraphNumbersSideBar(this));
     }
 
     void TextEditor::setDocument(std::unique_ptr<Document> doc) noexcept
@@ -77,6 +89,28 @@ namespace novelist::editor {
     EditorActions const& TextEditor::editorActions() const noexcept
     {
         return m_actions;
+    }
+
+    bool TextEditor::isParagraphVisible(TextParagraph const& par) const noexcept
+    {
+        QTextBlock const block = par.m_block;
+        QRect r1 = m_textEdit->viewport()->geometry();
+        QRect r2 = m_textEdit->document()->documentLayout()->blockBoundingRect(block).translated(
+                m_textEdit->viewport()->geometry().x(),
+                m_textEdit->viewport()->geometry().y() - (m_textEdit->verticalScrollBar()->value())
+        ).toRect();
+
+        return r1.intersects(r2);
+    }
+
+    std::pair<int, int> TextEditor::scrollBarValues() const noexcept
+    {
+        return {m_textEdit->horizontalScrollBar()->value(), m_textEdit->verticalScrollBar()->value()};
+    }
+
+    QWidget* TextEditor::viewport() const noexcept
+    {
+        return m_textEdit->viewport();
     }
 
     void TextEditor::keyPressEvent(QKeyEvent* event)
@@ -313,6 +347,20 @@ namespace novelist::editor {
         return false;
     }
 
+    void TextEditor::paintEvent(QPaintEvent* event)
+    {
+        QWidget::paintEvent(event);
+
+        qDebug() << event; // TODO: Needed?
+    }
+
+    void TextEditor::resizeEvent(QResizeEvent* event)
+    {
+        QWidget::resizeEvent(event);
+
+        updateSideBars(ResizeUpdate{});
+    }
+
     void TextEditor::tryMoveCursorToUndoPos() noexcept
     {
         int pos = -1;
@@ -468,9 +516,11 @@ namespace novelist::editor {
             connect(m_actions.m_selectAllAction, &QAction::triggered, this, &TextEditor::onSelectAll);
         }
         if (m_doc) {
-            dynamic_cast<DelegateAction*>(m_actions.m_undoAction)->setDelegate(m_doc->undoStack().createUndoAction(this));
+            dynamic_cast<DelegateAction*>(m_actions.m_undoAction)->setDelegate(
+                    m_doc->undoStack().createUndoAction(this));
             m_actions.m_undoAction->setShortcut(QKeySequence::StandardKey::Undo);
-            dynamic_cast<DelegateAction*>(m_actions.m_redoAction)->setDelegate(m_doc->undoStack().createRedoAction(this));
+            dynamic_cast<DelegateAction*>(m_actions.m_redoAction)->setDelegate(
+                    m_doc->undoStack().createRedoAction(this));
             m_actions.m_redoAction->setShortcut(QKeySequence::StandardKey::Redo);
             m_actions.m_copyAction->setEnabled(getCursor().hasSelection());
             m_actions.m_cutAction->setEnabled(getCursor().hasSelection());
@@ -487,6 +537,47 @@ namespace novelist::editor {
             m_actions.m_deleteAction->setEnabled(false);
             m_actions.m_selectAllAction->setEnabled(false);
         }
+    }
+
+    void TextEditor::updateSideBars(TextEditor::SideBarUpdate const& update) noexcept
+    {
+        QRect cr = contentsRect();
+        int leftMargin = 0;
+        int x = cr.left();
+        for (auto const& w : m_leftSideBars) {
+            updateSideBarIfRequired(*w, update);
+            auto const width = w->sideBarWidth();
+            w->setGeometry(QRect(x, cr.top(), width, cr.height()));
+            x += width;
+            leftMargin += width;
+        }
+        m_textEdit->setViewportMargins(leftMargin, 0, 0, 0); // TODO: Other margins
+    }
+
+    void TextEditor::updateSideBarIfRequired(TextEditorSideBar& sideBar, SideBarUpdate const& update) noexcept
+    {
+        std::visit(Overloaded {
+                [&sideBar](ResizeUpdate const& /*u*/) {
+                    if (sideBar.updateTriggers().test(UpdateTrigger::Resize))
+                        sideBar.update();
+                },
+                [&sideBar](ParagraphCountChangeUpdate const& /*u*/) {
+                    if (sideBar.updateTriggers().test(UpdateTrigger::ParagraphCountChange))
+                        sideBar.update();
+                },
+                [&sideBar](TextChangeUpdate const& /*u*/) {
+                    if (sideBar.updateTriggers().test(UpdateTrigger::TextChange))
+                        sideBar.update();
+                },
+                [&sideBar](VerticalScrollUpdate const& u) {
+                    if (sideBar.updateTriggers().test(UpdateTrigger::VerticalScroll))
+                        sideBar.scroll(0, u.m_delta);
+                },
+                [&sideBar](HorizontalScrollUpdate const& u) {
+                    if (sideBar.updateTriggers().test(UpdateTrigger::HorizontalScroll))
+                        sideBar.scroll(u.m_delta, 0);
+                },
+        }, update);
     }
 
     void TextEditor::onUndo() noexcept
@@ -556,6 +647,48 @@ namespace novelist::editor {
     void TextEditor::onTextChanged() noexcept
     {
         updateActions();
+
+        // Emit block count changed signal if necessary
+        int const blockCount = m_doc->m_doc->blockCount();
+        if (blockCount != m_lastBlockCount) {
+            emit blockCountChanged(blockCount);
+            m_lastBlockCount = blockCount;
+        }
+
+        updateSideBars(TextChangeUpdate{});
+    }
+
+    void TextEditor::onBlockCountChanged(int /*blockCount*/) noexcept
+    {
+        updateSideBars(ParagraphCountChangeUpdate{});
+    }
+
+    void TextEditor::onHorizontalScroll(int value) noexcept
+    {
+        updateSideBars(HorizontalScrollUpdate{value - m_lastHorizontalSliderPos});
+        m_lastHorizontalSliderPos = value;
+    }
+
+    void TextEditor::onVerticalScroll(int value) noexcept
+    {
+        updateSideBars(VerticalScrollUpdate{value - m_lastVerticalSliderPos});
+        m_lastVerticalSliderPos = value;
+    }
+
+    QRect TextEditor::contentArea() const noexcept
+    {
+        int const xShift = m_textEdit->contentsMargins().left();
+        int const yShift = m_textEdit->contentsMargins().top();
+        int const widthShift = -m_textEdit->contentsMargins().right() - xShift;
+        int const heightShift = -m_textEdit->contentsMargins().bottom() - yShift;
+
+        QRect area = m_textEdit->geometry();
+        area.setX(area.x() + xShift);
+        area.setY(area.y() + yShift);
+        area.setWidth(area.width() + widthShift);
+        area.setHeight(area.height() + heightShift);
+
+        return area;
     }
 
     QVariant TextEditor::inputMethodQuery(Qt::InputMethodQuery query) const
@@ -570,5 +703,64 @@ namespace novelist::editor {
             keyPressEvent(&keyEvent);
         }
         event->accept();
+    }
+
+    namespace internal {
+        void TextEdit::keyPressEvent(QKeyEvent* e)
+        {
+            e->ignore();
+        }
+
+        void TextEdit::keyReleaseEvent(QKeyEvent* e)
+        {
+            e->ignore();
+        }
+
+        bool TextEdit::canInsertFromMimeData(const QMimeData* /*source*/) const
+        {
+            // Copy & paste is handled within the wrapping TextEditor class
+            return false;
+        }
+
+        void TextEdit::insertFromMimeData(const QMimeData* /*source*/)
+        {
+            // Copy & paste is handled within the wrapping TextEditor class
+        }
+
+        void TextEdit::paintEvent(QPaintEvent* e)
+        {
+            QTextEdit::paintEvent(e);
+
+            // Show maximum line width if set
+            if (lineWrapColumnOrWidth() > 0 && lineWrapMode() == LineWrapMode::FixedPixelWidth) {
+                QPainter painter(viewport());
+                painter.setPen(QColor::fromRgb(220, 220, 220));
+                painter.drawLine(lineWrapColumnOrWidth(), 0, lineWrapColumnOrWidth(), viewport()->height());
+            }
+
+            // Show bounding boxes for debug purposes
+            if constexpr (s_showDebugInfo) {
+                for (QTextBlock block = document()->begin(); block != document()->end(); block = block.next()) {
+
+                    if (block.isValid() && block.isVisible()) {
+                        QPainter painter(viewport());
+                        painter.setPen(QColor::fromRgb(255, 0, 0));
+                        auto bb = document()->documentLayout()->blockBoundingRect(block);
+                        bb.translate(viewport()->geometry().x() - viewportMargins().left()
+                                        + block.blockFormat().leftMargin(),
+                                     viewport()->geometry().y() - verticalScrollBar()->value());
+                        painter.drawRect(bb);
+
+                        QFont const& font = block.begin() != block.end() ? block.begin().fragment().charFormat().font()
+                                                                         : block.charFormat().font();
+                        auto baseline = bb.top() + block.layout()->lineAt(0).ascent();
+
+                        painter.setPen(QColor::fromRgb(0, 0, 0));
+                        painter.setPen(Qt::DotLine);
+                        painter.drawLine(0, baseline, 100, baseline);
+                    }
+                }
+            }
+        }
     }
 }

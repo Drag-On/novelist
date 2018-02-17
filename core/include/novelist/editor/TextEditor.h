@@ -11,6 +11,7 @@
 // TODO: Change include guards when old text editor is removed
 
 #include <memory>
+#include <variant>
 #include <QtWidgets/QWidget>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QHBoxLayout>
@@ -18,6 +19,7 @@
 #include "editor/document/TextCursor.h"
 #include "editor/document/Document.h"
 #include "EditorActions.h"
+#include "TextEditorSideBar.h"
 
 namespace novelist::editor {
     namespace internal { class TextEdit; }
@@ -40,7 +42,22 @@ namespace novelist::editor {
 
         EditorActions const& editorActions() const noexcept;
 
+        bool isParagraphVisible(TextParagraph const& par) const noexcept;
+
+        std::pair<int, int> scrollBarValues() const noexcept;
+
+        QWidget* viewport() const noexcept;
+
+        QRect contentArea() const noexcept;
+
         QVariant inputMethodQuery(Qt::InputMethodQuery query) const override;
+
+    signals:
+        /**
+         * Amount of blocks has changed
+         * @param newBlockCount New amount of blocks
+         */
+        void blockCountChanged(int newBlockCount);
 
     protected:
         void keyPressEvent(QKeyEvent* event) override;
@@ -50,6 +67,10 @@ namespace novelist::editor {
         void inputMethodEvent(QInputMethodEvent* event) override;
 
         bool eventFilter(QObject* obj, QEvent* event) override;
+
+        void paintEvent(QPaintEvent* event) override;
+
+        void resizeEvent(QResizeEvent* event) override;
 
     private slots:
         void onUndo() noexcept;
@@ -72,7 +93,20 @@ namespace novelist::editor {
 
         void onTextChanged() noexcept;
 
+        void onBlockCountChanged(int blockCount) noexcept;
+
+        void onHorizontalScroll(int value) noexcept;
+
+        void onVerticalScroll(int value) noexcept;
+
     private:
+        struct ResizeUpdate {};
+        struct ParagraphCountChangeUpdate {};
+        struct TextChangeUpdate {};
+        struct VerticalScrollUpdate { int m_delta = 0; };
+        struct HorizontalScrollUpdate { int m_delta = 0; };
+        using SideBarUpdate = std::variant<ResizeUpdate, ParagraphCountChangeUpdate, TextChangeUpdate, VerticalScrollUpdate, HorizontalScrollUpdate>;
+
         void tryMoveCursorToUndoPos() noexcept;
 
         void tryMoveCursorToRedoPos() noexcept;
@@ -83,12 +117,20 @@ namespace novelist::editor {
 
         void updateActions() noexcept;
 
+        void updateSideBars(SideBarUpdate const& update) noexcept;
+
+        void updateSideBarIfRequired(TextEditorSideBar& sideBar, SideBarUpdate const& update) noexcept;
+
         std::unique_ptr<Document> m_doc;
         QVBoxLayout* m_vBoxLayout;
         QHBoxLayout* m_hBoxLayout;
         internal::TextEdit* m_textEdit;
         EditorActions m_actions;
         QString m_inputModifier;
+        int m_lastHorizontalSliderPos = 0;
+        int m_lastVerticalSliderPos = 0;
+        int m_lastBlockCount = 0;
+        std::vector<std::unique_ptr<TextEditorVerticalSideBar>> m_leftSideBars;
     };
 
     namespace internal {
@@ -98,26 +140,20 @@ namespace novelist::editor {
         public:
             using QTextEdit::QTextEdit;
         protected:
-            void keyPressEvent(QKeyEvent* e) override
-            {
-                e->ignore();
-            }
+            void keyPressEvent(QKeyEvent* e) override;
 
-            void keyReleaseEvent(QKeyEvent* e) override
-            {
-                e->ignore();
-            }
+            void keyReleaseEvent(QKeyEvent* e) override;
 
-            bool canInsertFromMimeData(const QMimeData* /*source*/) const override
-            {
-                // Copy & paste is handled within the wrapping TextEditor class
-                return false;
-            }
+            bool canInsertFromMimeData(const QMimeData* /*source*/) const override;
 
-            void insertFromMimeData(const QMimeData* /*source*/) override
-            {
-                // Copy & paste is handled within the wrapping TextEditor class
-            }
+            void insertFromMimeData(const QMimeData* /*source*/) override;
+
+            void paintEvent(QPaintEvent* e) override;
+
+        private:
+            constexpr static bool const s_showDebugInfo = true;
+
+            friend TextEditor;
         };
     }
 }

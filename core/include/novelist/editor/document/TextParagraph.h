@@ -17,6 +17,7 @@
 
 namespace novelist::editor {
     class Document;
+    class TextEditor;
     class TextLine;
     class ParagraphIterator;
 
@@ -91,6 +92,7 @@ namespace novelist::editor {
         std::vector<TextLine> m_lines;
         std::vector<TextFragment> m_fragments;
 
+        friend TextEditor;
         friend ParagraphIterator;
     };
 
