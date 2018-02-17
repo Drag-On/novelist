@@ -48,8 +48,8 @@ namespace novelist::editor {
 
         // TODO: Remove this test
         m_leftSideBars.emplace_back(new TestSideBar(this, QColor::fromRgb(255, 0, 0)));
-        m_leftSideBars.emplace_back(new TestSideBar(this, QColor::fromRgb(0, 255, 0)));
         m_leftSideBars.emplace_back(new TextEditorParagraphNumbersSideBar(this));
+        m_rightSideBars.emplace_back(new TextEditorParagraphNumbersSideBar(this));
     }
 
     void TextEditor::setDocument(std::unique_ptr<Document> doc) noexcept
@@ -347,13 +347,6 @@ namespace novelist::editor {
         return false;
     }
 
-    void TextEditor::paintEvent(QPaintEvent* event)
-    {
-        QWidget::paintEvent(event);
-
-        qDebug() << event; // TODO: Needed?
-    }
-
     void TextEditor::resizeEvent(QResizeEvent* event)
     {
         QWidget::resizeEvent(event);
@@ -542,6 +535,10 @@ namespace novelist::editor {
     void TextEditor::updateSideBars(TextEditor::SideBarUpdate const& update) noexcept
     {
         QRect cr = contentsRect();
+        if (m_textEdit->horizontalScrollBar()->isVisible())
+            cr.setHeight(cr.height() - m_textEdit->horizontalScrollBar()->height());
+        if (m_textEdit->verticalScrollBar()->isVisible())
+            cr.setWidth(cr.width() - m_textEdit->verticalScrollBar()->width());
         int leftMargin = 0;
         int x = cr.left();
         for (auto const& w : m_leftSideBars) {
@@ -551,7 +548,18 @@ namespace novelist::editor {
             x += width;
             leftMargin += width;
         }
-        m_textEdit->setViewportMargins(leftMargin, 0, 0, 0); // TODO: Other margins
+
+        int rightMargin = 0;
+        x = cr.right();
+        for (auto const& w : m_rightSideBars) {
+            updateSideBarIfRequired(*w, update);
+            auto const width = w->sideBarWidth();
+            w->setGeometry(QRect(x - width, cr.top(), width, cr.height()));
+            x -= width;
+            rightMargin += width;
+        }
+
+        m_textEdit->setViewportMargins(leftMargin, 0, rightMargin, 0); // TODO: Other margins
     }
 
     void TextEditor::updateSideBarIfRequired(TextEditorSideBar& sideBar, SideBarUpdate const& update) noexcept

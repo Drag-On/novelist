@@ -68,8 +68,6 @@ namespace novelist::editor {
 
         bool eventFilter(QObject* obj, QEvent* event) override;
 
-        void paintEvent(QPaintEvent* event) override;
-
         void resizeEvent(QResizeEvent* event) override;
 
     private slots:
@@ -131,6 +129,7 @@ namespace novelist::editor {
         int m_lastVerticalSliderPos = 0;
         int m_lastBlockCount = 0;
         std::vector<std::unique_ptr<TextEditorVerticalSideBar>> m_leftSideBars;
+        std::vector<std::unique_ptr<TextEditorVerticalSideBar>> m_rightSideBars;
     };
 
     namespace internal {

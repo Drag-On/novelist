@@ -38,8 +38,6 @@ namespace novelist::editor {
 
                 auto y = p.lines().at(0).baseline() - fontMetrics().ascent() - editor()->scrollBarValues().second;
 
-                qDebug() << p;
-
                 painter.setPen(m_parNumberColor);
                 painter.drawText(0, y, width() - 2, fontMetrics().height(), Qt::AlignRight, number);
             }
