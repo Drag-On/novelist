@@ -37,6 +37,11 @@ namespace novelist::editor {
         return m_doc->m_doc->blockCount();
     }
 
+    size_t Properties::countLines() const noexcept
+    {
+        return m_doc->m_doc->lineCount();
+    }
+
     size_t Properties::countWords() const noexcept
     {
         return 0; // TODO: implement

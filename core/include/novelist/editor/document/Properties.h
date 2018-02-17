@@ -30,6 +30,8 @@ namespace novelist::editor {
 
         size_t countParagraphs() const noexcept;
 
+        size_t countLines() const noexcept;
+
         size_t countWords() const noexcept;
 
         size_t countCharacters() const noexcept;
