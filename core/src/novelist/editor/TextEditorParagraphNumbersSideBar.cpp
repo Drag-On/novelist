@@ -29,6 +29,7 @@ namespace novelist::editor {
                 foundVisible = true;
             else if (foundVisible)
                 break; // If there have been visible blocks before we can end
+            else continue; // Not visible but not found a visible one yet, so look further down
 
             auto bb = p.boundingRect();
             bb.translate(contentArea.x(), contentArea.y() - editor()->scrollBarValues().second);
