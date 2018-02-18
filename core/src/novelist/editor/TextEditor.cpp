@@ -49,10 +49,9 @@ namespace novelist::editor {
         connect(m_textEdit->verticalScrollBar(), &QAbstractSlider::valueChanged, this, &TextEditor::onVerticalScroll);
 
         // TODO: Remove this test
-        m_leftSideBars.emplace_back(new TestSideBar(this, QColor::fromRgb(255, 0, 0)));
         m_leftSideBars.emplace_back(new TextEditorParagraphNumbersSideBar(this));
-        m_rightSideBars.emplace_back(new TextEditorParagraphNumbersSideBar(this));
-        m_rightSideBars.emplace_back(new TextEditorLineNumbersSideBar(this));
+        m_leftSideBars.emplace_back(new TextEditorLineNumbersSideBar(this));
+//        m_rightSideBars.emplace_back(new TextEditorParagraphNumbersSideBar(this));
     }
 
     void TextEditor::setDocument(std::unique_ptr<Document> doc) noexcept

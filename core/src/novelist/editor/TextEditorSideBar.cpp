@@ -41,30 +41,4 @@ namespace novelist::editor {
         triggers.set(UpdateTrigger::VerticalScroll);
         return triggers;
     }
-
-    TestSideBar::TestSideBar(gsl::not_null<TextEditor*> editor, QColor clr)
-            : TextEditorVerticalSideBar(editor),
-              m_color(clr)
-    {
-    }
-
-    int TestSideBar::sideBarWidth() const noexcept
-    {
-        return 50;
-    }
-
-    void TestSideBar::paintEvent(QPaintEvent* event)
-    {
-        QWidget::paintEvent(event);
-
-        QPainter painter(this);
-        painter.fillRect(event->rect(), m_color);
-
-        painter.drawText(10, 10, "Hello");
-    }
-
-    TestSideBar::UpdateTriggers TestSideBar::updateTriggers() const noexcept
-    {
-        return UpdateTriggers{};
-    }
 }

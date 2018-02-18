@@ -61,20 +61,6 @@ namespace novelist::editor {
     private:
         TextEditor const* m_editor;
     };
-
-    class TestSideBar : public TextEditorVerticalSideBar {
-    public:
-        TestSideBar(gsl::not_null<TextEditor*> editor, QColor clr);
-
-        int sideBarWidth() const noexcept override;
-
-        UpdateTriggers updateTriggers() const noexcept override;
-
-    protected:
-        void paintEvent(QPaintEvent* event) override;
-
-        QColor m_color;
-    };
 }
 
 #endif //NOVELIST_TEXTEDITORSIDEBAR_H

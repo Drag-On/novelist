@@ -25,7 +25,7 @@ namespace novelist::editor {
 
     private:
         QColor const m_lineNumberAreaColor = QColor(250, 250, 250);
-        QColor const m_lineNumberColor = QColor(130, 130, 130);
+        QColor const m_lineNumberColor = QColor(200, 200, 200);
         QFont const m_lineNumberFont;
     };
 }
