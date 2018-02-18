@@ -44,6 +44,7 @@ namespace novelist::editor {
         connect(m_textEdit, &QTextEdit::selectionChanged, this, &TextEditor::onSelectionChanged);
         connect(m_textEdit, &QTextEdit::textChanged, this, &TextEditor::onTextChanged);
         connect(this, &TextEditor::blockCountChanged, this, &TextEditor::onBlockCountChanged);
+        connect(this, &TextEditor::lineCountChanged, this, &TextEditor::onLineCountChanged);
         connect(m_textEdit->horizontalScrollBar(), &QAbstractSlider::valueChanged, this, &TextEditor::onHorizontalScroll);
         connect(m_textEdit->verticalScrollBar(), &QAbstractSlider::valueChanged, this, &TextEditor::onVerticalScroll);
 
@@ -575,6 +576,10 @@ namespace novelist::editor {
                     if (sideBar.updateTriggers().test(UpdateTrigger::ParagraphCountChange))
                         sideBar.update();
                 },
+                [&sideBar](LineCountChangeUpdate const& /*u*/) {
+                    if (sideBar.updateTriggers().test(UpdateTrigger::LineCountChange))
+                        sideBar.update();
+                },
                 [&sideBar](TextChangeUpdate const& /*u*/) {
                     if (sideBar.updateTriggers().test(UpdateTrigger::TextChange))
                         sideBar.update();
@@ -659,10 +664,15 @@ namespace novelist::editor {
         updateActions();
 
         // Emit block count changed signal if necessary
-        int const blockCount = m_doc->m_doc->blockCount();
-        if (blockCount != m_lastBlockCount) {
+        if (int const blockCount = m_doc->m_doc->blockCount(); blockCount != m_lastBlockCount) {
             emit blockCountChanged(blockCount);
             m_lastBlockCount = blockCount;
+        }
+
+        // Emit line count changed signal if necessary
+        if (auto const lineCount = gsl::narrow_cast<int>(m_doc->properties().countLines()); lineCount != m_lastLineCount) {
+            emit lineCountChanged(lineCount);
+            m_lastLineCount = lineCount;
         }
 
         updateSideBars(TextChangeUpdate{});
@@ -671,6 +681,11 @@ namespace novelist::editor {
     void TextEditor::onBlockCountChanged(int /*blockCount*/) noexcept
     {
         updateSideBars(ParagraphCountChangeUpdate{});
+    }
+
+    void TextEditor::onLineCountChanged(int /*lineCount*/) noexcept
+    {
+        updateSideBars(LineCountChangeUpdate{});
     }
 
     void TextEditor::onHorizontalScroll(int value) noexcept

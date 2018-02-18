@@ -6,8 +6,8 @@
  * @brief
  * @details
  **********************************************************/
-#include <editor/document/Document.h>
 #include "editor/document/Properties.h"
+#include "editor/document/Document.h"
 
 namespace novelist::editor {
     QString const& Properties::title() const noexcept
@@ -39,7 +39,10 @@ namespace novelist::editor {
 
     size_t Properties::countLines() const noexcept
     {
-        return m_doc->m_doc->lineCount();
+        size_t count = 0;
+        for (auto b = m_doc->m_doc->begin(); b != m_doc->m_doc->end(); b = b.next())
+            count += b.layout()->lineCount();
+        return count;
     }
 
     size_t Properties::countWords() const noexcept

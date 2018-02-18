@@ -37,7 +37,7 @@ namespace novelist::editor {
     {
         TextEditorSideBar::UpdateTriggers triggers;
         triggers.set(UpdateTrigger::Resize);
-        triggers.set(UpdateTrigger::ParagraphCountChange);
+        triggers.set(UpdateTrigger::LineCountChange);
         triggers.set(UpdateTrigger::VerticalScroll);
         return triggers;
     }

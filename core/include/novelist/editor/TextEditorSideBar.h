@@ -21,6 +21,7 @@ namespace novelist::editor {
         enum {
             Resize = 0,
             ParagraphCountChange,
+            LineCountChange,
             TextChange,
             VerticalScroll,
             HorizontalScroll,

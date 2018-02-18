@@ -59,6 +59,12 @@ namespace novelist::editor {
          */
         void blockCountChanged(int newBlockCount);
 
+        /**
+         * Amount of lines has changed
+         * @param newLineCount New amount of lines
+         */
+        void lineCountChanged(int newLineCount);
+
     protected:
         void keyPressEvent(QKeyEvent* event) override;
 
@@ -93,6 +99,8 @@ namespace novelist::editor {
 
         void onBlockCountChanged(int blockCount) noexcept;
 
+        void onLineCountChanged(int lineCount) noexcept;
+
         void onHorizontalScroll(int value) noexcept;
 
         void onVerticalScroll(int value) noexcept;
@@ -100,10 +108,11 @@ namespace novelist::editor {
     private:
         struct ResizeUpdate {};
         struct ParagraphCountChangeUpdate {};
+        struct LineCountChangeUpdate {};
         struct TextChangeUpdate {};
         struct VerticalScrollUpdate { int m_delta = 0; };
         struct HorizontalScrollUpdate { int m_delta = 0; };
-        using SideBarUpdate = std::variant<ResizeUpdate, ParagraphCountChangeUpdate, TextChangeUpdate, VerticalScrollUpdate, HorizontalScrollUpdate>;
+        using SideBarUpdate = std::variant<ResizeUpdate, ParagraphCountChangeUpdate, LineCountChangeUpdate, TextChangeUpdate, VerticalScrollUpdate, HorizontalScrollUpdate>;
 
         void tryMoveCursorToUndoPos() noexcept;
 
@@ -128,6 +137,7 @@ namespace novelist::editor {
         int m_lastHorizontalSliderPos = 0;
         int m_lastVerticalSliderPos = 0;
         int m_lastBlockCount = 0;
+        int m_lastLineCount = 0;
         std::vector<std::unique_ptr<TextEditorVerticalSideBar>> m_leftSideBars;
         std::vector<std::unique_ptr<TextEditorVerticalSideBar>> m_rightSideBars;
     };
