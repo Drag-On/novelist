@@ -7,7 +7,7 @@
  * @details
  **********************************************************/
 
-#include "editor/TextEditorSideBar.h"
+#include "editor/sidebars/TextEditorSideBar.h"
 #include "editor/TextEditor.h"
 #include <QPainter>
 
@@ -39,6 +39,24 @@ namespace novelist::editor {
         triggers.set(UpdateTrigger::Resize);
         triggers.set(UpdateTrigger::LineCountChange);
         triggers.set(UpdateTrigger::VerticalScroll);
+        return triggers;
+    }
+
+    TextEditorHorizontalSideBar::TextEditorHorizontalSideBar(gsl::not_null<TextEditor*> editor) noexcept
+            :TextEditorSideBar(editor)
+    {
+    }
+
+    QSize TextEditorHorizontalSideBar::sizeHint() const
+    {
+        return QSize(0, sideBarHeight());
+    }
+
+    TextEditorSideBar::UpdateTriggers TextEditorHorizontalSideBar::updateTriggers() const noexcept
+    {
+        TextEditorSideBar::UpdateTriggers triggers;
+        triggers.set(UpdateTrigger::Resize);
+        triggers.set(UpdateTrigger::HorizontalScroll);
         return triggers;
     }
 }

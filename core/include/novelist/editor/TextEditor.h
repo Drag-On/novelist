@@ -19,7 +19,7 @@
 #include "editor/document/TextCursor.h"
 #include "editor/document/Document.h"
 #include "EditorActions.h"
-#include "TextEditorSideBar.h"
+#include "editor/sidebars/TextEditorSideBar.h"
 
 namespace novelist::editor {
     namespace internal { class TextEdit; }
@@ -140,6 +140,8 @@ namespace novelist::editor {
         int m_lastLineCount = 0;
         std::vector<std::unique_ptr<TextEditorVerticalSideBar>> m_leftSideBars;
         std::vector<std::unique_ptr<TextEditorVerticalSideBar>> m_rightSideBars;
+        std::vector<std::unique_ptr<TextEditorHorizontalSideBar>> m_topSideBars;
+        std::vector<std::unique_ptr<TextEditorHorizontalSideBar>> m_bottomSideBars;
     };
 
     namespace internal {

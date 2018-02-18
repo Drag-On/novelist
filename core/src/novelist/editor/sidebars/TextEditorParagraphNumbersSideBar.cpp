@@ -7,7 +7,7 @@
  * @details
  **********************************************************/
 #include <QtGui/QPainter>
-#include "editor/TextEditorParagraphNumbersSideBar.h"
+#include "editor/sidebars/TextEditorParagraphNumbersSideBar.h"
 #include "editor/TextEditor.h"
 
 namespace novelist::editor {
@@ -37,7 +37,10 @@ namespace novelist::editor {
             if (bb.top() <= event->rect().bottom() && bb.bottom() >= event->rect().top()) {
                 QString number = QString::number(p.number() + 1);
 
-                auto y = p.lines().at(0).baseline() - fontMetrics().ascent() - editor()->scrollBarValues().second;
+                auto const y =   p.lines().at(0).baseline()
+                               + contentArea.y()
+                               - fontMetrics().ascent()
+                               - editor()->scrollBarValues().second;
 
                 painter.setPen(m_parNumberColor);
                 painter.drawText(0, y, width() - 2, fontMetrics().height(), Qt::AlignRight, number);

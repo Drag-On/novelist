@@ -6,7 +6,7 @@
  * @brief
  * @details
  **********************************************************/
-#include "editor/TextEditorLineNumbersSideBar.h"
+#include "editor/sidebars/TextEditorLineNumbersSideBar.h"
 #include "editor/TextEditor.h"
 #include <QtGui/QPainter>
 
@@ -39,7 +39,10 @@ namespace novelist::editor {
                 for (size_t i = 0; i < p.lines().size(); ++i) {
                     QString number = QString::number(p.firstLineNo() + i + 1);
 
-                    auto y = p.lines().at(i).baseline() - fontMetrics().ascent() - editor()->scrollBarValues().second;
+                    auto const y =   p.lines().at(i).baseline()
+                                   + contentArea.y()
+                                   - fontMetrics().ascent()
+                                   - editor()->scrollBarValues().second;
 
                     painter.setPen(m_lineNumberColor);
                     painter.drawText(0, y, width() - 2, fontMetrics().height(), Qt::AlignRight, number);

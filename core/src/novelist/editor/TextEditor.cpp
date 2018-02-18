@@ -14,8 +14,9 @@
 #include <QClipboard>
 #include <QMimeData>
 #include <QPainter>
-#include "editor/TextEditorParagraphNumbersSideBar.h"
-#include "editor/TextEditorLineNumbersSideBar.h"
+#include "editor/sidebars/TextEditorPathSideBar.h"
+#include "editor/sidebars/TextEditorParagraphNumbersSideBar.h"
+#include "editor/sidebars/TextEditorLineNumbersSideBar.h"
 #include "util/Overloaded.h"
 
 namespace novelist::editor {
@@ -52,6 +53,9 @@ namespace novelist::editor {
         m_leftSideBars.emplace_back(new TextEditorParagraphNumbersSideBar(this));
         m_leftSideBars.emplace_back(new TextEditorLineNumbersSideBar(this));
 //        m_rightSideBars.emplace_back(new TextEditorParagraphNumbersSideBar(this));
+        m_topSideBars.emplace_back((new TextEditorPathSideBar(this, {"This", "is", "a", "path"})));
+        m_topSideBars.emplace_back((new TextEditorPathSideBar(this, {"Another", "path"})));
+        m_bottomSideBars.emplace_back((new TextEditorPathSideBar(this, {"A", "path", "at", "the", "bottom"})));
     }
 
     void TextEditor::setDocument(std::unique_ptr<Document> doc) noexcept
@@ -561,7 +565,27 @@ namespace novelist::editor {
             rightMargin += width;
         }
 
-        m_textEdit->setViewportMargins(leftMargin, 0, rightMargin, 0); // TODO: Other margins
+        int topMargin = 0;
+        int y = cr.top();
+        for (auto const& w : m_topSideBars) {
+            updateSideBarIfRequired(*w, update);
+            auto const height = w->sideBarHeight();
+            w->setGeometry(QRect(cr.left(), y, cr.width(), height));
+            y += height;
+            topMargin += height;
+        }
+
+        int bottomMargin = 0;
+        y = cr.bottom();
+        for (auto const& w : m_bottomSideBars) {
+            updateSideBarIfRequired(*w, update);
+            auto const height = w->sideBarHeight();
+            w->setGeometry(QRect(cr.left(), y - height, cr.width(), height));
+            y -= height;
+            bottomMargin += height;
+        }
+
+        m_textEdit->setViewportMargins(leftMargin, topMargin, rightMargin, bottomMargin);
     }
 
     void TextEditor::updateSideBarIfRequired(TextEditorSideBar& sideBar, SideBarUpdate const& update) noexcept
@@ -701,10 +725,10 @@ namespace novelist::editor {
 
     QRect TextEditor::contentArea() const noexcept
     {
-        int const xShift = m_textEdit->contentsMargins().left();
-        int const yShift = m_textEdit->contentsMargins().top();
-        int const widthShift = -m_textEdit->contentsMargins().right() - xShift;
-        int const heightShift = -m_textEdit->contentsMargins().bottom() - yShift;
+        int const xShift = m_textEdit->viewportMargins().left();
+        int const yShift = m_textEdit->viewportMargins().top();
+        int const widthShift = -m_textEdit->viewportMargins().right() - xShift;
+        int const heightShift = -m_textEdit->viewportMargins().bottom() - yShift;
 
         QRect area = m_textEdit->geometry();
         area.setX(area.x() + xShift);
@@ -772,7 +796,8 @@ namespace novelist::editor {
                         auto bb = document()->documentLayout()->blockBoundingRect(block);
                         bb.translate(viewport()->geometry().x() - viewportMargins().left()
                                         + block.blockFormat().leftMargin(),
-                                     viewport()->geometry().y() - verticalScrollBar()->value());
+                                     viewport()->geometry().y() - viewportMargins().top()
+                                             - verticalScrollBar()->value());
                         painter.drawRect(bb);
 
                         QFont const& font = block.begin() != block.end() ? block.begin().fragment().charFormat().font()
