@@ -142,7 +142,7 @@ namespace novelist::editor {
             }
         }
 
-        if (event->key() == Qt::Key_Backspace)
+        if (event->matches(QKeySequence::StandardKey::Backspace))
             getCursor().deletePrevious();
         else if (event->matches(QKeySequence::StandardKey::DeleteEndOfLine)) {
             auto cursor = getCursor();
