@@ -9,10 +9,10 @@
 #ifndef NOVELIST_TEXTEDITORSIDEBAR_H
 #define NOVELIST_TEXTEDITORSIDEBAR_H
 
-#include <bitset>
 #include <QtWidgets/QWidget>
 #include <gsl/gsl>
 #include "editor/document/TextParagraph.h"
+#include "util/FlagSet.h"
 
 namespace novelist::editor {
     class TextEditor;
@@ -20,16 +20,14 @@ namespace novelist::editor {
     /**
      * Signals that should trigger a side bar update
      */
-    struct UpdateTrigger {
-        enum {
-            Resize = 0, //!< Window resize
-            ParagraphCountChange, //!< Amount of paragraphs changes
-            LineCountChange, //!< Amount of lines changes
-            TextChange, //!< Text content changes
-            VerticalScroll, //!< Window was scrolled vertically
-            HorizontalScroll, //!< Window was scrolled horizontally
-            __Count, //!< Special value that counts above options
-        };
+    enum class UpdateTrigger{
+        Resize = 0, //!< Window resize
+        ParagraphCountChange, //!< Amount of paragraphs changes
+        LineCountChange, //!< Amount of lines changes
+        TextChange, //!< Text content changes
+        VerticalScroll, //!< Window was scrolled vertically
+        HorizontalScroll, //!< Window was scrolled horizontally
+        __Count, //!< Special value that counts above options
     };
 
     /**
@@ -39,7 +37,7 @@ namespace novelist::editor {
         Q_OBJECT
 
     public:
-        using UpdateTriggers = std::bitset<UpdateTrigger::__Count>;
+        using UpdateTriggers = FlagSet<UpdateTrigger>;
 
         /**
          * Constructor

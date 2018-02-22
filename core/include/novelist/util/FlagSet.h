@@ -46,7 +46,7 @@ namespace novelist {
          * @param flags Any number of enumerators
          */
         template <typename... Flag_Type, typename = std::enable_if_t<all_same<Flag, Flag_Type...>::value>>
-        constexpr explicit FlagSet(Flag_Type... flags) noexcept
+        constexpr FlagSet(Flag_Type... flags) noexcept
                 : m_flags((0 | ... | (1 << gsl::narrow<T>(flags))))
         {
         }

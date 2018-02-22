@@ -35,11 +35,7 @@ namespace novelist::editor {
 
     TextEditorSideBar::UpdateTriggers TextEditorVerticalSideBar::updateTriggers() const noexcept
     {
-        TextEditorSideBar::UpdateTriggers triggers;
-        triggers.set(UpdateTrigger::Resize);
-        triggers.set(UpdateTrigger::LineCountChange);
-        triggers.set(UpdateTrigger::VerticalScroll);
-        return triggers;
+        return {UpdateTrigger::Resize, UpdateTrigger::LineCountChange, UpdateTrigger::VerticalScroll};
     }
 
     TextEditorHorizontalSideBar::TextEditorHorizontalSideBar(gsl::not_null<TextEditor*> editor) noexcept
@@ -54,9 +50,6 @@ namespace novelist::editor {
 
     TextEditorSideBar::UpdateTriggers TextEditorHorizontalSideBar::updateTriggers() const noexcept
     {
-        TextEditorSideBar::UpdateTriggers triggers;
-        triggers.set(UpdateTrigger::Resize);
-        triggers.set(UpdateTrigger::HorizontalScroll);
-        return triggers;
+        return {UpdateTrigger::Resize, UpdateTrigger::HorizontalScroll};
     }
 }
