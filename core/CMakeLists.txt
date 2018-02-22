@@ -71,7 +71,7 @@ add_library(novelist_core
         src/novelist/editor/sidebars/TextEditorLineNumbersSideBar.cpp include/novelist/editor/sidebars/TextEditorLineNumbersSideBar.h
         src/novelist/editor/sidebars/TextEditorPathSideBar.cpp include/novelist/editor/sidebars/TextEditorPathSideBar.h
         include/novelist/editor/EditorActions.h
-        )
+        include/novelist/util/FlagSet.h)
 
 target_include_directories(novelist_core
         PUBLIC
