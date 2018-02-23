@@ -244,6 +244,31 @@ namespace novelist::editor {
      */
     std::vector<Country> getCountriesForLanguage(Language lang) noexcept;
 
+    /**
+     * Gives an approximate count of syllables in the given string. Approximation quality depends on the language.
+     * @param string String to check
+     * @param lang Language of the string
+     * @return The approximate syllable count
+     */
+    size_t countSyllables(QString const& string, ProjectLanguage const& lang) noexcept;
+
+    /**
+     * Gives an approximate count of sentences in the given string. Approximation quality depends on the language.
+     * @param string String to check
+     * @param lang Language of the string
+     * @return The approximate sentence count
+     */
+    size_t countSentences(QString const& string, ProjectLanguage const& lang) noexcept;
+
+    /**
+     * Gives an approximate count of words in the given string. Approximation quality depends on the language.
+     * @param string String to check
+     * @param lang Language of the string
+     * @return The approximate word count
+     */
+    size_t countWords(QString const& string, ProjectLanguage const& lang) noexcept;
+
+
 #define MAKE_LANG_COUNTRY(lang, country) \
     using Language##lang##country = internal::ProjectLanguageImpl<Language::lang, Country::country>;\
     namespace internal { \

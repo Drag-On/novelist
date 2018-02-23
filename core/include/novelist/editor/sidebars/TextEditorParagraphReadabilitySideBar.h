@@ -18,6 +18,8 @@ namespace novelist::editor {
     public:
         using TextEditorParagraphColorSideBar::TextEditorParagraphColorSideBar;
 
+        UpdateTriggers updateTriggers() const noexcept override;
+
     protected:
         QColor colorFor(TextParagraph const& par) const noexcept override;
     };

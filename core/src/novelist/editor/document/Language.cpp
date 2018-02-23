@@ -91,4 +91,61 @@ namespace novelist::editor {
 
         return countries;
     }
+
+    size_t countSyllables(QString const& string, ProjectLanguage const& lang) noexcept
+    {
+        QRegExp regex{"[\\s]"};
+        QStringList words = string.split(regex);
+        size_t syllableCount = 0;
+        switch (lang.language()) {
+            case Language::English:
+            {
+                // This is a pretty bad approximation.
+                // TODO: Improve, look at https://stackoverflow.com/questions/9096228/counting-syllables-in-a-word
+                QStringList vowels{"a", "e", "i", "o", "u"};
+                for (auto& w : words)
+                {
+                    w = w.toLower();
+                    bool wasVowel = false;
+                    for (auto c : w)
+                    {
+                        if (vowels.contains(c))
+                        {
+                            if (!wasVowel)
+                            {
+                                ++syllableCount;
+                                wasVowel = true;
+                            }
+                        }
+                        else
+                            wasVowel = false;
+                    }
+                }
+                break;
+            }
+            case Language::German:
+            {
+                QStringList vowels{"a", "e", "i", "o", "u", "ä", "ö", "ü"};
+                // TODO: implement
+                break;
+            }
+        }
+        return syllableCount;
+    }
+
+    size_t countSentences(QString const& string, ProjectLanguage const& /*lang*/) noexcept
+    {
+        // TODO: This is a very rough approximation
+        QRegExp regex{"[\\.:;\\!\\?]"};
+        QStringList sentences = string.split(regex);
+        return sentences.size();
+    }
+
+    size_t countWords(QString const& string, ProjectLanguage const& /*lang*/) noexcept
+    {
+        // TODO: This is a very rough approximation
+        QRegExp regex{"[\\s]"};
+        QStringList words = string.split(regex);
+        return words.size();
+    }
 }
