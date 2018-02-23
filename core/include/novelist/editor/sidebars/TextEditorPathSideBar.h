@@ -24,7 +24,6 @@ namespace novelist::editor {
         void paintEvent(QPaintEvent* event) override;
 
     private:
-        QColor const m_areaColor = QColor(250, 250, 250);
         QColor const m_fontColor = QColor(80, 80, 80);
         QColor const m_separatorColor = QColor(150, 150, 150);
         QFont const m_font;

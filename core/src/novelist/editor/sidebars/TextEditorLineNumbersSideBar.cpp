@@ -18,11 +18,10 @@ namespace novelist::editor {
 
     void TextEditorLineNumbersSideBar::paintEvent(QPaintEvent* event)
     {
+        TextEditorVerticalSideBar::paintEvent(event);
+
         auto contentArea = editor()->contentArea();
-
         QPainter painter(this);
-        painter.fillRect(event->rect(), m_lineNumberAreaColor);
-
         bool foundVisible = false;
         for (auto const& p : *editor()->getDocument()) {
             if (editor()->isParagraphVisible(p))

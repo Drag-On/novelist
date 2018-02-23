@@ -52,6 +52,7 @@ add_library(novelist_core
         src/novelist/util/TranslationManager.cpp include/novelist/util/TranslationManager.h
         include/novelist/util/StrongTypedef.h
         include/novelist/util/CrcHash.h
+        include/novelist/util/FlagSet.h
         include/novelist/settings/SettingsPage.h
         src/novelist/settings/Settings.cpp include/novelist/settings/Settings.h
         src/novelist/settings/SettingsPage_General.cpp include/novelist/settings/SettingsPage_General.h
@@ -70,8 +71,10 @@ add_library(novelist_core
         src/novelist/editor/sidebars/TextEditorParagraphNumbersSideBar.cpp include/novelist/editor/sidebars/TextEditorParagraphNumbersSideBar.h
         src/novelist/editor/sidebars/TextEditorLineNumbersSideBar.cpp include/novelist/editor/sidebars/TextEditorLineNumbersSideBar.h
         src/novelist/editor/sidebars/TextEditorPathSideBar.cpp include/novelist/editor/sidebars/TextEditorPathSideBar.h
+        src/novelist/editor/sidebars/TextEditorParagraphColorSideBar.cpp include/novelist/editor/sidebars/TextEditorParagraphColorSideBar.h
+        include/novelist/editor/sidebars/TextEditorParagraphReadabilitySideBar.cpp include/novelist/editor/sidebars/TextEditorParagraphReadabilitySideBar.h
         include/novelist/editor/EditorActions.h
-        include/novelist/util/FlagSet.h)
+        )
 
 target_include_directories(novelist_core
         PUBLIC

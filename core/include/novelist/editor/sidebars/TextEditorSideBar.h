@@ -50,13 +50,19 @@ namespace novelist::editor {
          */
         TextEditor const* editor() const noexcept;
 
+    public:
+
         /**
          * @return Signals that should trigger an update of this side bar
          */
         virtual UpdateTriggers updateTriggers() const noexcept = 0;
 
+    protected:
+        void paintEvent(QPaintEvent* event) override;
+
     private:
         TextEditor* m_editor;
+        QColor const m_AreaColor = QColor(250, 250, 250);
     };
 
     /**
@@ -86,9 +92,6 @@ namespace novelist::editor {
          * @return Signals that should trigger an update of this side bar
          */
         UpdateTriggers updateTriggers() const noexcept override;
-
-    private:
-        TextEditor const* m_editor;
     };
 
     /**
@@ -118,9 +121,6 @@ namespace novelist::editor {
          * @return Signals that should trigger an update of this side bar
          */
         UpdateTriggers updateTriggers() const noexcept override;
-
-    private:
-        TextEditor const* m_editor;
     };
 }
 

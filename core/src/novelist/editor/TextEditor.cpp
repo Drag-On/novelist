@@ -14,6 +14,7 @@
 #include <QClipboard>
 #include <QMimeData>
 #include <QPainter>
+#include <editor/sidebars/TextEditorParagraphReadabilitySideBar.h>
 #include "editor/sidebars/TextEditorPathSideBar.h"
 #include "editor/sidebars/TextEditorParagraphNumbersSideBar.h"
 #include "editor/sidebars/TextEditorLineNumbersSideBar.h"
@@ -52,7 +53,7 @@ namespace novelist::editor {
         // TODO: Remove this test
         m_leftSideBars.emplace_back(new TextEditorParagraphNumbersSideBar(this));
         m_leftSideBars.emplace_back(new TextEditorLineNumbersSideBar(this));
-//        m_rightSideBars.emplace_back(new TextEditorParagraphNumbersSideBar(this));
+        m_rightSideBars.emplace_back(new TextEditorParagraphReadabilitySideBar(this));
         m_topSideBars.emplace_back((new TextEditorPathSideBar(this, {"This", "is", "a", "path"})));
         m_topSideBars.emplace_back((new TextEditorPathSideBar(this, {"Another", "path"})));
         m_bottomSideBars.emplace_back((new TextEditorPathSideBar(this, {"A", "path", "at", "the", "bottom"})));

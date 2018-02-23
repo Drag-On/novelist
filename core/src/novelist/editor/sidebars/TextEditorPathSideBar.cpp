@@ -23,9 +23,9 @@ namespace novelist::editor {
 
     void TextEditorPathSideBar::paintEvent(QPaintEvent* event)
     {
-        QPainter painter(this);
-        painter.fillRect(event->rect(), m_areaColor);
+        TextEditorHorizontalSideBar::paintEvent(event);
 
+        QPainter painter(this);
         QFontMetrics fm(m_font);
         auto const sepWidth = fm.width(m_separator);
         painter.setFont(m_font);

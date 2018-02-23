@@ -23,6 +23,14 @@ namespace novelist::editor {
         return m_editor;
     }
 
+    void TextEditorSideBar::paintEvent(QPaintEvent* event)
+    {
+        QWidget::paintEvent(event);
+
+        QPainter painter(this);
+        painter.fillRect(event->rect(), m_AreaColor);
+    }
+
     TextEditorVerticalSideBar::TextEditorVerticalSideBar(gsl::not_null<TextEditor*> editor) noexcept
             :TextEditorSideBar(editor)
     {
