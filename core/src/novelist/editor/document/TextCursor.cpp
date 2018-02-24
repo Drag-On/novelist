@@ -305,8 +305,18 @@ namespace novelist::editor {
     void TextCursor::setCharacterFormat(TextFormat::WeakId id) noexcept
     {
         auto format = *m_doc->m_formatMgr->getTextCharFormat(id);
-        m_cursor.setCharFormat(format);
-        m_cursor.setBlockCharFormat(format);
+        if (atParagraphStart() && atParagraphEnd())
+        {
+            m_cursor.setBlockCharFormat(format);
+            // Note: The following works around a display bug where changing the block char format makes the whole
+            //       editor disappear:
+            //       https://bugreports.qt.io/browse/QTBUG-40512
+            // TODO: Remove this once above ticket has been resolved.
+            m_cursor.insertText(" ");
+            m_cursor.deletePreviousChar();
+        }
+        else
+            m_cursor.setCharFormat(format);
         // TODO: UndoRedo
     }
 }
