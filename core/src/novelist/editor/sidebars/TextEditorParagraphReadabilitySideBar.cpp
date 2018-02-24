@@ -7,7 +7,7 @@
  * @details
  **********************************************************/
 #include <algorithm>
-#include "TextEditorParagraphReadabilitySideBar.h"
+#include "editor/sidebars/TextEditorParagraphReadabilitySideBar.h"
 #include "editor/TextEditor.h"
 
 namespace novelist::editor {

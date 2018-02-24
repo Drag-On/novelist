@@ -72,7 +72,7 @@ add_library(novelist_core
         src/novelist/editor/sidebars/TextEditorLineNumbersSideBar.cpp include/novelist/editor/sidebars/TextEditorLineNumbersSideBar.h
         src/novelist/editor/sidebars/TextEditorPathSideBar.cpp include/novelist/editor/sidebars/TextEditorPathSideBar.h
         src/novelist/editor/sidebars/TextEditorParagraphColorSideBar.cpp include/novelist/editor/sidebars/TextEditorParagraphColorSideBar.h
-        include/novelist/editor/sidebars/TextEditorParagraphReadabilitySideBar.cpp include/novelist/editor/sidebars/TextEditorParagraphReadabilitySideBar.h
+        src/novelist/editor/sidebars/TextEditorParagraphReadabilitySideBar.cpp include/novelist/editor/sidebars/TextEditorParagraphReadabilitySideBar.h
         include/novelist/editor/EditorActions.h
         )
 
