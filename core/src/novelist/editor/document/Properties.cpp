@@ -47,12 +47,18 @@ namespace novelist::editor {
 
     size_t Properties::countWords() const noexcept
     {
-        return 0; // TODO: implement
+        return novelist::editor::countWords(m_doc->toRawText(), *m_lang);
     }
 
     size_t Properties::countCharacters() const noexcept
     {
-        return 0; // TODO: implement
+        size_t charCount = 0;
+        auto const text = m_doc->toRawText();
+        for (auto const& c : text) {
+            if (!c.isHighSurrogate() && !c.isNonCharacter() && c != QChar::SpecialCharacter::LineFeed)
+                ++charCount;
+        }
+        return charCount;
     }
 
     Properties::Properties(Document* doc, QString title, gsl::not_null<ProjectLanguage const*> lang)
