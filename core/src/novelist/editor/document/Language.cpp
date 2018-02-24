@@ -97,37 +97,37 @@ namespace novelist::editor {
         QRegExp regex{"[\\s]"};
         QStringList words = string.split(regex);
         size_t syllableCount = 0;
+        QStringList vowels;
         switch (lang.language()) {
             case Language::English:
             {
-                // This is a pretty bad approximation.
-                // TODO: Improve, look at https://stackoverflow.com/questions/9096228/counting-syllables-in-a-word
-                QStringList vowels{"a", "e", "i", "o", "u"};
-                for (auto& w : words)
-                {
-                    w = w.toLower();
-                    bool wasVowel = false;
-                    for (auto c : w)
-                    {
-                        if (vowels.contains(c))
-                        {
-                            if (!wasVowel)
-                            {
-                                ++syllableCount;
-                                wasVowel = true;
-                            }
-                        }
-                        else
-                            wasVowel = false;
-                    }
-                }
+                vowels = QStringList{"a", "e", "i", "o", "u"};
                 break;
             }
             case Language::German:
             {
-                QStringList vowels{"a", "e", "i", "o", "u", "ä", "ö", "ü"};
-                // TODO: implement
+                vowels = QStringList{"a", "e", "i", "o", "u", "ä", "ö", "ü"};
                 break;
+            }
+        }
+        // This is a pretty bad approximation.
+        // TODO: Improve, look at https://stackoverflow.com/questions/9096228/counting-syllables-in-a-word
+        for (auto& w : words)
+        {
+            w = w.toLower();
+            bool wasVowel = false;
+            for (auto c : w)
+            {
+                if (vowels.contains(c))
+                {
+                    if (!wasVowel)
+                    {
+                        ++syllableCount;
+                        wasVowel = true;
+                    }
+                }
+                else
+                    wasVowel = false;
             }
         }
         return syllableCount;
