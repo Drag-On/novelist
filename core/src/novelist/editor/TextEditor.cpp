@@ -143,9 +143,7 @@ namespace novelist::editor {
             }
         }
 
-        if (event->matches(QKeySequence::StandardKey::Backspace))
-            getCursor().deletePrevious();
-        else if (event->matches(QKeySequence::StandardKey::DeleteEndOfLine)) {
+        if (event->matches(QKeySequence::StandardKey::DeleteEndOfLine)) {
             auto cursor = getCursor();
             cursor.select(TextCursor::MoveOperation::EndOfLine);
             cursor.deleteSelected();
@@ -324,6 +322,8 @@ namespace novelist::editor {
             }
         }
         else if (event->matches(QKeySequence::StandardKey::FullScreen)) { } // TODO
+        else if (event->matches(QKeySequence::StandardKey::Backspace) || event->key() == Qt::Key_Backspace)
+            getCursor().deletePrevious();
         else if (event->text().isEmpty())
             checkDeadKeyInput(static_cast<Qt::Key>(event->key()));
         else if (!event->text().isEmpty()) {
