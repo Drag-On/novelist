@@ -47,7 +47,8 @@ namespace novelist::editor {
         connect(m_textEdit, &QTextEdit::textChanged, this, &TextEditor::onTextChanged);
         connect(this, &TextEditor::blockCountChanged, this, &TextEditor::onBlockCountChanged);
         connect(this, &TextEditor::lineCountChanged, this, &TextEditor::onLineCountChanged);
-        connect(m_textEdit->horizontalScrollBar(), &QAbstractSlider::valueChanged, this, &TextEditor::onHorizontalScroll);
+        connect(m_textEdit->horizontalScrollBar(), &QAbstractSlider::valueChanged, this,
+                &TextEditor::onHorizontalScroll);
         connect(m_textEdit->verticalScrollBar(), &QAbstractSlider::valueChanged, this, &TextEditor::onVerticalScroll);
 
         // TODO: Remove this test
@@ -71,6 +72,7 @@ namespace novelist::editor {
             m_textEdit->setEnabled(false);
         }
         updateActions();
+        emit documentChanged(m_doc.get());
     }
 
     Document* TextEditor::getDocument() noexcept
@@ -105,7 +107,7 @@ namespace novelist::editor {
         QRect r2 = m_textEdit->document()->documentLayout()->blockBoundingRect(block).translated(
                 m_textEdit->viewport()->geometry().x(),
                 m_textEdit->viewport()->geometry().y() - (m_textEdit->verticalScrollBar()->value())
-        ).toRect();
+                                                                                                ).toRect();
 
         return r1.intersects(r2);
     }
@@ -591,7 +593,7 @@ namespace novelist::editor {
 
     void TextEditor::updateSideBarIfRequired(TextEditorSideBar& sideBar, SideBarUpdate const& update) noexcept
     {
-        std::visit(Overloaded {
+        std::visit(Overloaded{
                 [&sideBar](ResizeUpdate const& /*u*/) {
                     if (sideBar.updateTriggers().test(UpdateTrigger::Resize))
                         sideBar.update();
@@ -676,11 +678,13 @@ namespace novelist::editor {
     void TextEditor::onCursorPositionChanged() noexcept
     {
         updateActions();
+        emit cursorPositionChanged(getCursor());
     }
 
     void TextEditor::onSelectionChanged() noexcept
     {
         updateActions();
+        emit selectionChanged();
     }
 
     void TextEditor::onTextChanged() noexcept
@@ -694,7 +698,8 @@ namespace novelist::editor {
         }
 
         // Emit line count changed signal if necessary
-        if (auto const lineCount = gsl::narrow_cast<int>(m_doc->properties().countLines()); lineCount != m_lastLineCount) {
+        if (auto const lineCount = gsl::narrow_cast<int>(m_doc->properties().countLines()); lineCount
+                != m_lastLineCount) {
             emit lineCountChanged(lineCount);
             m_lastLineCount = lineCount;
         }
@@ -796,18 +801,21 @@ namespace novelist::editor {
                         painter.setPen(QColor::fromRgb(255, 0, 0));
                         auto bb = document()->documentLayout()->blockBoundingRect(block);
                         bb.translate(viewport()->geometry().x() - viewportMargins().left()
-                                        + block.blockFormat().leftMargin(),
+                                             + block.blockFormat().leftMargin(),
                                      viewport()->geometry().y() - viewportMargins().top()
                                              - verticalScrollBar()->value());
                         painter.drawRect(bb);
 
-                        QFont const& font = block.begin() != block.end() ? block.begin().fragment().charFormat().font()
-                                                                         : block.charFormat().font();
-                        auto baseline = bb.top() + block.layout()->lineAt(0).ascent();
+                        if (block.layout() != nullptr && block.layout()->lineCount() > 0) {
+                            QFont const& font =
+                                    block.begin() != block.end() ? block.begin().fragment().charFormat().font()
+                                                                 : block.charFormat().font();
+                            auto baseline = bb.top() + block.layout()->lineAt(0).ascent();
 
-                        painter.setPen(QColor::fromRgb(0, 0, 0));
-                        painter.setPen(Qt::DotLine);
-                        painter.drawLine(0, baseline, 100, baseline);
+                            painter.setPen(QColor::fromRgb(0, 0, 0));
+                            painter.setPen(Qt::DotLine);
+                            painter.drawLine(0, baseline, 100, baseline);
+                        }
                     }
                 }
             }

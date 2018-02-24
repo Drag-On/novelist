@@ -54,6 +54,23 @@ namespace novelist::editor {
 
     signals:
         /**
+         * Document has changed
+         * @param doc New document or nullptr if document has been removed
+         */
+        void documentChanged(Document* doc);
+
+        /**
+         * Cursor position has changed
+         * @param cursor New cursor position
+         */
+        void cursorPositionChanged(TextCursor cursor);
+
+        /**
+         * Selection has changed
+         */
+        void selectionChanged();
+
+        /**
          * Amount of blocks has changed
          * @param newBlockCount New amount of blocks
          */
