@@ -67,6 +67,7 @@ add_library(novelist_core
         src/novelist/editor/document/TextCursor.cpp include/novelist/editor/document/TextCursor.h
         src/novelist/editor/document/TextParagraph.cpp include/novelist/editor/document/TextParagraph.h
         src/novelist/editor/TextEditor.cpp include/novelist/editor/TextEditor.h
+        src/novelist/editor/TextEditorToolBar.cpp include/novelist/editor/TextEditorToolBar.h
         src/novelist/editor/sidebars/TextEditorSideBar.cpp include/novelist/editor/sidebars/TextEditorSideBar.h
         src/novelist/editor/sidebars/TextEditorParagraphNumbersSideBar.cpp include/novelist/editor/sidebars/TextEditorParagraphNumbersSideBar.h
         src/novelist/editor/sidebars/TextEditorLineNumbersSideBar.cpp include/novelist/editor/sidebars/TextEditorLineNumbersSideBar.h
