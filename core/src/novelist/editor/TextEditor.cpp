@@ -157,7 +157,7 @@ namespace novelist::editor {
         }
         else if (event->matches(QKeySequence::StandardKey::DeleteStartOfWord)) {
             auto cursor = getCursor();
-            cursor.select(TextCursor::MoveOperation::StartOfWord);
+            cursor.select(TextCursor::MoveOperation::StartOfPreviousWord);
             cursor.deleteSelected();
             setCursor(cursor);
         }
