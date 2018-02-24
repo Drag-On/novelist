@@ -40,10 +40,6 @@ namespace novelist::editor {
                 break;
             }
         }
-        qDebug() << "idx:" << readabilityIndex
-                 << "words:" << wordCount
-                 << "sentences:" << sentenceCount
-                 << "syllables:" << syllableCount;
         float const fade = readabilityIndex / 100;
 
         if (fade < 0.5)
