@@ -32,8 +32,9 @@ namespace novelist::editor {
 
         // Per default, use the first format
         TextCursor cursor(this);
-        cursor.setParagraphFormat(formatMgr->idFromIndex(0));
-        cursor.setCharacterFormat(formatMgr->idFromIndex(0));
+        auto const id = formatMgr->idFromIndex(0);
+        cursor.setParagraphFormat(id);
+        cursor.setCharacterFormat(id);
     }
 
     QUndoStack& Document::undoStack() noexcept
