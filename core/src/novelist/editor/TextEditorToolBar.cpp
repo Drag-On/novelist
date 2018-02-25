@@ -51,6 +51,12 @@ namespace novelist::editor {
                                        this, &TextEditorToolBar::updateWidgets);
                     }
             };
+            m_cursorSelectionChangedConnection = Connection{
+                    [this] {
+                        return connect(m_editor, &TextEditor::selectionChanged,
+                                       this, &TextEditorToolBar::updateWidgets);
+                    }
+            };
             m_documentChangedConnection = Connection{
                     [this] {
                         return connect(m_editor, &TextEditor::documentChanged,
