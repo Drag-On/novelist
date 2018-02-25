@@ -8,6 +8,7 @@
  **********************************************************/
 #include "editor/TextEditorToolBar.h"
 #include <QMainWindow>
+#include <QtWidgets/QLabel>
 
 namespace novelist::editor {
     TextEditorToolBar::TextEditorToolBar(gsl::not_null<QMainWindow*> parent) noexcept
@@ -118,8 +119,8 @@ namespace novelist::editor {
         // Populate combo boxes
         for (size_t i = 0; i < m_mgr->size(); ++i) {
             auto const* format = m_mgr->getTextFormat(i);
-            m_parFormatComboBox->addItem(format->m_data.m_name, format->m_id);
-            m_charFormatComboBox->addItem(format->m_data.m_name, format->m_id);
+            m_parFormatComboBox->addItem(format->m_data.m_icon, format->m_data.m_name, format->m_id);
+            m_charFormatComboBox->addItem(format->m_data.m_icon, format->m_data.m_name, format->m_id);
         }
 
         // Select current format

@@ -30,9 +30,9 @@ int main(int argc, char* argv[])
 
     using namespace novelist::editor;
     TextFormatManager mgr;
-    mgr.push_back(TextFormatData{"Paragraph"});
-    mgr.push_back(TextFormatData{"Dream", Alignment::Left, Margin{}, Indentation{}, CharacterFormat{false, true, false, false, false, false}});
-    mgr.push_back(TextFormatData{"Poem", Alignment::Left, Margin{}, Indentation{1, 1, false}, CharacterFormat{}});
+    mgr.push_back(TextFormatData{"Paragraph", QIcon{":/icons/format-custom-letters"}});
+    mgr.push_back(TextFormatData{"Thoughts", QIcon{":/icons/format-custom-thoughtbubble"}, Alignment::Left, Margin{}, Indentation{}, CharacterFormat{false, true, false, false, false, false}});
+    mgr.push_back(TextFormatData{"Poetry", QIcon{":/icons/format-custom-feather"}, Alignment::Left, Margin{}, Indentation{1, 1, false}, CharacterFormat{}});
     auto textEditor = new TextEditor;
     textEditor->setDocument(std::make_unique<Document>(&mgr, "Test", getProjectLanguage(Language::English, Country::UnitedStates)));
 

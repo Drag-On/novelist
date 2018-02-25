@@ -10,6 +10,7 @@
 #define NOVELIST_TEXTFORMAT_H
 
 #include <QtCore/QString>
+#include <QIcon>
 
 namespace novelist::editor {
     /**
@@ -58,6 +59,7 @@ namespace novelist::editor {
      */
     struct TextFormatData {
         QString m_name{};
+        QIcon m_icon{};
         Alignment m_alignment = Alignment::Left;
         Margin m_margin{};
         Indentation m_indentation{};
