@@ -340,7 +340,7 @@ namespace novelist::editor {
             bool foundOne = false;
             for (auto iter = block.begin(); iter != block.end(); ++iter) {
                 if (iter.fragment().isValid()
-                        && iter.fragment().position() + iter.fragment().length() >= m_cursor.selectionStart()
+                        && iter.fragment().position() + iter.fragment().length() > m_cursor.selectionStart()
                         && iter.fragment().position() < m_cursor.selectionEnd()) {
                     foundOne = true;
                     auto id = m_doc->formatManager()->getIdOfCharFormat(iter.fragment().charFormat());
