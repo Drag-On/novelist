@@ -63,6 +63,34 @@ namespace novelist::editor {
                                        this, &TextEditorToolBar::onDocumentChanged);
                     }
             };
+            if (m_mgr != nullptr)
+            {
+                m_formatModifiedConnection = Connection{
+                        [this] {
+                            return connect(m_mgr, &TextFormatManager::formatModified,
+                                          this, &TextEditorToolBar::onFormatModified);
+                        }
+                };
+                m_formatReplacedConnection = Connection{
+                        [this] {
+                            return connect(m_mgr, &TextFormatManager::formatReplaced,
+                                           this, &TextEditorToolBar::onFormatReplaced);
+                        }
+                };
+                m_formatAddedConnection = Connection{
+                        [this] {
+                            return connect(m_mgr, &TextFormatManager::formatAdded,
+                                           this, &TextEditorToolBar::onFormatAdded);
+                        }
+                };
+                m_formatMovedConnection = Connection{
+                        [this] {
+                            return connect(m_mgr, &TextFormatManager::formatMoved,
+                                           this, &TextEditorToolBar::onFormatMoved);
+                        }
+                };
+            }
+
         }
         else
             m_cursorPositionChangedConnection.disconnect();
@@ -81,6 +109,26 @@ namespace novelist::editor {
         else
             m_mgr = nullptr;
         enableFormats(enable);
+    }
+
+    void TextEditorToolBar::onFormatModified(TextFormatManager::WeakId /*id*/)
+    {
+        updateWidgets();
+    }
+
+    void TextEditorToolBar::onFormatReplaced(TextFormatManager::WeakId /*id*/, TextFormatManager::WeakId /*replacement*/)
+    {
+        updateWidgets();
+    }
+
+    void TextEditorToolBar::onFormatAdded(TextFormatManager::WeakId /*id*/)
+    {
+        updateWidgets();
+    }
+
+    void TextEditorToolBar::onFormatMoved(TextFormatManager::WeakId /*id*/, size_t /*srxIdx*/, size_t /*destIdx*/)
+    {
+        updateWidgets();
     }
 
     void TextEditorToolBar::setParagraphFormat(int index)

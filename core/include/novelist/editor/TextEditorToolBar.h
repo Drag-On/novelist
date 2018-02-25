@@ -30,6 +30,14 @@ namespace novelist::editor {
 
         void onDocumentChanged(Document* document);
 
+        void onFormatModified(TextFormatManager::WeakId id);
+
+        void onFormatReplaced(TextFormatManager::WeakId id, TextFormatManager::WeakId replacement);
+
+        void onFormatAdded(TextFormatManager::WeakId id);
+
+        void onFormatMoved(TextFormatManager::WeakId id, size_t srxIdx, size_t destIdx);
+
         void setParagraphFormat(int index);
 
         void setCharacterFormat(int index);
@@ -48,6 +56,10 @@ namespace novelist::editor {
         Connection m_cursorSelectionChangedConnection;
         Connection m_paragraphIndexActivatedConnection;
         Connection m_characterIndexActivatedConnection;
+        Connection m_formatModifiedConnection;
+        Connection m_formatReplacedConnection;
+        Connection m_formatAddedConnection;
+        Connection m_formatMovedConnection;
     };
 }
 
