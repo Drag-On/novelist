@@ -39,13 +39,9 @@ int main(int argc, char* argv[])
     QUndoView undoView(&textEditor->getDocument()->undoStack());
     undoView.show();
 
-
     QMainWindow wnd;
-    QAction* makeItalic = new QAction("Make italic", &wnd);
-    QObject::connect(makeItalic, &QAction::triggered, [textEditor]{ qDebug() << "makeItalic"; textEditor->getCursor().setCharacterFormat(1);});
     TextEditorToolBar toolBar(&wnd);
     toolBar.setEditor(textEditor);
-    toolBar.addAction(makeItalic);
     wnd.setCentralWidget(textEditor);
     wnd.addToolBar(&toolBar);
     wnd.show();
