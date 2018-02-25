@@ -117,6 +117,20 @@ namespace novelist {
              */
             void formatReplaced(WeakId id, WeakId replacement);
 
+            /**
+             * A new format has been added
+             * @param id Id of the new format
+             */
+            void formatAdded(WeakId id);
+
+            /**
+             * A format has moved positions
+             * @param id Id of the moved format
+             * @param srxIdx Source index
+             * @param destIdx Destination index
+             */
+            void formatMoved(WeakId id, size_t srxIdx, size_t destIdx);
+
         private:
             using IdType = IdManager<TextFormatManager>::IdType;
             struct InternalTextFormat {

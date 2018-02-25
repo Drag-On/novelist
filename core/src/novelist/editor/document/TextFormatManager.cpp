@@ -22,6 +22,7 @@ namespace novelist::editor {
         format.m_blockFormat = extractBlockFormat(format.m_textFormat, format.m_id.id());
         format.m_charFormat = extractCharFormat(format.m_textFormat, format.m_id.id());
         m_formats.push_back(std::move(format));
+        emit formatAdded(weakId);
         return weakId;
     }
 
@@ -38,6 +39,7 @@ namespace novelist::editor {
         format.m_blockFormat = extractBlockFormat(format.m_textFormat, format.m_id.id());
         format.m_charFormat = extractCharFormat(format.m_textFormat, format.m_id.id());
         m_formats.insert(m_formats.begin() + idx, std::move(format));
+        emit formatAdded(weakId);
         return weakId;
     }
 
@@ -58,7 +60,9 @@ namespace novelist::editor {
 
     void TextFormatManager::move(size_t srcIdx, size_t destIdx) noexcept
     {
+        WeakId const id = idFromIndex(srcIdx);
         move_range(m_formats.begin() + srcIdx, 1, m_formats.begin() + destIdx);
+        emit formatMoved(id, srcIdx, destIdx);
     }
 
     TextFormatManager::WeakId TextFormatManager::idFromIndex(size_t idx) const
