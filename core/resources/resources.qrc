@@ -6,6 +6,12 @@
     <file alias="format-text-smallcaps">icons/smallcaps.png</file>
     <file alias="format-text-strikethrough">icons/strikethrough.png</file>
     <file alias="format-text-underline">icons/underline.png</file>
+    <file alias="format-character">icons/format-character.png</file>
+    <file alias="format-paragraph">icons/format-paragraph.png</file>
+    <file alias="format-custom-feather">icons/format-custom-feather.png</file>
+    <file alias="format-custom-letters">icons/format-custom-letters.png</file>
+    <file alias="format-custom-speechbubble">icons/format-custom-speechbubble.png</file>
+    <file alias="format-custom-thoughtbubble">icons/format-custom-thoughtbubble.png</file>
     <file alias="node-scene">icons/scene.png</file>
     <file alias="node-chapter">icons/chapter.png</file>
     <file alias="node-project">icons/book.png</file>
