@@ -138,11 +138,21 @@ namespace novelist::editor {
         m_parFormatComboBox->clear();
         m_charFormatComboBox->clear();
 
+        int digits = 1;
+        {
+            int max = qMax(1ul, m_mgr->size());
+            while (max >= 10) {
+                max /= 10;
+                ++digits;
+            }
+        }
+
         // Populate combo boxes
         for (size_t i = 0; i < m_mgr->size(); ++i) {
+            auto const prefix = QString("%1: ").arg(i + 1, digits);
             auto const* format = m_mgr->getTextFormat(i);
-            m_parFormatComboBox->addItem(format->m_data.m_icon, format->m_data.m_name, format->m_id);
-            m_charFormatComboBox->addItem(format->m_data.m_icon, format->m_data.m_name, format->m_id);
+            m_parFormatComboBox->addItem(format->m_data.m_icon, prefix + format->m_data.m_name, format->m_id);
+            m_charFormatComboBox->addItem(format->m_data.m_icon, prefix + format->m_data.m_name, format->m_id);
         }
 
         // Select current format
