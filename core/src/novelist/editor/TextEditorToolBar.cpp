@@ -17,15 +17,12 @@ namespace novelist::editor {
         m_parFormatComboBox = new QComboBox(this);
         m_charFormatComboBox = new QComboBox(this);
 
+        m_parFormatComboBox->setToolTip(tr("Format of the paragraph the cursor is in."));
+        m_charFormatComboBox->setToolTip(tr("Format of the character the cursor is located at."));
+
         addWidget(m_parFormatComboBox);
         addWidget(m_charFormatComboBox);
 
-        m_documentChangedConnection = Connection{
-                [this] {
-                    return connect(m_editor, &TextEditor::documentChanged,
-                                   this, &TextEditorToolBar::onDocumentChanged);
-                }
-        };
         m_paragraphIndexActivatedConnection = Connection{
                 [this] {
                     return connect(m_parFormatComboBox, QOverload<int>::of(&QComboBox::activated),
@@ -51,6 +48,12 @@ namespace novelist::editor {
                     [this] {
                         return connect(m_editor, &TextEditor::cursorPositionChanged,
                                        this, &TextEditorToolBar::updateWidgets);
+                    }
+            };
+            m_documentChangedConnection = Connection{
+                    [this] {
+                        return connect(m_editor, &TextEditor::documentChanged,
+                                       this, &TextEditorToolBar::onDocumentChanged);
                     }
             };
         }
