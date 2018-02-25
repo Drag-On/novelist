@@ -11,6 +11,7 @@
 #include <QtWidgets/QLabel>
 
 namespace novelist::editor {
+
     TextEditorToolBar::TextEditorToolBar(gsl::not_null<QMainWindow*> parent) noexcept
             :QToolBar(tr("Formatting Toolbar"), parent)
     {
@@ -80,20 +81,38 @@ namespace novelist::editor {
     {
         qDebug() << "setParagraphFormat(" << index << ")";
 
-        Expects(index >= 0 && index < gsl::narrow_cast<int>(m_mgr->size()));
+        // If the indexed element is the dynamic "mixed" element, disregard it
+        if (!m_parFormatComboBox->itemData(index).isValid())
+            return;
 
         m_editor->getCursor().setParagraphFormat(
                 qvariant_cast<TextFormatManager::WeakId>(m_parFormatComboBox->itemData(index)));
+
+        // If there was a "mixed" entry before we can remove it now
+        if (!m_parFormatComboBox->itemData(0).isValid())
+        {
+            m_parFormatComboBox->removeItem(0); // "Mixed"
+            m_parFormatComboBox->removeItem(0); // Separator
+        }
     }
 
     void TextEditorToolBar::setCharacterFormat(int index)
     {
         qDebug() << "setCharacterFormat(" << index << ")";
 
-        Expects(index >= 0 && index < gsl::narrow_cast<int>(m_mgr->size()));
+        // If the indexed element is the dynamic "mixed" element, disregard it
+        if (!m_charFormatComboBox->itemData(index).isValid())
+            return;
 
         m_editor->getCursor().setCharacterFormat(
                 qvariant_cast<TextFormatManager::WeakId>(m_charFormatComboBox->itemData(index)));
+
+        // If there was a "mixed" entry before we can remove it now
+        if (!m_charFormatComboBox->itemData(0).isValid())
+        {
+            m_charFormatComboBox->removeItem(0); // "Mixed"
+            m_charFormatComboBox->removeItem(0); // Separator
+        }
     }
 
     void TextEditorToolBar::enableFormats(bool enabled) noexcept
@@ -128,9 +147,32 @@ namespace novelist::editor {
 
         // Select current format
         auto const& cursor = m_editor->getCursor();
-        size_t parIdx = m_mgr->indexFromId(cursor.paragraphFormat());
-        size_t charIdx = m_mgr->indexFromId(cursor.characterFormat());
-        m_parFormatComboBox->setCurrentIndex(parIdx);
-        m_charFormatComboBox->setCurrentIndex(charIdx);
+        auto const parFormats = cursor.selectionParagraphFormats();
+        auto const charFormats = cursor.selectionCharacterFormats();
+
+        qDebug() << parFormats << charFormats;
+
+        if (parFormats.size() == 1)
+        {
+            size_t parIdx = m_mgr->indexFromId(parFormats.front());
+            m_parFormatComboBox->setCurrentIndex(parIdx);
+        }
+        else
+        {
+            m_parFormatComboBox->insertSeparator(0);
+            m_parFormatComboBox->insertItem(0, tr("Mixed"));
+            m_parFormatComboBox->setCurrentIndex(0);
+        }
+        if (charFormats.size() == 1)
+        {
+            size_t charIdx = m_mgr->indexFromId(charFormats.front());
+            m_charFormatComboBox->setCurrentIndex(charIdx);
+        }
+        else
+        {
+            m_charFormatComboBox->insertSeparator(0);
+            m_charFormatComboBox->insertItem(0, tr("Mixed"));
+            m_charFormatComboBox->setCurrentIndex(0);
+        }
     }
 }
