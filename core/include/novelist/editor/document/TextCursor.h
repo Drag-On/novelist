@@ -175,6 +175,14 @@ namespace novelist::editor {
         TextFormat::WeakId paragraphFormat() const noexcept;
 
         /**
+         * @return A list of all paragraph formats of the current selection in left-to-right order. If selection is
+         *         empty, then the list will contain one element that is identical to that returned by
+         *         paragraphFormat().
+         * @note   This may contain the same format multiple times, if it appears multiple times within the selection.
+         */
+        std::vector<TextFormat::WeakId> selectionParagraphFormats() const noexcept;
+
+        /**
          * Changes the format of the current paragraph
          * @param id New format
          */
@@ -184,6 +192,14 @@ namespace novelist::editor {
          * @return Character format of the character right before the cursor.
          */
         TextFormat::WeakId characterFormat() const noexcept;
+
+        /**
+         * @return A list of all character formats of the current selection in left-to-right order. If selection is
+         *         empty, then the list will contain one element that is identical to that returned by
+         *         characterFormat().
+         * @note   This may contain the same format multiple times, if it appears multiple times within the selection.
+         */
+        std::vector<TextFormat::WeakId> selectionCharacterFormats() const noexcept;
 
         /**
          * Changes the current character format. If this cursor has a selection, changes the character format of the

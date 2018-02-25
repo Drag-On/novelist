@@ -6,6 +6,7 @@
  * @brief
  * @details
  **********************************************************/
+#include <QTextFragment>
 #include "util/Overloaded.h"
 #include "editor/document/TextCursor.h"
 #include "editor/document/Document.h"
@@ -237,7 +238,8 @@ namespace novelist::editor {
         if (atStart())
             return;
         m_cursor.movePosition(QTextCursor::MoveOperation::PreviousCharacter, QTextCursor::KeepAnchor);
-        m_doc->undoStack().push(new internal::TextRemoveCommand(m_doc, m_cursor.selectionStart(), m_cursor.selectedText()));
+        m_doc->undoStack().push(
+                new internal::TextRemoveCommand(m_doc, m_cursor.selectionStart(), m_cursor.selectedText()));
     }
 
     void TextCursor::deleteNext() noexcept
@@ -249,14 +251,16 @@ namespace novelist::editor {
         if (atEnd())
             return;
         m_cursor.movePosition(QTextCursor::MoveOperation::NextCharacter, QTextCursor::KeepAnchor);
-        m_doc->undoStack().push(new internal::TextRemoveCommand(m_doc, m_cursor.selectionStart(), m_cursor.selectedText()));
+        m_doc->undoStack().push(
+                new internal::TextRemoveCommand(m_doc, m_cursor.selectionStart(), m_cursor.selectedText()));
     }
 
     void TextCursor::deleteSelected() noexcept
     {
         if (!hasSelection())
             return;
-        m_doc->undoStack().push(new internal::TextRemoveCommand(m_doc, m_cursor.selectionStart(), m_cursor.selectedText()));
+        m_doc->undoStack().push(
+                new internal::TextRemoveCommand(m_doc, m_cursor.selectionStart(), m_cursor.selectedText()));
     }
 
     void TextCursor::breakParagraph() noexcept
@@ -277,7 +281,7 @@ namespace novelist::editor {
     {
         if (hasSelection()) {
             m_doc->undoStack().beginMacro(Document::tr("replacing text"));
-            auto endMacro = gsl::finally([this]{m_doc->undoStack().endMacro();});
+            auto endMacro = gsl::finally([this] { m_doc->undoStack().endMacro(); });
             deleteSelected();
             m_doc->undoStack().push(new internal::TextInsertCommand(m_doc, m_cursor.selectionStart(), std::move(text)));
         }
@@ -288,6 +292,25 @@ namespace novelist::editor {
     TextFormat::WeakId TextCursor::paragraphFormat() const noexcept
     {
         return m_doc->m_formatMgr->getIdOfBlockFormat(m_cursor.blockFormat());
+    }
+
+    std::vector<TextFormat::WeakId> TextCursor::selectionParagraphFormats() const noexcept
+    {
+        if (!hasSelection())
+            return {paragraphFormat()};
+
+        std::vector<TextFormat::WeakId> formatList;
+        for (auto block = m_doc->m_doc->findBlock(m_cursor.selectionStart());
+             block.isValid()
+                     && block.position() + block.length() >= m_cursor.selectionStart()
+                     && block.position() < m_cursor.selectionEnd();
+             block = block.next()) {
+
+            auto id = m_doc->formatManager()->getIdOfBlockFormat(block.blockFormat());
+            if (formatList.empty() || formatList.front() != id)
+                formatList.push_back(id);
+        }
+        return formatList;
     }
 
     void TextCursor::setParagraphFormat(TextFormat::WeakId id) noexcept
@@ -302,11 +325,39 @@ namespace novelist::editor {
         return m_doc->m_formatMgr->getIdOfCharFormat(m_cursor.charFormat());
     }
 
+    std::vector<TextFormat::WeakId> TextCursor::selectionCharacterFormats() const noexcept
+    {
+        if (!hasSelection())
+            return {characterFormat()};
+
+        std::vector<TextFormat::WeakId> formatList;
+        for (auto block = m_doc->m_doc->findBlock(m_cursor.selectionStart());
+             block.isValid()
+                     && block.position() + block.length() >= m_cursor.selectionStart()
+                     && block.position() < m_cursor.selectionEnd();
+             block = block.next()) {
+
+            bool foundOne = false;
+            for (auto iter = block.begin(); iter != block.end(); ++iter) {
+                if (iter.fragment().isValid()
+                        && iter.fragment().position() + iter.fragment().length() >= m_cursor.selectionStart()
+                        && iter.fragment().position() < m_cursor.selectionEnd()) {
+                    foundOne = true;
+                    auto id = m_doc->formatManager()->getIdOfCharFormat(iter.fragment().charFormat());
+                    if (formatList.empty() || formatList.front() != id)
+                        formatList.push_back(id);
+                }
+                else if (foundOne)
+                    break;
+            }
+        }
+        return formatList;
+    }
+
     void TextCursor::setCharacterFormat(TextFormat::WeakId id) noexcept
     {
         auto format = *m_doc->m_formatMgr->getTextCharFormat(id);
-        if (atParagraphStart() && atParagraphEnd())
-        {
+        if (atParagraphStart() && atParagraphEnd()) {
             m_cursor.setBlockCharFormat(format);
             // Note: The following works around a display bug where changing the block char format makes the whole
             //       editor disappear:
