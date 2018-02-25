@@ -45,8 +45,8 @@ namespace novelist::editor {
         QComboBox* m_charFormatComboBox;
         Connection m_documentChangedConnection;
         Connection m_cursorPositionChangedConnection;
-        Connection m_currentParagraphIndexChangedConnection;
-        Connection m_currentCharacterIndexChangedConnection;
+        Connection m_paragraphIndexActivatedConnection;
+        Connection m_characterIndexActivatedConnection;
     };
 }
 

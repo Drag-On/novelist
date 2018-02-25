@@ -25,15 +25,15 @@ namespace novelist::editor {
                                    this, &TextEditorToolBar::onDocumentChanged);
                 }
         };
-        m_currentParagraphIndexChangedConnection = Connection{
+        m_paragraphIndexActivatedConnection = Connection{
                 [this] {
-                    return connect(m_parFormatComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+                    return connect(m_parFormatComboBox, QOverload<int>::of(&QComboBox::activated),
                                    this, &TextEditorToolBar::setParagraphFormat);
                 }
         };
-        m_currentCharacterIndexChangedConnection = Connection{
+        m_characterIndexActivatedConnection = Connection{
                 [this] {
-                    return connect(m_charFormatComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+                    return connect(m_charFormatComboBox, QOverload<int>::of(&QComboBox::activated),
                                    this, &TextEditorToolBar::setCharacterFormat);
                 }
         };
@@ -90,7 +90,6 @@ namespace novelist::editor {
 
         m_editor->getCursor().setCharacterFormat(
                 qvariant_cast<TextFormatManager::WeakId>(m_charFormatComboBox->itemData(index)));
-
     }
 
     void TextEditorToolBar::enableFormats(bool enabled) noexcept
@@ -110,8 +109,8 @@ namespace novelist::editor {
         Expects(m_editor != nullptr);
         Expects(m_mgr != nullptr);
 
-        ConnectionBlocker blockParConnection(m_currentParagraphIndexChangedConnection);
-        ConnectionBlocker blockCharConnection(m_currentCharacterIndexChangedConnection);
+        ConnectionBlocker blockParConnection(m_paragraphIndexActivatedConnection);
+        ConnectionBlocker blockCharConnection(m_characterIndexActivatedConnection);
 
         m_parFormatComboBox->clear();
         m_charFormatComboBox->clear();
