@@ -18,10 +18,17 @@ namespace novelist::editor {
         m_parFormatComboBox = new QComboBox(this);
         m_charFormatComboBox = new QComboBox(this);
 
+        QIcon formatLinkIcon;
+        formatLinkIcon.addFile(":/icons/chain-linked", QSize(), QIcon::Mode::Normal, QIcon::State::On);
+        formatLinkIcon.addFile(":/icons/chain-broken", QSize(), QIcon::Mode::Normal, QIcon::State::Off);
+        m_formatsLinkedAction = new QAction(formatLinkIcon, tr("Link paragraph and character format"), this);
+        m_formatsLinkedAction->setCheckable(true);
+
         m_parFormatComboBox->setToolTip(tr("Format of the paragraph the cursor is in."));
         m_charFormatComboBox->setToolTip(tr("Format of the character the cursor is located at."));
 
         addWidget(m_parFormatComboBox);
+        addAction(m_formatsLinkedAction);
         addWidget(m_charFormatComboBox);
 
         m_paragraphIndexActivatedConnection = Connection{

@@ -51,6 +51,7 @@ namespace novelist::editor {
         TextFormatManager* m_mgr = nullptr;
         QComboBox* m_parFormatComboBox;
         QComboBox* m_charFormatComboBox;
+        QAction* m_formatsLinkedAction;
         Connection m_documentChangedConnection;
         Connection m_cursorPositionChangedConnection;
         Connection m_cursorSelectionChangedConnection;
