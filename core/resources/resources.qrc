@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="/icons">
+    <file alias="chain-linked">icons/chain-linked.png</file>
+    <file alias="chain-broken">icons/chain-broken.png</file>
     <file alias="format-text-bold">icons/bold.png</file>
     <file alias="format-text-italic">icons/italic.png</file>
     <file alias="format-text-overline">icons/overline.png</file>
