@@ -11,6 +11,7 @@
 #include <catch.hpp>
 #include <editor/document/Document.h>
 #include <editor/document/TextCursor.h>
+#include <test/TestApplication.h>
 
 using namespace novelist::editor;
 
@@ -138,8 +139,7 @@ TEST_CASE("Document", "[editor][document]")
 
         int i = 0;
         int lines = 0;
-        for (auto const& p : doc)
-        {
+        for (auto const& p : doc) {
             REQUIRE(p.text() == texts[i]);
             REQUIRE(p.length() == texts[i].length() + 1); // +1 for newline
             REQUIRE(p.firstLineNo() == lines);
@@ -147,5 +147,39 @@ TEST_CASE("Document", "[editor][document]")
             lines += p.lineCount();
         }
         REQUIRE(i == sizeof(texts) / sizeof(*texts));
+    }
+    SECTION("Selection") {
+        SECTION("Paragraph") {
+            QString const firstText = "First paragraph";
+            QString const secondText = "Second paragraph";
+            cursor.insertText(firstText);
+            cursor.breakParagraph();
+            cursor.insertText(secondText);
+
+            DATA_SECTION("No previous selection",
+                         TESTFUN([&](int pos) {
+                             cursor.setPosition(pos);
+                             cursor.selectParagraph();
+                             REQUIRE(cursor.getSelection().first == 0);
+                             REQUIRE(cursor.getSelection().second == 15);
+                             REQUIRE(cursor.selectedText().toStdString() == firstText.toStdString());
+                         }),
+                         NAMED_ROW("start", 0)
+                         NAMED_ROW("middle", 5)
+                         NAMED_ROW("end", 15)
+                        );
+
+            DATA_SECTION("With previous selection",
+                         TESTFUN([&](int pos, int anchor) {
+                             cursor.select(pos, anchor);
+                             cursor.selectParagraph();
+                             REQUIRE(cursor.getSelection().first == 0);
+                             REQUIRE(cursor.getSelection().second == 15);
+                         }),
+                         NAMED_ROW("start", 0, 4)
+                         NAMED_ROW("middle", 5, 6)
+                         NAMED_ROW("end", 11, 15)
+                        );
+        }
     }
 }

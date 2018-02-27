@@ -104,7 +104,16 @@ namespace novelist::editor {
         void select(MoveOperation op) noexcept;
 
         /**
-         * @return Current selection
+         * Extends the selection to cover the whole paragraph
+         *
+         * @details If there was no selection, selects the paragraph the cursor is in. If there was a selection, this
+         *          selection is extended in such a way that its start is moved to the beginning of the paragraph it is
+         *          in, and its end will be moved to the end of the paragraph it is in.
+         */
+        void selectParagraph() noexcept;
+
+        /**
+         * @return Current selection where the first element is left of the second
          */
         std::pair<int, int> getSelection() const noexcept;
 
@@ -117,6 +126,15 @@ namespace novelist::editor {
          * @return The currently selected text
          */
         QString selectedText() const noexcept;
+
+        /**
+         * Checks whether the current selection contains a given position
+         *
+         * @param pos Position to check
+         * @return True in case \p pos is contained in the current selection, otherwise false. If there is no selection,
+         *         then this returns true if, and only if the cursor position matches \p pos.
+         */
+        bool contains(int pos) const noexcept;
 
         /**
          * @return true if at paragraph start, otherwise false
@@ -207,6 +225,13 @@ namespace novelist::editor {
          * @param id New character format
          */
         void setCharacterFormat(TextFormat::WeakId id) noexcept;
+
+        /**
+         * Replace a character format in the selection with another format
+         * @param id Format to replace
+         * @param newId Replacement format
+         */
+        void replaceCharacterFormat(TextFormat::WeakId id, TextFormat::WeakId newId) noexcept;
 
     private:
         Document* m_doc;

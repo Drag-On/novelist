@@ -7,7 +7,6 @@
  * @details
  **********************************************************/
 #include <QTextFragment>
-#include "util/Overloaded.h"
 #include "editor/document/TextCursor.h"
 #include "editor/document/Document.h"
 
@@ -194,9 +193,25 @@ namespace novelist::editor {
         }
     }
 
+    void TextCursor::selectParagraph() noexcept
+    {
+        int const pos = m_cursor.position();
+        auto const posBlock = m_cursor.document()->findBlock(pos);
+        int const anchor = m_cursor.anchor();
+        auto const anchorBlock = m_cursor.document()->findBlock(anchor);
+        if (pos <= anchor) {
+            m_cursor.setPosition(anchorBlock.position() + anchorBlock.length() - 1); // Don't select "\n"
+            m_cursor.setPosition(posBlock.position(), QTextCursor::MoveMode::KeepAnchor);
+        }
+        else {
+            m_cursor.setPosition(anchorBlock.position());
+            m_cursor.setPosition(posBlock.position() + posBlock.length() - 1, QTextCursor::MoveMode::KeepAnchor);
+        }
+    }
+
     std::pair<int, int> TextCursor::getSelection() const noexcept
     {
-        return std::pair<int, int>(m_cursor.position(), m_cursor.anchor());
+        return std::pair<int, int>(m_cursor.selectionStart(), m_cursor.selectionEnd());
     }
 
     bool TextCursor::hasSelection() const noexcept
@@ -207,6 +222,11 @@ namespace novelist::editor {
     QString TextCursor::selectedText() const noexcept
     {
         return m_cursor.selectedText();
+    }
+
+    bool TextCursor::contains(int pos) const noexcept
+    {
+        return m_cursor.selectionStart() <= pos && m_cursor.selectionEnd() >= pos;
     }
 
     bool TextCursor::atParagraphStart() const noexcept
@@ -369,5 +389,55 @@ namespace novelist::editor {
         else
             m_cursor.setCharFormat(format);
         // TODO: UndoRedo
+    }
+
+    void TextCursor::replaceCharacterFormat(TextFormat::WeakId id, TextFormat::WeakId newId) noexcept
+    {
+        if (!hasSelection())
+            return;
+
+        using Fragment = std::pair<int, int>;
+        auto findNextFragment = [doc = m_doc->m_doc.get()](int start, int end) -> Fragment {
+            QTextCursor cursor(doc);
+            cursor.setPosition(start);
+            auto block = cursor.block();
+            for (auto iter = block.begin(); iter != block.end(); ++iter) {
+                if (iter.fragment().contains(start))
+                    return {start, std::min(end, iter.fragment().position() + iter.fragment().length())};
+            }
+            return {start, start};
+        };
+
+        auto replaceFormat = [id, newId, doc = m_doc->m_doc.get(), formatMgr = m_doc->formatManager(), &findNextFragment](
+                int startPos, int endPos) {
+            for (Fragment frag = findNextFragment(startPos, endPos);
+                 frag.first != frag.second;
+                 frag = findNextFragment(frag.second, endPos)) {
+                QTextCursor cursor(doc);
+                cursor.setPosition(frag.second);
+                auto charFormatId = formatMgr->getIdOfCharFormat(cursor.charFormat());
+                if (charFormatId == id) {
+                    cursor.setPosition(frag.first, QTextCursor::MoveMode::KeepAnchor);
+                    cursor.setCharFormat(*formatMgr->getTextCharFormat(newId));
+                }
+            }
+        };
+
+        auto const startBlock = m_doc->m_doc->findBlock(m_cursor.selectionStart());
+        int const startPos = m_cursor.selectionStart();
+        int const endPos = startBlock.contains(m_cursor.selectionEnd()) ? m_cursor.selectionEnd()
+                                                                        : startBlock.position() + startBlock.length();
+        replaceFormat(startPos, endPos);
+
+        if (!startBlock.contains(m_cursor.selectionEnd())) {
+            for (auto block = startBlock.next();
+                 block.isValid() && block.position() + block.length() < m_cursor.selectionEnd();
+                 block = block.next()) {
+                replaceFormat(block.position(), block.position() + block.length());
+            }
+
+            auto endBlock = m_doc->m_doc->findBlock(m_cursor.selectionEnd());
+            replaceFormat(endBlock.position(), m_cursor.selectionEnd());
+        }
     }
 }
