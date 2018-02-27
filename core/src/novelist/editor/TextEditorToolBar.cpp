@@ -8,7 +8,6 @@
  **********************************************************/
 #include "editor/TextEditorToolBar.h"
 #include <QMainWindow>
-#include <QtWidgets/QLabel>
 
 namespace novelist::editor {
 
@@ -70,12 +69,11 @@ namespace novelist::editor {
                                        this, &TextEditorToolBar::onDocumentChanged);
                     }
             };
-            if (m_mgr != nullptr)
-            {
+            if (m_mgr != nullptr) {
                 m_formatModifiedConnection = Connection{
                         [this] {
                             return connect(m_mgr, &TextFormatManager::formatModified,
-                                          this, &TextEditorToolBar::onFormatModified);
+                                           this, &TextEditorToolBar::onFormatModified);
                         }
                 };
                 m_formatReplacedConnection = Connection{
@@ -123,7 +121,8 @@ namespace novelist::editor {
         updateWidgets();
     }
 
-    void TextEditorToolBar::onFormatReplaced(TextFormatManager::WeakId /*id*/, TextFormatManager::WeakId /*replacement*/)
+    void
+    TextEditorToolBar::onFormatReplaced(TextFormatManager::WeakId /*id*/, TextFormatManager::WeakId /*replacement*/)
     {
         updateWidgets();
     }
@@ -146,15 +145,26 @@ namespace novelist::editor {
         if (!m_parFormatComboBox->itemData(index).isValid())
             return;
 
-        m_editor->getCursor().setParagraphFormat(
-                qvariant_cast<TextFormatManager::WeakId>(m_parFormatComboBox->itemData(index)));
+        auto newId = qvariant_cast<TextFormatManager::WeakId>(m_parFormatComboBox->itemData(index));
+        auto cursor = m_editor->getCursor();
 
-        // If there was a "mixed" entry before we can remove it now
-        if (!m_parFormatComboBox->itemData(0).isValid())
-        {
-            m_parFormatComboBox->removeItem(0); // "Mixed"
-            m_parFormatComboBox->removeItem(0); // Separator
+        // If character format is linked to paragraph format, all character formats that have the old format should be
+        // changed to the new format
+        if (m_formatsLinkedAction->isChecked()) {
+            TextCursor tCursor(m_editor->getDocument());
+            tCursor.setPosition(cursor.getSelection().first);
+            tCursor.selectParagraph();
+            tCursor.replaceCharacterFormat(tCursor.paragraphFormat(), newId);
+            while (!tCursor.contains(cursor.getSelection().second)) {
+                tCursor.move(TextCursor::MoveOperation::StartOfNextParagraph);
+                tCursor.selectParagraph();
+                tCursor.replaceCharacterFormat(tCursor.paragraphFormat(), newId);
+            }
+            updateWidgets();
         }
+
+        cursor.setParagraphFormat(newId);
+        updateWidgets();
     }
 
     void TextEditorToolBar::setCharacterFormat(int index)
@@ -169,8 +179,7 @@ namespace novelist::editor {
                 qvariant_cast<TextFormatManager::WeakId>(m_charFormatComboBox->itemData(index)));
 
         // If there was a "mixed" entry before we can remove it now
-        if (!m_charFormatComboBox->itemData(0).isValid())
-        {
+        if (!m_charFormatComboBox->itemData(0).isValid()) {
             m_charFormatComboBox->removeItem(0); // "Mixed"
             m_charFormatComboBox->removeItem(0); // Separator
         }
@@ -223,24 +232,20 @@ namespace novelist::editor {
 
         qDebug() << parFormats << charFormats;
 
-        if (parFormats.size() == 1)
-        {
+        if (parFormats.size() == 1) {
             size_t parIdx = m_mgr->indexFromId(parFormats.front());
             m_parFormatComboBox->setCurrentIndex(parIdx);
         }
-        else
-        {
+        else {
             m_parFormatComboBox->insertSeparator(0);
             m_parFormatComboBox->insertItem(0, tr("Mixed"));
             m_parFormatComboBox->setCurrentIndex(0);
         }
-        if (charFormats.size() == 1)
-        {
+        if (charFormats.size() == 1) {
             size_t charIdx = m_mgr->indexFromId(charFormats.front());
             m_charFormatComboBox->setCurrentIndex(charIdx);
         }
-        else
-        {
+        else {
             m_charFormatComboBox->insertSeparator(0);
             m_charFormatComboBox->insertItem(0, tr("Mixed"));
             m_charFormatComboBox->setCurrentIndex(0);
