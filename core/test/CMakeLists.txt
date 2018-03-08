@@ -13,9 +13,11 @@ if (TESTS)
             util/IdentityTest.cpp
             util/CrcHashTest.cpp
             util/StrongTypedefTest.cpp
+            util/FlagSetTest.cpp
+            util/CompareTest.cpp
             model/ProjectModelTest.cpp
             editor/document/DocumentTest.cpp
-            util/FlagSetTest.cpp)
+            )
 
     target_include_directories(novelist_core_test
             PUBLIC
