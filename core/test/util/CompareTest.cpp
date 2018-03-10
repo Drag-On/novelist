@@ -76,6 +76,98 @@ TEST_CASE("Compare", "[util]")
                 ROW(1, 2)
                 )
 
+    DATA_SECTION("less or equal",
+                 TESTFUN([](int a, int b) {
+                     INFO("a: " << a << ", b: " << b);
+                     static_for<num_test_types>([a, b](auto i) {
+                         try {
+                             auto const firstVal = gsl::narrow<typename test_types<i>::type>(a);
+                             INFO("First val type index: " << i);
+                             static_for<num_test_types>([firstVal, b](auto j) {
+                                 try {
+                                     auto const secondVal = gsl::narrow<typename test_types<j>::type>(b);
+                                     INFO("Second val type index: " << j);
+                                     REQUIRE(less_or_equal(firstVal, secondVal));
+                                     if (not_equal(firstVal, secondVal))
+                                        REQUIRE_FALSE(less_or_equal(secondVal, firstVal));
+                                 }
+                                 catch(...) {}
+                             });
+                         }
+                         catch(...) {}
+                     });
+                 }),
+                 ROW(0, 1)
+                 ROW(-1, 0)
+                 ROW(0, 1)
+                 ROW(-1, 1)
+                 ROW(-2, -1)
+                 ROW(1, 2)
+                 ROW(0, 0)
+                 ROW(1, 1)
+                 ROW(-1, -1)
+                )
+
+    DATA_SECTION("greater",
+                 TESTFUN([](int a, int b) {
+                     INFO("a: " << a << ", b: " << b);
+                     static_for<num_test_types>([a, b](auto i) {
+                         try {
+                             auto const firstVal = gsl::narrow<typename test_types<i>::type>(a);
+                             INFO("First val type index: " << i);
+                             static_for<num_test_types>([firstVal, b](auto j) {
+                                 try {
+                                     auto const secondVal = gsl::narrow<typename test_types<j>::type>(b);
+                                     INFO("Second val type index: " << j);
+                                     REQUIRE(greater(firstVal, secondVal));
+                                     REQUIRE_FALSE(greater(secondVal, firstVal));
+                                 }
+                                 catch(...) {}
+                             });
+                         }
+                         catch(...) {}
+                     });
+                 }),
+                 ROW(1, 0)
+                 ROW(0, -1)
+                 ROW(1, 0)
+                 ROW(1, -1)
+                 ROW(-1, -2)
+                 ROW(2, 1)
+                )
+
+    DATA_SECTION("greater or equal",
+                 TESTFUN([](int a, int b) {
+                     INFO("a: " << a << ", b: " << b);
+                     static_for<num_test_types>([a, b](auto i) {
+                         try {
+                             auto const firstVal = gsl::narrow<typename test_types<i>::type>(a);
+                             INFO("First val type index: " << i);
+                             static_for<num_test_types>([firstVal, b](auto j) {
+                                 try {
+                                     auto const secondVal = gsl::narrow<typename test_types<j>::type>(b);
+                                     INFO("Second val type index: " << j);
+                                     REQUIRE(greater_or_equal(firstVal, secondVal));
+                                     if (not_equal(firstVal, secondVal))
+                                        REQUIRE_FALSE(greater_or_equal(secondVal, firstVal));
+                                 }
+                                 catch(...) {}
+                             });
+                         }
+                         catch(...) {}
+                     });
+                 }),
+                 ROW(1, 0)
+                 ROW(0, -1)
+                 ROW(1, 0)
+                 ROW(1, -1)
+                 ROW(-1, -2)
+                 ROW(2, 1)
+                 ROW(0, 0)
+                 ROW(1, 1)
+                 ROW(-1, -1)
+                )
+
     DATA_SECTION("equal",
                  TESTFUN([](int a, int b) {
                      static_for<num_test_types>([a, b](auto i) {
