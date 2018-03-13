@@ -142,6 +142,86 @@ namespace novelist {
         {
             return !not_equal(a, b);
         }
+
+        /**
+         * Checks if the given numbers are non-decreasing from left to right, i.e. each value is greater or equal to
+         * its predecessor.
+         * @tparam T Type of first value
+         * @tparam U Type of second value
+         * @tparam Ts Types of other values
+         * @param a First value
+         * @param b Second value
+         * @param numbers Other values
+         * @return true if the given parameters are non-decreasing from left to right, otherwise false
+         */
+        template<typename T, typename U, typename... Ts>
+        inline constexpr bool non_decreasing(T a, U b, Ts... numbers) noexcept
+        {
+            if constexpr (sizeof...(numbers) == 0)
+                return less_or_equal(a, b);
+            else
+                return less_or_equal(a, b) && non_decreasing(b, std::forward<Ts>(numbers)...);
+        }
+
+        /**
+         * Checks if the given numbers are strictly increasing from left to right, i.e. each value is greater than
+         * its predecessor.
+         * @tparam T Type of first value
+         * @tparam U Type of second value
+         * @tparam Ts Types of other values
+         * @param a First value
+         * @param b Second value
+         * @param numbers Other values
+         * @return true if the given parameters are strictly increasing from left to right, otherwise false
+         */
+        template<typename T, typename U, typename... Ts>
+        inline constexpr bool increasing(T a, U b, Ts... numbers) noexcept
+        {
+            if constexpr (sizeof...(numbers) == 0)
+                return less(a, b);
+            else
+                return less(a, b) && increasing(b, std::forward<Ts>(numbers)...);
+        }
+
+        /**
+         * Checks if the given numbers are non-increasing from left to right, i.e. each value is less or equal to
+         * its predecessor.
+         * @tparam T Type of first value
+         * @tparam U Type of second value
+         * @tparam Ts Types of other values
+         * @param a First value
+         * @param b Second value
+         * @param numbers Other values
+         * @return true if the given parameters are non-increasing from left to right, otherwise false
+         */
+        template<typename T, typename U, typename... Ts>
+        inline constexpr bool non_increasing(T a, U b, Ts... numbers) noexcept
+        {
+            if constexpr (sizeof...(numbers) == 0)
+                return greater_or_equal(a, b);
+            else
+                return greater_or_equal(a, b) && non_increasing(b, std::forward<Ts>(numbers)...);
+        }
+
+        /**
+         * Checks if the given numbers are strictly decreasing from left to right, i.e. each value is less than
+         * its predecessor.
+         * @tparam T Type of first value
+         * @tparam U Type of second value
+         * @tparam Ts Types of other values
+         * @param a First value
+         * @param b Second value
+         * @param numbers Other values
+         * @return true if the given parameters are strictly decreasing from left to right, otherwise false
+         */
+        template<typename T, typename U, typename... Ts>
+        inline constexpr bool decreasing(T a, U b, Ts... numbers) noexcept
+        {
+            if constexpr (sizeof...(numbers) == 0)
+                return greater(a, b);
+            else
+                return greater(a, b) && decreasing(b, std::forward<Ts>(numbers)...);
+        }
     }
 }
 

@@ -210,4 +210,34 @@ TEST_CASE("Compare", "[util]")
                  ROW(1, 0)
                  ROW(-1, 0)
                 )
+
+    SECTION("non-decreasing")
+    {
+        REQUIRE(non_decreasing(-40.f, -13, -13, 0, 0u, 0ul, 0.001, 1));
+        REQUIRE(non_decreasing(0, 0));
+        REQUIRE_FALSE(non_decreasing(1.1f, 7, 0u, 2));
+    }
+
+    SECTION("strictly increasing")
+    {
+        REQUIRE(increasing(-40.f, -13, 0u, 0.001, 1));
+        REQUIRE_FALSE(increasing(0, 0));
+        REQUIRE_FALSE(increasing(-40.f, -13, -13, 0, 0u, 0ul, 0.001, 1));
+        REQUIRE_FALSE(increasing(1.1f, 7, 0u, 2));
+    }
+
+    SECTION("non-increasing")
+    {
+        REQUIRE(non_increasing(1, 0.001, 0ul, 0u, 0, -13, -13, -40.f));
+        REQUIRE(non_increasing(0, 0));
+        REQUIRE_FALSE(non_increasing(1.1f, 7, 0u, 2));
+    }
+
+    SECTION("strictly decreasing")
+    {
+        REQUIRE(decreasing(1, 0.001, 0u, -13, -40.f));
+        REQUIRE_FALSE(decreasing(0, 0));
+        REQUIRE_FALSE(decreasing(1, 0.001, 0ul, 0u, 0, -13, -13, -40.f));
+        REQUIRE_FALSE(decreasing(1.1f, 7, 0u, 2));
+    }
 }
