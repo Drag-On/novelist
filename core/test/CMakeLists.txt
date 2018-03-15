@@ -15,6 +15,7 @@ if (TESTS)
             util/StrongTypedefTest.cpp
             util/FlagSetTest.cpp
             util/CompareTest.cpp
+            util/LoggingTest.cpp
             model/ProjectModelTest.cpp
             editor/document/DocumentTest.cpp
             )
