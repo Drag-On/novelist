@@ -9,17 +9,17 @@ addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
-      - sourceline: 'ppa:beineri/opt-qt593-trusty'
+      - sourceline: 'ppa:beineri/opt-qt-5.10.1-trusty'
     packages:
       - g++-7
-      - qt59-meta-minimal
-      - qt59creator
-      - qt59charts-no-lgpl
+      - qt510-meta-minimal
+      - qt510charts-no-lgpl
+      - qt510tools
       - xvfb
 
 script:
   # Set up Qt
-  - source /opt/qt59/bin/qt59-env.sh
+  - source /opt/qt510/bin/qt510-env.sh
   # Compile debug build
   - CXX=/usr/bin/g++-7 CC=/usr/bin/gcc-7 cmake -D CMAKE_BUILD_TYPE=Debug .
   - cmake --build . -- -j2
