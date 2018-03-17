@@ -154,11 +154,16 @@ namespace novelist::editor {
             TextCursor tCursor(m_editor->getDocument());
             tCursor.setPosition(cursor.getSelection().first);
             tCursor.selectParagraph();
-            tCursor.replaceCharacterFormat(tCursor.paragraphFormat(), newId);
-            while (!tCursor.contains(cursor.getSelection().second)) {
-                tCursor.move(TextCursor::MoveOperation::StartOfNextParagraph);
-                tCursor.selectParagraph();
+            if (tCursor.atParagraphStart() && tCursor.atParagraphEnd())
+                tCursor.setCharacterFormat(newId);
+            else
+            {
                 tCursor.replaceCharacterFormat(tCursor.paragraphFormat(), newId);
+                while (!tCursor.contains(cursor.getSelection().second)) {
+                    tCursor.move(TextCursor::MoveOperation::StartOfNextParagraph);
+                    tCursor.selectParagraph();
+                    tCursor.replaceCharacterFormat(tCursor.paragraphFormat(), newId);
+                }
             }
             updateWidgets();
         }
