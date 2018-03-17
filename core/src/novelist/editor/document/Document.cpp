@@ -269,7 +269,19 @@ namespace novelist::editor {
 //            infoText.insert(m_pos + m_removed.size(), "‸");
 //            qDebug() << "    " << infoText;
 
+            auto charFormat = cursor.charFormat();
+
             cursor.removeSelectedText();
+
+            // If this leaves the block empty make sure the block char format doesn't jump to something set previously,
+            // but instead retain the last value
+            if (cursor.atBlockStart() && cursor.atBlockEnd())
+            {
+                cursor.setBlockCharFormat(charFormat);
+                // Workaround. See TextCursor::setCharacterFormat().
+                cursor.insertText(" ");
+                cursor.deletePreviousChar();
+            }
         }
 
         int TextRemoveCommand::id() const
