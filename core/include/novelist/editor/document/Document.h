@@ -31,6 +31,12 @@ namespace novelist::editor {
         class CharacterFormatChangeCommand;
     }
 
+    namespace helper {
+        struct FragmentData;
+        std::vector<FragmentData> overlappingFragments(Document const& doc, int pos, int anchor) noexcept;
+        void setCharacterFormats(Document const& doc, std::vector<FragmentData> const& fragments);
+    }
+
     /**
      * Text document which can be modified through TextCursor objects
      */
@@ -122,6 +128,8 @@ namespace novelist::editor {
         friend internal::BlockInsertCommand;
         friend internal::ParagraphFormatChangeCommand;
         friend internal::CharacterFormatChangeCommand;
+        friend std::vector<helper::FragmentData> helper::overlappingFragments(Document const& doc, int pos, int anchor) noexcept;
+        friend void helper::setCharacterFormats(Document const& doc, std::vector<helper::FragmentData> const& fragments);
     };
 }
 
