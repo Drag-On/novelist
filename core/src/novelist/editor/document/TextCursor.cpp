@@ -13,6 +13,7 @@
 #include "editor/document/commands/TextRemoveCommand.h"
 #include "editor/document/commands/BlockInsertCommand.h"
 #include "editor/document/commands/ParagraphFormatChangeCommand.h"
+#include "editor/document/commands/CharacterFormatChangeCommand.h"
 
 namespace novelist::editor {
     TextCursor::TextCursor(gsl::not_null<Document*> doc) noexcept
@@ -390,19 +391,39 @@ namespace novelist::editor {
 
     void TextCursor::setCharacterFormat(TextFormat::WeakId id) noexcept
     {
-        auto format = *m_doc->m_formatMgr->getTextCharFormat(id);
-        if (atParagraphStart() && atParagraphEnd()) {
-            m_cursor.setBlockCharFormat(format);
-            // Note: The following works around a display bug where changing the block char format makes the whole
-            //       editor disappear:
-            //       https://bugreports.qt.io/browse/QTBUG-40512
-            // TODO: Remove this once above ticket has been resolved.
-            m_cursor.insertText(" ");
-            m_cursor.deletePreviousChar();
+        if (hasSelection()) {
+            m_doc->undoStack().beginMacro(Document::tr("change paragraph format"));
+            auto endMacro = gsl::finally([this] { m_doc->undoStack().endMacro(); });
+
+            for (auto block = m_doc->m_doc->findBlock(m_cursor.selectionStart());
+                 block.isValid()
+                         && block.position() + block.length() >= m_cursor.selectionStart()
+                         && block.position() < m_cursor.selectionEnd();
+                 block = block.next()) {
+
+                for (auto iter = block.begin();
+                     !iter.atEnd();
+                     ++iter) {
+                    auto fragment = iter.fragment();
+                    if (fragment.isValid()
+                            && fragment.position() + fragment.length() > m_cursor.selectionStart()
+                            && fragment.position() < m_cursor.selectionEnd()) {
+                        int startPos = fragment.position();
+                        int length = fragment.length();
+                        if (startPos < m_cursor.selectionStart())
+                        {
+                            startPos = m_cursor.selectionStart();
+                            length = fragment.length() - (startPos - fragment.position());
+                        }
+                        if (startPos + length > m_cursor.selectionEnd())
+                            length = m_cursor.selectionEnd() - startPos;
+                        m_doc->undoStack().push(new internal::CharacterFormatChangeCommand(m_doc, startPos, length, id));
+                    }
+                }
+            }
         }
         else
-            m_cursor.setCharFormat(format);
-        // TODO: UndoRedo
+            m_doc->undoStack().push(new internal::CharacterFormatChangeCommand(m_doc, m_cursor.position(), 0, id));
     }
 
     void TextCursor::replaceCharacterFormat(TextFormat::WeakId id, TextFormat::WeakId newId) noexcept

@@ -20,13 +20,9 @@ namespace novelist::editor::internal {
 
     void ParagraphFormatChangeCommand::undo()
     {
-        QTextCursor cursor(m_doc->m_doc.get());
-        cursor.setPosition(m_doc->m_doc->findBlockByNumber(m_blockNo).position());
-
-        auto curFormatId = m_doc->m_formatMgr->getIdOfBlockFormat(cursor.blockFormat());
-        cursor.setBlockFormat(*m_doc->m_formatMgr->getTextBlockFormat(m_formatId));
-        m_doc->onParagraphFormatChanged(m_blockNo);
-        m_formatId = curFormatId;
+        // Note: m_formatId toggles between the old and new format, e.g. after redo() it will contain the format
+        //       for undo. The algorithm stays the same, so we just forward the call here.
+        redo();
     }
 
     void ParagraphFormatChangeCommand::redo()
