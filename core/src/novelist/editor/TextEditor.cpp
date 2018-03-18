@@ -18,6 +18,9 @@
 #include "editor/sidebars/TextEditorPathSideBar.h"
 #include "editor/sidebars/TextEditorParagraphNumbersSideBar.h"
 #include "editor/sidebars/TextEditorLineNumbersSideBar.h"
+#include "editor/document/commands/TextInsertCommand.h"
+#include "editor/document/commands/TextRemoveCommand.h"
+#include "editor/document/commands/BlockInsertCommand.h"
 #include "util/Overloaded.h"
 
 namespace novelist::editor {

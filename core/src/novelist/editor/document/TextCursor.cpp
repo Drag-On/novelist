@@ -9,6 +9,9 @@
 #include <QTextFragment>
 #include "editor/document/TextCursor.h"
 #include "editor/document/Document.h"
+#include "editor/document/commands/TextInsertCommand.h"
+#include "editor/document/commands/TextRemoveCommand.h"
+#include "editor/document/commands/BlockInsertCommand.h"
 
 namespace novelist::editor {
     TextCursor::TextCursor(gsl::not_null<Document*> doc) noexcept

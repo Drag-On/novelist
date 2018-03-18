@@ -119,69 +119,6 @@ namespace novelist::editor {
         friend internal::TextRemoveCommand;
         friend internal::BlockInsertCommand;
     };
-
-    namespace internal {
-        class TextInsertCommand : public QUndoCommand {
-        public:
-            TextInsertCommand(Document* doc, int pos, QString added) noexcept;
-
-            void undo() override;
-
-            void redo() override;
-
-            int id() const override;
-
-            bool mergeWith(QUndoCommand const* other) override;
-
-            int undoPosition() const noexcept;
-
-            int redoPosition() const noexcept;
-
-        private:
-            Document* m_doc;
-            int m_pos;
-            QString m_added;
-        };
-
-        class TextRemoveCommand : public QUndoCommand {
-        public:
-            TextRemoveCommand(Document* doc, int pos, QString removed) noexcept;
-
-            void undo() override;
-
-            void redo() override;
-
-            int id() const override;
-
-            bool mergeWith(QUndoCommand const* other) override;
-
-            int undoPosition() const noexcept;
-
-            int redoPosition() const noexcept;
-
-        private:
-            Document* m_doc;
-            int m_pos;
-            QString m_removed;
-        };
-
-        class BlockInsertCommand : public QUndoCommand {
-        public:
-            BlockInsertCommand(Document* doc, int pos) noexcept;
-
-            void undo() override;
-
-            void redo() override;
-
-            int undoPosition() const noexcept;
-
-            int redoPosition() const noexcept;
-
-        private:
-            Document* m_doc;
-            int m_pos;
-        };
-    }
 }
 
 #endif //NOVELIST_DOCUMENT_H
