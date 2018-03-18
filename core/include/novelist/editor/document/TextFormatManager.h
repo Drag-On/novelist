@@ -17,9 +17,6 @@
 namespace novelist {
     namespace editor {
         class Document;
-        class TextCursor;
-        class TextParagraph;
-        class TextFragment;
 
         class NOVELIST_CORE_EXPORT TextFormatManager : public QObject {
         Q_OBJECT
@@ -103,6 +100,36 @@ namespace novelist {
              */
             size_t size() const noexcept;
 
+            /**
+             * Retrieve a pointer to the text block format associated with a given ID
+             * @param id ID of the format
+             * @return Pointer to the block format if found or nullptr if ID is invalid
+             */
+            QTextBlockFormat const* getTextBlockFormat(WeakId id) const noexcept;
+
+            /**
+             * Retrieve a pointer to the text character format associated with a given ID
+             * @param id ID of the format
+             * @return Pointer to the character format if found or nullptr if ID is invalid
+             */
+            QTextCharFormat const* getTextCharFormat(WeakId id) const noexcept;
+
+            /**
+             * Extracts the format ID from a QTextBlockFormat
+             * @param format Format
+             * @return The extracted ID
+             * @throw std::invalid_argument if the passed format has no format ID attached to it
+             */
+            WeakId getIdOfBlockFormat(QTextBlockFormat const& format) const;
+
+            /**
+             * Extracts the format ID from a QTextCharFormat
+             * @param format Format
+             * @return The extracted ID
+             * @throw std::invalid_argument if the passed format has no format ID attached to it
+             */
+            WeakId getIdOfCharFormat(QTextCharFormat const& format) const;
+
         signals:
             /**
              * The format with the specified ID has been modified
@@ -141,42 +168,12 @@ namespace novelist {
             };
 
             /**
-             * Retrieve a pointer to the text block format associated with a given ID
-             * @param id ID of the format
-             * @return Pointer to the block format if found or nullptr if ID is invalid
-             */
-            QTextBlockFormat const* getTextBlockFormat(WeakId id) const noexcept;
-
-            /**
-             * Retrieve a pointer to the text character format associated with a given ID
-             * @param id ID of the format
-             * @return Pointer to the character format if found or nullptr if ID is invalid
-             */
-            QTextCharFormat const* getTextCharFormat(WeakId id) const noexcept;
-
-            /**
-             * Checks whether a paragraph should be auto-indented when preceeded by a paragraph with another format
+             * Checks whether a paragraph should be auto-indented when preceded by a paragraph with another format
              * @param prev Previous paragraph format
              * @param par The paragraph format to check
              * @return true if the paragraph par needs to be auto-indented, otherwise false
              */
             bool checkNeedAutoTextIndent(TextFormat const* prev, TextFormat const* par) const noexcept;
-
-            /**
-             * Extracts the format ID from a QTextBlockFormat
-             * @param format Format
-             * @return The extracted ID
-             * @throw std::invalid_argument if the passed format has no format ID attached to it
-             */
-            WeakId getIdOfBlockFormat(QTextBlockFormat const& format) const;
-
-            /**
-             * Extracts the format ID from a QTextCharFormat
-             * @param format Format
-             * @return The extracted ID
-             * @throw std::invalid_argument if the passed format has no format ID attached to it
-             */
-            WeakId getIdOfCharFormat(QTextCharFormat const& format) const;
 
             QTextBlockFormat extractBlockFormat(TextFormat const& format, WeakId id) const noexcept;
 
@@ -190,9 +187,6 @@ namespace novelist {
             static int const s_typePropertyId = QTextFormat::UserProperty + 1;
 
             friend Document;
-            friend TextCursor;
-            friend TextParagraph;
-            friend TextFragment;
         };
     }
 }

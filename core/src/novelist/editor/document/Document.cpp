@@ -31,10 +31,10 @@ namespace novelist::editor {
         connect(m_formatMgr, &TextFormatManager::formatReplaced, this, &Document::onFormatReplaced);
 
         // Per default, use the first format
-        TextCursor cursor(this);
+        QTextCursor cursor(m_doc.get());
         auto const id = formatMgr->idFromIndex(0);
-        cursor.setParagraphFormat(id);
-        cursor.setCharacterFormat(id);
+        cursor.setBlockFormat(*formatMgr->getTextBlockFormat(id));
+        cursor.setBlockCharFormat(*formatMgr->getTextCharFormat(id));
     }
 
     QUndoStack& Document::undoStack() noexcept

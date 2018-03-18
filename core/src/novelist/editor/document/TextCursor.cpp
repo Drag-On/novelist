@@ -12,6 +12,7 @@
 #include "editor/document/commands/TextInsertCommand.h"
 #include "editor/document/commands/TextRemoveCommand.h"
 #include "editor/document/commands/BlockInsertCommand.h"
+#include "editor/document/commands/ParagraphFormatChangeCommand.h"
 
 namespace novelist::editor {
     TextCursor::TextCursor(gsl::not_null<Document*> doc) noexcept
@@ -338,9 +339,19 @@ namespace novelist::editor {
 
     void TextCursor::setParagraphFormat(TextFormat::WeakId id) noexcept
     {
-        m_cursor.setBlockFormat(*m_doc->m_formatMgr->getTextBlockFormat(id));
-        m_doc->onParagraphFormatChanged(m_cursor.blockNumber());
-        // TODO: UndoRedo
+        if (hasSelection()) {
+            m_doc->undoStack().beginMacro(Document::tr("change paragraph format"));
+            auto endMacro = gsl::finally([this] { m_doc->undoStack().endMacro(); });
+            for (auto block = m_doc->m_doc->findBlock(m_cursor.selectionStart());
+                 block.isValid()
+                         && block.position() + block.length() >= m_cursor.selectionStart()
+                         && block.position() < m_cursor.selectionEnd();
+                 block = block.next()) {
+                m_doc->undoStack().push(new internal::ParagraphFormatChangeCommand(m_doc, block.blockNumber(), id));
+            }
+        }
+        else
+            m_doc->undoStack().push(new internal::ParagraphFormatChangeCommand(m_doc, m_cursor.blockNumber(), id));
     }
 
     TextFormat::WeakId TextCursor::characterFormat() const noexcept

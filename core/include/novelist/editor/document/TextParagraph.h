@@ -19,6 +19,7 @@ namespace novelist::editor {
     class Document;
     class TextEditor;
     class TextLine;
+    class TextFragment;
     class ParagraphIterator;
 
     /**

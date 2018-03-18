@@ -27,6 +27,7 @@ namespace novelist::editor {
         class TextInsertCommand;
         class TextRemoveCommand;
         class BlockInsertCommand;
+        class ParagraphFormatChangeCommand;
     }
 
     /**
@@ -118,6 +119,7 @@ namespace novelist::editor {
         friend internal::TextInsertCommand;
         friend internal::TextRemoveCommand;
         friend internal::BlockInsertCommand;
+        friend internal::ParagraphFormatChangeCommand;
     };
 }
 

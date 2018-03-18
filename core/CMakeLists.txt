@@ -71,6 +71,7 @@ add_library(novelist_core
         src/novelist/editor/document/commands/TextInsertCommand.cpp include/novelist/editor/document/commands/TextInsertCommand.h
         src/novelist/editor/document/commands/TextRemoveCommand.cpp include/novelist/editor/document/commands/TextRemoveCommand.h
         src/novelist/editor/document/commands/BlockInsertCommand.cpp include/novelist/editor/document/commands/BlockInsertCommand.h
+        src/novelist/editor/document/commands/ParagraphFormatChangeCommand.cpp include/novelist/editor/document/commands/ParagraphFormatChangeCommand.h
         src/novelist/editor/TextEditor.cpp include/novelist/editor/TextEditor.h
         src/novelist/editor/TextEditorToolBar.cpp include/novelist/editor/TextEditorToolBar.h
         src/novelist/editor/sidebars/TextEditorSideBar.cpp include/novelist/editor/sidebars/TextEditorSideBar.h
