@@ -22,7 +22,11 @@
 #include "editor/sidebars/TextEditorSideBar.h"
 
 namespace novelist::editor {
-    namespace internal { class TextEdit; }
+    namespace internal {
+        class TextEdit;
+
+        QTextCursor const& extractInternalCursor(TextCursor const& cursor) noexcept;
+    }
 
     class TextEditor : public QWidget {
     Q_OBJECT

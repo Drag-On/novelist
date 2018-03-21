@@ -66,6 +66,7 @@ add_library(novelist_core
         include/novelist/editor/document/TextFormat.h
         src/novelist/editor/document/Language.cpp include/novelist/editor/document/Language.h
         src/novelist/editor/document/Properties.cpp include/novelist/editor/document/Properties.h
+        src/novelist/editor/document/TextCursorBase.cpp include/novelist/editor/document/TextCursorBase.h
         src/novelist/editor/document/TextCursor.cpp include/novelist/editor/document/TextCursor.h
         src/novelist/editor/document/TextCursorHelper.cpp include/novelist/editor/document/TextCursorHelper.h
         src/novelist/editor/document/TextParagraph.cpp include/novelist/editor/document/TextParagraph.h

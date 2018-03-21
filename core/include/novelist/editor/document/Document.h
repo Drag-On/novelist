@@ -20,6 +20,7 @@
 #include "Properties.h"
 
 namespace novelist::editor {
+    class TextCursorBase;
     class TextCursor;
     class TextEditor;
 
@@ -119,6 +120,7 @@ namespace novelist::editor {
 
         friend Properties;
         friend TextCursor;
+        friend TextCursorBase;
         friend TextEditor;
         friend TextParagraph;
         friend TextFragment;

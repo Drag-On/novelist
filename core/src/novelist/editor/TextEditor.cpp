@@ -24,6 +24,15 @@
 #include "util/Overloaded.h"
 
 namespace novelist::editor {
+
+    namespace internal {
+        QTextCursor const& extractInternalCursor(TextCursor const& cursor) noexcept
+        {
+            // Note: This function is a friend to TextCursor, hence we can access this private member function.
+            return cursor.internalCursor();
+        }
+    }
+
     TextEditor::TextEditor(QWidget* parent) noexcept
             :QWidget(parent)
     {
@@ -95,7 +104,7 @@ namespace novelist::editor {
 
     void TextEditor::setCursor(TextCursor cursor)
     {
-        m_textEdit->setTextCursor(cursor.m_cursor);
+        m_textEdit->setTextCursor(internal::extractInternalCursor(cursor));
     }
 
     EditorActions const& TextEditor::editorActions() const noexcept
