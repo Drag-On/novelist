@@ -113,7 +113,7 @@ namespace novelist::editor {
         /**
          * @return Current selection where the first element is left of the second
          */
-        std::pair<int, int> getSelection() const noexcept;
+        std::pair<int, int> selection() const noexcept;
 
         /**
          * @return true if cursor has a selection, otherwise false
@@ -167,12 +167,12 @@ namespace novelist::editor {
         /**
          * Delete selected text
          */
-        void deleteSelected() noexcept;
+        virtual void deleteSelected() noexcept;
 
         /**
          * Insert a new paragraph at the current position using the current paragraph & character format
          */
-        void breakParagraph() noexcept;
+        virtual void breakParagraph() noexcept;
 
         /**
          * End the line without ending the paragraph
@@ -183,7 +183,7 @@ namespace novelist::editor {
          * Insert text at the current position using the current character format
          * @param text Text to insert
          */
-        void insertText(QString text) noexcept;
+        virtual void insertText(QString text) noexcept;
 
         /**
          * @return Paragraph format of the paragraph the cursor is located in
@@ -202,7 +202,7 @@ namespace novelist::editor {
          * Changes the format of the current paragraph
          * @param id New format
          */
-        void setParagraphFormat(TextFormat::WeakId id) noexcept;
+        virtual void setParagraphFormat(TextFormat::WeakId id) noexcept;
 
         /**
          * @return Character format of the character right before the cursor.
@@ -222,19 +222,25 @@ namespace novelist::editor {
          * text within that selection.
          * @param id New character format
          */
-        void setCharacterFormat(TextFormat::WeakId id) noexcept;
+        virtual void setCharacterFormat(TextFormat::WeakId id) noexcept;
 
         /**
          * Replace a character format in the selection with another format
          * @param id Format to replace
          * @param newId Replacement format
          */
-        void replaceCharacterFormat(TextFormat::WeakId id, TextFormat::WeakId newId) noexcept;
+        virtual void replaceCharacterFormat(TextFormat::WeakId id, TextFormat::WeakId newId) noexcept;
 
         /**
          * @return The internal cursor
          */
         QTextCursor const& internalCursor() const noexcept;
+
+        /**
+         * Gets the cursor's document
+         */
+        Document* document() noexcept;
+        Document const* document() const noexcept;
 
     private:
         Document* m_doc;

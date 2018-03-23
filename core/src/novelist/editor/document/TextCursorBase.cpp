@@ -207,7 +207,7 @@ namespace novelist::editor {
         }
     }
 
-    std::pair<int, int> TextCursorBase::getSelection() const noexcept
+    std::pair<int, int> TextCursorBase::selection() const noexcept
     {
         return std::pair<int, int>(m_cursor.selectionStart(), m_cursor.selectionEnd());
     }
@@ -249,46 +249,20 @@ namespace novelist::editor {
 
     void TextCursorBase::deletePrevious() noexcept
     {
-        if (hasSelection()) {
-            deleteSelected();
-            return;
-        }
         if (atStart())
             return;
-
-        auto const charFormat = m_cursor.charFormat();
-        m_cursor.deletePreviousChar();
-
-        // If this leaves the block empty make sure the block char format doesn't jump to something set previously,
-        // but instead retain the last value
-        if (m_cursor.atBlockStart() && m_cursor.atBlockEnd()) {
-            m_cursor.setBlockCharFormat(charFormat);
-            // Workaround. See TextCursor::setCharacterFormat().
-            m_cursor.insertText(" ");
-            m_cursor.deletePreviousChar();
-        }
+        if (!hasSelection())
+            m_cursor.movePosition(QTextCursor::MoveOperation::PreviousCharacter, QTextCursor::KeepAnchor);
+        deleteSelected();
     }
 
     void TextCursorBase::deleteNext() noexcept
     {
-        if (hasSelection()) {
-            deleteSelected();
-            return;
-        }
         if (atEnd())
             return;
-
-        auto const charFormat = m_cursor.charFormat();
-        m_cursor.deleteChar();
-
-        // If this leaves the block empty make sure the block char format doesn't jump to something set previously,
-        // but instead retain the last value
-        if (m_cursor.atBlockStart() && m_cursor.atBlockEnd()) {
-            m_cursor.setBlockCharFormat(charFormat);
-            // Workaround. See TextCursor::setCharacterFormat().
-            m_cursor.insertText(" ");
-            m_cursor.deletePreviousChar();
-        }
+        if (!hasSelection())
+            m_cursor.movePosition(QTextCursor::MoveOperation::NextCharacter, QTextCursor::KeepAnchor);
+        deleteSelected();
     }
 
     void TextCursorBase::deleteSelected() noexcept
@@ -465,5 +439,15 @@ namespace novelist::editor {
     QTextCursor const& TextCursorBase::internalCursor() const noexcept
     {
         return m_cursor;
+    }
+
+    Document* TextCursorBase::document() noexcept
+    {
+        return m_doc;
+    }
+
+    Document const* TextCursorBase::document() const noexcept
+    {
+        return m_doc;
     }
 }

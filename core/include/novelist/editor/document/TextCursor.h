@@ -35,7 +35,7 @@ namespace novelist::editor {
         using TextCursorBase::move;
         using TextCursorBase::select;
         using TextCursorBase::selectParagraph;
-        using TextCursorBase::getSelection;
+        using TextCursorBase::selection;
         using TextCursorBase::hasSelection;
         using TextCursorBase::selectedText;
         using TextCursorBase::contains;
@@ -45,17 +45,23 @@ namespace novelist::editor {
         using TextCursorBase::atEnd;
         using TextCursorBase::deletePrevious;
         using TextCursorBase::deleteNext;
-        using TextCursorBase::deleteSelected;
-        using TextCursorBase::breakParagraph;
         using TextCursorBase::breakLine;
-        using TextCursorBase::insertText;
         using TextCursorBase::paragraphFormat;
         using TextCursorBase::selectionParagraphFormats;
-        using TextCursorBase::setParagraphFormat;
         using TextCursorBase::characterFormat;
         using TextCursorBase::selectionCharacterFormats;
-        using TextCursorBase::setCharacterFormat;
-        using TextCursorBase::replaceCharacterFormat;
+
+        void deleteSelected() noexcept override;
+
+        void breakParagraph() noexcept override;
+
+        void insertText(QString text) noexcept override;
+
+        void setParagraphFormat(TextFormat::WeakId id) noexcept override;
+
+        void setCharacterFormat(TextFormat::WeakId id) noexcept override;
+
+        void replaceCharacterFormat(TextFormat::WeakId id, TextFormat::WeakId newId) noexcept override;
 
     private:
         using TextCursorBase::internalCursor;

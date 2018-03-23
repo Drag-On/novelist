@@ -152,14 +152,14 @@ namespace novelist::editor {
         // changed to the new format
         if (m_formatsLinkedAction->isChecked()) {
             TextCursor tCursor(m_editor->getDocument());
-            tCursor.setPosition(cursor.getSelection().first);
+            tCursor.setPosition(cursor.selection().first);
             tCursor.selectParagraph();
             if (tCursor.atParagraphStart() && tCursor.atParagraphEnd())
                 tCursor.setCharacterFormat(newId);
             else
             {
                 tCursor.replaceCharacterFormat(tCursor.paragraphFormat(), newId);
-                while (!tCursor.contains(cursor.getSelection().second)) {
+                while (!tCursor.contains(cursor.selection().second)) {
                     tCursor.move(TextCursor::MoveOperation::StartOfNextParagraph);
                     tCursor.selectParagraph();
                     tCursor.replaceCharacterFormat(tCursor.paragraphFormat(), newId);

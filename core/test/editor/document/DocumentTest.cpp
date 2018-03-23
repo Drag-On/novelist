@@ -160,8 +160,8 @@ TEST_CASE("Document", "[editor][document]")
                          TESTFUN([&](int pos) {
                              cursor.setPosition(pos);
                              cursor.selectParagraph();
-                             REQUIRE(cursor.getSelection().first == 0);
-                             REQUIRE(cursor.getSelection().second == 15);
+                             REQUIRE(cursor.selection().first == 0);
+                             REQUIRE(cursor.selection().second == 15);
                              REQUIRE(cursor.selectedText().toStdString() == firstText.toStdString());
                          }),
                          NAMED_ROW("start", 0)
@@ -173,8 +173,8 @@ TEST_CASE("Document", "[editor][document]")
                          TESTFUN([&](int pos, int anchor) {
                              cursor.select(pos, anchor);
                              cursor.selectParagraph();
-                             REQUIRE(cursor.getSelection().first == 0);
-                             REQUIRE(cursor.getSelection().second == 15);
+                             REQUIRE(cursor.selection().first == 0);
+                             REQUIRE(cursor.selection().second == 15);
                          }),
                          NAMED_ROW("start", 0, 4)
                          NAMED_ROW("middle", 5, 6)
