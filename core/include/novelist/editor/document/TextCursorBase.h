@@ -47,6 +47,15 @@ namespace novelist::editor {
         };
 
         /**
+         * Position and character format of a text fragment
+         */
+        struct FragmentData {
+            int m_startPos;
+            int m_endPos;
+            TextFormat::WeakId m_formatId;
+        };
+
+        /**
          * Constructor
          * @param doc Document to modify
          */
@@ -132,6 +141,14 @@ namespace novelist::editor {
          * @return The indices of all paragraphs within the current selection.
          */
         std::vector<int> selectedParagraphs(bool complete = false) const noexcept;
+
+        /**
+         * Finds all fragments that are in the current selection
+         * @param complete If this is true, only fragments completely within the selection are considered. Otherwise,
+         *                 any fragment that overlaps with the current selection is considered.
+         * @return The list of fragments within the current selection.
+         */
+        std::vector<FragmentData> selectedFragments(bool complete = false) const noexcept;
 
         /**
          * Checks whether the current selection contains a given position

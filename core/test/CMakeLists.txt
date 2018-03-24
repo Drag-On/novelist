@@ -18,7 +18,6 @@ if (TESTS)
             util/LoggingTest.cpp
             model/ProjectModelTest.cpp
             editor/document/DocumentTest.cpp
-            editor/document/TextCursorHelperTest.cpp
             )
 
     target_include_directories(novelist_core_test

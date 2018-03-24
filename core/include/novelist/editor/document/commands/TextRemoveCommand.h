@@ -32,7 +32,7 @@ namespace novelist::editor::internal {
     private:
         Document* m_doc;
         int m_pos;
-        QString m_removed;
+        QString m_removed; // TODO: Store removed formatting
     };
 }
 

@@ -38,6 +38,7 @@ namespace novelist::editor {
         using TextCursorBase::selection;
         using TextCursorBase::hasSelection;
         using TextCursorBase::selectedText;
+        using TextCursorBase::selectedParagraphs;
         using TextCursorBase::contains;
         using TextCursorBase::atParagraphStart;
         using TextCursorBase::atParagraphEnd;

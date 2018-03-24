@@ -57,12 +57,42 @@ namespace novelist::editor {
 
     void TextCursor::setParagraphFormat(TextFormat::WeakId id) noexcept
     {
-        TextCursorBase::setParagraphFormat(id); // TODO:
+        auto blockNumbers = selectedParagraphs();
+        if (!blockNumbers.empty()) {
+            document()->undoStack().beginMacro(Document::tr("change paragraph format"));
+            auto endMacro = gsl::finally([this] { document()->undoStack().endMacro(); });
+            for (int p : blockNumbers)
+                document()->undoStack().push(std::make_unique<internal::ParagraphFormatChangeCommand>(document(),
+                                                                                                      p,
+                                                                                                      id).release());
+        }
+        else
+            TextCursorBase::setParagraphFormat(id); // Set current format
     }
 
     void TextCursor::setCharacterFormat(TextFormat::WeakId id) noexcept
     {
-        TextCursorBase::setCharacterFormat(id); // TODO:
+        auto fragments = selectedFragments();
+        if (!fragments.empty()) {
+            document()->undoStack().beginMacro(Document::tr("change character format"));
+            auto endMacro = gsl::finally([this] { document()->undoStack().endMacro(); });
+
+            auto select = selection();
+
+            for (auto f : fragments) {
+                if (f.m_startPos < select.first)
+                    f.m_startPos = select.first;
+                if (f.m_endPos > select.second)
+                    f.m_endPos = select.second;
+
+                document()->undoStack().push(
+                        std::make_unique<internal::CharacterFormatChangeCommand>(document(), f.m_startPos,
+                                                                                 f.m_endPos - f.m_startPos,
+                                                                                 id).release());
+            }
+        }
+        else
+            TextCursorBase::setCharacterFormat(id); // Set current format
     }
 
     void TextCursor::replaceCharacterFormat(TextFormat::WeakId id, TextFormat::WeakId newId) noexcept

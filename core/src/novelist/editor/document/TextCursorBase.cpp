@@ -236,6 +236,35 @@ namespace novelist::editor {
         return parIds;
     }
 
+    std::vector<TextCursorBase::FragmentData> TextCursorBase::selectedFragments(bool complete) const noexcept
+    {
+        std::vector<TextCursorBase::FragmentData> fragments;
+        auto parIds = selectedParagraphs();
+        auto select = selection();
+
+        for (int p : parIds) {
+            auto block = m_doc->m_doc->findBlockByNumber(p);
+
+            for (auto iter = block.begin();
+                 !iter.atEnd();
+                 ++iter) {
+                auto fragment = iter.fragment();
+                if (fragment.isValid()
+                        && fragment.position() + (complete ? 0 : fragment.length()) > select.first
+                        && fragment.position() + (complete ? fragment.length() : 0) < select.second) {
+                    auto formatId = document()->formatManager()->getIdOfCharFormat(fragment.charFormat());
+                    if (!fragments.empty() && fragments.back().m_formatId == formatId)
+                        fragments.back().m_endPos = fragment.position() + fragment.length();
+                    else
+                        fragments.push_back(FragmentData{fragment.position(), fragment.position() + fragment.length(),
+                                                         formatId});
+                }
+            }
+        }
+
+        return fragments;
+    }
+
     bool TextCursorBase::contains(int pos) const noexcept
     {
         return m_cursor.selectionStart() <= pos && m_cursor.selectionEnd() >= pos;
