@@ -222,6 +222,20 @@ namespace novelist::editor {
         return m_cursor.selectedText();
     }
 
+    std::vector<int> TextCursorBase::selectedParagraphs(bool complete) const noexcept
+    {
+        std::vector<int> parIds;
+        for (auto block = m_doc->m_doc->findBlock(m_cursor.selectionStart());
+             block.isValid()
+                     && block.position() + (complete ? 0 : block.length()) >= m_cursor.selectionStart()
+                     && block.position() + (complete ? block.length() : 0) < m_cursor.selectionEnd();
+             block = block.next()) {
+
+            parIds.push_back(block.blockNumber());
+        }
+        return parIds;
+    }
+
     bool TextCursorBase::contains(int pos) const noexcept
     {
         return m_cursor.selectionStart() <= pos && m_cursor.selectionEnd() >= pos;
@@ -316,13 +330,10 @@ namespace novelist::editor {
         if (!hasSelection())
             return {paragraphFormat()};
 
+        auto parIds = selectedParagraphs();
         std::vector<TextFormat::WeakId> formatList;
-        for (auto block = m_doc->m_doc->findBlock(m_cursor.selectionStart());
-             block.isValid()
-                     && block.position() + block.length() >= m_cursor.selectionStart()
-                     && block.position() < m_cursor.selectionEnd();
-             block = block.next()) {
-
+        for (int p : parIds) {
+            auto block = m_doc->m_doc->findBlockByNumber(p);
             auto id = m_doc->formatManager()->getIdOfBlockFormat(block.blockFormat());
             if (formatList.empty() || formatList.front() != id)
                 formatList.push_back(id);
@@ -346,13 +357,10 @@ namespace novelist::editor {
         if (!hasSelection())
             return {characterFormat()};
 
+        auto parIds = selectedParagraphs();
         std::vector<TextFormat::WeakId> formatList;
-        for (auto block = m_doc->m_doc->findBlock(m_cursor.selectionStart());
-             block.isValid()
-                     && block.position() + block.length() >= m_cursor.selectionStart()
-                     && block.position() < m_cursor.selectionEnd();
-             block = block.next()) {
-
+        for (int p : parIds) {
+            auto block = m_doc->m_doc->findBlockByNumber(p);
             bool foundOne = false;
             for (auto iter = block.begin(); iter != block.end(); ++iter) {
                 if (iter.fragment().isValid()

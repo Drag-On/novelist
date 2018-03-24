@@ -126,6 +126,14 @@ namespace novelist::editor {
         QString selectedText() const noexcept;
 
         /**
+         * Finds all paragraph indices that are in the current selection
+         * @param complete If this is true, only paragraphs completely within the selection are considered. Otherwise,
+         *                 any paragraph that overlaps with the selection is considered.
+         * @return The indices of all paragraphs within the current selection.
+         */
+        std::vector<int> selectedParagraphs(bool complete = false) const noexcept;
+
+        /**
          * Checks whether the current selection contains a given position
          *
          * @param pos Position to check
