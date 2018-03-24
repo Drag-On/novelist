@@ -298,7 +298,7 @@ namespace novelist::editor {
         if (hasSelection())
             deleteSelected();
 
-        m_cursor.insertText("\u2028");
+        insertText("\u2028");
     }
 
     void TextCursorBase::insertText(QString text) noexcept
